@@ -53,7 +53,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache composer dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: api/vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('api/composer.lock') }}
@@ -131,7 +131,7 @@ jobs:
         run: corepack enable && corepack prepare pnpm@latest --activate
 
       - name: Cache pnpm store
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.local/share/pnpm/store
           key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
