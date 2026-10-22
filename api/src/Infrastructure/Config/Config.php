@@ -1,0 +1,471 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MyPortfolio\Infrastructure\Config;
+
+/**
+ * Konfigurace aplikace — načítá `cfg.php` z rootu repa,
+ * volitelně mergne `cfg.local.php` přes `array_replace_recursive`,
+ * a nakonec aplikuje environment overrides (12-factor).
+ *
+ * Přístup přes dot notation: $cfg->get('db.host'), $cfg->get('smtp.from_email').
+ *
+ * Environment overrides: pokud je nastavena ENV proměnná z mapy v
+ * `envOverrideMap()`, přepíše hodnotu z cfg.php. To umožňuje běh v rootless
+ * kontejnerových PaaS (Railway, Heroku, Fly.io) bez bind-mount cfg.php.
+ *
+ * V kontejnerovém deploymentu stačí dodat soubor cfg.php se základní
+ * strukturou (může být celý prázdný `<?php return [];`) a všechny citlivé
+ * údaje předat přes ENV. Lokální dev / VPS nasazení funguje beze změny
+ * (cfg.php má přednost před chybějícími ENV).
+ *
+ * `MYPORTFOLIO_DATA_DIR` (volitelná ENV): pokud je nastavená, **všechny**
+ * stateful adresáře (log/, storage/{uploads,backup,sessions,cache},
+ * private/dkim/) se přesunou pod tuto cestu. Cílem je mít v Dockeru jediný
+ * persistentní volume (např. /data) a zbytek kontejneru jako read-only —
+ * eliminuje potřebu symlinkovat /storage, /private, /log, cfg.php zvlášť.
+ * Navíc se z `${MYPORTFOLIO_DATA_DIR}/cfg.local.php` (pokud existuje) načte
+ * per-instance override, takže uživatelská konfigurace přežije image update.
+ */
+final class Config
+{
+    private const UNRESOLVED_ENV_REFERENCE_PATTERN = '/^\$\{[A-Za-z_][A-Za-z0-9_]*\}$/';
+
+    private array $data;
+    private ?string $dataDir;
+
+    public function __construct(array $data, ?string $dataDir = null)
+    {
+        $this->data    = $data;
+        $this->dataDir = $dataDir;
+    }
+
+    public static function load(string $rootDir): self
+    {
+        $basePath  = $rootDir . DIRECTORY_SEPARATOR . 'cfg.php';
+        $localPath = $rootDir . DIRECTORY_SEPARATOR . 'cfg.local.php';
+
+        if (!is_file($basePath)) {
+            throw new \RuntimeException("cfg.php nenalezen v {$rootDir}");
+        }
+
+        $base  = require $basePath;
+        $local = is_file($localPath) ? require $localPath : [];
+
+        if (!is_array($base) || !is_array($local)) {
+            throw new \RuntimeException('cfg.php (a cfg.local.php) musí vracet pole');
+        }
+
+        // Baseline defaults pro non-secret veřejné konstanty (URL zdrojů cen,
+        // timeouty, cache TTL, ...). Cíl: image-baked stub `<?php return [];`
+        // musí dát funkční aplikaci bez bind-mountu cfg.docker.php i ENV overrides.
+        // Pořadí: defaults → cfg.php → cfg.local.php → DATA_DIR cfg.local → ENV.
+        $merged = array_replace_recursive(self::baselineDefaults(), $base, $local);
+
+        // Volitelně merge cfg.local.php z DATA_DIR (pokud je set), aby uživatel
+        // mohl držet kompletní per-instance override mimo image.
+        $dataDir = self::resolveDataDir();
+        if ($dataDir !== null) {
+            $dataLocalPath = $dataDir . DIRECTORY_SEPARATOR . 'cfg.local.php';
+            if (is_file($dataLocalPath)) {
+                $dataLocal = require $dataLocalPath;
+                if (!is_array($dataLocal)) {
+                    throw new \RuntimeException('cfg.local.php v MYPORTFOLIO_DATA_DIR musí vracet pole');
+                }
+                $merged = array_replace_recursive($merged, $dataLocal);
+            }
+        }
+
+        $merged = self::applyEnvOverrides($merged);
+
+        // DATA_DIR má přednost před per-key path konfigurací — sjednocení všech
+        // stateful adresářů (log/, storage/, private/) pod jediný volume.
+        if ($dataDir !== null) {
+            $merged = self::applyDataDirOverrides($merged, $dataDir);
+        }
+
+        // Poslední krok: relativní cesty v cfg ukotvi k rootu aplikace.
+        // Pod cron/Task Scheduler je CWD procesu jinde (System32, $HOME, …),
+        // takže např. 'output_dir' => 'storage/backup' by vyrobilo adresář
+        // mimo aplikaci. Po applyDataDirOverrides je to pro přepsané klíče
+        // no-op (data-dir cesty jsou absolutní).
+        $merged = self::anchorRelativePaths($merged, $rootDir);
+
+        return new self($merged, $dataDir);
+    }
+
+    public function get(string $path, mixed $default = null): mixed
+    {
+        $segments = explode('.', $path);
+        $value    = $this->data;
+
+        foreach ($segments as $segment) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
+                return $default;
+            }
+            $value = $value[$segment];
+        }
+
+        return $value;
+    }
+
+    public function all(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * Vrací absolutní cestu z `MYPORTFOLIO_DATA_DIR`, pokud je ENV nastavená.
+     * Když je nastavená, všechny stateful adresáře žijí pod touto cestou.
+     */
+    public function dataDir(): ?string
+    {
+        return $this->dataDir;
+    }
+
+    /**
+     * Načte hodnotu MYPORTFOLIO_DATA_DIR z prostředí. Vrací normalizovanou
+     * absolutní cestu (bez závěrečného oddělovače) nebo null pokud není set.
+     *
+     * Public static, aby ji mohly volat konzumenti, kteří si Config neumí
+     * snadno vstříknout (např. `VersionService` má jen `Connection`).
+     */
+    public static function resolveDataDir(): ?string
+    {
+        $raw = getenv('MYPORTFOLIO_DATA_DIR');
+        if (!is_string($raw) || trim($raw) === '') {
+            return null;
+        }
+        $path = rtrim(trim($raw), "/\\");
+        return $path === '' ? null : $path;
+    }
+
+    /**
+     * Sjednotí všechny stateful cesty pod `${dataDir}` — pokud uživatel
+     * nastaví MYPORTFOLIO_DATA_DIR, nemusí řešit jednotlivé volume mounty
+     * pro log/, storage/ a private/.
+     *
+     * Mapa: cfg klíč (dot notation) => relativní podcesta uvnitř data_dir.
+     */
+    private static function applyDataDirOverrides(array $data, string $dataDir): array
+    {
+        $sep = DIRECTORY_SEPARATOR;
+        $map = [
+            'logging.path'                => 'log' . $sep . 'app.log',
+            'storage.uploads_dir'         => 'storage' . $sep . 'uploads',
+            'storage.backup_dir'          => 'storage' . $sep . 'backup',
+            'storage.sessions_dir'        => 'storage' . $sep . 'sessions',
+            'storage.cache_dir'           => 'storage' . $sep . 'cache',
+            'cron.backup.output_dir'      => 'storage' . $sep . 'backup',
+            'smtp.dkim.private_key_path'  => 'private' . $sep . 'dkim' . $sep . 'myportfolio.pem',
+            'smtp.dkim.public_key_path'   => 'private' . $sep . 'dkim' . $sep . 'myportfolio.pub',
+            'smtp.dkim.dns_doc_path'      => 'private' . $sep . 'dkim' . $sep . 'dns.txt',
+        ];
+
+        foreach ($map as $path => $rel) {
+            $data = self::setByPath($data, $path, $dataDir . $sep . $rel);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Mapa ENV proměnných na cfg klíče (dot notation) + cast typ.
+     * Pokud ENV není nastavena (getenv vrátí false), cfg hodnota se nemění.
+     *
+     * Konvence: prefix MYPORTFOLIO_ pro app-specific. Sekundárně podporujeme
+     * i běžné názvy (DATABASE_URL, REDIS_URL, PORT) z PaaS platforem.
+     *
+     * @return array<string,array{0:string,1:string}> ENV name => [cfg path, type]
+     */
+    /**
+     * Baseline defaults aplikované **před** cfg.php — jen pro non-secret veřejné
+     * konstanty a statické registry služeb (URLs třetích stran, timeouty,
+     * TTL cache, výchozí parser class names). Vše, co je opravdu
+     * tajné nebo per-instance (DB credentials, pepper, SMTP host, ...), tady
+     * NESMÍ být — to musí přijít z cfg.php / ENV.
+     *
+     * Smysl: image-baked stub `<?php return [];` musí být plně funkční pro
+     * základní use case (stažení kurzů a cen), aby ENV-only deploy fungoval bez
+     * dalšího setupu.
+     *
+     * @return array<string, mixed>
+     */
+    private static function baselineDefaults(): array
+    {
+        return [
+            'session' => [
+                'lock_after_minutes' => 0,
+            ],
+            'auth' => [
+                'require_mfa'         => null,
+                'allowed_mfa_methods' => ['passkey', 'totp'],
+                'passwordless_login'  => [
+                    'enabled' => false,
+                ],
+            ],
+            'update' => [
+                // repozitář, jehož GitHub releases stránka Aktualizace porovná s VERSION
+                'github_repo' => 'jindrichmach/myportfolio',
+            ],
+            'prices' => [
+                'timeout' => 10,
+                'cnb' => [
+                    'daily_url' => 'https://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.txt',
+                    'other_url' => 'https://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_ostatnich_men/kurzy.txt',
+                ],
+                'coingecko' => [
+                    'api'     => 'https://api.coingecko.com/api/v3',
+                    'api_key' => '',
+                    'min_interval_ms' => 2500, // bez klíče (veřejné API) — ochrana před 429
+                ],
+                'xtb' => [
+                    'instruments_api' => 'https://www.xtb.com/web-api/v2/languages/cs/branches/cz/instruments',
+                    'websocket_url'   => 'wss://api5widget.x-station.eu/widget',
+                ],
+                'yahoo' => [
+                    'chart_api' => 'https://query1.finance.yahoo.com/v8/finance/chart',
+                ],
+            ],
+        ];
+    }
+
+    private static function envOverrideMap(): array
+    {
+        return [
+            // App
+            'MYPORTFOLIO_APP_ENV'     => ['app.env', 'string'],
+            'MYPORTFOLIO_APP_DEBUG'   => ['app.debug', 'bool'],
+            'MYPORTFOLIO_APP_URL'     => ['app.url', 'string'],
+            'MYPORTFOLIO_PEPPER'      => ['app.pepper', 'string'],
+            'MYPORTFOLIO_SECRET_KEY'  => ['app.secret_encryption_key', 'string'],
+            'MYPORTFOLIO_TIMEZONE'    => ['app.timezone', 'string'],
+            'MYPORTFOLIO_LOCALE'      => ['app.locale_default', 'string'],
+
+            // Database (jednotlivé klíče i kompozitní DATABASE_URL)
+            'MYPORTFOLIO_DB_HOST'    => ['db.host', 'string'],
+            'MYPORTFOLIO_DB_PORT'    => ['db.port', 'int'],
+            'MYPORTFOLIO_DB_NAME'    => ['db.name', 'string'],
+            'MYPORTFOLIO_DB_USER'    => ['db.user', 'string'],
+            'MYPORTFOLIO_DB_PASS'    => ['db.pass', 'string'],
+            'MYPORTFOLIO_DB_SOCKET'  => ['db.socket', 'string'],
+
+            // Mainstream PaaS aliasy (Railway, Heroku, Fly.io)
+            'MYSQL_HOST'     => ['db.host', 'string'],
+            'MYSQL_PORT'     => ['db.port', 'int'],
+            'MYSQL_DATABASE' => ['db.name', 'string'],
+            'MYSQL_USER'     => ['db.user', 'string'],
+            'MYSQL_PASSWORD' => ['db.pass', 'string'],
+
+            // Redis
+            'MYPORTFOLIO_REDIS_ENABLED' => ['redis.enabled', 'bool'],
+            'MYPORTFOLIO_REDIS_HOST'    => ['redis.host', 'string'],
+            'MYPORTFOLIO_REDIS_PORT'    => ['redis.port', 'int'],
+            'MYPORTFOLIO_REDIS_AUTH'    => ['redis.auth', 'string'],
+            'MYPORTFOLIO_REDIS_DB'      => ['redis.db', 'int'],
+            'MYPORTFOLIO_REDIS_PREFIX'  => ['redis.prefix', 'string'],
+            'REDIS_HOST'              => ['redis.host', 'string'],
+            'REDIS_PORT'              => ['redis.port', 'int'],
+            'REDIS_PASSWORD'          => ['redis.auth', 'string'],
+
+            // Session
+            'MYPORTFOLIO_SESSION_COOKIE_SECURE'=> ['session.cookie_secure', 'bool'],
+            // Cookie name přes ENV kvůli full-ENV deployům (Portainer/Dockge/PaaS):
+            // přes plain HTTP musí být ne-`__Host-` jméno (`__Host-` vyžaduje Secure),
+            // jinak se přihlašovací cookie neuloží. Default je `__Host-myportfolio_session`.
+            'MYPORTFOLIO_SESSION_COOKIE_NAME'  => ['session.cookie_name', 'string'],
+            'MYPORTFOLIO_SESSION_SAMESITE'     => ['session.cookie_samesite', 'string'],
+            'MYPORTFOLIO_SESSION_LOCK_AFTER_MINUTES' => ['session.lock_after_minutes', 'lock_timeout'],
+
+            // Auth
+            'MYPORTFOLIO_AUTH_REQUIRE_TOTP'    => ['auth.require_totp', 'bool'],
+            'MYPORTFOLIO_AUTH_REQUIRE_MFA'     => ['auth.require_mfa', 'bool'],
+            'MYPORTFOLIO_AUTH_MFA_METHODS'     => ['auth.allowed_mfa_methods', 'csv'],
+            'MYPORTFOLIO_AUTH_PASSWORDLESS_LOGIN' => ['auth.passwordless_login.enabled', 'bool'],
+
+            // SMTP
+            'MYPORTFOLIO_SMTP_HOST'       => ['smtp.host', 'string'],
+            'MYPORTFOLIO_SMTP_PORT'       => ['smtp.port', 'int'],
+            'MYPORTFOLIO_SMTP_ENCRYPTION' => ['smtp.encryption', 'string'],
+            'MYPORTFOLIO_SMTP_AUTH'       => ['smtp.auth_enabled', 'bool'],
+            'MYPORTFOLIO_SMTP_USER'       => ['smtp.user', 'string'],
+            'MYPORTFOLIO_SMTP_PASS'       => ['smtp.pass', 'string'],
+            'MYPORTFOLIO_SMTP_FROM_EMAIL' => ['smtp.from_email', 'string'],
+            'MYPORTFOLIO_SMTP_FROM_NAME'  => ['smtp.from_name', 'string'],
+
+            // Captcha (Cloudflare Turnstile)
+            'MYPORTFOLIO_TURNSTILE_SITE_KEY'   => ['captcha.site_key', 'string'],
+            'MYPORTFOLIO_TURNSTILE_SECRET_KEY' => ['captcha.secret_key', 'string'],
+
+            // Zdroje cen
+            'MYPORTFOLIO_COINGECKO_API_KEY' => ['prices.coingecko.api_key', 'string'],
+            'MYPORTFOLIO_PRICES_TIMEOUT'    => ['prices.timeout', 'int'],
+            'MYPORTFOLIO_UPDATE_GITHUB_REPO' => ['update.github_repo', 'string'],
+
+            // Logging
+            'MYPORTFOLIO_LOG_LEVEL' => ['logging.level', 'string'],
+        ];
+    }
+
+    private static function applyEnvOverrides(array $data): array
+    {
+        // 1) Strukturovaný DATABASE_URL (mysql://user:pass@host:port/db)
+        $dbUrl = getenv('DATABASE_URL') ?: getenv('MYSQL_URL');
+        if (is_string($dbUrl) && $dbUrl !== '' && !self::isUnresolvedEnvReference($dbUrl)) {
+            $parts = parse_url($dbUrl);
+            if (is_array($parts)) {
+                if (isset($parts['host']))     { $data['db']['host'] = $parts['host']; }
+                if (isset($parts['port']))     { $data['db']['port'] = (int) $parts['port']; }
+                if (isset($parts['user']))     { $data['db']['user'] = urldecode($parts['user']); }
+                if (isset($parts['pass']))     { $data['db']['pass'] = urldecode($parts['pass']); }
+                if (isset($parts['path']))     { $data['db']['name'] = ltrim($parts['path'], '/'); }
+            }
+        }
+
+        // 2) Strukturovaný REDIS_URL (redis://[:pass]@host:port/db)
+        $redisUrl = getenv('REDIS_URL');
+        if (is_string($redisUrl) && $redisUrl !== '' && !self::isUnresolvedEnvReference($redisUrl)) {
+            $parts = parse_url($redisUrl);
+            if (is_array($parts)) {
+                if (isset($parts['host'])) { $data['redis']['host'] = $parts['host']; }
+                if (isset($parts['port'])) { $data['redis']['port'] = (int) $parts['port']; }
+                if (isset($parts['pass'])) { $data['redis']['auth'] = urldecode($parts['pass']); }
+                if (isset($parts['path'])) {
+                    $db = ltrim($parts['path'], '/');
+                    if ($db !== '') { $data['redis']['db'] = (int) $db; }
+                }
+                $data['redis']['enabled'] = true;
+            }
+        }
+
+        // 3) Per-key ENV overrides
+        foreach (self::envOverrideMap() as $envName => [$path, $type]) {
+            $raw = getenv($envName);
+            // Nepřítomná i prázdná ENV se ignoruje. Docker Compose při mapovém
+            // zápisu `KEY: ${VAR}` dosadí prázdný řetězec i když VAR v .env chybí
+            // — bez tohoto guardu by takový prázdný override přebil hodnotu
+            // z cfg.php (např. SMTP z bind-mountnutého cfg.docker.php → smtp.port=0).
+            if ($raw === false || $raw === '') {
+                continue;
+            }
+            if (self::isUnresolvedEnvReference($raw)) {
+                continue;
+            }
+            $value = self::castEnv($raw, $type);
+            $data  = self::setByPath($data, $path, $value);
+        }
+
+        return $data;
+    }
+
+    private static function isUnresolvedEnvReference(string $raw): bool
+    {
+        return preg_match(self::UNRESOLVED_ENV_REFERENCE_PATTERN, trim($raw)) === 1;
+    }
+
+    private static function castEnv(string $raw, string $type): mixed
+    {
+        return match ($type) {
+            'bool'       => filter_var($raw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool) $raw,
+            'int'        => (int) $raw,
+            'lock_timeout' => self::castSessionLockTimeoutEnv($raw),
+            'csv'        => self::castCsvEnv($raw),
+            'float'      => (float) $raw,
+            default      => $raw,
+        };
+    }
+
+    private static function castSessionLockTimeoutEnv(string $raw): int|string
+    {
+        $value = trim($raw);
+        if (preg_match('/^(?:0|[1-9][0-9]*)$/D', $value) === 1) {
+            return (int) $value;
+        }
+
+        // Zámek je volitelná ochrana. Neplatnou hodnotu ponecháme policy
+        // vrstvě, která ji fail-soft vypne a vystaví diagnostiku v health.
+        return $value;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function castCsvEnv(string $raw): array
+    {
+        return array_values(array_filter(
+            array_map(static fn (string $value): string => trim($value), explode(',', $raw)),
+            static fn (string $value): bool => $value !== '',
+        ));
+    }
+
+    /**
+     * Cfg klíče (dot notation) nesoucí cestu na filesystem. Pokud uživatel
+     * zadá relativní hodnotu (např. 'storage/backup'), ukotví se k rootu
+     * aplikace — jinak by se resolvovala proti CWD procesu, které je pod
+     * cron/Task Scheduler jinde a soubory by končily mimo aplikaci (reálně
+     * se stalo s cron.backup.output_dir z cfg.sample.php).
+     *
+     * Shodné s mapou v applyDataDirOverrides().
+     * Záměrně NEobsahuje db.dump_tool: jméno binárky bez cesty se hledá v PATH.
+     */
+    private const PATH_KEYS = [
+        'logging.path',
+        'storage.uploads_dir',
+        'storage.backup_dir',
+        'storage.sessions_dir',
+        'storage.cache_dir',
+        'cron.backup.output_dir',
+        'smtp.dkim.private_key_path',
+        'smtp.dkim.public_key_path',
+        'smtp.dkim.dns_doc_path',
+    ];
+
+    private static function anchorRelativePaths(array $data, string $rootDir): array
+    {
+        $root = rtrim($rootDir, '/\\');
+        foreach (self::PATH_KEYS as $key) {
+            $value = self::getByPath($data, $key);
+            if (!is_string($value) || $value === '' || self::isAbsolutePath($value)) {
+                continue;
+            }
+            $data = self::setByPath($data, $key, $root . DIRECTORY_SEPARATOR . $value);
+        }
+        return $data;
+    }
+
+    /** Windows drive (C:\ i C:/), UNC (\\server\share) i POSIX (/var) tvar. */
+    private static function isAbsolutePath(string $path): bool
+    {
+        return (bool) preg_match('~^(?:[A-Za-z]:[\\\\/]|[\\\\/])~', $path);
+    }
+
+    private static function getByPath(array $data, string $path): mixed
+    {
+        $value = $data;
+        foreach (explode('.', $path) as $segment) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
+                return null;
+            }
+            $value = $value[$segment];
+        }
+        return $value;
+    }
+
+    private static function setByPath(array $data, string $path, mixed $value): array
+    {
+        $segments = explode('.', $path);
+        $ref      = &$data;
+        foreach ($segments as $i => $segment) {
+            if ($i === count($segments) - 1) {
+                $ref[$segment] = $value;
+                break;
+            }
+            if (!isset($ref[$segment]) || !is_array($ref[$segment])) {
+                $ref[$segment] = [];
+            }
+            $ref = &$ref[$segment];
+        }
+        return $data;
+    }
+}

@@ -1,0 +1,108 @@
+{% extends '_layout.html.twig' %}
+
+{# Denní souhrn upozornění — sdílený obsah; popisky L posílá jazyková šablona alerts_digest.<locale>.html.twig.
+   Sekce se zobrazí jen neprázdné; řádky mají 2 sloupce kvůli mobilu. #}
+{% macro head(title) %}<h2 style="margin:20px 0 8px;font-size:16px;font-weight:600;color:#15131D;">{{ title }}</h2>{% endmacro %}
+
+{% block content %}
+{% import _self as ui %}
+{% set muted = '#7A748C' %}
+{% set line = '#ECE8F3' %}
+<p style="margin:0 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:{{ muted }};">{{ L.kicker }}</p>
+<h1 style="margin:0 0 8px;font-size:20px;font-weight:600;color:#15131D;">{{ date_f }}</h1>
+
+{% if price is not empty %}
+{{ ui.head(L.price_title) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  {% for p in price %}
+  <tr>
+    <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ p.symbol }} <span style="font-weight:400;color:{{ muted }};">{{ p.name }}</span></div>
+      <div style="font-size:12px;color:{{ muted }};">{{ p.direction == 'above' ? L.above : L.below }} {{ p.threshold_f }}{% if p.note %} · {{ p.note }}{% endif %}</div>
+    </td>
+    <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ p.current_f }}</div>
+      <div style="font-size:12px;color:{{ muted }};">{{ p.date_f }}</div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if moves is not empty %}
+{{ ui.head(L.moves_title) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  {% for m in moves %}
+  <tr>
+    <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ m.scope == 'total' ? L.total : m.name }}</div>
+      <div style="font-size:12px;color:{{ muted }};">{{ L.scopes[m.scope] }} · {{ m.date_f }} · {{ L.value }} {{ m.value_f }}</div>
+    </td>
+    <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
+      <div style="font-size:14px;font-weight:600;color:{{ m.color }};">{{ m.gain_pct_f }}</div>
+      <div style="font-size:12px;color:{{ m.color }};">{{ m.gain_f }}</div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if holding is not empty %}
+{{ ui.head(L.holding_title) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  {% for h in holding %}
+  <tr>
+    <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ h.position }}</div>
+      <div style="font-size:12px;color:{{ muted }};">{{ h.quantity_f }} {{ L.pcs }} · {{ L.acquired }} {{ h.acquired_f }} · {{ h.account }}</div>
+    </td>
+    <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
+      <div style="font-size:14px;font-weight:600;color:#15803D;">{{ h.exempt_f }}</div>
+      <div style="font-size:12px;color:{{ muted }};">{{ h.days == 0 ? L.today : L.in_days|replace({'%n%': h.days, '%unit%': h.days == 1 ? L.days[0] : (h.days < 5 ? L.days[1] : L.days[2])}) }}</div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<p style="margin:6px 0 0;font-size:12px;color:{{ muted }};">{{ L.holding_note }}</p>
+{% endif %}
+
+{% if allocation is not empty %}
+{{ ui.head(L.allocation_title) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  {% for a in allocation %}
+  <tr>
+    <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ L.categories[a.category] ?? a.category }}</div>
+      <div style="font-size:12px;color:{{ muted }};">{{ a.scope == 'total' ? L.allocation_total : a.name }} · {{ L.target }} {{ a.target_f }}</div>
+    </td>
+    <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ a.pct_f }}</div>
+      <div style="font-size:12px;color:{{ muted }};">{{ a.diff_amount_f }}</div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<p style="margin:6px 0 0;font-size:12px;color:{{ muted }};">{{ L.allocation_note }}</p>
+{% endif %}
+
+{% if data is not empty %}
+{{ ui.head(L.data_title) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  {% for d in data %}
+  <tr>
+    <td style="padding:8px 0;border-top:1px solid {{ line }};vertical-align:top;">
+      <div style="font-size:14px;color:#15131D;"><strong>{{ L.issues[d.kind] ?? d.kind }}</strong>{% if d.symbol %} · {{ d.symbol }}{% endif %}</div>
+      {% if d.name or d.date_f %}<div style="font-size:12px;color:{{ muted }};">{{ d.name }}{% if d.name and d.date_f %} · {% endif %}{% if d.date_f %}{{ L.since }} {{ d.date_f }}{% endif %}</div>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if app_url %}
+<p style="margin:24px 0 8px;text-align:center;">
+  <a href="{{ app_url }}" style="display:inline-block;background:{{ accent }};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 28px;border-radius:6px;font-size:15px;">{{ L.open }}</a>
+</p>
+{% endif %}
+<p style="margin:16px 0 0;font-size:12px;color:{{ muted }};">{{ L.note }}</p>
+{% endblock %}

@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Backend (PHP 8.5 + PHPUnit)
+    runs-on: ubuntu-latest
+
+    # Bez databáze se přeskočí celá Integration suita včetně testů atomicity
+    # session — tedy zrovna to, co hlídá nejcitlivější garance autentizace.
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: ci
+          MARIADB_DATABASE: myportfolio_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+      # Bez Redisu je RateLimitMiddleware záměrně no-op, takže by se neotestoval
+      # ani rate limit, ani brute-force ochrana.
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP 8.5
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo, pdo_mysql, mbstring, intl, gd, zip, opcache, bcmath, exif
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: api/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('api/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install composer dependencies
+        working-directory: api
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      # cfg.php je gitignored, CI si ho generuje. Píšeme ho jako soubor, ne přes
+      # MYPORTFOLIO_* proměnné — ty by prosákly i do unit testů Configu, které
+      # ověřují právě chování ENV override, a rozbily by je.
+      - name: Configure test instance
+        run: |
+          cat > cfg.php <<'PHPCFG'
+          <?php
+          return [
+              'app' => [
+                  'env'   => 'production',
+                  'debug' => false,
+                  'url'   => 'http://localhost:8080',
+                  // Syntetické klíče jen pro běh testů (32 B po dekódování).
+                  'pepper'                => 'Y2ktcGVwcGVyLWZvci10ZXN0cy1vbmx5ISEhISEhISE=',
+                  'secret_encryption_key' => 'Y2ktc2VjcmV0LWtleS1mb3ItdGVzdHMhISEhISEhISE=',
+              ],
+              'db' => [
+                  'host' => '127.0.0.1',
+                  'port' => 3306,
+                  'name' => 'myportfolio_test',
+                  'user' => 'root',
+                  'pass' => 'ci',
+              ],
+              'redis' => [
+                  'enabled' => true,
+                  'host'    => '127.0.0.1',
+                  'port'    => 6379,
+                  'prefix'  => 'myportfolio:ci:',
+              ],
+              'captcha' => ['provider' => 'none'],
+          ];
+          PHPCFG
+          php api/bin/migrate.php
+          php api/bin/ci-seed.php
+
+      # Část integračních testů mluví na běžící instanci přes HTTP. Bez serveru se přeskočí.
+      - name: Start test server
+        run: |
+          php -S 127.0.0.1:8080 api/bin/dev-server-router.php >/tmp/php-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          echo "Server se nerozeběhl:"; cat /tmp/php-server.log; exit 1
+
+      - name: Run PHPUnit
+        working-directory: api
+        env:
+          MYPORTFOLIO_TEST_URL: http://127.0.0.1:8080
+        run: vendor/bin/phpunit --no-coverage
+
+  frontend:
+    name: Frontend (Vue + TypeScript)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node 24 + pnpm
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Cache pnpm store
+        uses: actions/cache@v5
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check
+        working-directory: web
+        run: pnpm exec vue-tsc --noEmit
+
+      - name: PWA service worker tests
+        working-directory: web
+        run: pnpm test:pwa
+
+      - name: Production build
+        working-directory: web
+        run: pnpm build

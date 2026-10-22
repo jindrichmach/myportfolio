@@ -1,0 +1,11 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+{{ owner_name }} shares a portfolio with you
+
+{{ owner_name }} shared their data with you in MyPortfolio ({{ scope_text }}, {{ permission_text }}).
+
+Open MyPortfolio: {{ link }}
+
+Switch to the shared data using the selector in the app header. You can leave the share anytime in Account → Sharing.
+{% endautoescape %}{% endblock %}

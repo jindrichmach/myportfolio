@@ -1,0 +1,88 @@
+{% extends '_layout.html.twig' %}
+
+{# Měsíční / roční souhrn — sdílený obsah; popisky L posílá jazyková šablona period_report.<locale>.html.twig.
+   Tabulky mají nejvýš 2 sloupce kvůli mobilu. #}
+{% block content %}
+{% set muted = '#7A748C' %}
+{% set line = '#ECE8F3' %}
+{% set small = 'font-size:12px;line-height:1.45;' %}
+<p style="margin:0 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:{{ muted }};">{{ yearly ? L.kicker_year : L.kicker_month }}</p>
+<h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#15131D;">{{ period }}</h1>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{ accent_soft }};border-radius:10px;margin:0 0 20px;">
+  <tr>
+    <td colspan="2" style="padding:14px 16px 6px;">
+      <div style="{{ small }}color:{{ muted }};">{{ L.value_end }}</div>
+      <div style="font-size:26px;font-weight:700;color:#15131D;line-height:1.2;">{{ total.value_to_f }}{% if total.incomplete %}<span style="font-size:14px;color:{{ muted }};"> *</span>{% endif %}</div>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding:8px 8px 4px 16px;vertical-align:top;">
+      <div style="{{ small }}color:{{ muted }};">{{ L.gain }}</div>
+      <div style="font-size:15px;font-weight:600;color:{{ total.gain_color }};">{{ total.gain_f }} <span style="font-size:12px;font-weight:400;">{{ total.gain_pct_f }}</span></div>
+    </td>
+    <td width="50%" style="padding:8px 16px 4px 8px;vertical-align:top;">
+      <div style="{{ small }}color:{{ muted }};">{{ L.flow }}</div>
+      <div style="font-size:15px;color:#15131D;">{{ total.flow_f }}</div>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding:4px 8px 4px 16px;vertical-align:top;">
+      <div style="{{ small }}color:{{ muted }};">{{ L.value_start }}</div>
+      <div style="font-size:14px;color:#15131D;">{{ total.value_from_f }}</div>
+    </td>
+    <td width="50%" style="padding:4px 16px 4px 8px;vertical-align:top;">
+      <div style="{{ small }}color:{{ muted }};">{{ L.dividends_interest }}</div>
+      <div style="font-size:14px;color:#15131D;">{{ total.dividends_f }} · {{ total.interest_f }}</div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding:4px 16px 14px;vertical-align:top;">
+      <div style="{{ small }}color:{{ muted }};">{{ L.fees }}: {{ total.fees_f }}{% if total.withheld != '0.00' %} · {{ L.withheld }}: {{ total.withheld_f }}{% endif %}</div>
+    </td>
+  </tr>
+</table>
+
+{% if portfolios|length > 1 %}
+<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#15131D;">{{ L.portfolios }}</h2>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+  {% for pf in portfolios %}
+  <tr>
+    <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ pf.name }}</div>
+      <div style="{{ small }}color:{{ muted }};">{{ L.value_start|lower }} {{ pf.value_from_f }}{% if pf.flow != '0.00' %} · {{ L.flow|lower }} {{ pf.flow_f }}{% endif %}</div>
+    </td>
+    <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
+      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ pf.value_to_f }}</div>
+      <div style="font-size:12px;color:{{ pf.gain_color }};">{{ pf.gain_f }} {{ pf.gain_pct_f }}</div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if months is not empty %}
+<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#15131D;">{{ L.months }}</h2>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+  {% for m in months %}
+  <tr>
+    <td style="padding:6px 8px 6px 0;border-top:1px solid {{ line }};vertical-align:top;font-size:13px;color:#15131D;">
+      {{ m.label }}
+      <div style="{{ small }}color:{{ muted }};">{{ m.value_to_f }}</div>
+    </td>
+    <td align="right" style="padding:6px 0 6px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;font-size:13px;color:{{ m.gain_color }};">
+      {{ m.gain_f }}
+      <div style="{{ small }}">{{ m.gain_pct_f }}</div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if app_url %}
+<p style="margin:24px 0 8px;text-align:center;">
+  <a href="{{ app_url }}" style="display:inline-block;background:{{ accent }};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 28px;border-radius:6px;font-size:15px;">{{ L.open }}</a>
+</p>
+{% endif %}
+<p style="margin:16px 0 0;font-size:12px;color:{{ muted }};">{{ L.note }}{% if total.incomplete %} {{ L.incomplete }}{% endif %}</p>
+{% endblock %}

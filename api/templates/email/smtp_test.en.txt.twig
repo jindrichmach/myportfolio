@@ -1,0 +1,12 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+Test e-mail
+-----------
+
+Sending e-mail from MyPortfolio works.
+
+Server: {{ host }}:{{ port }} ({{ encryption }})
+Sender: {{ from_email }}
+Sent: {{ sent_at }}
+{% endautoescape %}{% endblock %}

@@ -1,0 +1,130 @@
+# MyPortfolio — Apache configuration (lokální vývoj; Docker používá docker/nginx.conf)
+#
+# /api/*        → api/public/index.php (Slim FrontController)
+# statika       → /assets/ a PWA soubory napřímo
+# SPA fallback  → web/dist/index.html
+
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1) Force HTTPS — vyjma:
+    #    - loopback / localhost (lokální dev a Docker port-forward)
+    #    - RFC1918 privátní IP (LAN nasazení bez TLS — typicky self-hosted Docker)
+    #    - .local mDNS jména
+    #    - requests už HTTPS, nebo terminované TLS na reverse proxy (X-Forwarded-Proto)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^localhost(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTP_HOST} !^127\. [NC]
+    RewriteCond %{HTTP_HOST} !^10\. [NC]
+    RewriteCond %{HTTP_HOST} !^192\.168\. [NC]
+    RewriteCond %{HTTP_HOST} !^172\.(1[6-9]|2[0-9]|3[0-1])\. [NC]
+    RewriteCond %{HTTP_HOST} !\.local(:[0-9]+)?$ [NC]
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # 2) Bezpečnostní bariéra: blokovat citlivé složky
+    RewriteRule ^(private|db|log|source|storage|tools|csv|docker|cmd|node_modules|api/(src|vendor|templates|tests|bin))(/|$) - [F,L]
+
+    # 2b) Blokovat cfg.php, composer.* a markdown v rootu
+    RewriteRule ^(cfg[^/]*\.php[^/]*|composer\.(json|lock)|\.gitignore|\.env.*|[^/]*\.md|[^/]*\.sql|[^/]*\.bak[^/]*)$ - [F,L]
+
+    # 3a) /assets/* → web/dist/assets/* (Vite generuje absolutní URL `/assets/foo.css`,
+    # ale skutečné soubory jsou v `web/dist/assets/`.)
+    RewriteCond %{REQUEST_URI} ^/assets/
+    RewriteRule ^assets/(.*)$ web/dist/assets/$1 [L]
+
+    # 3b) PWA soubory generované Vitem → web/dist. Service worker musí být
+    # dostupný z rootu, aby mohl ovládat celou aplikaci (scope `/`).
+    RewriteRule ^service-worker\.js$ web/dist/service-worker.js [E=NOCACHE:1,L]
+    RewriteRule ^manifest\.webmanifest$ web/dist/manifest.webmanifest [E=NOCACHE:1,L]
+    RewriteRule ^pwa/(.*)$ web/dist/pwa/$1 [L]
+
+    # 3) /api/* → api/public/index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/(.*)$ api/public/index.php [L,QSA]
+
+    # 4) SPA fallback (vše co není reálný soubor a není /api/* → web/dist/index.html).
+    # `!-d` schválně NEPOUŽÍVÁME, jinak by `/` (= docroot dir) tímhle pravidlem neprošlo
+    # a Apache by hodil 403 (Options -Indexes + chybějící DirectoryIndex). Statické
+    # cesty mají `!-f`, takže je rewrite vynechá.
+    RewriteCond %{REQUEST_URI} !^/api/
+    RewriteCond %{REQUEST_URI} !^/web/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ web/dist/index.html [L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "same-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), publickey-credentials-create=(self), publickey-credentials-get=(self), accelerometer=(self \"https://challenges.cloudflare.com\"), gyroscope=(self \"https://challenges.cloudflare.com\"), magnetometer=(self \"https://challenges.cloudflare.com\"), xr-spatial-tracking=(self \"https://challenges.cloudflare.com\")"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
+    Header always set Cross-Origin-Resource-Policy "same-site"
+    # CSP: sladěno s docker/nginx.conf.
+    Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; worker-src 'self' blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self' https://challenges.cloudflare.com; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+    Header unset Server
+    Header unset X-Powered-By
+</IfModule>
+
+# Static asset cache
+<FilesMatch "\.(woff2|woff|ttf|otf|eot|js|css|svg|png|jpg|jpeg|webp|ico)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </IfModule>
+</FilesMatch>
+
+# SPA entry (index.html) NESMÍ být cachovaná. Hashed assety výše jsou immutable, ale
+# index.html drží mapu na jejich aktuální hashe — když ji prohlížeč cachuje, po updatu
+# servíruje starou index.html odkazující na staré (z nového buildu smazané) chunky →
+# „Failed to fetch dynamically imported module" u lazy-loaded rout.
+<FilesMatch "\.html$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </IfModule>
+</FilesMatch>
+
+# API odpovědi ani PWA řídicí soubory nesmí být cache-ované.
+# `<LocationMatch>` není povolený v .htaccess (jen ve server/vhost configu),
+# takže používáme rewrite-env trick: nastavíme proměnnou NOCACHE pro /api/*
+# a PWA soubory a Header Cache-Control podle ní pošleme.
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} ^/api/
+    RewriteRule ^ - [E=NOCACHE:1]
+</IfModule>
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-store" env=NOCACHE
+</IfModule>
+
+# Blokovat citlivé soubory.
+<FilesMatch "\.(env|sql|pem|log|lock|md)$">
+    Require all denied
+</FilesMatch>
+
+# Skrýt cfg.php přímo (i cfg.local.php, cfg.docker.php a zálohy cfg.php.*)
+<FilesMatch "^cfg.*\.php|\.bak">
+    Require all denied
+</FilesMatch>
+<Files "cfg.php">
+    Require all denied
+</Files>
+<Files "cfg.local.php">
+    Require all denied
+</Files>
+
+# MIME
+<IfModule mod_mime.c>
+    AddType font/woff2 .woff2
+    AddType font/woff  .woff
+    AddType image/svg+xml .svg
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
+# Komprimace
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>

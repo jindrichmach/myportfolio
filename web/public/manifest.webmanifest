@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "MyPortfolio",
+  "short_name": "MyPortfolio",
+  "description": "Self-hosted přehled investic",
+  "lang": "cs",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F6FCF7",
+  "theme_color": "#1B7138",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/pwa/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/logo-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+.vscode/
+.claude/settings.local.json
+log/
+cfg.php
+cfg.local.php
+cfg.docker.php
+.env
+private/
+storage/
+api/vendor/
+api/.phpunit.cache/
+web/node_modules/
+web/dist/
+manual/generated/
+csv/
+
+# OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.orig
+
+# IDE
+.idea/
+
+# docasne soubory commit/issue zprav
+COMMIT_MSG.tmp

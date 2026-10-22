@@ -1,0 +1,45 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+{{ L.kicker }}: {{ date_f }}
+{% if price is not empty %}
+
+## {{ L.price_title }}
+{% for p in price %}
+- {{ p.symbol }} {{ p.name }}: {{ p.current_f }} ({{ p.direction == 'above' ? L.above : L.below }} {{ p.threshold_f }}, {{ p.date_f }}){% if p.note %} — {{ p.note }}{% endif %}
+
+{% endfor %}{% endif %}
+{% if moves is not empty %}
+
+## {{ L.moves_title }}
+{% for m in moves %}
+- {{ m.scope == 'total' ? L.total : m.name }}: {{ m.gain_pct_f }} ({{ m.gain_f }}), {{ L.value }} {{ m.value_f }}, {{ m.date_f }}
+{% endfor %}{% endif %}
+{% if holding is not empty %}
+
+## {{ L.holding_title }}
+{% for h in holding %}
+- {{ h.position }}: {{ h.quantity_f }} {{ L.pcs }}, {{ L.acquired }} {{ h.acquired_f }} → {{ h.exempt_f }} ({{ h.days == 0 ? L.today : L.in_days|replace({'%n%': h.days, '%unit%': h.days == 1 ? L.days[0] : (h.days < 5 ? L.days[1] : L.days[2])}) }})
+{% endfor %}
+{{ L.holding_note }}
+{% endif %}
+{% if allocation is not empty %}
+
+## {{ L.allocation_title }}
+{% for a in allocation %}
+- {{ L.categories[a.category] ?? a.category }} ({{ a.scope == 'total' ? L.allocation_total : a.name }}): {{ a.pct_f }}, {{ L.target }} {{ a.target_f }} ({{ a.diff_amount_f }})
+{% endfor %}
+{{ L.allocation_note }}
+{% endif %}
+{% if data is not empty %}
+
+## {{ L.data_title }}
+{% for d in data %}
+- {{ L.issues[d.kind] ?? d.kind }}{% if d.symbol %} · {{ d.symbol }}{% endif %}{% if d.name %} — {{ d.name }}{% endif %}{% if d.date_f %} ({{ L.since }} {{ d.date_f }}){% endif %}
+
+{% endfor %}{% endif %}
+
+{% if app_url %}{{ L.open }}: {{ app_url }}
+{% endif %}
+{{ L.note }}
+{% endautoescape %}{% endblock %}

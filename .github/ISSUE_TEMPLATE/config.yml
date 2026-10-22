@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Bezpečnostní problém / Security vulnerability
+    url: https://github.com/jindrichmach/myportfolio/security/advisories/new
+    about: Hlas soukromě, ne v public issue / Report privately, not in a public issue.

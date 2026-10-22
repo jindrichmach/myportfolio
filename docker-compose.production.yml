@@ -1,0 +1,81 @@
+# MyPortfolio — Docker Compose pro produkci s pre-built image z GHCR
+#
+# Použití:
+#   cp cfg.sample.php cfg.docker.php
+#   # uprav cfg.docker.php: db.host=db, db.user=myportfolio, db.pass=…,
+#   # app.pepper, secret_encryption_key (oboje openssl rand -base64 32), app.url (veřejná adresa);
+#   # bez HTTPS nastav cookies bez Secure (session.cookie_name / cookie_secure, viz cfg.sample.php)
+#   echo "DB_PASSWORD=$(openssl rand -base64 28)" > .env
+#   echo "DB_ROOT_PASSWORD=$(openssl rand -base64 28)" >> .env
+#   docker compose -f docker-compose.production.yml up -d
+#   # otevři http://localhost:8080 → setup wizard
+#
+# Update: změň tag image na novou verzi, pak
+#   docker compose -f docker-compose.production.yml pull && docker compose -f docker-compose.production.yml up -d
+# (migrace běží automaticky při startu kontejneru).
+
+services:
+  app:
+    image: ghcr.io/jindrichmach/myportfolio:0.3.0-dev   # vývojové verze nemají značku :latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./cfg.docker.php:/var/www/html/cfg.php:ro
+      - app-data:/data
+    environment:
+      TZ: Europe/Prague
+      MYPORTFOLIO_DATA_DIR: /data
+      MYPORTFOLIO_ENABLE_CRON: ${MYPORTFOLIO_ENABLE_CRON:-1}
+      # Prázdné hodnoty nepřebíjí cfg.docker.php; politiku lze nastavit v .env.
+      MYPORTFOLIO_AUTH_REQUIRE_MFA: ${MYPORTFOLIO_AUTH_REQUIRE_MFA:-}
+      MYPORTFOLIO_AUTH_MFA_METHODS: ${MYPORTFOLIO_AUTH_MFA_METHODS:-}
+      MYPORTFOLIO_AUTH_PASSWORDLESS_LOGIN: ${MYPORTFOLIO_AUTH_PASSWORDLESS_LOGIN:-}
+      MYPORTFOLIO_SESSION_LOCK_AFTER_MINUTES: ${MYPORTFOLIO_SESSION_LOCK_AFTER_MINUTES:-}
+      MYPORTFOLIO_SMTP_HOST: ${MYPORTFOLIO_SMTP_HOST:-}
+      MYPORTFOLIO_SMTP_PORT: ${MYPORTFOLIO_SMTP_PORT:-}
+      MYPORTFOLIO_SMTP_ENCRYPTION: ${MYPORTFOLIO_SMTP_ENCRYPTION:-}
+      MYPORTFOLIO_SMTP_AUTH: ${MYPORTFOLIO_SMTP_AUTH:-}
+      MYPORTFOLIO_SMTP_USER: ${MYPORTFOLIO_SMTP_USER:-}
+      MYPORTFOLIO_SMTP_PASS: ${MYPORTFOLIO_SMTP_PASS:-}
+      MYPORTFOLIO_SMTP_FROM_EMAIL: ${MYPORTFOLIO_SMTP_FROM_EMAIL:-}
+      MYPORTFOLIO_SMTP_FROM_NAME: ${MYPORTFOLIO_SMTP_FROM_NAME:-}
+      MYPORTFOLIO_COINGECKO_API_KEY: ${MYPORTFOLIO_COINGECKO_API_KEY:-}
+
+  db:
+    image: mariadb:11.8
+    restart: unless-stopped
+    command:
+      - --performance-schema=OFF
+      - --innodb-buffer-pool-size=${DB_INNODB_BUFFER_POOL:-128M}
+      - --innodb-log-file-size=${DB_INNODB_LOG_SIZE:-48M}
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD required}
+      MARIADB_DATABASE: ${DB_NAME:-myportfolio}
+      MARIADB_USER: ${DB_USER:-myportfolio}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      TZ: Europe/Prague
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    profiles: ["redis"]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
+volumes:
+  db-data:
+  app-data:
+  redis-data:

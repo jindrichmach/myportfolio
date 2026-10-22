@@ -1,0 +1,118 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MyPortfolio\Middleware;
+
+use MyPortfolio\Http\Json;
+use MyPortfolio\Infrastructure\Config\Config;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Slim\Psr7\Factory\ResponseFactory;
+
+/**
+ * Pro mutating requesty (POST/PUT/PATCH/DELETE) ověří:
+ *   1) Origin header se shoduje s app.url
+ *   2) X-CSRF-Token sedí s session.csrf_token
+ *
+ * Whitelist endpointů bez CSRF (login, forgot, reset, setup) — ty mají
+ * rate-limit + CAPTCHA jako náhradu.
+ */
+final class CsrfMiddleware implements MiddlewareInterface
+{
+    private const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+
+    private const CSRF_EXEMPT_PATHS = [
+        '/api/auth/setup',
+        '/api/auth/setup/smtp-test',
+        // setup-sample je auth + má CSRF token (po auto-loginu)
+        '/api/auth/login',
+        '/api/auth/webauthn/login/options',
+        '/api/auth/webauthn/login/verify',
+        '/api/auth/forgot',
+        '/api/auth/reset',
+    ];
+
+    public function __construct(
+        private readonly Config $config,
+        private readonly ResponseFactory $responseFactory,
+        private readonly FirstRunLockMiddleware $firstRunLock,
+    ) {}
+
+    public function process(Request $request, Handler $handler): Response
+    {
+        $method = strtoupper($request->getMethod());
+        if (in_array($method, self::SAFE_METHODS, true)) {
+            return $handler->handle($request);
+        }
+
+        // Bearer (API token) auth nepoužívá cookies → CSRF nehrozí, skip.
+        if ($request->getAttribute(AuthMiddleware::ATTR_METHOD) === 'bearer') {
+            return $handler->handle($request);
+        }
+
+        $path = $request->getUri()->getPath();
+
+        // Public schvalovací endpointy — bez Origin/CSRF (klient přijde z emailu, Origin
+        // bude jiný nebo prázdný). Anti-bot ochrana = token v URL + CAPTCHA.
+        if (str_starts_with($path, '/api/public/')) {
+            return $handler->handle($request);
+        }
+
+        // First-run setup: během prvotního setupu (žádný admin) povolíme setup endpointům
+        // přijít z libovolného hostu — uživatel ještě nemá šanci nastavit app.url a Docker
+        // default `http://localhost:8080` zablokuje přístup z LAN IP. Po vytvoření admina
+        // se Origin check znovu zapne. Setup endpointy mají vlastní first-run guard
+        // (vrací setup_done/setup_already_done), takže není defense-in-depth riziko.
+        if ($this->firstRunLock->needsSetup() && str_starts_with($path, '/api/auth/setup')) {
+            return $handler->handle($request);
+        }
+
+        // Origin / Referer check (i pro exempt routes)
+        $appUrl = rtrim((string) $this->config->get('app.url', ''), '/');
+        $origin = $request->getHeaderLine('Origin');
+        $referer = $request->getHeaderLine('Referer');
+
+        if ($appUrl !== '') {
+            $valid = false;
+            if ($origin !== '' && rtrim($origin, '/') === $appUrl) {
+                $valid = true;
+            } elseif ($referer !== '' && str_starts_with($referer, $appUrl . '/')) {
+                $valid = true;
+            }
+            // V dev povolíme jen pokud Origin/Referer ukazuje na localhost (cross-port localhost:5173 → :8800).
+            // Žádný blanket bypass — chrání proti náhodnému deploy s env=development.
+            if (!$valid) {
+                $env = (string) $this->config->get('app.env', 'production');
+                if ($env === 'development') {
+                    $host = parse_url($origin !== '' ? $origin : $referer, PHP_URL_HOST) ?: '';
+                    if ($host === 'localhost' || $host === '127.0.0.1' || $host === '[::1]') {
+                        $valid = true;
+                    }
+                }
+            }
+
+            if (!$valid) {
+                $response = $this->responseFactory->createResponse(403);
+                return Json::error($response, 'origin_mismatch', 'Origin nesedí s app URL.', 403);
+            }
+        }
+
+        if (in_array($path, self::CSRF_EXEMPT_PATHS, true)) {
+            return $handler->handle($request);
+        }
+
+        $session = $request->getAttribute(AuthMiddleware::ATTR_SESSION);
+        $expectedToken = is_array($session) ? (string) ($session['csrf_token'] ?? '') : '';
+        $providedToken = $request->getHeaderLine('X-CSRF-Token');
+
+        if ($expectedToken === '' || $providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
+            $response = $this->responseFactory->createResponse(403);
+            return Json::error($response, 'csrf_failed', 'Neplatný nebo chybějící CSRF token.', 403);
+        }
+
+        return $handler->handle($request);
+    }
+}

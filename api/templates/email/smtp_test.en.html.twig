@@ -1,0 +1,11 @@
+{% extends '_layout.html.twig' %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#18181b;">Test e-mail</h1>
+<p style="margin:0 0 16px;">Sending e-mail from <strong>MyPortfolio</strong> works.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="font-size:13px;color:#52525b;">
+  <tr><td style="padding:2px 12px 2px 0;">Server</td><td><strong>{{ host }}:{{ port }}</strong> ({{ encryption }})</td></tr>
+  <tr><td style="padding:2px 12px 2px 0;">Sender</td><td>{{ from_email }}</td></tr>
+  <tr><td style="padding:2px 12px 2px 0;">Sent</td><td>{{ sent_at }}</td></tr>
+</table>
+{% endblock %}

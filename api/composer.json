@@ -1,0 +1,61 @@
+{
+    "name": "myportfolio/api",
+    "description": "MyPortfolio — správa investic (PHP backend)",
+    "type": "project",
+    "license": "MIT",
+    "homepage": "https://github.com/jindrichmach/myportfolio",
+    "authors": [
+        { "name": "Jindřich Mach", "email": "jindrichmach@gmail.com" }
+    ],
+    "support": {
+        "issues": "https://github.com/jindrichmach/myportfolio/issues",
+        "source": "https://github.com/jindrichmach/myportfolio"
+    },
+    "require": {
+        "php": "^8.5",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "brick/math": "^1.0",
+        "chillerlan/php-qrcode": "^6.0",
+        "guzzlehttp/guzzle": "^7.11",
+        "monolog/monolog": "^3.7",
+        "php-di/php-di": "^7.0",
+        "phrity/websocket": "^4.0",
+        "predis/predis": "^3.5",
+        "slim/psr7": "^1.6",
+        "slim/slim": "^4.13",
+        "symfony/mailer": "^8.0",
+        "symfony/mime": "^8.0",
+        "symfony/uid": "^8.0",
+        "twig/twig": "^3.10",
+        "web-auth/webauthn-lib": "^5.3",
+        "webklex/php-imap": "^6.2"
+    },
+    "require-dev": {
+        "dg/bypass-finals": "^1.10",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.2",
+        "phpunit/phpunit": "^13.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "MyPortfolio\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MyPortfolio\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

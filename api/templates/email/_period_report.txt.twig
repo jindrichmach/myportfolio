@@ -1,0 +1,30 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+{{ yearly ? L.kicker_year : L.kicker_month }}: {{ period }}
+
+{{ L.value_end }}: {{ total.value_to_f }}{% if total.incomplete %} *{% endif %}
+
+{{ L.value_start }}: {{ total.value_from_f }}
+{{ L.flow }}: {{ total.flow_f }}
+{{ L.gain }}: {{ total.gain_f }} {{ total.gain_pct_f }}
+{{ L.dividends_interest }}: {{ total.dividends_f }} · {{ total.interest_f }}
+{{ L.fees }}: {{ total.fees_f }}
+{% if portfolios|length > 1 %}
+
+## {{ L.portfolios }}
+{% for pf in portfolios %}
+- {{ pf.name }}: {{ pf.value_to_f }} ({{ pf.gain_f }} {{ pf.gain_pct_f }})
+{% endfor %}{% endif %}
+{% if months is not empty %}
+
+## {{ L.months }}
+{% for m in months %}
+- {{ m.label }}: {{ m.value_to_f }} ({{ m.gain_f }} {{ m.gain_pct_f }})
+{% endfor %}{% endif %}
+
+{% if app_url %}{{ L.open }}: {{ app_url }}
+{% endif %}
+{{ L.note }}{% if total.incomplete %} {{ L.incomplete }}{% endif %}
+
+{% endautoescape %}{% endblock %}

@@ -1,0 +1,11 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+Pozvánka do MyPortfolio
+
+{{ owner_name }} Vás zve do MyPortfolio a chce s Vámi sdílet svá data ({{ scope_text }}, {{ permission_text }}). Pro přijetí si založte účet:
+
+Založit účet a přijmout: {{ link }}
+
+Odkaz platí do {{ expires_f }}. Pokud pozvánku nečekáte, e-mail ignorujte.
+{% endautoescape %}{% endblock %}

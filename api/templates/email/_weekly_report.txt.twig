@@ -1,0 +1,34 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+{{ L.kicker }}: {{ period }}
+
+{{ L.total_value }}: {{ total.value_to_f }}{% if total.incomplete %} *{% endif %}
+
+{{ L.change }}: {{ total.change_f }} {{ total.change_pct_f }}
+{{ L.flow }}: {{ total.flow_f }}
+{{ L.gain }}: {{ total.gain_f }} {{ total.gain_pct_f }}
+{% for pf in portfolios %}
+
+## {{ pf.name }} — {{ pf.value_to_f }} ({{ pf.change_f }}{% if pf.flow != '0.00' %}, {{ L.gain_short }} {{ pf.gain_f }}{% endif %})
+{% for acc in pf.accounts %}
+- {{ acc.name }}: {{ acc.value_to_f }} ({{ acc.change_f }}{% if acc.flow != '0.00' %}, {{ L.gain_short }} {{ acc.gain_f }}{% endif %})
+{% if detailed %}{% for p in acc.positions %}
+    {{ p.name }}: {{ p.value_to_f }} ({{ p.change_f }})
+{% endfor %}{% endif %}
+{% endfor %}
+{% endfor %}
+
+{{ L.transactions }}:
+{% for tx in transactions %}
+{{ tx.date_f }}  {{ tx.type_f }} · {{ tx.position }} ({{ tx.account }})  {{ tx.amount_f }}{% if tx.quantity_f %} / {{ tx.quantity_f }} {{ L.pcs }}{% endif %}
+
+{% else %}
+{{ L.no_transactions }}
+{% endfor %}
+
+{% if app_url %}{{ L.open }}: {{ app_url }}
+{% endif %}
+{{ L.note }}{% if total.incomplete %} {{ L.incomplete }}{% endif %}
+
+{% endautoescape %}{% endblock %}

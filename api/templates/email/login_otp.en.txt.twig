@@ -1,0 +1,16 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}
+Verification code
+-----------------
+
+Hello{% if name %} {{ name }}{% endif %},
+
+to finish signing in to MyPortfolio, enter this verification code:
+
+    {{ code }}
+
+The code is valid for {{ expiresIn|default('10 min') }} and can be used only once.
+
+If you did not try to sign in, ignore this e-mail and consider changing your password.
+{% endblock %}

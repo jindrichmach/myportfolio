@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/pwa/favicon.svg" />
+    <link rel="icon" href="/pwa/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/pwa/apple-touch-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1B7138" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="MyPortfolio" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>MyPortfolio</title>
+    <script>
+      // Anti-FOUC: nastav .dark ještě před načtením appky, ať dark režim nebliká.
+      // Klíč musí sedět s composables/useTheme.ts (THEME_STORAGE_KEY).
+      (function () {
+        try {
+          var p = (localStorage.getItem('myportfolio-color-scheme') || 'auto').replace(/^"|"$/g, '');
+          if (p === 'dark' || (p !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

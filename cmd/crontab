@@ -1,0 +1,13 @@
+# MyPortfolio — nativní (ne-Docker) crontab. Frekvence odpovídají api/src/Service/Cron/CronCatalog.php.
+# Instalace: uprav cestu a vlož přes `crontab -e` (Docker image má vlastní /etc/cron.d/myportfolio).
+0 3 * * * /var/www/myportfolio/cmd/cron-cleanup.sh
+0 2 * * * /var/www/myportfolio/cmd/cron-backup.sh
+45 14 * * 1-5 /var/www/myportfolio/cmd/cron-fx.sh
+5 * * * * /var/www/myportfolio/cmd/cron-prices.sh
+30 0 * * * /var/www/myportfolio/cmd/cron-snapshot.sh
+*/15 * * * * /var/www/myportfolio/cmd/cron-bank-notices.sh
+0 8 * * 1 /var/www/myportfolio/cmd/cron-weekly-report.sh
+5 8 1 * * /var/www/myportfolio/cmd/cron-period-report.sh
+30 7 * * * /var/www/myportfolio/cmd/cron-alerts.sh
+20 * * * * /var/www/myportfolio/cmd/cron-exchange-sync.sh
+40 6 * * * /var/www/myportfolio/cmd/cron-cpi.sh

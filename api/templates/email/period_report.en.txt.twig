@@ -1,0 +1,16 @@
+{% include '_period_report.txt.twig' with {L: {
+  kicker_month: 'Monthly portfolio summary',
+  kicker_year: 'Yearly portfolio summary',
+  value_end: 'Value at the end of the period',
+  value_start: 'At the start',
+  flow: 'Deposits and withdrawals',
+  gain: 'Return',
+  dividends_interest: 'Dividends · interest',
+  fees: 'Fees',
+  withheld: 'withholding tax',
+  portfolios: 'Portfolios',
+  months: 'By month',
+  open: 'Open MyPortfolio',
+  note: 'Return = change in value excluding deposits and withdrawals; % = return / (starting value + half of deposits). Turn the summary off in your Profile.',
+  incomplete: '* Some positions have no price or rate and are missing from the total.',
+}} %}

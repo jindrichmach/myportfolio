@@ -1,0 +1,23 @@
+{% extends '_layout.html.twig' %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#18181b;">Ověřovací kód</h1>
+
+<p style="margin:0 0 16px;">Dobrý den{% if name %} {{ name }}{% endif %},</p>
+
+<p style="margin:0 0 16px;">pro dokončení přihlášení do <strong>MyPortfolio</strong> zadejte tento ověřovací kód:</p>
+
+<p style="margin:24px 0;text-align:center;">
+  <span style="display:inline-block;background:#f4f4f5;color:#18181b;font-weight:700;font-size:30px;letter-spacing:8px;padding:14px 28px;border-radius:8px;font-family:monospace;">
+    {{ code }}
+  </span>
+</p>
+
+<p style="margin:0 0 8px;font-size:13px;color:#71717a;">
+  Kód je platný <strong>{{ expiresIn|default('10 min') }}</strong> a lze ho použít jen jednou.
+</p>
+
+<p style="margin:24px 0 0;font-size:13px;color:#71717a;">
+  <strong>Pokud jste se nepřihlašovali</strong>, tento e-mail ignorujte a zvažte změnu hesla.
+</p>
+{% endblock %}

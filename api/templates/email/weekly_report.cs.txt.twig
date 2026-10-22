@@ -1,0 +1,17 @@
+{% include '_weekly_report.txt.twig' with {L: {
+  kicker: 'Týdenní přehled portfolia',
+  total_value: 'Hodnota portfolia',
+  change: 'Změna hodnoty',
+  flow: 'Vklady a výběry',
+  gain: 'Výnos',
+  gain_short: 'výnos',
+  col_name: 'Účet / pozice',
+  col_value: 'Hodnota',
+  col_change: 'Za 7 dní',
+  transactions: 'Transakce za posledních 7 dní',
+  no_transactions: 'Žádné transakce.',
+  pcs: 'ks',
+  open: 'Otevřít MyPortfolio',
+  note: 'Výnos = změna hodnoty bez vkladů a výběrů (u řádků bez vkladů a výběrů je stejný jako změna, proto se neuvádí). Report vypneš nebo změníš příjemce v Profilu.',
+  incomplete: '* Některé pozice nemají aktuální cenu nebo kurz a v součtu chybí.',
+}} %}

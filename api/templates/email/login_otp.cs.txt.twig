@@ -1,0 +1,16 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}
+Ověřovací kód
+-------------
+
+Dobrý den{% if name %} {{ name }}{% endif %},
+
+pro dokončení přihlášení do MyPortfolio zadejte tento ověřovací kód:
+
+    {{ code }}
+
+Kód je platný {{ expiresIn|default('10 min') }} a lze ho použít jen jednou.
+
+Pokud jste se nepřihlašovali, tento e-mail ignorujte a zvažte změnu hesla.
+{% endblock %}

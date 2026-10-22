@@ -1,0 +1,85 @@
+# MyPortfolio — Docker Compose
+#
+# Services:
+#   app     — PHP 8.5 + nginx + php-fpm (built from Dockerfile)
+#   db      — MariaDB 11 with persistent volume
+#   redis   — optional cache/rate-limit backend (profile: redis)
+#
+# First run:   cmd/docker-install.sh     (creates .env + cfg.docker.php, brings stack up, runs migrations)
+# Build:       cmd/docker-build.sh       (rebuilds the app image)
+# Daily:       docker compose up -d / down
+# Logs:        docker compose logs -f app
+#
+# Volume layout: jediný `app-data:/data` drží VŠECHEN stateful obsah — log/,
+# storage/{uploads,backup,sessions,cache}, private/dkim/ i `cfg.local.php`
+# generovaný setup wizardem. Image i bind-mount `cfg.docker.php` jsou read-only.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myportfolio:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # OPTIONAL — Docker-specific cfg. Image obsahuje stub `cfg.php` (`<?php return [];`)
+      # a všechnu konfiguraci lze předat přes ENV. docker-install.sh generuje cfg.docker.php
+      # s db=db, redis=redis hostnames.
+      - ./cfg.docker.php:/var/www/html/cfg.php:ro
+      - app-data:/data
+    environment:
+      TZ: Europe/Prague
+      # Sjednocuje všechny stateful cesty pod /data (viz Config::applyDataDirOverrides()).
+      MYPORTFOLIO_DATA_DIR: /data
+      # Vestavěný cron v app kontejneru (default 1). Při více replikách nech zapnutý jen v jedné.
+      MYPORTFOLIO_ENABLE_CRON: ${MYPORTFOLIO_ENABLE_CRON:-1}
+      # Prázdné hodnoty nepřebíjí cfg.docker.php; politiku lze nastavit v .env.
+      MYPORTFOLIO_AUTH_REQUIRE_MFA: ${MYPORTFOLIO_AUTH_REQUIRE_MFA:-}
+      MYPORTFOLIO_AUTH_MFA_METHODS: ${MYPORTFOLIO_AUTH_MFA_METHODS:-}
+      MYPORTFOLIO_AUTH_PASSWORDLESS_LOGIN: ${MYPORTFOLIO_AUTH_PASSWORDLESS_LOGIN:-}
+      MYPORTFOLIO_SESSION_LOCK_AFTER_MINUTES: ${MYPORTFOLIO_SESSION_LOCK_AFTER_MINUTES:-}
+
+  db:
+    image: mariadb:11.8
+    restart: unless-stopped
+    # Tuning pro malý host: performance_schema OFF, menší buffer pool a redo log.
+    command:
+      - --performance-schema=OFF
+      - --innodb-buffer-pool-size=${DB_INNODB_BUFFER_POOL:-128M}
+      - --innodb-log-file-size=${DB_INNODB_LOG_SIZE:-48M}
+    environment:
+      # Fail-closed: bez .env se stack nespustí (žádný předvídatelný default).
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD required — spusť cmd/docker-install.sh nebo vytvoř .env}
+      MARIADB_DATABASE: ${DB_NAME:-myportfolio}
+      MARIADB_USER: ${DB_USER:-myportfolio}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required — spusť cmd/docker-install.sh nebo vytvoř .env}
+      TZ: Europe/Prague
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      # Jen loopback — zakomentuj pro čistě interní DB
+      - "127.0.0.1:${DB_PORT:-3308}:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    profiles: ["redis"]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
+volumes:
+  db-data:
+  app-data:
+  redis-data:

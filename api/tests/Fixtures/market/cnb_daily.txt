@@ -1,0 +1,5 @@
+25.09.2026 #186
+země|měna|množství|kód|kurz
+EMU|euro|1|EUR|24,350
+Maďarsko|forint|100|HUF|6,663
+USA|dolar|1|USD|21,359

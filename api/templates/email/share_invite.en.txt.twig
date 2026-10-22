@@ -1,0 +1,11 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+Invitation to MyPortfolio
+
+{{ owner_name }} invites you to MyPortfolio to share their data with you ({{ scope_text }}, {{ permission_text }}). Create an account to accept:
+
+Create account and accept: {{ link }}
+
+The link is valid until {{ expires_f }}. If you did not expect this invitation, ignore this e-mail.
+{% endautoescape %}{% endblock %}

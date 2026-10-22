@@ -1,0 +1,17 @@
+{% include '_weekly_report.txt.twig' with {L: {
+  kicker: 'Weekly portfolio summary',
+  total_value: 'Portfolio value',
+  change: 'Value change',
+  flow: 'Deposits & withdrawals',
+  gain: 'Return',
+  gain_short: 'return',
+  col_name: 'Account / position',
+  col_value: 'Value',
+  col_change: '7 days',
+  transactions: 'Transactions in the last 7 days',
+  no_transactions: 'No transactions.',
+  pcs: 'pcs',
+  open: 'Open MyPortfolio',
+  note: 'Return = value change excluding deposits and withdrawals (shown only where there were deposits or withdrawals; otherwise it equals the change). Turn the report off or change recipients in your Profile.',
+  incomplete: '* Some positions have no current price or rate and are missing from the totals.',
+}} %}

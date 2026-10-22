@@ -1,0 +1,39 @@
+.git
+.gitignore
+.vscode
+.claude
+.idea
+
+# Root-level docs (manual/*.md zůstávají)
+/README.md
+/CHANGELOG.md
+/AGENTS.md
+/CLAUDE.md
+/source
+
+# Will be rebuilt inside image
+api/vendor
+web/node_modules
+web/dist
+manual/generated
+
+api/tests
+api/.phpunit.cache
+.github
+
+# Local-only — secrets, NESMÍ se dostat do image (vše se čte z hostu:
+# .env přes compose var-substituci, cfg.docker.php přes read-only bind-mount).
+cfg.php
+cfg.local.php
+cfg.docker.php
+.env
+.env.*
+log
+storage
+private
+csv
+
+# Build artefacts
+*.log
+.DS_Store
+Thumbs.db

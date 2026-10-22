@@ -1,0 +1,12 @@
+{% extends '_layout.txt.twig' %}
+
+{% block content %}{% autoescape false %}
+Zkušební e-mail
+---------------
+
+Odesílání e-mailů z MyPortfolio funguje.
+
+Server: {{ host }}:{{ port }} ({{ encryption }})
+Odesílatel: {{ from_email }}
+Odesláno: {{ sent_at }}
+{% endautoescape %}{% endblock %}
