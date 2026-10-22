@@ -120,7 +120,7 @@ for ext in bcmath iconv; do has_ext "$ext" || optional+=("$ext"); done
 ok "rozšíření PHP"
 [[ ${#optional[@]} -eq 0 ]] || warn "Doporučená rozšíření: ${optional[*]} (aplikace funguje i bez nich)."
 command -v composer >/dev/null 2>&1 && ok "composer" || fail "Chybí composer (https://getcomposer.org/download/)."
-command -v node >/dev/null 2>&1 && ok "node $(node --version)" || fail "Chybí Node.js 20.19+ / 22.12+ (build frontendu)."
+command -v node >/dev/null 2>&1 && ok "node $(node --version)" || fail "Chybí Node.js 22.12+ (build frontendu)."
 if ! command -v pnpm >/dev/null 2>&1; then
   if command -v corepack >/dev/null 2>&1 && confirm "pnpm chybí — zapnout ho přes corepack?" y; then
     corepack enable pnpm || fail "corepack enable pnpm selhal (zkus sudo)."

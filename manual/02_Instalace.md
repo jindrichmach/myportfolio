@@ -38,7 +38,7 @@ reporty a upozornění.
 ## 2.2 Nativní instalace (Apache / nginx + PHP-FPM)
 
 Požadavky: PHP 8.5 (rozšíření pdo_mysql, mbstring, openssl, zip, gd, simplexml, curl;
-doporučené bcmath), MariaDB 11, Composer, Node.js 20.19+ (nebo 22.12+) a pnpm. Redis je volitelný.
+doporučené bcmath), MariaDB 11, Composer, Node.js 22.12+ a pnpm. Redis je volitelný.
 
 Průvodce postupně:
 

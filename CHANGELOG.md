@@ -5,6 +5,11 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+### Změněno
+- Aktualizace závislostí: Guzzle 8, markdown-it 15 (vlastní typy), @vueuse/core 15, Pinia 4.1, Vue Router 5.4,
+  Vite 8.3, PHPUnit 13.4 a další; GitHub Actions checkout v7, setup-node v7, cache v6.
+- Build frontendu vyžaduje Node.js 22.12+ (kvůli @vueuse/core 15).
+
 ## [0.3.1-dev] — 2026-10-22
 
 První veřejná verze: projekt je open source na GitHubu, přibyla stránka Aktualizace.

@@ -52,7 +52,7 @@ md.core.ruler.push('heading_ids', state => {
 const defaultLink = md.renderer.rules.link_open ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options))
 md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const token = tokens[idx]
-  const href = token.attrGet('href') ?? ''
+  const href = String(token.attrGet('href') ?? '')
   const chapter = href.match(/^([0-9]{2}_[^/#]+)\.md(#.*)?$/)
   if (chapter) {
     token.attrSet('href', `/manual/${chapter[1]}${chapter[2] ?? ''}`)
