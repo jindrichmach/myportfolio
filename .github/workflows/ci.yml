@@ -128,7 +128,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+        run: corepack enable   # verze z web/package.json → packageManager
 
       - name: Cache pnpm store
         uses: actions/cache@v6

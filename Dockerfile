@@ -11,8 +11,8 @@
 FROM node:24-alpine AS web-build
 WORKDIR /app
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
-RUN corepack enable && corepack prepare pnpm@latest --activate \
- && pnpm install --frozen-lockfile
+# pnpm ve verzi z package.json (packageManager)
+RUN corepack enable && pnpm install --frozen-lockfile
 COPY web/ ./
 # Manuál se přibalí do frontendu (import z ../manual při buildu)
 COPY manual/ /manual/
