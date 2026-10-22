@@ -126,7 +126,7 @@ jobs:
 
       # Vytvoří tags podle eventu:
       # - tag push v1.2.3 → image tagy: 1.2.3, 1.2, latest
-      # - tag push v0.3.0-dev (pre-release) → jen 0.3.0-dev (bez latest; {{major}}.{{minor}} se u pre-release nevytváří)
+      # - tag push v0.3.1-dev (pre-release) → jen 0.3.1-dev (bez latest; {{major}}.{{minor}} se u pre-release nevytváří)
       # - workflow_dispatch → image tag: <input>
       - name: Extract metadata (tags)
         id: meta

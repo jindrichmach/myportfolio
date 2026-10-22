@@ -5,6 +5,10 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [0.3.1-dev] — 2026-10-22
+
+První veřejná verze: projekt je open source na GitHubu, přibyla stránka Aktualizace.
+
 ### Přidáno
 - **Aktualizace** (Systém → Aktualizace, jen správce) — nainstalovaná a nejnovější vydaná verze z GitHub releases
   (cache 6 h, tlačítko Zkontrolovat znovu), popis nové verze a příkazy pro aktualizaci podle typu instalace (Docker /
@@ -14,6 +18,12 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 ### Odebráno
 - Import ze starého crypto-portfolio (`api/bin/import-legacy.php`, `LegacyImporter`, `LegacyMapper`) a konfigurace
   `legacy_db`. Už naimportovaná data i jejich dávky zůstávají beze změny.
+
+### Změněno
+- Repozitář je veřejný (MIT): `SECURITY.md` s kontaktem (GitHub private vulnerability reporting), `CODE_OF_CONDUCT.md`,
+  šablony issue a PR, Dependabot, `.env.example`, anglický souhrn v README.
+- Manuál odpovídá aktuální aplikaci — pořadí kapitoly 9 podle menu, odkazy na konkrétní oddíly, ikony, skupiny API.
+- Testovací data bankovních avíz jen se syntetickými čísly účtů.
 
 ## [0.3.0-dev] — 2026-10-21
 
