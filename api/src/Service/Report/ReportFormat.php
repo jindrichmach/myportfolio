@@ -44,14 +44,14 @@ final class ReportFormat
         return $this->number($value, max(0, $scale));
     }
 
-    /** CSS barva podle znaménka (zisk zelená, ztráta červená). */
+    /** CSS barva podle znaménka (zisk teal, ztráta červená — tokeny success-600 / danger-500 aplikace). */
     public function color(?string $value): string
     {
         if ($value === null) {
-            return '#7A748C';
+            return '#707470';
         }
         $sign = BigDecimal::of($value)->getSign();
-        return $sign > 0 ? '#15803D' : ($sign < 0 ? '#B91C1C' : '#7A748C');
+        return $sign > 0 ? '#057C82' : ($sign < 0 ? '#C13C3B' : '#707470');
     }
 
     public function date(string $ymd, bool $withYear = true): string

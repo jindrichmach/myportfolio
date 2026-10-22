@@ -25,6 +25,9 @@ use Twig\Loader\FilesystemLoader;
  */
 final class Mailer
 {
+    /** Logo v hlavičce e-mailu — při odeslání vložené jako příloha (cid:), v náhledu jako data URI. */
+    private const LOGO_CID = 'logo';
+
     /** @var array<string,TransportInterface> DSN → transport */
     private array $transports = [];
     private ?Environment $twig = null;
@@ -48,6 +51,7 @@ final class Mailer
         array $vars,
         ?string $subjectOverride = null,
     ): string {
+        $vars['logo_src'] = 'cid:' . self::LOGO_CID;
         return $this->deliver($this->render($code, $locale, $vars, $subjectOverride), $to, $this->smtp->effective(), $code, $locale);
     }
 
@@ -60,7 +64,7 @@ final class Mailer
     public function sendTest(array $settings, string $to, string $locale): string
     {
         $vars = ['host' => $settings['host'], 'port' => $settings['port'], 'encryption' => $settings['encryption'],
-            'from_email' => $settings['from_email'], 'sent_at' => date('Y-m-d H:i:s')];
+            'from_email' => $settings['from_email'], 'sent_at' => date('Y-m-d H:i:s'), 'logo_src' => 'cid:' . self::LOGO_CID];
         return $this->deliver($this->render('smtp_test', $locale, $vars), [$to], $settings, 'smtp_test', $locale);
     }
 
@@ -76,6 +80,9 @@ final class Mailer
             ->subject($rendered['subject'])
             ->html($rendered['html'])
             ->text($rendered['text']);
+        if (str_contains($rendered['html'], 'cid:' . self::LOGO_CID)) {
+            $email->embedFromPath(self::templateDir() . '/logo.png', self::LOGO_CID, 'image/png');
+        }
 
         foreach ($to as $addr) {
             $email->addTo($addr);
@@ -135,6 +142,7 @@ final class Mailer
         $twig = $this->twig();
 
         $vars['locale'] = $locale;
+        $vars['logo_src'] ??= 'data:image/png;base64,' . base64_encode((string) file_get_contents(self::templateDir() . '/logo.png'));
         $htmlTemplate = "{$code}.{$locale}.html.twig";
         $textTemplate = "{$code}.{$locale}.txt.twig";
         if (!$twig->getLoader()->exists($htmlTemplate)) {
@@ -195,10 +203,15 @@ final class Mailer
         return $last !== '' ? $last : '(no SMTP debug — possibly non-SMTP transport)';
     }
 
+    private static function templateDir(): string
+    {
+        return dirname(__DIR__, 3) . '/templates/email';
+    }
+
     private function twig(): Environment
     {
         return $this->twig ??= new Environment(
-            new FilesystemLoader(dirname(__DIR__, 3) . '/templates/email'),
+            new FilesystemLoader(self::templateDir()),
             ['autoescape' => 'html', 'cache' => false, 'strict_variables' => false],
         );
     }

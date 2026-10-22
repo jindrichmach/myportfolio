@@ -21,7 +21,7 @@ final class ReportFormatTest extends TestCase
         self::assertSame('', $cs->pct(null));
         self::assertSame('0,00012345', $cs->quantity('0.000123450000'));
         self::assertSame('15. 9. 2026', $cs->date('2026-09-15'));
-        self::assertSame(['#15803D', '#B91C1C', '#7A748C'], [$cs->color('1'), $cs->color('-0.01'), $cs->color('0')]);
+        self::assertSame(['#057C82', '#C13C3B', '#707470'], [$cs->color('1'), $cs->color('-0.01'), $cs->color('0')]);
 
         $en = new ReportFormat('en');
         self::assertSame('1,234.50 USD', $en->money('1234.5', 'USD'));

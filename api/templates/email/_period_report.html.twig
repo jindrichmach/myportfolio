@@ -3,17 +3,17 @@
 {# Měsíční / roční souhrn — sdílený obsah; popisky L posílá jazyková šablona period_report.<locale>.html.twig.
    Tabulky mají nejvýš 2 sloupce kvůli mobilu. #}
 {% block content %}
-{% set muted = '#7A748C' %}
-{% set line = '#ECE8F3' %}
+{% set muted = '#707470' %}
+{% set line = '#E3E8E3' %}
 {% set small = 'font-size:12px;line-height:1.45;' %}
 <p style="margin:0 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:{{ muted }};">{{ yearly ? L.kicker_year : L.kicker_month }}</p>
-<h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#15131D;">{{ period }}</h1>
+<h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#111512;">{{ period }}</h1>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{ accent_soft }};border-radius:10px;margin:0 0 20px;">
   <tr>
     <td colspan="2" style="padding:14px 16px 6px;">
       <div style="{{ small }}color:{{ muted }};">{{ L.value_end }}</div>
-      <div style="font-size:26px;font-weight:700;color:#15131D;line-height:1.2;">{{ total.value_to_f }}{% if total.incomplete %}<span style="font-size:14px;color:{{ muted }};"> *</span>{% endif %}</div>
+      <div style="font-size:26px;font-weight:700;color:#111512;line-height:1.2;">{{ total.value_to_f }}{% if total.incomplete %}<span style="font-size:14px;color:{{ muted }};"> *</span>{% endif %}</div>
     </td>
   </tr>
   <tr>
@@ -23,17 +23,17 @@
     </td>
     <td width="50%" style="padding:8px 16px 4px 8px;vertical-align:top;">
       <div style="{{ small }}color:{{ muted }};">{{ L.flow }}</div>
-      <div style="font-size:15px;color:#15131D;">{{ total.flow_f }}</div>
+      <div style="font-size:15px;color:#111512;">{{ total.flow_f }}</div>
     </td>
   </tr>
   <tr>
     <td width="50%" style="padding:4px 8px 4px 16px;vertical-align:top;">
       <div style="{{ small }}color:{{ muted }};">{{ L.value_start }}</div>
-      <div style="font-size:14px;color:#15131D;">{{ total.value_from_f }}</div>
+      <div style="font-size:14px;color:#111512;">{{ total.value_from_f }}</div>
     </td>
     <td width="50%" style="padding:4px 16px 4px 8px;vertical-align:top;">
       <div style="{{ small }}color:{{ muted }};">{{ L.dividends_interest }}</div>
-      <div style="font-size:14px;color:#15131D;">{{ total.dividends_f }} · {{ total.interest_f }}</div>
+      <div style="font-size:14px;color:#111512;">{{ total.dividends_f }} · {{ total.interest_f }}</div>
     </td>
   </tr>
   <tr>
@@ -44,16 +44,16 @@
 </table>
 
 {% if portfolios|length > 1 %}
-<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#15131D;">{{ L.portfolios }}</h2>
+<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#111512;">{{ L.portfolios }}</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
   {% for pf in portfolios %}
   <tr>
     <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ pf.name }}</div>
+      <div style="font-size:14px;font-weight:600;color:#111512;">{{ pf.name }}</div>
       <div style="{{ small }}color:{{ muted }};">{{ L.value_start|lower }} {{ pf.value_from_f }}{% if pf.flow != '0.00' %} · {{ L.flow|lower }} {{ pf.flow_f }}{% endif %}</div>
     </td>
     <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
-      <div style="font-size:14px;font-weight:600;color:#15131D;">{{ pf.value_to_f }}</div>
+      <div style="font-size:14px;font-weight:600;color:#111512;">{{ pf.value_to_f }}</div>
       <div style="font-size:12px;color:{{ pf.gain_color }};">{{ pf.gain_f }} {{ pf.gain_pct_f }}</div>
     </td>
   </tr>
@@ -62,11 +62,11 @@
 {% endif %}
 
 {% if months is not empty %}
-<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#15131D;">{{ L.months }}</h2>
+<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#111512;">{{ L.months }}</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
   {% for m in months %}
   <tr>
-    <td style="padding:6px 8px 6px 0;border-top:1px solid {{ line }};vertical-align:top;font-size:13px;color:#15131D;">
+    <td style="padding:6px 8px 6px 0;border-top:1px solid {{ line }};vertical-align:top;font-size:13px;color:#111512;">
       {{ m.label }}
       <div style="{{ small }}color:{{ muted }};">{{ m.value_to_f }}</div>
     </td>

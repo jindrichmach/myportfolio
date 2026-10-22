@@ -5,6 +5,14 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [0.3.3-dev] — 2026-10-22
+
+E-maily v novém vzhledu a spolehlivější instalace přes Docker.
+
+### Změněno
+- E-mailové šablony v novém vzhledu aplikace — zelená značka, logo (vložené do e-mailu, zobrazí se i bez
+  stahování obrázků), zisk teal a ztráta červená jako v aplikaci.
+
 ### Opraveno
 - `cmd/docker-install.sh` skončí s návodem, když chybí `.env`, ale volume s databází z dřívější instalace existuje
   (nová hesla by k ní nepasovala); čekání na start bez opakovaných chyb curl.

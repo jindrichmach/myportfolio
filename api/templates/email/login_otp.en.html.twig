@@ -1,23 +1,23 @@
 {% extends '_layout.html.twig' %}
 
 {% block content %}
-<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#18181b;">Verification code</h1>
+<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#111512;">Verification code</h1>
 
 <p style="margin:0 0 16px;">Hello{% if name %} {{ name }}{% endif %},</p>
 
 <p style="margin:0 0 16px;">to finish signing in to <strong>MyPortfolio</strong>, enter this verification code:</p>
 
 <p style="margin:24px 0;text-align:center;">
-  <span style="display:inline-block;background:#f4f4f5;color:#18181b;font-weight:700;font-size:30px;letter-spacing:8px;padding:14px 28px;border-radius:8px;font-family:monospace;">
+  <span style="display:inline-block;background:#F0F5F1;color:#111512;font-weight:700;font-size:30px;letter-spacing:8px;padding:14px 28px;border-radius:8px;font-family:monospace;">
     {{ code }}
   </span>
 </p>
 
-<p style="margin:0 0 8px;font-size:13px;color:#71717a;">
+<p style="margin:0 0 8px;font-size:13px;color:#707470;">
   The code is valid for <strong>{{ expiresIn|default('10 min') }}</strong> and can be used only once.
 </p>
 
-<p style="margin:24px 0 0;font-size:13px;color:#71717a;">
+<p style="margin:24px 0 0;font-size:13px;color:#707470;">
   <strong>If you did not try to sign in</strong>, ignore this e-mail and consider changing your password.
 </p>
 {% endblock %}

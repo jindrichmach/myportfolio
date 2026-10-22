@@ -13,7 +13,7 @@
   <a href="LICENSE">MIT</a> ·
   <a href="manual/INDEX.md">Manuál</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
-  verze <code>0.3.2-dev</code>
+  verze <code>0.3.3-dev</code>
 </p>
 
 ![Přehled — hodnota portfolia, vývoj v čase s benchmarkem a alokace](docs/screenshots/prehled.webp)
@@ -25,7 +25,7 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 *[English summary below](#in-english).*
 
-> **Stav:** vývojová verze 0.3.2-dev. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
+> **Stav:** vývojová verze 0.3.3-dev. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
 > jsou ověřené na syntetických exportech, ne na skutečných souborech.
 
 ## Funkce
@@ -113,7 +113,7 @@ cmd/install.sh                 # nebo: cmd/install.sh --docker | --native [--yes
 Pak otevři `<adresa>/setup` — webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně
 nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
 
-Hotový Docker image je v GHCR (`ghcr.io/jindrichmach/myportfolio:0.3.2-dev`), produkční compose v
+Hotový Docker image je v GHCR (`ghcr.io/jindrichmach/myportfolio:0.3.3-dev`), produkční compose v
 [`docker-compose.production.yml`](docker-compose.production.yml). Vývojové verze (`-dev`) nedostávají značku
 `latest` — v compose uveď konkrétní verzi.
 

@@ -111,7 +111,7 @@ docker compose -f docker-compose.production.yml pull
 docker compose -f docker-compose.production.yml up -d   # migrace proběhnou při startu kontejneru
 ```
 
-Verze s příponou (např. `0.3.2-dev`) jsou vývojové a nedostávají značku `latest` — pro ně uveď v compose
+Verze s příponou (např. `0.3.3-dev`) jsou vývojové a nedostávají značku `latest` — pro ně uveď v compose
 konkrétní verzi image.
 
 **Lokální build Dockeru:** `git pull`, pak `cmd/docker-build.sh` a `docker compose up -d`.

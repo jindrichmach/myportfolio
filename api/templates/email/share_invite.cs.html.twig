@@ -1,7 +1,7 @@
 {% extends '_layout.html.twig' %}
 
 {% block content %}
-<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#18181b;">Pozvánka do MyPortfolio</h1>
+<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#111512;">Pozvánka do MyPortfolio</h1>
 
 <p style="margin:0 0 16px;"><strong>{{ owner_name }}</strong> Vás zve do <strong>MyPortfolio</strong> a chce s Vámi sdílet svá data ({{ scope_text }}, {{ permission_text }}). Pro přijetí si založte účet:</p>
 
@@ -11,9 +11,9 @@
   </a>
 </p>
 
-<p style="margin:0;font-size:12px;color:#52525b;word-break:break-all;background:#f4f4f5;padding:10px;border-radius:6px;font-family:monospace;">
+<p style="margin:0;font-size:12px;color:#555956;word-break:break-all;background:#F0F5F1;padding:10px;border-radius:6px;font-family:monospace;">
   {{ link }}
 </p>
 
-<p style="margin:24px 0 0;font-size:13px;color:#71717a;">Odkaz platí do {{ expires_f }}. Pokud pozvánku nečekáte, e-mail ignorujte.</p>
+<p style="margin:24px 0 0;font-size:13px;color:#707470;">Odkaz platí do {{ expires_f }}. Pokud pozvánku nečekáte, e-mail ignorujte.</p>
 {% endblock %}
