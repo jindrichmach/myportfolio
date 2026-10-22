@@ -5,10 +5,16 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [0.3.2-dev] — 2026-10-22
+
+Údržbová verze: aktualizace závislostí a stabilnější build.
+
 ### Změněno
 - Aktualizace závislostí: Guzzle 8, markdown-it 15 (vlastní typy), @vueuse/core 15, Pinia 4.1, Vue Router 5.4,
-  Vite 8.3, PHPUnit 13.4 a další; GitHub Actions checkout v7, setup-node v7, cache v6.
+  Vue 3.5.44, vue-i18n 11.4.16, axios 1.20, Vite 8.3, PHPUnit 13.4 a další; GitHub Actions checkout v7,
+  setup-node v7, cache v6.
 - Build frontendu vyžaduje Node.js 22.12+ (kvůli @vueuse/core 15).
+- Pevná verze pnpm (`packageManager` ve `web/package.json`) místo `pnpm@latest` v CI a Docker buildu.
 
 ## [0.3.1-dev] — 2026-10-22
 
