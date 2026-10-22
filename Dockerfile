@@ -8,7 +8,7 @@
 # Build:  docker build -t myportfolio:latest .
 
 # ---------- Stage 1: frontend ----------
-FROM node:24-alpine AS web-build
+FROM node:25-alpine AS web-build
 WORKDIR /app
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
 RUN corepack enable && corepack prepare pnpm@latest --activate \
