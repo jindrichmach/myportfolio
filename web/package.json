@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.13.3",
+    "@types/node": "^24.19.2",
     "@vitejs/plugin-vue": "^6.0.10",
     "lightningcss": "^1.33.0",
     "tailwindcss": "^4.3.3",
