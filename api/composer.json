@@ -20,7 +20,7 @@
         "ext-pdo_mysql": "*",
         "brick/math": "^1.0",
         "chillerlan/php-qrcode": "^6.0",
-        "guzzlehttp/guzzle": "^7.11",
+        "guzzlehttp/guzzle": "^8.3",
         "monolog/monolog": "^3.7",
         "php-di/php-di": "^7.0",
         "phrity/websocket": "^4.0",
