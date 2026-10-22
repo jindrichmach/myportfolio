@@ -22,7 +22,7 @@ final class LoggingPdo extends PDO
     public function __construct(
         string $dsn,
         string $username,
-        string $password,
+        #[\SensitiveParameter] string $password,
         array $options,
         private readonly LoggerInterface $logger,
     ) {

@@ -5,6 +5,11 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+### Opraveno
+- `cmd/docker-install.sh` skončí s návodem, když chybí `.env`, ale volume s databází z dřívější instalace existuje
+  (nová hesla by k ní nepasovala); čekání na start bez opakovaných chyb curl.
+- Heslo k databázi se nevypisuje v trasování chyb (`#[\SensitiveParameter]`).
+
 ## [0.3.2-dev] — 2026-10-22
 
 Údržbová verze: aktualizace závislostí a stabilnější build.

@@ -22,6 +22,16 @@ fi
 
 # --- 1. .env ---------------------------------------------------------------
 if [[ ! -f .env ]]; then
+  # MariaDB nastaví uživatele a heslo jen při prvním startu s prázdným volumem — nová hesla by se starou
+  # databází nesouhlasila (Access denied při migracích). Název projektu = adresář, jako u docker compose.
+  PROJECT="${COMPOSE_PROJECT_NAME:-$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-')}"
+  if docker volume inspect "${PROJECT}_db-data" >/dev/null 2>&1; then
+    echo "ERROR: Docker volume ${PROJECT}_db-data už existuje (databáze z dřívější instalace), ale .env chybí." >&2
+    echo "  Nová hesla by k ní nepasovala. Buď vrať původní .env a cfg.docker.php, nebo — pokud stará data" >&2
+    echo "  nepotřebuješ — smaž volumy:  docker volume rm ${PROJECT}_db-data ${PROJECT}_app-data" >&2
+    echo "  a spusť instalaci znovu. Jiný název projektu: COMPOSE_PROJECT_NAME=<název> $0" >&2
+    exit 1
+  fi
   echo "==> Generating .env with random DB password…"
   DB_ROOT_PASSWORD=$(openssl rand -base64 24 | tr -d '=+/' | head -c 28)
   DB_PASSWORD=$(openssl rand -base64 24      | tr -d '=+/' | head -c 28)
@@ -92,7 +102,7 @@ docker compose up -d db app
 # Migrace spouští entrypoint před web serverem; /api/health vrací 200 i před setupem.
 echo "==> Waiting for app to become available (entrypoint runs migrations)…"
 for i in {1..90}; do
-  if curl -fsS -o /dev/null "http://localhost:${APP_PORT}/api/health"; then
+  if curl -fs -o /dev/null "http://localhost:${APP_PORT}/api/health"; then
     echo "    App ready."
     break
   fi
