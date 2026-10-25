@@ -16,7 +16,7 @@
 
 services:
   app:
-    image: ghcr.io/jindrichmach/myportfolio:0.3.3-dev   # vývojové verze nemají značku :latest
+    image: ghcr.io/jindrichmach/myportfolio:0.4.0-dev   # vývojové verze nemají značku :latest
     restart: unless-stopped
     depends_on:
       db:

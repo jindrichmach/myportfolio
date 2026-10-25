@@ -5,6 +5,28 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [0.4.0-dev] — 2026-10-25
+
+Barevná schémata vzhledu, jednotné seznamy s filtry a stránkováním, nastavení a profil se záložkami.
+
+### Přidáno
+- **Vzhled** — 10 pojmenovaných barevných schémat (Malina, Terakota, Bronz, Oliva, Les, Oceán, Indigo, Ametyst,
+  Orchidej, Grafit), každé ve světlém i tmavém režimu. Výchozí schéma instance nastavuje admin
+  (Systém → Nastavení → Vzhled), uživatel si ho může v profilu přepsat. Podle schématu se mění barvy aplikace,
+  logo, favikona a e-maily (barvy i logo); přihlašovací stránka má schéma instance. Endpoint
+  `GET|PUT /api/admin/appearance`, `color_scheme` v profilu, `/api/auth/me` a `setup-status`. Migrace `0026`.
+- **Seznamy s filtry** — lišta filtrů s popisky, číslované stránkování a volba počtu na stránku (10–100):
+  log, uživatelé, transakce (i na detailu pozice), instrumenty, instituce, účty a ceny a kurzy.
+  Nové filtry: hledání a období v logu (`q`, `from`, `to` v `GET /api/admin/activity-log`), stav ceny
+  v Cenách a kurzech, instituce u účtů.
+
+### Změněno
+- **Systém → Nastavení** se záložkami (E-mail (SMTP), Vzhled) místo samostatné stránky SMTP.
+- **Profil** má záložky Účet, Reporty a Upozornění a je zarovnaný vlevo jako Nastavení; záložky zabezpečení
+  a API používají sdílenou komponentu.
+- Transakce se stránkují po 25 (volitelně 10–100) místo pevných 50.
+- Řádek tabulky se při najetí myší zvýrazní barvou schématu.
+
 ## [0.3.3-dev] — 2026-10-22
 
 E-maily v novém vzhledu a spolehlivější instalace přes Docker.
