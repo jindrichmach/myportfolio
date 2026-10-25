@@ -94,7 +94,7 @@ final class ExchangeSyncTest extends ApiTestCase
 
         // 3. nový neznámý instrument → čeká na rozhodnutí, kurzor stojí
         $until = $s2['connection']['synced_until'];
-        $this->serve(self::buy(101, '2026-01-10 10:00:00', 'XTSA', '2', '100'), self::buy(102, date('Y-m-d H:i:s', time() - 60), 'XTSZ', '5', '10'));
+        $this->serve(self::buy(101, '2026-01-10 10:00:00', 'XTSA', '2', '100'), self::buy(102, gmdate('Y-m-d H:i:s', time() - 60), 'XTSZ', '5', '10'));
         $s3 = $this->call($this->userId, 'POST', "/api/settings/exchanges/$id/sync")['body'];
         self::assertSame('pending', $s3['status']);
         $token = $s3['pending_token'];
