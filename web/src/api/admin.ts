@@ -1,4 +1,5 @@
 import { api } from './client'
+import type { ColorScheme } from '@/theme/colorSchemes'
 
 export interface ActivityLogEntry {
   id: number
@@ -55,7 +56,7 @@ export interface UpdateStatus {
 
 export const adminApi = {
   update: (refresh = false) => api.get<UpdateStatus>('/admin/update', { params: refresh ? { refresh: 1 } : {} }).then(r => r.data),
-  activityLog: (params: { action?: string; user_id?: number; entity_type?: string; entity_id?: number; limit?: number; offset?: number } = {}) =>
+  activityLog: (params: { action?: string; user_id?: number; entity_type?: string; entity_id?: number; q?: string; from?: string; to?: string; limit?: number; offset?: number } = {}) =>
     api.get<ActivityLogResponse>('/admin/activity-log', { params }).then(r => r.data),
 
   // Users
@@ -128,6 +129,11 @@ export interface SmtpSettingsResponse {
   active_source: 'db' | 'cfg'
   /** Hodnoty z cfg.php (bez hesla) — výchozí formulář, když v DB nic není. */
   cfg: SmtpForm & { has_password: boolean }
+}
+
+export const appearanceApi = {
+  get: () => api.get<{ color_scheme: ColorScheme }>('/admin/appearance').then(r => r.data),
+  save: (color_scheme: ColorScheme) => api.put<{ color_scheme: ColorScheme }>('/admin/appearance', { color_scheme }).then(r => r.data),
 }
 
 export const smtpApi = {

@@ -3,7 +3,9 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import PriceBadge from '@/components/portfolio/PriceBadge.vue'
-import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
+import type { DataColumn } from '@/components/ui/DataTable.vue'
+import DataGrid from '@/components/ui/DataGrid.vue'
+import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
 import { marketApi, type FxRate, type MarketStatusRow } from '@/api/market'
 import { adminApi } from '@/api/admin'
 import { apiErrorMessage } from '@/api/errors'
@@ -22,7 +24,23 @@ const running = ref<string | null>(null)
 
 const MAIN_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'PLN']
 const mainRates = computed(() => fxRates.value.filter(r => MAIN_CURRENCIES.includes(r.currency)))
-const staleCount = computed(() => rows.value.filter(r => r.last_price?.stale || (!r.last_price && r.price_source !== 'manual')).length)
+/** Stav ceny instrumentu: chybí (mimo ruční), zastaralá, aktuální. */
+function priceStatus(r: MarketStatusRow): 'missing' | 'stale' | 'ok' {
+  if (!r.last_price) return r.price_source === 'manual' ? 'ok' : 'missing'
+  return r.last_price.stale ? 'stale' : 'ok'
+}
+const staleCount = computed(() => rows.value.filter(r => priceStatus(r) !== 'ok').length)
+
+const filters = computed<GridFilter[]>(() => [
+  { key: 'q', type: 'text', label: t('grid.search'), placeholder: t('prices.search_placeholder') },
+  { key: 'status', type: 'select', label: t('prices.status'), allLabel: t('prices.all_statuses'),
+    options: (['stale', 'missing', 'ok'] as const).map(st => ({ value: st, label: t(`prices.status_${st}`) })) },
+])
+function matchesRow(r: MarketStatusRow, v: GridFilterValues): boolean {
+  const q = String(v.q ?? '').trim().toLowerCase()
+  if (q && ![r.symbol, r.name].some(x => x.toLowerCase().includes(q))) return false
+  return !v.status || priceStatus(r) === v.status
+}
 
 async function load() {
   loading.value = true
@@ -82,16 +100,16 @@ const rowKey = (r: MarketStatusRow) => r.id
         {{ t('prices.stale_banner', { n: staleCount }) }}
       </div>
 
-      <section class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden mb-4">
-        <h2 class="px-4 py-2.5 text-sm font-semibold border-b border-neutral-200 bg-neutral-50">{{ t('nav.instruments') }}</h2>
-        <DataTable :columns="columns" :rows="rows" :row-key="rowKey" sticky-first>
+      <section class="mb-4">
+        <h2 class="text-lg font-semibold mb-2">{{ t('nav.instruments') }}</h2>
+        <DataGrid :columns="columns" :rows="rows" :row-key="rowKey" :filters="filters" :filter-fn="matchesRow" sticky-first>
           <template #cell-symbol="{ row: r }">
             <span class="font-mono font-medium">{{ r.symbol }}</span>
             <span class="block text-xs text-neutral-500">{{ r.name }}</span>
           </template>
           <template #cell-chain="{ row: r }">
             <span class="text-neutral-600">
-              <template v-if="r.chain.length">{{ r.chain.map(s => t(`instruments.sources.${s}`)).join(' → ') }}</template>
+              <template v-if="r.chain.length">{{ r.chain.map((s: string) => t(`instruments.sources.${s}`)).join(' → ') }}</template>
               <template v-else>{{ t('instruments.sources.manual') }}</template>
             </span>
           </template>
@@ -102,7 +120,7 @@ const rowKey = (r: MarketStatusRow) => r.id
               <template v-else>—</template>
             </span>
           </template>
-        </DataTable>
+        </DataGrid>
       </section>
 
       <section class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">

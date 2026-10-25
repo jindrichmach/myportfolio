@@ -94,6 +94,7 @@ final class WeeklyReportService
 
         $period = $f->date($report['from'], false) . ' – ' . $f->date($report['to']);
         $vars = [
+            'user_id'      => $userId,
             'name'         => $settings['name'],
             'detailed'     => $settings['detailed'],
             'period'       => $period,

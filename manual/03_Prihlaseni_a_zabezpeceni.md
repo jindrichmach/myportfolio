@@ -10,7 +10,7 @@ až tlačítkem **Dokončit** v posledním kroku.
 | Správce | Jméno, e-mail, heslo | První uživatel s rolí **admin**; heslo nejméně 12 znaků (doporučená je delší věta) |
 | | Jazyk, měna zobrazení | Jazyk aplikace a e-mailů a měna, ve které vidíš hodnoty; obojí jde změnit v Profilu |
 | Zabezpečení | Vynutit vícefaktorové ověření | Všichni uživatelé si po přihlášení musí nastavit passkey nebo TOTP |
-| E-mail | Nastavit odesílání e-mailů teď | SMTP server, port, šifrování, přihlášení a odesílatel. **Poslat zkušební e-mail** ověří nastavení ještě před dokončením. Nastavit jde i později ([9.3 E-mail (SMTP)](09_Administrace.md#93-e-mail-smtp)) |
+| E-mail | Nastavit odesílání e-mailů teď | SMTP server, port, šifrování, přihlášení a odesílatel. **Poslat zkušební e-mail** ověří nastavení ještě před dokončením. Nastavit jde i později ([9.3 Nastavení](09_Administrace.md#93-nastavení)) |
 | Data | Vygenerovat ukázková data | Asi 5 let ukázkové historie do účtu správce ([2.3 Ukázková data](02_Instalace.md#23-ukázková-data)) |
 | Shrnutí | | Přehled voleb před dokončením |
 
@@ -36,20 +36,27 @@ zablokuje, po 30 pokusech za hodinu na 24 hodin.
 **Zapomenuté heslo?** pod přihlášením pošle na e-mail odkaz pro nastavení nového
 hesla, platný **60 minut**. Aplikace neprozradí, zda e-mail existuje.
 
-Nepřišel-li e-mail, zkontroluj spam a nastavení SMTP ([9.3](09_Administrace.md#93-e-mail-smtp)). Správce může heslo nastavit
+Nepřišel-li e-mail, zkontroluj spam a nastavení SMTP ([9.3](09_Administrace.md#93-nastavení)). Správce může heslo nastavit
 na serveru: `php8.5 api/bin/set-password.php <email>`.
 
 ## 3.4 Profil
 
-Kliknutím na **Profil** v menu (sekce Účet) upravíš:
+**Profil** v menu (sekce Účet) má tři záložky: **Účet**, **Reporty** a **Upozornění**. Vybraná záložka
+je v adrese stránky (`?tab=`), takže na ni jde odkázat.
+
+Na záložce **Účet** upravíš:
 
 | Pole | Význam |
 |---|---|
 | Jméno | Zobrazení v aplikaci |
 | Jazyk | Čeština nebo angličtina |
 | Měna zobrazení | CZK, EUR nebo USD — v této měně se budou přepočítávat hodnoty portfolia |
+| Barevné schéma | Barvy aplikace, loga, favikony a e-mailů. **Podle instance** = schéma, které nastavil administrátor (viz [9.3 Nastavení](09_Administrace.md#93-nastavení)) |
 
-Na stejné stránce zapneš **týdenní report e-mailem** — viz [7.6 Týdenní report](07_Prehled.md#76-týdenní-report-e-mailem).
+Světlý / tmavý režim se přepíná zvlášť ikonami v horní liště a platí pro každé schéma.
+
+Záložka **Reporty** nastavuje týdenní, měsíční a roční report e-mailem — viz [7.6 Týdenní report](07_Prehled.md#76-týdenní-report-e-mailem).
+Záložka **Upozornění** nastavuje denní souhrn upozornění — viz [7.7 Upozornění e-mailem](07_Prehled.md#77-upozornění-e-mailem).
 
 Odkaz **Heslo, 2FA a passkeys** (nebo kliknutí na své jméno v horní liště)
 otevře záložky zabezpečení:

@@ -1,16 +1,19 @@
 import { api } from './client'
 import type { DisplayCurrency } from './auth'
+import type { ColorScheme } from '@/theme/colorSchemes'
 
 export interface Profile {
   name: string
   email: string
   locale: 'cs' | 'en'
   display_currency: DisplayCurrency
+  /** null = výchozí schéma instance */
+  color_scheme: ColorScheme | null
 }
 
 export const settingsApi = {
   profile: () => api.get<Profile>('/settings/profile').then(r => r.data),
-  updateProfile: (payload: Partial<Pick<Profile, 'name' | 'locale' | 'display_currency'>>) =>
+  updateProfile: (payload: Partial<Pick<Profile, 'name' | 'locale' | 'display_currency' | 'color_scheme'>>) =>
     api.put<Profile>('/settings/profile', payload).then(r => r.data),
 }
 

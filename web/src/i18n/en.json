@@ -4,14 +4,13 @@
     "all_actions": "All actions",
     "all_entities": "All entities",
     "entity": "Entity",
-    "no_records": "No records.",
     "payload": "Payload",
     "refresh": "Refresh",
     "subtitle": "Audit records of all actions (admin only).",
     "time": "Time",
     "title": "Activity log",
-    "total": "{n} records · page {p} / {tp}",
-    "user": "User"
+    "user": "User",
+    "search_placeholder": "Search action, email or name"
   },
   "bank_notices": {
     "title": "Bank notices",
@@ -196,12 +195,10 @@
     "more_actions": "More actions",
     "next": "Next →",
     "optional": "(optional)",
-    "page": "Page",
     "previous": "← Previous",
     "save": "Save",
     "saving": "Saving…",
     "success": "Done",
-    "all": "All",
     "archived": "Archived",
     "confirm_delete": "Really delete \"{name}\"?",
     "currency": "Currency",
@@ -311,7 +308,6 @@
     "institutions": "Institutions",
     "market": "Prices & rates",
     "bank_notices": "Bank notices",
-    "smtp": "E-mail (SMTP)",
     "import": "Import",
     "tax_report": "Tax report",
     "summary": "Summaries",
@@ -323,7 +319,8 @@
     "sharing": "Sharing",
     "household": "Household",
     "manual": "Manual",
-    "update": "Updates"
+    "update": "Updates",
+    "settings": "Settings"
   },
   "passkeys": {
     "add": "Add passkey",
@@ -445,7 +442,7 @@
     "none": "none",
     "smtp_test": "Send a test e-mail to {email}",
     "smtp_test_ok": "Test e-mail sent — check your inbox.",
-    "smtp_later": "You can set up SMTP any time in System → E-mail (SMTP).",
+    "smtp_later": "You can set up SMTP any time in System → Settings → E-mail (SMTP).",
     "data_hint": "Demo data fills the app with about 5 years of history so you can try every page — dashboard, history, summaries, dividends, allocation, net worth and the tax report.",
     "demo_label": "Generate demo data",
     "demo_hint": "Crypto, ETFs, dividend stocks, Portu, a savings account, pension and DIP, transfers and sales, target allocation and net worth with a mortgage. Instruments are real; CNB rates and prices are downloaded in the background (a few minutes, needs internet).",
@@ -499,7 +496,12 @@
     "password_required": "Password required when creating.",
     "role": "Role",
     "subtitle": "Admin / Accountant / Read-only — admin role only.",
-    "title": "Users"
+    "title": "Users",
+    "all_roles": "All roles",
+    "all_statuses": "All statuses",
+    "search_placeholder": "Search email or name",
+    "status": "Status",
+    "inactive": "Inactive"
   },
   "webauthn": {
     "waiting_cancel": "Cancel waiting",
@@ -509,11 +511,14 @@
   },
   "profile": {
     "title": "Profile",
-    "subtitle": "Name, language and display currency.",
+    "subtitle": "Account, appearance, email reports and alerts.",
     "display_currency": "Display currency",
     "display_currency_hint": "Portfolio values are converted to this currency.",
     "saved": "Profile saved.",
-    "security_link": "Password, 2FA and passkeys →"
+    "security_link": "Password, 2FA and passkeys →",
+    "tab_account": "Account",
+    "tab_reports": "Reports",
+    "tab_alerts": "Alerts"
   },
   "icons": {
     "column": "Icon",
@@ -539,7 +544,9 @@
       "robo": "Robo-advisor",
       "bank": "Bank",
       "pension": "Pension company"
-    }
+    },
+    "search_placeholder": "Search institution name",
+    "all_types": "All types"
   },
   "instruments": {
     "title": "Instruments",
@@ -571,7 +578,8 @@
       "coingecko": "e.g. bitcoin",
       "xtb": "e.g. CSPX.UK",
       "yahoo": "e.g. CSPX.L"
-    }
+    },
+    "all_classes": "All asset classes"
   },
   "accounts": {
     "title": "Accounts",
@@ -581,7 +589,9 @@
     "empty": "No accounts yet",
     "no_institutions": "Add an institution (exchange, bank…) first.",
     "institution": "Institution",
-    "name_placeholder": "e.g. Main"
+    "name_placeholder": "e.g. Main",
+    "search_placeholder": "Search account, institution or note",
+    "all_institutions": "All institutions"
   },
   "portfolios": {
     "title": "Portfolios",
@@ -634,7 +644,6 @@
     "edit_title": "Edit transaction",
     "empty": "No transactions",
     "no_positions": "Create a position first.",
-    "count": "{n} transactions",
     "position": "Position",
     "executed_at": "Date",
     "quantity": "Quantity",
@@ -648,8 +657,6 @@
     "split_hint": "E.g. 10 = 1 unit becomes 10, 0.5 = 2:1 reverse split.",
     "all_accounts": "All accounts",
     "all_types": "All types",
-    "from": "From",
-    "to": "To",
     "delete_confirm": "Really delete this transaction?",
     "delete_transfer_confirm": "This transaction is part of a transfer — both legs will be deleted. Continue?",
     "transfer": "Transfer",
@@ -695,7 +702,13 @@
     "fx_empty": "No rates yet — run the fetch.",
     "fx_total": "{n} currencies in total",
     "cpi_latest": "Czech inflation (HICP, Eurostat): latest index {month}.",
-    "cpi_empty": "Czech inflation: no data yet — run the cron-cpi job."
+    "cpi_empty": "Czech inflation: no data yet — run the cron-cpi job.",
+    "search_placeholder": "Search symbol or name",
+    "status": "Price status",
+    "all_statuses": "All statuses",
+    "status_ok": "Current",
+    "status_stale": "Stale",
+    "status_missing": "Missing"
   },
   "valuation": {
     "value": "Value",
@@ -1422,5 +1435,46 @@
     "copied": "Copied",
     "manual_only": "Updates run on the server — the application cannot change its own files or Docker image.",
     "manual_link": "Details in the manual, chapter 2.4"
+  },
+  "admin_settings": {
+    "title": "Settings",
+    "subtitle": "Instance-wide settings. Each tab is saved separately.",
+    "tabs_label": "Settings sections",
+    "tab_smtp": "E-mail (SMTP)",
+    "tab_appearance": "Appearance"
+  },
+  "appearance": {
+    "scheme": "Color scheme",
+    "inherit": "Instance default",
+    "instance_hint": "Default color scheme for all users, the sign-in page and emails. Everyone can change it in their profile.",
+    "saved": "Appearance saved.",
+    "names": {
+      "raspberry": "Raspberry",
+      "terracotta": "Terracotta",
+      "bronze": "Bronze",
+      "olive": "Olive",
+      "forest": "Forest",
+      "ocean": "Ocean",
+      "indigo": "Indigo",
+      "amethyst": "Amethyst",
+      "orchid": "Orchid",
+      "graphite": "Graphite"
+    }
+  },
+  "grid": {
+    "pages": "Pagination",
+    "page_n": "Page {n}",
+    "all": "All",
+    "empty": "No records.",
+    "no_match": "No record matches the filter.",
+    "range": "{from}–{to} of {total}",
+    "page_size": "Per page",
+    "clear_filter": "Clear filter",
+    "from": "From",
+    "to": "To",
+    "selected": "selected: {n}",
+    "clear": "Clear selection",
+    "search": "Search",
+    "period": "Period"
   }
 }

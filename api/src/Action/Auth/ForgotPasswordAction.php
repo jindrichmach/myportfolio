@@ -96,6 +96,7 @@ final class ForgotPasswordAction
                 (string) ($user['locale'] ?? 'cs'),
                 [(string) $user['email']],
                 [
+                    'user_id'   => (int) $user['id'],
                     'name'      => $user['name'],
                     'resetLink' => $resetLink,
                     'expiresIn' => '60 minut',

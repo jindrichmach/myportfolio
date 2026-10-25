@@ -1,4 +1,5 @@
 import { api } from './client'
+import type { ColorScheme } from '@/theme/colorSchemes'
 
 export type DisplayCurrency = 'CZK' | 'EUR' | 'USD'
 
@@ -9,6 +10,8 @@ export interface User {
   role: 'admin' | 'user'
   locale: 'cs' | 'en'
   display_currency?: DisplayCurrency
+  /** Vlastní barevné schéma; null = schéma instance */
+  color_scheme?: ColorScheme | null
   totp_enabled?: boolean
   must_setup_totp?: boolean
   mfa_enabled?: boolean
@@ -21,6 +24,8 @@ export interface SetupStatus {
   needs_setup: boolean
   version: string
   timezone?: string
+  /** Výchozí barevné schéma instance (i pro přihlašovací stránku) */
+  color_scheme?: ColorScheme
   passwordless_login_enabled: boolean
   captcha: {
     provider: 'turnstile' | 'none'

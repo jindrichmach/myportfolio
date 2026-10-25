@@ -72,7 +72,7 @@ final class AlertService
         }
 
         $recipients = $settings['recipients'] !== [] ? $settings['recipients'] : [$settings['email']];
-        $this->mailer->sendTemplate('alerts_digest', $locale, $recipients, $this->vars($digest, $locale, array_sum($counts)));
+        $this->mailer->sendTemplate('alerts_digest', $locale, $recipients, ['user_id' => $userId] + $this->vars($digest, $locale, array_sum($counts)));
         $this->alerts->log($userId, $digest['keys']);
         foreach ($digest['sections']['price'] as $p) {
             $this->alerts->markTriggered($userId, $p['id'], $p['current']);

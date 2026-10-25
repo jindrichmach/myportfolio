@@ -8,11 +8,12 @@ import Icon from '@/components/ui/Icon.vue'
  * ostatní jako popisek/hodnota). Buňky přes sloty `cell-<key>` ({ row }), akce řádku přes slot `actions`.
  * `expandable(row)` přidá rozbalovací řádek (slot `expanded`) — např. rozpad pozice po účtech.
  * Čísla: `align: 'right'` (vždy tabular-nums), `mono` pro množství a kurzy kryptoměn.
+ * Řádek se při najetí myší vždy zvýrazní, aby bylo jasné, na který řádek klikáš.
  */
 export interface DataColumn {
   key: string
   label: string
-  align?: 'left' | 'right'
+  align?: 'left' | 'center' | 'right'
   mono?: boolean
   /** Na desktopu skrýt pod danou šířkou (v kartě na mobilu zůstává). */
   hideBelow?: 'sm' | 'lg' | 'xl' | '2xl'
@@ -60,7 +61,9 @@ const HIDE: Record<NonNullable<DataColumn['hideBelow']>, string> = {
 }
 function cellClass(c: DataColumn): string[] {
   return [
-    c.align === 'right' ? 'text-right tabular-nums whitespace-nowrap' : 'text-left',
+    c.align === 'right' ? 'text-right tabular-nums whitespace-nowrap'
+      : c.align === 'center' ? 'text-center whitespace-nowrap'
+      : 'text-left',
     c.mono ? 'font-mono' : '',
     c.hideBelow ? HIDE[c.hideBelow] : '',
     c.class ?? '',
@@ -85,7 +88,7 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
         </thead>
         <tbody class="divide-y divide-neutral-100">
           <template v-for="row in rows" :key="rowKey(row)">
-            <tr class="hover:bg-neutral-50" :class="rowClass?.(row)">
+            <tr class="transition-colors hover:bg-primary-50" :class="rowClass?.(row)">
               <td v-if="expandable" class="px-2 py-2 align-middle">
                 <button v-if="canExpand(row)" type="button" :aria-expanded="isOpen(row)" :aria-label="isOpen(row) ? t('common.collapse') : t('common.expand')"
                         class="cursor-pointer w-6 h-6 inline-flex items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -109,7 +112,7 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
 
     <!-- mobil: karty -->
     <ul class="divide-y divide-neutral-100" :class="cardsBelow === 'lg' ? 'lg:hidden' : 'md:hidden'">
-      <li v-for="row in rows" :key="rowKey(row)" class="px-4 py-3" :class="rowClass?.(row)">
+      <li v-for="row in rows" :key="rowKey(row)" class="px-4 py-3 transition-colors hover:bg-primary-50" :class="rowClass?.(row)">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0 flex-1" :class="{ 'font-mono': primaryCol().mono }">
             <slot :name="`cell-${primaryCol().key}`" :row="row">{{ value(row, primaryCol().key) }}</slot>

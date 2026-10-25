@@ -2,26 +2,26 @@
 
 {# Denní souhrn upozornění — sdílený obsah; popisky L posílá jazyková šablona alerts_digest.<locale>.html.twig.
    Sekce se zobrazí jen neprázdné; řádky mají 2 sloupce kvůli mobilu. #}
-{% macro head(title) %}<h2 style="margin:20px 0 8px;font-size:16px;font-weight:600;color:#111512;">{{ title }}</h2>{% endmacro %}
+{% macro head(title, c) %}<h2 style="margin:20px 0 8px;font-size:16px;font-weight:600;color:{{ c.text }};">{{ title }}</h2>{% endmacro %}
 
 {% block content %}
 {% import _self as ui %}
-{% set muted = '#707470' %}
-{% set line = '#E3E8E3' %}
+{% set muted = c.muted %}
+{% set line = c.line %}
 <p style="margin:0 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:{{ muted }};">{{ L.kicker }}</p>
-<h1 style="margin:0 0 8px;font-size:20px;font-weight:600;color:#111512;">{{ date_f }}</h1>
+<h1 style="margin:0 0 8px;font-size:20px;font-weight:600;color:{{ c.text }};">{{ date_f }}</h1>
 
 {% if price is not empty %}
-{{ ui.head(L.price_title) }}
+{{ ui.head(L.price_title, c) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   {% for p in price %}
   <tr>
     <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:14px;font-weight:600;color:#111512;">{{ p.symbol }} <span style="font-weight:400;color:{{ muted }};">{{ p.name }}</span></div>
+      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ p.symbol }} <span style="font-weight:400;color:{{ muted }};">{{ p.name }}</span></div>
       <div style="font-size:12px;color:{{ muted }};">{{ p.direction == 'above' ? L.above : L.below }} {{ p.threshold_f }}{% if p.note %} · {{ p.note }}{% endif %}</div>
     </td>
     <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
-      <div style="font-size:14px;font-weight:600;color:#111512;">{{ p.current_f }}</div>
+      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ p.current_f }}</div>
       <div style="font-size:12px;color:{{ muted }};">{{ p.date_f }}</div>
     </td>
   </tr>
@@ -30,12 +30,12 @@
 {% endif %}
 
 {% if moves is not empty %}
-{{ ui.head(L.moves_title) }}
+{{ ui.head(L.moves_title, c) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   {% for m in moves %}
   <tr>
     <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:14px;font-weight:600;color:#111512;">{{ m.scope == 'total' ? L.total : m.name }}</div>
+      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ m.scope == 'total' ? L.total : m.name }}</div>
       <div style="font-size:12px;color:{{ muted }};">{{ L.scopes[m.scope] }} · {{ m.date_f }} · {{ L.value }} {{ m.value_f }}</div>
     </td>
     <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
@@ -48,12 +48,12 @@
 {% endif %}
 
 {% if holding is not empty %}
-{{ ui.head(L.holding_title) }}
+{{ ui.head(L.holding_title, c) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   {% for h in holding %}
   <tr>
     <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:14px;font-weight:600;color:#111512;">{{ h.position }}</div>
+      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ h.position }}</div>
       <div style="font-size:12px;color:{{ muted }};">{{ h.quantity_f }} {{ L.pcs }} · {{ L.acquired }} {{ h.acquired_f }} · {{ h.account }}</div>
     </td>
     <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
@@ -67,16 +67,16 @@
 {% endif %}
 
 {% if allocation is not empty %}
-{{ ui.head(L.allocation_title) }}
+{{ ui.head(L.allocation_title, c) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   {% for a in allocation %}
   <tr>
     <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:14px;font-weight:600;color:#111512;">{{ L.categories[a.category] ?? a.category }}</div>
+      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ L.categories[a.category] ?? a.category }}</div>
       <div style="font-size:12px;color:{{ muted }};">{{ a.scope == 'total' ? L.allocation_total : a.name }} · {{ L.target }} {{ a.target_f }}</div>
     </td>
     <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
-      <div style="font-size:14px;font-weight:600;color:#111512;">{{ a.pct_f }}</div>
+      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ a.pct_f }}</div>
       <div style="font-size:12px;color:{{ muted }};">{{ a.diff_amount_f }}</div>
     </td>
   </tr>
@@ -86,12 +86,12 @@
 {% endif %}
 
 {% if data is not empty %}
-{{ ui.head(L.data_title) }}
+{{ ui.head(L.data_title, c) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   {% for d in data %}
   <tr>
     <td style="padding:8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:14px;color:#111512;"><strong>{{ L.issues[d.kind] ?? d.kind }}</strong>{% if d.symbol %} · {{ d.symbol }}{% endif %}</div>
+      <div style="font-size:14px;color:{{ c.text }};"><strong>{{ L.issues[d.kind] ?? d.kind }}</strong>{% if d.symbol %} · {{ d.symbol }}{% endif %}</div>
       {% if d.name or d.date_f %}<div style="font-size:12px;color:{{ muted }};">{{ d.name }}{% if d.name and d.date_f %} · {% endif %}{% if d.date_f %}{{ L.since }} {{ d.date_f }}{% endif %}</div>{% endif %}
     </td>
   </tr>

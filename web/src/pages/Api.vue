@@ -11,19 +11,16 @@ import IconButton from '@/components/ui/IconButton.vue'
 import Modal from '@/components/ui/Modal.vue'
 import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
 import ApiEndpoints from '@/components/api/ApiEndpoints.vue'
-import { useRoute, useRouter } from 'vue-router'
+import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
+import { useTabQuery } from '@/composables/useTabQuery'
 
 const { t } = useI18n()
 const auth = useAuthStore()
-const route = useRoute()
-const router = useRouter()
 
 // Záložky Tokeny / Endpointy — volba v URL (?tab=endpoints), ať jde odkázat
-const tab = ref<'tokens' | 'endpoints'>(route.query.tab === 'endpoints' ? 'endpoints' : 'tokens')
-function setTab(value: 'tokens' | 'endpoints') {
-  tab.value = value
-  router.replace({ query: { ...route.query, tab: value === 'tokens' ? undefined : value } })
-}
+const TAB_KEYS = ['tokens', 'endpoints'] as const
+const tab = useTabQuery<(typeof TAB_KEYS)[number]>(TAB_KEYS, 'tokens')
+const tabs = computed<TabItem<(typeof TAB_KEYS)[number]>[]>(() => TAB_KEYS.map(key => ({ key, label: t(`api.tabs.${key}`) })))
 const toast = useToast()
 
 const list = ref<ApiToken[]>([])
@@ -228,13 +225,7 @@ const tokenKey = (tk: { id: number }) => tk.id
       </button>
     </div>
 
-    <div class="flex gap-1 border-b border-neutral-200 mb-4" role="tablist">
-      <button v-for="tb in (['tokens', 'endpoints'] as const)" :key="tb" type="button" role="tab" :aria-selected="tab === tb" @click="setTab(tb)"
-        class="cursor-pointer px-4 h-10 text-sm font-medium border-b-2 -mb-px"
-        :class="tab === tb ? 'border-primary-600 text-primary-700' : 'border-transparent text-neutral-500 hover:text-neutral-800'">
-        {{ t(`api.tabs.${tb}`) }}
-      </button>
-    </div>
+    <Tabs v-model="tab" :tabs="tabs" :label="t('api.title')" class="mb-4" />
 
     <ApiEndpoints v-if="tab === 'endpoints'" />
     <template v-else>

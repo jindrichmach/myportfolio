@@ -6,8 +6,8 @@
    detailed = i jednotlivé pozice (instrumenty), jinak jen portfolia a účty. #}
 {# Pravý sloupec řádku: hodnota, změna (%) a výnos (%) pod sebou — výnos jen při vkladech/výběrech,
    jinak je shodný se změnou #}
-{% macro right(m, L, strong) %}
-  <div style="font-size:{{ strong ? 15 : 14 }}px;font-weight:{{ strong ? 700 : 600 }};color:#111512;white-space:nowrap;">{{ m.value_to_f }}{% if m.incomplete is defined and m.incomplete %} *{% endif %}</div>
+{% macro right(m, L, strong, c) %}
+  <div style="font-size:{{ strong ? 15 : 14 }}px;font-weight:{{ strong ? 700 : 600 }};color:{{ c.text }};white-space:nowrap;">{{ m.value_to_f }}{% if m.incomplete is defined and m.incomplete %} *{% endif %}</div>
   <div style="font-size:12px;line-height:1.45;color:{{ m.change_color }};white-space:nowrap;">{{ m.change_f }} {{ m.change_pct_f }}</div>
   {% if m.flow != '0.00' %}<div style="font-size:11px;line-height:1.45;color:{{ m.gain_color }};white-space:nowrap;">{{ L.gain_short }} {{ m.gain_f }} {{ m.gain_pct_f }}</div>{% endif %}
 {% endmacro %}
@@ -16,18 +16,18 @@
 
 {% block content %}
 {% import _self as ui %}
-{% set muted = '#707470' %}
-{% set line = '#E3E8E3' %}
+{% set muted = c.muted %}
+{% set line = c.line %}
 {% set small = 'font-size:12px;line-height:1.45;' %}
 <p style="margin:0 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:{{ muted }};">{{ L.kicker }}</p>
-<h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#111512;">{{ period }}</h1>
+<h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:{{ c.text }};">{{ period }}</h1>
 
 {# ── Souhrn ─────────────────────────────────────────────── #}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{ accent_soft }};border-radius:10px;margin:0 0 20px;">
   <tr>
     <td colspan="2" style="padding:14px 16px 6px;">
       <div style="{{ small }}color:{{ muted }};">{{ L.total_value }}</div>
-      <div style="font-size:26px;font-weight:700;color:#111512;line-height:1.2;">{{ total.value_to_f }}{% if total.incomplete %}<span style="font-size:14px;color:{{ muted }};"> *</span>{% endif %}</div>
+      <div style="font-size:26px;font-weight:700;color:{{ c.text }};line-height:1.2;">{{ total.value_to_f }}{% if total.incomplete %}<span style="font-size:14px;color:{{ muted }};"> *</span>{% endif %}</div>
     </td>
   </tr>
   <tr>
@@ -43,11 +43,11 @@
   <tr>
     <td width="50%" style="padding:4px 8px 14px 16px;vertical-align:top;">
       <div style="{{ small }}color:{{ muted }};">{{ L.value_before }}</div>
-      <div style="font-size:14px;color:#111512;">{{ total.value_from_f }}</div>
+      <div style="font-size:14px;color:{{ c.text }};">{{ total.value_from_f }}</div>
     </td>
     <td width="50%" style="padding:4px 16px 14px 8px;vertical-align:top;">
       <div style="{{ small }}color:{{ muted }};">{{ L.flow }}</div>
-      <div style="font-size:14px;color:#111512;">{{ total.flow_f }}</div>
+      <div style="font-size:14px;color:{{ c.text }};">{{ total.flow_f }}</div>
     </td>
   </tr>
 </table>
@@ -57,30 +57,30 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;border:1px solid {{ line }};border-radius:10px;border-collapse:separate;">
   <tr style="background:{{ accent_soft }};">
     <td style="padding:10px 8px 10px 14px;vertical-align:top;border-radius:10px 0 0 0;">
-      <div style="font-size:16px;font-weight:700;color:#111512;">{{ pf.name }}</div>
+      <div style="font-size:16px;font-weight:700;color:{{ c.text }};">{{ pf.name }}</div>
       <div style="{{ small }}color:{{ muted }};">{{ ui.meta(pf, L) }}</div>
     </td>
-    <td align="right" style="padding:10px 14px 10px 8px;vertical-align:top;border-radius:0 10px 0 0;">{{ ui.right(pf, L, true) }}</td>
+    <td align="right" style="padding:10px 14px 10px 8px;vertical-align:top;border-radius:0 10px 0 0;">{{ ui.right(pf, L, true, c) }}</td>
   </tr>
   {% for acc in pf.accounts %}
     {% set single = acc.positions|length == 1 %}
     <tr>
       <td style="padding:10px 8px 10px 14px;border-top:1px solid {{ line }};vertical-align:top;">
-        <div style="font-size:14px;font-weight:600;color:#111512;">{{ acc.name }}</div>
-        {% if single and detailed %}<div style="{{ small }}color:#3D413D;">{{ acc.positions[0].name }}{% if acc.positions[0].detail %} · {{ acc.positions[0].detail }}{% endif %}</div>{% endif %}
+        <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ acc.name }}</div>
+        {% if single and detailed %}<div style="{{ small }}color:{{ c.body }};">{{ acc.positions[0].name }}{% if acc.positions[0].detail %} · {{ acc.positions[0].detail }}{% endif %}</div>{% endif %}
         <div style="{{ small }}color:{{ muted }};">{{ ui.meta(acc, L) }}</div>
       </td>
-      <td align="right" style="padding:10px 14px 10px 8px;border-top:1px solid {{ line }};vertical-align:top;">{{ ui.right(acc, L, false) }}</td>
+      <td align="right" style="padding:10px 14px 10px 8px;border-top:1px solid {{ line }};vertical-align:top;">{{ ui.right(acc, L, false, c) }}</td>
     </tr>
     {% if detailed and not single %}
       {% for p in acc.positions %}
       <tr>
         <td style="padding:2px 8px 8px 28px;vertical-align:top;">
-          <div style="font-size:13px;color:#111512;">{{ p.name }}</div>
+          <div style="font-size:13px;color:{{ c.text }};">{{ p.name }}</div>
           {% if p.detail %}<div style="font-size:11px;line-height:1.35;color:{{ muted }};">{{ p.detail }}</div>{% endif %}
         </td>
         <td align="right" style="padding:2px 14px 8px 8px;vertical-align:top;">
-          <div style="font-size:13px;color:#111512;white-space:nowrap;">{{ p.value_to_f }}</div>
+          <div style="font-size:13px;color:{{ c.text }};white-space:nowrap;">{{ p.value_to_f }}</div>
           <div style="font-size:11px;line-height:1.45;color:{{ p.change_color }};white-space:nowrap;">{{ p.change_f }} {{ p.change_pct_f }}</div>
         </td>
       </tr>
@@ -91,7 +91,7 @@
 {% endfor %}
 
 {# ── Transakce ──────────────────────────────────────────── #}
-<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:#111512;">{{ L.transactions }}</h2>
+<h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:{{ c.text }};">{{ L.transactions }}</h2>
 {% if transactions is empty %}
   <p style="margin:0 0 16px;font-size:14px;color:{{ muted }};">{{ L.no_transactions }}</p>
 {% else %}
@@ -99,11 +99,11 @@
   {% for tx in transactions %}
   <tr>
     <td style="padding:8px 8px 8px 0;border-top:1px solid {{ line }};vertical-align:top;">
-      <div style="font-size:13px;color:#111512;"><span style="color:{{ muted }};">{{ tx.date_f }}</span> · <strong>{{ tx.type_f }}</strong> · {{ tx.position }}</div>
+      <div style="font-size:13px;color:{{ c.text }};"><span style="color:{{ muted }};">{{ tx.date_f }}</span> · <strong>{{ tx.type_f }}</strong> · {{ tx.position }}</div>
       <div style="{{ small }}color:{{ muted }};">{{ tx.account }}</div>
     </td>
     <td align="right" style="padding:8px 0 8px 8px;border-top:1px solid {{ line }};vertical-align:top;white-space:nowrap;">
-      <div style="font-size:13px;font-weight:600;color:#111512;">{{ tx.amount_f }}</div>
+      <div style="font-size:13px;font-weight:600;color:{{ c.text }};">{{ tx.amount_f }}</div>
       {% if tx.quantity_f %}<div style="{{ small }}color:{{ muted }};">{{ tx.quantity_f }} {{ L.pcs }}</div>{% endif %}
     </td>
   </tr>

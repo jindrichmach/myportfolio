@@ -36,10 +36,13 @@ final class MeAction
         $mustSetupTotp = $requireTotp && !$totpEnabled;
         $userId = (int) ($user['id'] ?? 0);
         $displayCurrency = 'CZK';
+        $colorScheme = null;
         if ($userId > 0) {
-            $stmt = $this->db->pdo()->prepare('SELECT display_currency FROM users WHERE id = ?');
+            $stmt = $this->db->pdo()->prepare('SELECT display_currency, color_scheme FROM users WHERE id = ?');
             $stmt->execute([$userId]);
-            $displayCurrency = (string) ($stmt->fetchColumn() ?: 'CZK');
+            $prefs = $stmt->fetch(\PDO::FETCH_ASSOC) ?: [];
+            $displayCurrency = (string) (($prefs['display_currency'] ?? '') ?: 'CZK');
+            $colorScheme = $prefs['color_scheme'] ?? null;
         }
         $passkeyCount = $userId > 0 ? $this->credentials->countActiveForUser($userId) : 0;
         $mfaMethods = [];
@@ -75,6 +78,7 @@ final class MeAction
                 'role'            => $user['role'] ?? 'user',
                 'locale'          => $user['locale'] ?? 'cs',
                 'display_currency' => $displayCurrency,
+                'color_scheme'    => $colorScheme,
                 'totp_enabled'    => $totpEnabled,
                 'must_setup_totp' => $mustSetupTotp,
                 'mfa_enabled'     => $mfaMethods !== [],

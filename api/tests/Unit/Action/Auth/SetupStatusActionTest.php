@@ -7,6 +7,7 @@ namespace MyPortfolio\Tests\Unit\Action\Auth;
 use MyPortfolio\Action\Auth\SetupStatusAction;
 use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Middleware\FirstRunLockMiddleware;
+use MyPortfolio\Service\Appearance\ColorSchemes;
 use MyPortfolio\Service\Auth\MfaPolicyService;
 use MyPortfolio\Service\Auth\PasskeyService;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -21,6 +22,8 @@ final class SetupStatusActionTest extends TestCase
     {
         $lock = $this->createMock(FirstRunLockMiddleware::class);
         $lock->method('needsSetup')->willReturn(false);
+        $schemes = $this->createStub(ColorSchemes::class);
+        $schemes->method('instance')->willReturn('ocean');
         $passkeys = $this->createMock(PasskeyService::class);
         $passkeys->expects(self::once())->method('isAvailable')->willReturn(true);
         $policy = $this->createMock(MfaPolicyService::class);
@@ -34,6 +37,7 @@ final class SetupStatusActionTest extends TestCase
             ]),
             $passkeys,
             $policy,
+            $schemes,
         );
 
         $response = $action(
@@ -45,12 +49,15 @@ final class SetupStatusActionTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertTrue($body['passwordless_login_enabled']);
         self::assertSame('UTC', $body['timezone']);
+        self::assertSame('ocean', $body['color_scheme']);
     }
 
     public function testPasswordlessLoginDefaultsToHiddenWithoutProbingWebAuthn(): void
     {
         $lock = $this->createMock(FirstRunLockMiddleware::class);
         $lock->method('needsSetup')->willReturn(false);
+        $schemes = $this->createStub(ColorSchemes::class);
+        $schemes->method('instance')->willReturn('ocean');
         $passkeys = $this->createMock(PasskeyService::class);
         $passkeys->expects(self::never())->method('isAvailable');
         $policy = $this->createMock(MfaPolicyService::class);
@@ -60,6 +67,7 @@ final class SetupStatusActionTest extends TestCase
             new Config(['captcha' => ['provider' => 'none']]),
             $passkeys,
             $policy,
+            $schemes,
         );
 
         $response = $action(

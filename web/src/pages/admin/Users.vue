@@ -8,6 +8,9 @@ import { useHotkey } from '@/composables/useHotkey'
 import Icon from '@/components/ui/Icon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Modal from '@/components/ui/Modal.vue'
+import DataGrid from '@/components/ui/DataGrid.vue'
+import type { DataColumn } from '@/components/ui/DataTable.vue'
+import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -98,6 +101,31 @@ async function deactivate(u: AdminUser) {
   }
 }
 
+const columns = computed((): DataColumn[] => [
+  { key: 'email', label: t('settings.email'), mono: true },
+  { key: 'name', label: t('users.name'), primary: true },
+  { key: 'role', label: t('users.role'), align: 'center' },
+  { key: 'locale', label: t('users.locale'), align: 'center', mono: true },
+  { key: 'is_active', label: t('users.active'), align: 'center' },
+  { key: 'last_login_at', label: t('users.last_login'), hideBelow: 'lg' },
+])
+
+const filters = computed<GridFilter[]>(() => [
+  { key: 'q', type: 'text', label: t('grid.search'), placeholder: t('users.search_placeholder') },
+  { key: 'role', type: 'select', label: t('users.role'), allLabel: t('users.all_roles'), options: [{ value: 'admin', label: 'admin' }, { value: 'user', label: 'user' }] },
+  { key: 'status', type: 'select', label: t('users.status'), allLabel: t('users.all_statuses'), options: [{ value: 'active', label: t('users.active') }, { value: 'inactive', label: t('users.inactive') }] },
+])
+
+/** Klientské filtrování: hledání v e-mailu a jméně, role a stav dohromady. */
+function matchesUser(u: AdminUser, v: GridFilterValues): boolean {
+  const q = String(v.q ?? '').trim().toLowerCase()
+  if (q && !u.email.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false
+  if (v.role && u.role !== v.role) return false
+  if (v.status === 'active' && !u.is_active) return false
+  if (v.status === 'inactive' && u.is_active) return false
+  return true
+}
+
 function roleBadge(role: string): string {
   if (role === 'admin') return 'bg-primary-100 text-primary-700'
   return 'bg-neutral-100 text-neutral-600'
@@ -105,8 +133,8 @@ function roleBadge(role: string): string {
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-semibold">{{ t('users.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('users.subtitle') }}</p>
@@ -117,80 +145,28 @@ function roleBadge(role: string): string {
       </button>
     </div>
 
-    <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
-
-    <div v-else class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
-      <!-- Desktop: tabulka -->
-      <div class="hidden md:block overflow-x-auto">
-      <table class="w-full text-sm table-sticky-first">
-        <thead class="bg-neutral-50 text-xs text-neutral-500 uppercase tracking-wide">
-          <tr>
-            <th class="px-3 py-2 text-left font-medium">{{ t('settings.email') }}</th>
-            <th class="px-3 py-2 text-left font-medium">{{ t('users.name') }}</th>
-            <th class="px-3 py-2 text-center font-medium">Role</th>
-            <th class="px-3 py-2 text-center font-medium">{{ t('users.locale') }}</th>
-            <th class="px-3 py-2 text-center font-medium">{{ t('users.active') }}</th>
-            <th class="px-3 py-2 text-left font-medium">{{ t('users.last_login') }}</th>
-            <th class="px-3 py-2 w-32"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-neutral-100">
-          <tr v-for="u in users" :key="u.id" :class="{ 'opacity-50': !u.is_active }">
-            <td class="px-3 py-2 font-mono text-xs">{{ u.email }}</td>
-            <td class="px-3 py-2">{{ u.name }}</td>
-            <td class="px-3 py-2 text-center">
-              <span class="text-xs px-2 py-0.5 rounded font-medium" :class="roleBadge(u.role)">{{ u.role }}</span>
-              <span v-if="isLastAdmin(u)" class="ml-1 text-xs px-1.5 py-0.5 rounded bg-warning-50 text-warning-600" :title="t('users.is_last_admin_lock')"><Icon name="lock" class="w-3.5 h-3.5 align-[-2px]" /></span>
-            </td>
-            <td class="px-3 py-2 text-center text-xs">{{ u.locale }}</td>
-            <td class="px-3 py-2 text-center">
-              <span v-if="u.is_active" class="text-success-600"><Icon name="check" class="w-4 h-4" :label="t('users.active')" /></span>
-              <span v-else class="text-neutral-400">—</span>
-            </td>
-            <td class="px-3 py-2 text-xs text-neutral-500">{{ u.last_login_at?.replace('T', ' ').slice(0, 19) || '—' }}</td>
-            <td class="px-3 py-2 text-right">
-              <div class="inline-flex gap-1">
-                <IconButton v-if="auth.user?.id === u.id" icon="shield" :label="t('auth.totp_2fa')" to="/profile/totp" />
-                <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(u)" />
-                <IconButton v-if="u.is_active" icon="ban" variant="danger" :label="t('users.deactivate')" :disabled="isLastAdmin(u)"
-                  :tooltip="isLastAdmin(u) ? t('users.is_last_admin_lock') : undefined" @click="deactivate(u)" />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-
-      <!-- Mobile: karty -->
-      <div class="md:hidden divide-y divide-neutral-100">
-        <div v-for="u in users" :key="`m-${u.id}`" class="p-3 space-y-2"
-          :class="{ 'opacity-50': !u.is_active }">
-          <div class="flex items-baseline justify-between gap-2">
-            <div class="font-medium text-neutral-900 truncate">{{ u.name }}</div>
-            <span class="text-xs px-2 py-0.5 rounded font-medium whitespace-nowrap" :class="roleBadge(u.role)">{{ u.role }}</span>
-          </div>
-          <div class="flex items-baseline justify-between gap-2 text-xs text-neutral-500">
-            <span class="font-mono truncate">{{ u.email }}</span>
-            <span v-if="isLastAdmin(u)" class="px-1.5 py-0.5 rounded bg-warning-50 text-warning-600 whitespace-nowrap" :title="t('users.is_last_admin_lock')"><Icon name="lock" class="w-3.5 h-3.5 align-[-2px]" /></span>
-          </div>
-          <div class="flex items-baseline justify-between gap-2 text-xs text-neutral-500">
-            <span>
-              <span v-if="u.is_active" class="text-success-600"><Icon name="check" class="w-3.5 h-3.5 align-[-2px]" /> {{ t('users.active') }}</span>
-              <span v-else>— {{ t('users.active') }}</span>
-              <span class="text-neutral-400 mx-1.5">·</span>
-              <span class="font-mono">{{ u.locale }}</span>
-            </span>
-            <span class="font-mono">{{ u.last_login_at?.replace('T', ' ').slice(0, 16) || '—' }}</span>
-          </div>
-          <div class="flex justify-end gap-1 pt-1">
-            <IconButton v-if="auth.user?.id === u.id" icon="shield" :label="t('auth.totp_2fa')" to="/profile/totp" />
-            <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(u)" />
-            <IconButton v-if="u.is_active" icon="ban" variant="danger" :label="t('users.deactivate')" :disabled="isLastAdmin(u)"
-              :tooltip="isLastAdmin(u) ? t('users.is_last_admin_lock') : undefined" @click="deactivate(u)" />
-          </div>
+    <DataGrid :columns="columns" :rows="users" :row-key="(u: AdminUser) => u.id" :filters="filters"
+      :filter-fn="matchesUser" :loading="loading" empty-icon="users" :row-class="(u: AdminUser) => (u.is_active ? '' : 'text-neutral-400')">
+      <template #cell-role="{ row }">
+        <span class="text-xs px-2 py-0.5 rounded font-medium" :class="roleBadge(row.role)">{{ row.role }}</span>
+        <span v-if="isLastAdmin(row)" class="ml-1 text-xs px-1.5 py-0.5 rounded bg-warning-50 text-warning-600" :title="t('users.is_last_admin_lock')"><Icon name="lock" class="w-3.5 h-3.5 align-[-2px]" /></span>
+      </template>
+      <template #cell-is_active="{ row }">
+        <span v-if="row.is_active" class="text-success-600"><Icon name="check" class="w-4 h-4" :label="t('users.active')" /></span>
+        <span v-else class="text-neutral-400">—</span>
+      </template>
+      <template #cell-last_login_at="{ row }">
+        <span class="text-xs text-neutral-500">{{ row.last_login_at?.replace('T', ' ').slice(0, 19) || '—' }}</span>
+      </template>
+      <template #actions="{ row }">
+        <div class="inline-flex gap-1">
+          <IconButton v-if="auth.user?.id === row.id" icon="shield" :label="t('auth.totp_2fa')" to="/profile/totp" />
+          <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(row)" />
+          <IconButton v-if="row.is_active" icon="ban" variant="danger" :label="t('users.deactivate')" :disabled="isLastAdmin(row)"
+            :tooltip="isLastAdmin(row) ? t('users.is_last_admin_lock') : undefined" @click="deactivate(row)" />
         </div>
-      </div>
-    </div>
+      </template>
+    </DataGrid>
 
     <!-- Modal -->
     <Modal v-if="showForm" :title="form.id === null ? t('users.new_title') : t('users.edit_title', { email: form.email })" width-class="max-w-md" @close="showForm = false">

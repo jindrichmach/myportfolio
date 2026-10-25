@@ -56,6 +56,16 @@ popisek po najetí myší nebo při přechodu klávesou Tab.
 | přeškrtnuté kolečko (červená) | Deaktivovat uživatele / zrušit token |
 | štít | Dvoufaktorové ověření (TOTP) |
 
+### Seznamy s filtry
+
+Delší seznamy mají nad tabulkou lištu filtrů. Každý filtr má nad sebou popisek, první je vždy
+**Hledat**. Na mobilu jsou ostatní filtry schované pod tlačítkem **Filtry** s počtem nastavených.
+Tlačítko **Zrušit filtr** se ukáže, jen když je nějaký filtr nastavený, a vrátí všechny do výchozího stavu.
+
+Pod tabulkou je počet záznamů („1–25 z 137“), číslované stránky (první, poslední a pár kolem aktuální,
+mezi nimi „…“) a volba **Na stránku** (10, 25, 50 nebo 100). Změna filtru nebo počtu na stránku vrátí
+seznam na první stránku. Filtry se při obnovení stránky vynulují.
+
 ## 1.5 Co MyPortfolio umí
 
 | Oblast | Kapitola |

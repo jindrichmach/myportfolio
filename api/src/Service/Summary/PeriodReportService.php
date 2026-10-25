@@ -83,6 +83,7 @@ final class PeriodReportService
         $label = $this->label($period, $locale);
         $yearly = strlen($period) === 4;
         return [$settings, [
+            'user_id'    => $userId,
             'yearly'     => $yearly,
             'period'     => $label,
             'total'      => $decorate($data['total']),

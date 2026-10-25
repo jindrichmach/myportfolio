@@ -8,7 +8,7 @@
  */
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { authApi, type SessionLockPreference, type TotpSetup } from '@/api/auth'
 import { useToast } from '@/composables/useToast'
 import { apiErrorMessage } from '@/api/errors'
@@ -16,31 +16,24 @@ import { useAuthStore } from '@/stores/auth'
 import { useSessionSecurityStore } from '@/stores/sessionSecurity'
 import Passkeys from '@/pages/Passkeys.vue'
 import Icon from '@/components/ui/Icon.vue'
+import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
+import { useTabQuery } from '@/composables/useTabQuery'
 
 const { t } = useI18n()
 const toast = useToast()
-const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const sessionSecurity = useSessionSecurityStore()
 
-type Tab = 'password' | 'totp' | 'passkeys' | 'session-lock'
-function tabFromQuery(value: unknown): Tab {
-  return value === 'totp' || value === 'passkeys' || value === 'session-lock'
-    ? value
-    : 'password'
-}
-const tab = ref<Tab>(tabFromQuery(route.query.tab))
-function setTab(next: Tab) {
-  tab.value = next
-  router.replace({ query: { ...route.query, tab: next === 'password' ? undefined : next } })
-}
-function setTabFromSelect(event: Event) {
-  setTab((event.target as HTMLSelectElement).value as Tab)
-}
-watch(() => route.query.tab, value => {
-  tab.value = tabFromQuery(value)
-})
+const TAB_KEYS = ['password', 'totp', 'passkeys', 'session-lock'] as const
+type Tab = (typeof TAB_KEYS)[number]
+const tab = useTabQuery<Tab>(TAB_KEYS, 'password')
+const tabs = computed<TabItem<Tab>[]>(() => [
+  { key: 'password', label: t('auth.change_password_title') },
+  { key: 'totp', label: t('auth.totp_tab'), badge: totpStatus.value?.enabled ? t('auth.totp_badge_on') : null },
+  { key: 'passkeys', label: t('passkeys.title') },
+  { key: 'session-lock', label: t('session_lock.preference_tab') },
+])
 
 // ── Heslo ─────────────────────────────────────────────────────────────
 const MIN_LEN = 12
@@ -213,49 +206,7 @@ onMounted(() => {
       <p class="text-sm text-neutral-500 mt-0.5">{{ t('auth.profile_subtitle') }}</p>
     </div>
 
-    <!-- Tabs: na malém viewportu select, aby se dlouhé překlady nemačkaly ani nescrollovaly -->
-    <select :value="tab" @change="setTabFromSelect"
-            class="sm:hidden w-full h-10 px-3 mb-4 border border-neutral-300 rounded-md bg-surface text-sm">
-      <option value="password">{{ t('auth.change_password_title') }}</option>
-      <option value="totp">{{ t('auth.totp_tab') }}</option>
-      <option value="passkeys">{{ t('passkeys.title') }}</option>
-      <option value="session-lock">{{ t('session_lock.preference_tab') }}</option>
-    </select>
-
-    <div class="hidden sm:flex border-b border-neutral-200 mb-4 gap-1">
-      <button type="button" @click="setTab('password')"
-        class="cursor-pointer px-3 py-2 text-sm border-b-2 transition"
-        :class="tab === 'password'
-          ? 'border-primary-600 text-primary-700 font-medium'
-          : 'border-transparent text-neutral-600 hover:text-neutral-900'">
-        {{ t('auth.change_password_title') }}
-      </button>
-      <button type="button" @click="setTab('totp')"
-        class="cursor-pointer px-3 py-2 text-sm border-b-2 transition inline-flex items-center gap-2"
-        :class="tab === 'totp'
-          ? 'border-primary-600 text-primary-700 font-medium'
-          : 'border-transparent text-neutral-600 hover:text-neutral-900'">
-        {{ t('auth.totp_tab') }}
-        <span v-if="totpStatus?.enabled"
-              class="text-[10px] uppercase bg-success-50 text-success-600 border border-success-500/40 px-1.5 py-0.5 rounded">
-          {{ t('auth.totp_badge_on') }}
-        </span>
-      </button>
-      <button type="button" @click="setTab('passkeys')"
-        class="cursor-pointer px-3 py-2 text-sm border-b-2 transition"
-        :class="tab === 'passkeys'
-          ? 'border-primary-600 text-primary-700 font-medium'
-          : 'border-transparent text-neutral-600 hover:text-neutral-900'">
-        {{ t('passkeys.title') }}
-      </button>
-      <button type="button" @click="setTab('session-lock')"
-        class="cursor-pointer px-3 py-2 text-sm border-b-2 transition"
-        :class="tab === 'session-lock'
-          ? 'border-primary-600 text-primary-700 font-medium'
-          : 'border-transparent text-neutral-600 hover:text-neutral-900'">
-        {{ t('session_lock.preference_tab') }}
-      </button>
-    </div>
+    <Tabs v-model="tab" :tabs="tabs" :label="t('auth.profile_title')" class="mb-4" />
 
     <!-- ── Heslo ── -->
     <form v-if="tab === 'password'" @submit.prevent="submitPw"

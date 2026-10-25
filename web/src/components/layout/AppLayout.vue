@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { systemApi } from '@/api/system'
 import ThemeToggle from './ThemeToggle.vue'
+import AppLogo from './AppLogo.vue'
 import { useSessionSecurityStore } from '@/stores/sessionSecurity'
 import { useToast } from '@/composables/useToast'
 import { loadReceivedShares, useOwnerContext } from '@/composables/useOwnerContext'
@@ -82,6 +83,7 @@ const ICONS = {
   import:     'M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-8l-4-4m0 0L8 8m4-4v12',
   allocation: 'M3 6h18M3 12h18M3 18h18M9 3v6m6 3v6m-3 0v3',
   update:     'M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15',
+  settings:   'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z',
   manual:     'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
   household:  'M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z',
   sharing:    'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 1 1 0-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 1 0 5.367-2.684 3 3 0 0 0-5.367 2.684zm0 9.316a3 3 0 1 0 5.367 2.684 3 3 0 0 0-5.367-2.684z',
@@ -155,7 +157,7 @@ const navSections = computed<NavSection[]>(() => {
       items: [
         { to: '/admin/users',        label: t('nav.users'),     icon: ICONS.users },
         { to: '/admin/market',       label: t('nav.market'),    icon: ICONS.market },
-        { to: '/admin/smtp',         label: t('nav.smtp'),      icon: ICONS.mail },
+        { to: '/admin/settings',     label: t('nav.settings'),  icon: ICONS.settings },
         { to: '/admin/activity-log', label: t('nav.log'),       icon: ICONS.log },
         { to: '/admin/cron-jobs',    label: t('nav.cron_jobs'), icon: ICONS.cron },
         { to: '/admin/update',       label: t('nav.update'),    icon: ICONS.update },
@@ -221,7 +223,7 @@ onMounted(async () => {
       <div class="h-14 px-4 flex items-center justify-between gap-3">
         <!-- Logo -->
         <RouterLink to="/" class="flex items-center gap-2.5 shrink-0" @click="mobileOpen = false">
-          <img src="/styles/logo.svg" alt="MyPortfolio" class="w-8 h-8" />
+          <AppLogo class="w-8 h-8" />
           <span class="text-sm font-semibold leading-tight select-none">
             My<span class="text-primary-700">Portfolio</span>
           </span>

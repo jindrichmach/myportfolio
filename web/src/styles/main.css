@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Barevná schémata vzhledu (data-scheme na <html>) — přepisují tokeny níže */
+@import "./schemes.css";
 
 /* Dark mode řízený třídou .dark na <html> (nastavuje composable useTheme přes VueUse).
    :where() drží specificitu na 0, aby utility nebyly přebity. */
@@ -34,6 +36,10 @@
   --color-action:       #1B7138;
   --color-action-hover: #115B2B;
   --color-on-action:    #FFFFFF;
+
+  /* ─── Logo (stejné ve světlém i tmavém motivu) ─── */
+  --color-logo:        #1B7138;
+  --color-logo-accent: #93D19F;
 
   /* ─── Neutral (šedá s nádechem zelené) ─── */
   --color-neutral-50:  #F6FCF7;   /* page background */

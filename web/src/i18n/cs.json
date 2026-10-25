@@ -4,14 +4,13 @@
     "all_actions": "Všechny akce",
     "all_entities": "Všechny entity",
     "entity": "Entita",
-    "no_records": "Žádné záznamy.",
     "payload": "Payload",
     "refresh": "Obnovit",
     "subtitle": "Audit záznamů ze všech akcí (přístup pouze pro admin).",
     "time": "Čas",
     "title": "Activity log",
-    "total": "Celkem {n} záznamů · strana {p} / {tp}",
-    "user": "Uživatel"
+    "user": "Uživatel",
+    "search_placeholder": "Hledat akci, e-mail nebo jméno"
   },
   "bank_notices": {
     "title": "Bankovní avíza",
@@ -196,12 +195,10 @@
     "more_actions": "Další akce",
     "next": "Další",
     "optional": "(volitelné)",
-    "page": "Strana",
     "previous": "← Předchozí",
     "save": "Uložit",
     "saving": "Ukládám…",
     "success": "Hotovo",
-    "all": "Vše",
     "archived": "Archivováno",
     "confirm_delete": "Opravdu smazat „{name}\"?",
     "currency": "Měna",
@@ -311,7 +308,6 @@
     "institutions": "Instituce",
     "market": "Ceny a kurzy",
     "bank_notices": "Bankovní avíza",
-    "smtp": "E-mail (SMTP)",
     "import": "Import",
     "tax_report": "Daňový report",
     "summary": "Souhrny",
@@ -323,7 +319,8 @@
     "sharing": "Sdílení",
     "household": "Domácnost",
     "manual": "Manuál",
-    "update": "Aktualizace"
+    "update": "Aktualizace",
+    "settings": "Nastavení"
   },
   "passkeys": {
     "add": "Přidat přístupový klíč",
@@ -445,7 +442,7 @@
     "none": "žádné",
     "smtp_test": "Poslat zkušební e-mail na {email}",
     "smtp_test_ok": "Zkušební e-mail odeslán — zkontroluj schránku.",
-    "smtp_later": "SMTP nastavíš kdykoli v Systém → E-mail (SMTP).",
+    "smtp_later": "SMTP nastavíš kdykoli v Systém → Nastavení → E-mail (SMTP).",
     "data_hint": "Ukázková data naplní aplikaci asi 5 lety historie, abys mohl vyzkoušet všechny stránky — přehled, historii, souhrny, dividendy, alokaci, čisté jmění i daňový report.",
     "demo_label": "Vygenerovat ukázková data",
     "demo_hint": "Krypto, ETF, akcie s dividendami, Portu, spořicí účet, penzijko a DIP, převody a prodeje, cílová alokace a čisté jmění s hypotékou. Instrumenty jsou skutečné; kurzy ČNB a ceny se stáhnou na pozadí (pár minut, potřebuje internet).",
@@ -499,7 +496,12 @@
     "password_required": "Heslo je povinné při vytváření.",
     "role": "Role",
     "subtitle": "Admin / Účetní / Read-only — pouze pro admin role.",
-    "title": "Uživatelé"
+    "title": "Uživatelé",
+    "all_roles": "Všechny role",
+    "all_statuses": "Všechny stavy",
+    "search_placeholder": "Hledat e-mail nebo jméno",
+    "status": "Stav",
+    "inactive": "Neaktivní"
   },
   "webauthn": {
     "waiting_cancel": "Zrušit čekání",
@@ -509,11 +511,14 @@
   },
   "profile": {
     "title": "Profil",
-    "subtitle": "Jméno, jazyk a měna zobrazení.",
+    "subtitle": "Účet, vzhled, reporty a upozornění e-mailem.",
     "display_currency": "Měna zobrazení",
     "display_currency_hint": "V této měně se přepočítávají hodnoty portfolia.",
     "saved": "Profil uložen.",
-    "security_link": "Heslo, 2FA a passkeys →"
+    "security_link": "Heslo, 2FA a passkeys →",
+    "tab_account": "Účet",
+    "tab_reports": "Reporty",
+    "tab_alerts": "Upozornění"
   },
   "icons": {
     "column": "Ikona",
@@ -539,7 +544,9 @@
       "robo": "Robo-advisor",
       "bank": "Banka",
       "pension": "Penzijní společnost"
-    }
+    },
+    "search_placeholder": "Hledat název instituce",
+    "all_types": "Všechny typy"
   },
   "instruments": {
     "title": "Instrumenty",
@@ -571,7 +578,8 @@
       "coingecko": "např. bitcoin",
       "xtb": "např. CSPX.UK",
       "yahoo": "např. CSPX.L"
-    }
+    },
+    "all_classes": "Všechny třídy aktiv"
   },
   "accounts": {
     "title": "Účty",
@@ -581,7 +589,9 @@
     "empty": "Zatím žádné účty",
     "no_institutions": "Nejdřív přidej instituci (burzu, banku…).",
     "institution": "Instituce",
-    "name_placeholder": "např. Hlavní"
+    "name_placeholder": "např. Hlavní",
+    "search_placeholder": "Hledat účet, instituci nebo poznámku",
+    "all_institutions": "Všechny instituce"
   },
   "portfolios": {
     "title": "Portfolia",
@@ -634,7 +644,6 @@
     "edit_title": "Upravit transakci",
     "empty": "Žádné transakce",
     "no_positions": "Nejdřív založ pozici.",
-    "count": "{n} transakcí",
     "position": "Pozice",
     "executed_at": "Datum",
     "quantity": "Množství",
@@ -648,8 +657,6 @@
     "split_hint": "Např. 10 = z 1 kusu je 10, 0.5 = reverse split 2:1.",
     "all_accounts": "Všechny účty",
     "all_types": "Všechny typy",
-    "from": "Od",
-    "to": "Do",
     "delete_confirm": "Opravdu smazat transakci?",
     "delete_transfer_confirm": "Transakce je součástí převodu — smažou se obě jeho části. Pokračovat?",
     "transfer": "Převést",
@@ -695,7 +702,13 @@
     "fx_empty": "Zatím žádné kurzy — spusť stažení.",
     "fx_total": "celkem {n} měn",
     "cpi_latest": "Inflace ČR (HICP, Eurostat): poslední index {month}.",
-    "cpi_empty": "Inflace ČR: zatím žádná data — spusť úlohu cron-cpi."
+    "cpi_empty": "Inflace ČR: zatím žádná data — spusť úlohu cron-cpi.",
+    "search_placeholder": "Hledat symbol nebo název",
+    "status": "Stav ceny",
+    "all_statuses": "Všechny stavy",
+    "status_ok": "Aktuální",
+    "status_stale": "Zastaralá",
+    "status_missing": "Chybí"
   },
   "valuation": {
     "value": "Hodnota",
@@ -1422,5 +1435,46 @@
     "copied": "Zkopírováno",
     "manual_only": "Aktualizace se spouští na serveru — aplikace nemá práva měnit vlastní soubory ani Docker image.",
     "manual_link": "Podrobně v manuálu, kapitola 2.4"
+  },
+  "admin_settings": {
+    "title": "Nastavení",
+    "subtitle": "Nastavení celé instance. Každá záložka se ukládá samostatně.",
+    "tabs_label": "Části nastavení",
+    "tab_smtp": "E-mail (SMTP)",
+    "tab_appearance": "Vzhled"
+  },
+  "appearance": {
+    "scheme": "Barevné schéma",
+    "inherit": "Podle instance",
+    "instance_hint": "Výchozí barevné schéma pro všechny uživatele, přihlašovací stránku a e-maily. Každý si ho může v profilu změnit.",
+    "saved": "Vzhled uložen.",
+    "names": {
+      "raspberry": "Malina",
+      "terracotta": "Terakota",
+      "bronze": "Bronz",
+      "olive": "Oliva",
+      "forest": "Les",
+      "ocean": "Oceán",
+      "indigo": "Indigo",
+      "amethyst": "Ametyst",
+      "orchid": "Orchidej",
+      "graphite": "Grafit"
+    }
+  },
+  "grid": {
+    "pages": "Stránkování",
+    "page_n": "Strana {n}",
+    "all": "Vše",
+    "empty": "Žádné záznamy.",
+    "no_match": "Žádný záznam neodpovídá filtru.",
+    "range": "{from}–{to} z {total}",
+    "page_size": "Na stránku",
+    "clear_filter": "Zrušit filtr",
+    "from": "Od",
+    "to": "Do",
+    "selected": "vybráno: {n}",
+    "clear": "Zrušit výběr",
+    "search": "Hledat",
+    "period": "Období"
   }
 }

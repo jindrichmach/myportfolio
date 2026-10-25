@@ -24,11 +24,11 @@ final class MeActionTest extends TestCase
     {
         $currencyStatement = $this->createMock(\PDOStatement::class);
         $currencyStatement->expects(self::once())->method('execute')->with([17])->willReturn(true);
-        $currencyStatement->expects(self::once())->method('fetchColumn')->willReturn('EUR');
+        $currencyStatement->expects(self::once())->method('fetch')->willReturn(['display_currency' => 'EUR', 'color_scheme' => 'ocean']);
         $pdo = $this->createMock(\PDO::class);
         $pdo->expects(self::once())
             ->method('prepare')
-            ->with('SELECT display_currency FROM users WHERE id = ?')
+            ->with('SELECT display_currency, color_scheme FROM users WHERE id = ?')
             ->willReturn($currencyStatement);
         $db = $this->createMock(Connection::class);
         $db->expects(self::once())->method('pdo')->willReturn($pdo);
@@ -84,6 +84,7 @@ final class MeActionTest extends TestCase
         self::assertTrue($body['user']['mfa_enabled']);
         self::assertSame(1, $body['user']['passkey_count']);
         self::assertSame('EUR', $body['user']['display_currency']);
+        self::assertSame('ocean', $body['user']['color_scheme']);
         self::assertFalse($body['user']['must_setup_mfa']);
         self::assertTrue($body['require_mfa']);
         self::assertSame(['passkey', 'totp'], $body['allowed_mfa_methods']);

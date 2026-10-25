@@ -162,7 +162,7 @@ Dnešní den se přepočítá při každém otevření grafu, takže sedí s Př
 ## 7.6 Týdenní report e-mailem
 
 Každé pondělí v 8:00 může přijít e-mail s přehledem posledních 7 dní. Zapneš ho v
-**Účet → Profil → Reporty e-mailem**.
+**Účet → Profil → záložka Reporty**.
 
 | Pole / tlačítko | Význam |
 |---|---|
@@ -194,14 +194,14 @@ uvádí jen změna. Výnos celého portfolia je vždy v souhrnu nahoře.
 Čísla pocházejí z denní historie hodnoty (§ 7.5), takže odpovídají grafu. Pozice bez aktuální ceny
 nebo kurzu má hodnotu „—" a součty jsou označené hvězdičkou.
 
-> 🛈 Odeslání vyžaduje nastavené SMTP ([9.3 E-mail (SMTP)](09_Administrace.md#93-e-mail-smtp)). Úloha `cron-weekly-report` pošle report
+> 🛈 Odeslání vyžaduje nastavené SMTP ([9.3 Nastavení](09_Administrace.md#93-nastavení)). Úloha `cron-weekly-report` pošle report
 > při každém spuštění — pondělní 8:00 je dané rozvrhem cronu (viz [9.5 Plánované úlohy](09_Administrace.md#95-plánované-úlohy)). Měsíční a roční
 > souhrn posílá úloha `cron-period-report` (1. den v měsíci 8:05); příjemci jsou stejní jako u týdenního reportu.
 
 ## 7.7 Upozornění e-mailem
 
 Jednou denně (7:30) může přijít souhrn upozornění — jen když je co hlásit, a každé upozornění
-přijde jen jednou. Nastavíš ho v **Účet → Profil → Upozornění e-mailem**.
+přijde jen jednou. Nastavíš ho v **Účet → Profil → záložka Upozornění**.
 
 | Pole / tlačítko | Význam |
 |---|---|
@@ -225,7 +225,7 @@ Ve stejné kartě přidáš hranici: instrument, **nad** / **pod** a cenu v měn
 zobrazí datum a cena. Tlačítkem **Znovu aktivovat** ji nastavíš znovu; úprava hranice ji také
 znovu aktivuje.
 
-> 🛈 Odeslání vyžaduje nastavené SMTP ([9.3 E-mail (SMTP)](09_Administrace.md#93-e-mail-smtp)) a úlohu `cron-alerts`
+> 🛈 Odeslání vyžaduje nastavené SMTP ([9.3 Nastavení](09_Administrace.md#93-nastavení)) a úlohu `cron-alerts`
 > (denně 7:30, viz [9.5 Plánované úlohy](09_Administrace.md#95-plánované-úlohy)).
 
 ## 7.8 Měsíční a roční souhrn

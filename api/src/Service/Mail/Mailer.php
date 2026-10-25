@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MyPortfolio\Service\Mail;
 
 use MyPortfolio\Infrastructure\Config\Config;
+use MyPortfolio\Service\Appearance\ColorSchemes;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Transport;
@@ -22,6 +23,7 @@ use Twig\Loader\FilesystemLoader;
  *   $mailer->sendTemplate('password_reset', 'cs', ['user@example.com'], ['name' => 'Jan Novák', 'resetLink' => '...']);
  *
  * Šablony jsou v api/templates/email/<code>.<lang>.{html,txt}.twig.
+ * Barvy a logo podle barevného schématu: `user_id` ve vars = schéma toho uživatele, jinak schéma instance.
  */
 final class Mailer
 {
@@ -36,6 +38,7 @@ final class Mailer
         private readonly Config $config,
         private readonly LoggerInterface $logger,
         private readonly SmtpSettings $smtp,
+        private readonly ColorSchemes $schemes,
     ) {}
 
     /**
@@ -51,8 +54,9 @@ final class Mailer
         array $vars,
         ?string $subjectOverride = null,
     ): string {
+        $vars['color_scheme'] = $this->scheme($vars);
         $vars['logo_src'] = 'cid:' . self::LOGO_CID;
-        return $this->deliver($this->render($code, $locale, $vars, $subjectOverride), $to, $this->smtp->effective(), $code, $locale);
+        return $this->deliver($this->render($code, $locale, $vars, $subjectOverride), $to, $this->smtp->effective(), $code, $locale, $vars['color_scheme']);
     }
 
     /**
@@ -64,8 +68,9 @@ final class Mailer
     public function sendTest(array $settings, string $to, string $locale): string
     {
         $vars = ['host' => $settings['host'], 'port' => $settings['port'], 'encryption' => $settings['encryption'],
-            'from_email' => $settings['from_email'], 'sent_at' => date('Y-m-d H:i:s'), 'logo_src' => 'cid:' . self::LOGO_CID];
-        return $this->deliver($this->render('smtp_test', $locale, $vars), [$to], $settings, 'smtp_test', $locale);
+            'from_email' => $settings['from_email'], 'sent_at' => date('Y-m-d H:i:s'), 'logo_src' => 'cid:' . self::LOGO_CID,
+            'color_scheme' => $this->schemes->instance()];
+        return $this->deliver($this->render('smtp_test', $locale, $vars), [$to], $settings, 'smtp_test', $locale, $vars['color_scheme']);
     }
 
     /**
@@ -73,7 +78,7 @@ final class Mailer
      * @param string[] $to
      * @param array<string,mixed> $settings
      */
-    private function deliver(array $rendered, array $to, array $settings, string $code, string $locale): string
+    private function deliver(array $rendered, array $to, array $settings, string $code, string $locale, string $scheme): string
     {
         $email = (new Email())
             ->from(new Address((string) $settings['from_email'], (string) $settings['from_name']))
@@ -81,7 +86,7 @@ final class Mailer
             ->html($rendered['html'])
             ->text($rendered['text']);
         if (str_contains($rendered['html'], 'cid:' . self::LOGO_CID)) {
-            $email->embedFromPath(self::templateDir() . '/logo.png', self::LOGO_CID, 'image/png');
+            $email->embedFromPath(self::logoPath($scheme), self::LOGO_CID, 'image/png');
         }
 
         foreach ($to as $addr) {
@@ -142,7 +147,9 @@ final class Mailer
         $twig = $this->twig();
 
         $vars['locale'] = $locale;
-        $vars['logo_src'] ??= 'data:image/png;base64,' . base64_encode((string) file_get_contents(self::templateDir() . '/logo.png'));
+        $scheme = $this->scheme($vars);
+        $vars['c'] = ColorSchemes::EMAIL[$scheme];
+        $vars['logo_src'] ??= 'data:image/png;base64,' . base64_encode((string) file_get_contents(self::logoPath($scheme)));
         $htmlTemplate = "{$code}.{$locale}.html.twig";
         $textTemplate = "{$code}.{$locale}.txt.twig";
         if (!$twig->getLoader()->exists($htmlTemplate)) {
@@ -201,6 +208,20 @@ final class Mailer
         }
         $last = (string) preg_replace('/^(?:<<<\s*|<\s+)/', '', $last);
         return $last !== '' ? $last : '(no SMTP debug — possibly non-SMTP transport)';
+    }
+
+    /** @param array<string,mixed> $vars */
+    private function scheme(array $vars): string
+    {
+        if (ColorSchemes::isValid($vars['color_scheme'] ?? null)) {
+            return (string) $vars['color_scheme'];
+        }
+        return isset($vars['user_id']) ? $this->schemes->forUser((int) $vars['user_id']) : $this->schemes->instance();
+    }
+
+    private static function logoPath(string $scheme): string
+    {
+        return self::templateDir() . '/logo-' . $scheme . '.png';
     }
 
     private static function templateDir(): string

@@ -66,7 +66,7 @@ async function sendNow() {
 </script>
 
 <template>
-  <form v-if="settings" @submit.prevent="save" class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-5 space-y-4 mt-6">
+  <form v-if="settings" @submit.prevent="save" class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-5 space-y-4">
     <div>
       <h2 class="text-lg font-semibold">{{ t('weekly_report.title') }}</h2>
       <p class="text-sm text-neutral-500 mt-0.5">{{ t('weekly_report.subtitle') }}</p>

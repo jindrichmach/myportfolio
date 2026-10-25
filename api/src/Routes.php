@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MyPortfolio;
 
+use MyPortfolio\Action\Admin\AppearanceAction;
 use MyPortfolio\Action\Admin\CronJobsAction;
 use MyPortfolio\Action\Api\ApiCatalogAction;
 use MyPortfolio\Action\Admin\SmtpAction;
@@ -227,6 +228,8 @@ final class Routes
 
         // Admin
         $app->get    ('/api/admin/market-status', MarketStatusAction::class);
+        $app->get    ('/api/admin/appearance', [AppearanceAction::class, 'get']);
+        $app->put    ('/api/admin/appearance', [AppearanceAction::class, 'update']);
         $app->get    ('/api/admin/smtp',      [SmtpAction::class, 'get']);
         $app->put    ('/api/admin/smtp',      [SmtpAction::class, 'update']);
         $app->post   ('/api/admin/smtp/test', [SmtpAction::class, 'test']);

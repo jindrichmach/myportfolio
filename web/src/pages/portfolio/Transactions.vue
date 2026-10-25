@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useOwnerContext } from '@/composables/useOwnerContext'
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
-import EmptyState from '@/components/ui/EmptyState.vue'
-import SectionCard from '@/components/ui/SectionCard.vue'
 import TransactionTable from '@/components/portfolio/TransactionTable.vue'
 import TransactionFormModal from '@/components/portfolio/TransactionFormModal.vue'
+import type { GridDateRange, GridFilter, GridQuery } from '@/components/ui/grid'
 import {
   portfolioApi, ALL_TYPES,
   type Account, type Portfolio, type Position, type Transaction, type TransactionType,
@@ -19,34 +18,42 @@ const { canWrite } = useOwnerContext()
 const toast = useToast()
 
 const rows = ref<Transaction[]>([])
-const meta = ref({ total: 0, page: 1, per_page: 50, pages: 1 })
+const total = ref(0)
 const loading = ref(true)
 const positions = ref<Position[]>([])
 const portfolios = ref<Portfolio[]>([])
 const accounts = ref<Account[]>([])
-const filter = reactive({
-  portfolio_id: '' as number | '',
-  account_id: '' as number | '',
-  type: '' as TransactionType | '',
-  from: '',
-  to: '',
-  page: 1,
-})
+let lastQuery: GridQuery | null = null
 
-async function load() {
+/** Filtry jdou na server: portfolio, účet, typ a období. */
+const filters = computed<GridFilter[]>(() => [
+  { key: 'portfolio_id', type: 'select', label: t('positions.portfolio'), allLabel: t('positions.all_portfolios'),
+    options: portfolios.value.map(p => ({ value: String(p.id), label: p.name })) },
+  { key: 'account_id', type: 'select', label: t('positions.account'), allLabel: t('tx.all_accounts'),
+    options: accounts.value.map(a => ({ value: String(a.id), label: `${a.institution_name} / ${a.name}` })) },
+  { key: 'type', type: 'select', label: t('common.type'), allLabel: t('tx.all_types'),
+    options: ALL_TYPES.map(tp => ({ value: tp, label: t(`tx.types.${tp}`) })) },
+  { key: 'period', type: 'daterange', label: t('grid.period') },
+])
+
+async function load(query: GridQuery | null = lastQuery) {
+  if (!query) return
+  lastQuery = query
+  const f = query.filterValues
+  const range = (f.period ?? { from: '', to: '' }) as GridDateRange
   loading.value = true
   try {
     const result = await portfolioApi.transactions({
-      portfolio_id: filter.portfolio_id || undefined,
-      account_id: filter.account_id || undefined,
-      type: filter.type || undefined,
-      from: filter.from || undefined,
-      to: filter.to || undefined,
-      page: filter.page,
-      per_page: 50,
+      portfolio_id: f.portfolio_id ? Number(f.portfolio_id) : undefined,
+      account_id: f.account_id ? Number(f.account_id) : undefined,
+      type: (f.type || undefined) as TransactionType | undefined,
+      from: range.from || undefined,
+      to: range.to || undefined,
+      page: query.page,
+      per_page: query.pageSize,
     })
     rows.value = result.data
-    meta.value = result.meta
+    total.value = result.meta.total
   } finally {
     loading.value = false
   }
@@ -55,17 +62,7 @@ onMounted(async () => {
   ;[positions.value, portfolios.value, accounts.value] = await Promise.all([
     portfolioApi.positions(), portfolioApi.portfolios(), portfolioApi.accounts(),
   ])
-  await load()
 })
-watch(() => [filter.portfolio_id, filter.account_id, filter.type, filter.from, filter.to], () => {
-  filter.page = 1
-  load()
-})
-
-function goPage(p: number) {
-  filter.page = p
-  load()
-}
 
 const txModal = ref<{ tx: Transaction | null } | null>(null)
 
@@ -84,12 +81,11 @@ async function removeTx(tx: Transaction) {
   }
 }
 
-const selectClass = 'w-full min-w-0 h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-semibold">{{ t('tx.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('tx.subtitle') }}</p>
@@ -105,39 +101,9 @@ const selectClass = 'w-full min-w-0 h-9 px-3 border border-neutral-300 rounded-m
       </div>
     </div>
 
-    <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm mb-4 p-3 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto_auto]">
-      <select v-model="filter.portfolio_id" :class="selectClass">
-        <option value="">{{ t('positions.all_portfolios') }}</option>
-        <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
-      </select>
-      <select v-model="filter.account_id" :class="selectClass">
-        <option value="">{{ t('tx.all_accounts') }}</option>
-        <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
-      </select>
-      <select v-model="filter.type" :class="selectClass">
-        <option value="">{{ t('tx.all_types') }}</option>
-        <option v-for="tp in ALL_TYPES" :key="tp" :value="tp">{{ t(`tx.types.${tp}`) }}</option>
-      </select>
-      <label class="flex items-center gap-1.5 text-sm text-neutral-600">
-        <span class="w-6 shrink-0">{{ t('tx.from') }}</span> <input v-model="filter.from" type="date" :class="selectClass" class="lg:w-40" />
-      </label>
-      <label class="flex items-center gap-1.5 text-sm text-neutral-600">
-        <span class="w-6 shrink-0">{{ t('tx.to') }}</span> <input v-model="filter.to" type="date" :class="selectClass" class="lg:w-40" />
-      </label>
-    </div>
-
-    <div v-if="loading && !rows.length" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
-    <SectionCard v-else :title="t('tx.title')" :meta="t('tx.count', { n: meta.total })" flush>
-      <EmptyState v-if="!rows.length" :title="t('tx.empty')" :message="positions.length ? undefined : t('tx.no_positions')" />
-      <TransactionTable v-else :rows="rows" show-position @edit="tx => (txModal = { tx })" @delete="removeTx" />
-      <div v-if="meta.pages > 1" class="px-3 py-2 border-t border-neutral-200 flex items-center justify-end gap-2 text-sm">
-        <div class="flex items-center gap-2">
-          <button :disabled="meta.page <= 1" @click="goPage(meta.page - 1)" class="cursor-pointer h-8 px-3 border border-neutral-300 rounded-md disabled:opacity-40">{{ t('common.previous') }}</button>
-          <span class="text-neutral-500">{{ t('common.page') }} {{ meta.page }} / {{ meta.pages }}</span>
-          <button :disabled="meta.page >= meta.pages" @click="goPage(meta.page + 1)" class="cursor-pointer h-8 px-3 border border-neutral-300 rounded-md disabled:opacity-40">{{ t('common.next') }}</button>
-        </div>
-      </div>
-    </SectionCard>
+    <TransactionTable :rows="rows" :total="total" :loading="loading" :filters="filters" show-position
+      :empty-text="t('tx.empty')" :empty-hint="positions.length ? undefined : t('tx.no_positions')"
+      @change="load" @edit="tx => (txModal = { tx })" @delete="removeTx" />
 
     <TransactionFormModal v-if="txModal" :positions="positions" :transaction="txModal.tx" @close="txModal = null" @saved="onSaved" />
   </div>

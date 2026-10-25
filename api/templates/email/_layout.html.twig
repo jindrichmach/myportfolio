@@ -14,19 +14,19 @@
   }
 </style>
 </head>
-{# Barvy podle tokenů aplikace (web/src/styles/main.css, světlý motiv) #}
-{% set accent = '#1B7138' %}
-{% set accent_soft = '#EFFAF0' %}
-{% set brand_text = '#115B2B' %}
-<body style="margin:0;padding:0;background:#F0F5F1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111512;">
+{# Barvy podle barevného schématu (c = ColorSchemes::EMAIL, světlý motiv) #}
+{% set accent = c.accent %}
+{% set accent_soft = c.accent_soft %}
+{% set brand_text = c.brand_text %}
+<body style="margin:0;padding:0;background:{{ c.bg }};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:{{ c.text }};">
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mp-outer" style="background:#F0F5F1;padding:24px 4px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mp-outer" style="background:{{ c.bg }};padding:24px 4px;">
   <tr>
     <td align="center">
 
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mp-card" style="max-width:560px;background:#ffffff;border:1px solid #E3E8E3;border-radius:12px;overflow:hidden;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mp-card" style="max-width:560px;background:#ffffff;border:1px solid {{ c.line }};border-radius:12px;overflow:hidden;">
         <tr>
-          <td class="mp-head" style="padding:18px 24px;border-bottom:1px solid #E3E8E3;">
+          <td class="mp-head" style="padding:18px 24px;border-bottom:1px solid {{ c.line }};">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 {# Logo jako vložený PNG (cid:) — SVG ani data URI Gmail / Outlook nezobrazí; podklad = barva značky, kdyby klient obrázek skryl #}
@@ -34,8 +34,8 @@
                   <img src="{{ logo_src }}" width="40" height="40" alt="" style="display:block;width:40px;height:40px;border:0;border-radius:9px;background:{{ accent }};">
                 </td>
                 <td style="vertical-align:middle;padding-left:12px;">
-                  <div style="font-size:18px;font-weight:700;color:#111512;line-height:1.2;letter-spacing:-.01em;">My<span style="color:{{ brand_text }};">Portfolio</span></div>
-                  <div style="font-size:12px;color:#707470;line-height:1.4;margin-top:2px;">{{ locale == 'en' ? 'Investment tracker' : 'Přehled investic' }}</div>
+                  <div style="font-size:18px;font-weight:700;color:{{ c.text }};line-height:1.2;letter-spacing:-.01em;">My<span style="color:{{ brand_text }};">Portfolio</span></div>
+                  <div style="font-size:12px;color:{{ c.muted }};line-height:1.4;margin-top:2px;">{{ locale == 'en' ? 'Investment tracker' : 'Přehled investic' }}</div>
                 </td>
               </tr>
             </table>
@@ -43,13 +43,13 @@
         </tr>
 
         <tr>
-          <td class="mp-body" style="padding:24px;font-size:15px;line-height:1.6;color:#3D413D;">
+          <td class="mp-body" style="padding:24px;font-size:15px;line-height:1.6;color:{{ c.body }};">
             {% block content %}{% endblock %}
           </td>
         </tr>
       </table>
 
-      <p style="max-width:560px;font-size:11px;color:#A1A6A2;margin:16px auto 0;text-align:center;">
+      <p style="max-width:560px;font-size:11px;color:{{ c.faint }};margin:16px auto 0;text-align:center;">
         {% if locale == 'en' %}
           This email was sent automatically. If you did not request it, you can ignore it.
         {% else %}

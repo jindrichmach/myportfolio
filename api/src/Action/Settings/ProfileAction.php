@@ -7,6 +7,7 @@ namespace MyPortfolio\Action\Settings;
 use MyPortfolio\Http\Json;
 use MyPortfolio\Infrastructure\Database\Connection;
 use MyPortfolio\Middleware\AuthMiddleware;
+use MyPortfolio\Service\Appearance\ColorSchemes;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -59,6 +60,13 @@ final class ProfileAction
             $sets[] = 'display_currency = ?';
             $params[] = (string) $body['display_currency'];
         }
+        if (array_key_exists('color_scheme', $body)) {
+            if ($body['color_scheme'] !== null && !ColorSchemes::isValid($body['color_scheme'])) {
+                $errors['color_scheme'][] = 'Neznámé barevné schéma.';
+            }
+            $sets[] = 'color_scheme = ?';
+            $params[] = $body['color_scheme'];
+        }
         if ($errors !== []) {
             return Json::error($response, 'validation_failed', 'Validace selhala', 400, ['fields' => $errors]);
         }
@@ -79,10 +87,10 @@ final class ProfileAction
         return (int) ($user['id'] ?? 0);
     }
 
-    /** @return array{name:string,email:string,locale:string,display_currency:string}|null */
+    /** @return array{name:string,email:string,locale:string,display_currency:string,color_scheme:?string}|null */
     private function load(int $userId): ?array
     {
-        $stmt = $this->db->pdo()->prepare('SELECT name, email, locale, display_currency FROM users WHERE id = ?');
+        $stmt = $this->db->pdo()->prepare('SELECT name, email, locale, display_currency, color_scheme FROM users WHERE id = ?');
         $stmt->execute([$userId]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row === false ? null : [
@@ -90,6 +98,7 @@ final class ProfileAction
             'email'            => (string) $row['email'],
             'locale'           => (string) $row['locale'],
             'display_currency' => (string) $row['display_currency'],
+            'color_scheme'     => $row['color_scheme'] !== null ? (string) $row['color_scheme'] : null,
         ];
     }
 }

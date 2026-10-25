@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { watchDebounced } from '@vueuse/core'
 import Modal from '@/components/ui/Modal.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconUploadModal from '@/components/catalog/IconUploadModal.vue'
 import PriceBadge from '@/components/portfolio/PriceBadge.vue'
 import ManualPriceModal from '@/components/portfolio/ManualPriceModal.vue'
 import IconButton from '@/components/ui/IconButton.vue'
-import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
+import DataGrid from '@/components/ui/DataGrid.vue'
+import type { DataColumn } from '@/components/ui/DataTable.vue'
+import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
 import {
   catalogApi, ASSET_CLASSES, PRICE_SOURCES,
   type AssetClass, type Instrument, type InstrumentInput, type PriceSource,
@@ -24,8 +24,6 @@ const toast = useToast()
 
 const rows = ref<Instrument[]>([])
 const loading = ref(true)
-const q = ref('')
-const assetClass = ref<AssetClass | ''>('')
 
 const showForm = ref(false)
 const iconFor = ref<Instrument | null>(null)
@@ -49,14 +47,12 @@ const form = reactive(emptyForm())
 async function load() {
   loading.value = true
   try {
-    rows.value = await catalogApi.instruments({ q: q.value.trim(), asset_class: assetClass.value || undefined, all: auth.isAdmin })
+    rows.value = await catalogApi.instruments({ all: auth.isAdmin })
   } finally {
     loading.value = false
   }
 }
 onMounted(load)
-watch(assetClass, load)
-watchDebounced(q, load, { debounce: 300 })
 
 function openCreate() {
   Object.assign(form, emptyForm())
@@ -123,14 +119,25 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'price', label: t('prices.last'), align: 'right' },
 ])
 const instrumentKey = (i: Instrument) => i.id
+
+const filters = computed<GridFilter[]>(() => [
+  { key: 'q', type: 'text', label: t('grid.search'), placeholder: t('instruments.search_placeholder') },
+  { key: 'asset_class', type: 'select', label: t('instruments.asset_class'), allLabel: t('instruments.all_classes'), column: 'asset_class',
+    options: ASSET_CLASSES.map(c => ({ value: c, label: t(`instruments.classes.${c}`) })) },
+])
+/** Hledání v symbolu, názvu a ISINu. */
+function matchesInstrument(i: Instrument, v: GridFilterValues): boolean {
+  const q = String(v.q ?? '').trim().toLowerCase()
+  return !q || [i.symbol, i.name, i.isin ?? ''].some(x => x.toLowerCase().includes(q))
+}
 const inactiveClass = (i: Instrument) => (i.is_active ? '' : 'opacity-50')
 
 const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-semibold">{{ t('instruments.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('instruments.subtitle') }}</p>
@@ -140,18 +147,8 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       </button>
     </div>
 
-    <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm mb-4 p-3 grid gap-2 grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto]">
-      <input v-model="q" type="search" :placeholder="t('instruments.search_placeholder')" class="h-9 w-full min-w-0 px-3 border border-neutral-300 rounded-md bg-surface text-sm" />
-      <select v-model="assetClass" class="h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm">
-        <option value="">{{ t('common.all') }}</option>
-        <option v-for="c in ASSET_CLASSES" :key="c" :value="c">{{ t(`instruments.classes.${c}`) }}</option>
-      </select>
-    </div>
-
-    <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
-    <div v-else class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
-      <EmptyState v-if="!rows.length" :title="t('instruments.empty')" />
-      <DataTable v-else :columns="columns" :rows="rows" :row-key="instrumentKey" :row-class="inactiveClass" sticky-first>
+    <DataGrid :columns="columns" :rows="rows" :row-key="instrumentKey" :row-class="inactiveClass" :filters="filters"
+      :filter-fn="matchesInstrument" :loading="loading" :empty-text="t('instruments.empty')" sticky-first>
         <template #cell-symbol="{ row: r }">
           <span class="flex items-center gap-2 min-w-0">
             <EntityIcon :src="r.icon_url" :name="r.symbol" :size="28" />
@@ -176,8 +173,7 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
             </template>
           </span>
         </template>
-      </DataTable>
-    </div>
+    </DataGrid>
 
     <IconUploadModal v-if="iconFor" kind="instruments" :id="iconFor.id" :name="iconFor.symbol" :icon-url="iconFor.icon_url"
                      @close="iconFor = null" @changed="url => { if (iconFor) iconFor.icon_url = url }" />

@@ -93,6 +93,7 @@ final class EmailOtpService
                 (string) ($user['locale'] ?? 'cs'),
                 [(string) $user['email']],
                 [
+                    'user_id'   => $userId,
                     'name'      => $user['name'] ?? '',
                     'code'      => $code,
                     'expiresIn' => $this->ttlMinutes() . ' min',

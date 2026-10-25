@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Toaster from '@/components/Toaster.vue'
 import SessionLockOverlay from '@/components/SessionLockOverlay.vue'
 import WebAuthnCeremonyPrompt from '@/components/WebAuthnCeremonyPrompt.vue'
 import { useTheme } from '@/composables/useTheme'
+import { isColorScheme } from '@/theme/colorSchemes'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionSecurityStore } from '@/stores/sessionSecurity'
 
-// Inicializace barevného režimu (System/Light/Dark) — aplikuje .dark na <html>.
-useTheme()
+// Inicializace barevného režimu (System/Light/Dark) a schématu — aplikuje .dark a data-scheme na <html>.
+const { colorScheme } = useTheme()
 const { t } = useI18n()
 const route = useRoute()
 const auth = useAuthStore()
+// Schéma: volba uživatele (null = schéma instance). Profil bez color_scheme (zamčená session) a nenačtený
+// setup-status nechají uložené schéma, ať vzhled nepřeblikne.
+watchEffect(() => {
+  const own = auth.user?.color_scheme
+  const scheme = auth.user && own === undefined ? undefined : (own ?? auth.setupStatus?.color_scheme)
+  if (isColorScheme(scheme)) colorScheme.value = scheme
+})
 const security = useSessionSecurityStore()
 const protectedPrivateRoute = computed(() => route.matched.some(record => record.meta.requiresAuth)
   && route.name !== 'setup-mfa')

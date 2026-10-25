@@ -2,11 +2,12 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconUploadModal from '@/components/catalog/IconUploadModal.vue'
 import IconButton from '@/components/ui/IconButton.vue'
-import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
+import DataGrid from '@/components/ui/DataGrid.vue'
+import type { DataColumn } from '@/components/ui/DataTable.vue'
+import type { GridFilter } from '@/components/ui/grid'
 import { catalogApi, INSTITUTION_TYPES, type Institution, type InstitutionType } from '@/api/catalog'
 import { apiErrorMessage } from '@/api/errors'
 import { useAuthStore } from '@/stores/auth'
@@ -80,14 +81,20 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'website', label: t('institutions.website'), hideBelow: 'lg' },
 ])
 const institutionKey = (i: Institution) => i.id
+
+const filters = computed<GridFilter[]>(() => [
+  { key: 'q', type: 'text', label: t('grid.search'), placeholder: t('institutions.search_placeholder'), column: 'name' },
+  { key: 'type', type: 'select', label: t('common.type'), allLabel: t('institutions.all_types'), column: 'type',
+    options: INSTITUTION_TYPES.map(tp => ({ value: tp, label: t(`institutions.types.${tp}`) })) },
+])
 const inactiveClass = (i: Institution) => (i.is_active ? '' : 'opacity-50')
 
 const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-semibold">{{ t('institutions.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('institutions.subtitle') }}</p>
@@ -97,10 +104,8 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       </button>
     </div>
 
-    <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
-    <div v-else class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
-      <EmptyState v-if="!rows.length" :title="t('institutions.empty')" />
-      <DataTable v-else :columns="columns" :rows="rows" :row-key="institutionKey" :row-class="inactiveClass">
+    <DataGrid :columns="columns" :rows="rows" :row-key="institutionKey" :row-class="inactiveClass" :filters="filters"
+      :loading="loading" :empty-text="t('institutions.empty')">
         <template #cell-name="{ row: r }">
           <span class="inline-flex items-center gap-2 font-medium"><EntityIcon :src="r.icon_url" :name="r.name" :size="28" />{{ r.name }}</span>
         </template>
@@ -117,8 +122,7 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
             </template>
           </span>
         </template>
-      </DataTable>
-    </div>
+    </DataGrid>
 
     <IconUploadModal v-if="iconFor" kind="institutions" :id="iconFor.id" :name="iconFor.name" :icon-url="iconFor.icon_url"
                      @close="iconFor = null" @changed="url => { if (iconFor) iconFor.icon_url = url }" />

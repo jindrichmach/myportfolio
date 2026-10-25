@@ -16,12 +16,12 @@ nebo smazat jen admin.
 | Web | Volitelný odkaz |
 
 Instituci, na kterou už někdo navázal účet, nelze smazat — admin ji může
-deaktivovat.
+deaktivovat. Seznam jde prohledat podle názvu a filtrovat podle typu (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry)).
 
 ## 4.2 Katalog — instrumenty
 
 **Katalog → Instrumenty.** Co se dá držet: krypto, ETF, akcie, fondy.
-Vyhledávat lze podle symbolu, názvu nebo ISIN.
+Vyhledávat lze podle symbolu, názvu nebo ISIN a filtrovat podle třídy aktiv (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry)).
 
 | Pole | Význam |
 |---|---|
@@ -77,7 +77,8 @@ ostatním se ikona jen zobrazí.
 | Poznámka | Volitelně |
 
 Účet s pozicemi nelze smazat — místo toho ho v úpravě **archivuj**. Archivované
-účty zobrazíš přepínačem **Zobrazit archivované**.
+účty zobrazíš přepínačem **Zobrazit archivované**. Seznam jde prohledat (název, instituce, poznámka)
+a filtrovat podle instituce (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry)).
 
 ## 4.4 Portfolia
 

@@ -31,7 +31,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'admin/cron-jobs',        name: 'cron-jobs',      component: () => import('@/pages/admin/CronJobs.vue'),    meta: { adminOnly: true } },
       { path: 'admin/update',           name: 'admin-update',   component: () => import('@/pages/admin/Update.vue'),      meta: { adminOnly: true } },
       { path: 'admin/users',            name: 'admin-users',    component: () => import('@/pages/admin/Users.vue'),       meta: { adminOnly: true } },
-      { path: 'admin/smtp',             name: 'admin-smtp',     component: () => import('@/pages/admin/Smtp.vue'),        meta: { adminOnly: true } },
+      // Nastavení instance po záložkách (?tab=smtp)
+      { path: 'admin/settings',         name: 'admin-settings', component: () => import('@/pages/admin/Settings.vue'),    meta: { adminOnly: true } },
       // Profil — záložky na /profile/password; staré URL přesměrují na příslušnou záložku.
       { path: 'profile',                name: 'profile',               component: () => import('@/pages/Profile.vue') },
       { path: 'profile/totp',           name: 'profile-totp',          redirect: (to) => ({ path: '/profile/password', query: { ...to.query, tab: 'totp' } }) },

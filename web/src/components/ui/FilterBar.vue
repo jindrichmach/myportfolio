@@ -18,7 +18,7 @@ const open = ref(false)
 
 <template>
   <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm mb-4 p-3">
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex flex-wrap items-end gap-2">
       <slot name="primary" />
 
       <button

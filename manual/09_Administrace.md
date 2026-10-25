@@ -4,7 +4,8 @@ Sekce **Systém** v menu je viditelná jen pro roli **admin**.
 
 ## 9.1 Uživatelé
 
-**Systém → Uživatelé.** Založení, úprava a deaktivace účtů.
+**Systém → Uživatelé.** Založení, úprava a deaktivace účtů. Seznam jde prohledat podle e-mailu nebo jména
+a filtrovat podle role a stavu (aktivní, neaktivní) — viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
 
 | Role | Co smí |
 |---|---|
@@ -24,12 +25,21 @@ Posledního aktivního admina nelze deaktivovat ani mu odebrat roli.
 | Poslední cena | Cena, datum, zdroj; badge „zastaralé" |
 | Historie | Od kdy a kolik dní cen je uloženo |
 
+Instrumenty jde prohledat podle symbolu nebo názvu a filtrovat podle **Stavu ceny** (aktuální, zastaralá,
+chybí) — viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
+
 Pod tabulkou je poslední kurzový lístek ČNB a poslední měsíc indexu cen pro inflaci (úloha `cron-cpi`). Tlačítka **Stáhnout kurzy ČNB**
 a **Aktualizovat ceny** spustí úlohy hned na pozadí.
 
-## 9.3 E-mail (SMTP)
+## 9.3 Nastavení
 
-**Systém → E-mail (SMTP)** — server, přes který aplikace posílá e-maily (obnova hesla,
+Stránka **Systém → Nastavení** drží nastavení celé instance na záložkách. Každá záložka má vlastní
+tlačítko **Uložit** a ukládá se samostatně. Vybraná záložka je v adrese stránky (`?tab=`), takže na ni
+jde odkázat a po obnovení stránky zůstane otevřená.
+
+### E-mail (SMTP)
+
+Záložka **E-mail (SMTP)** — server, přes který aplikace posílá e-maily (obnova hesla,
 ověřovací kódy, týdenní reporty).
 
 | Pole | Význam |
@@ -50,10 +60,25 @@ a ukáže odpověď serveru nebo chybu. Před uložením si tak ověříš, že 
 > 💡 Gmail, Seznam a další služby s dvoufázovým ověřením vyžadují místo hesla k účtu
 > **heslo pro aplikace**.
 
+### Vzhled
+
+Záložka **Vzhled** — výchozí barevné schéma instance. Platí pro přihlašovací stránku, pro e-maily
+(barvy i logo) a pro všechny uživatele, kteří si v profilu nevybrali vlastní schéma
+(viz [3.4 Profil](03_Prihlaseni_a_zabezpeceni.md#34-profil)).
+
+Na výběr je deset schémat seřazených podle barvy: Malina, Terakota, Bronz, Oliva, **Les** (výchozí, zelené),
+Oceán, Indigo, Ametyst, Orchidej a Grafit. Každé má světlý i tmavý režim a vlastní barvu loga a favikony.
+Barvy zisku, ztráty a varování jsou ve všech schématech stejné.
+
+Ikona nainstalované aplikace (PWA) zůstává ve výchozí zelené.
+
 ## 9.4 Log
 
 **Systém → Log** — auditní záznam přihlášení, změn zabezpečení a správy
 uživatelů s IP adresou.
+
+Filtry: **Hledat** (název akce, e-mail nebo jméno uživatele), **Akce**, **Entita** a **Období**
+(od–do, včetně celého posledního dne). Ovládání seznamu viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
 
 ## 9.5 Plánované úlohy
 

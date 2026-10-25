@@ -83,10 +83,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
 
 <template>
   <div class="max-w-3xl">
-    <div class="mb-4">
-      <h1 class="text-2xl font-semibold">{{ t('smtp.title') }}</h1>
-      <p class="text-sm text-neutral-500 mt-0.5">{{ t('smtp.subtitle') }}</p>
-    </div>
+    <p class="mb-4 text-sm text-neutral-500">{{ t('smtp.subtitle') }}</p>
 
     <div v-if="data" class="mb-4 text-sm rounded-md px-3 py-2"
          :class="data.active_source === 'db' ? 'bg-success-50 text-success-600' : 'bg-neutral-100 text-neutral-600'">

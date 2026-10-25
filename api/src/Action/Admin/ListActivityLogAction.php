@@ -12,7 +12,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * GET /api/admin/activity-log
- * Query: ?action=&user_id=&entity_type=&entity_id=&limit=100&offset=0
+ * Query: ?action=&user_id=&entity_type=&entity_id=&q=&from=YYYY-MM-DD&to=YYYY-MM-DD&limit=100&offset=0
+ * `q` hledá v názvu akce, e-mailu a jménu uživatele; `from`/`to` jsou včetně celého dne.
  *
  * Vrací poslední záznamy z activity_log + JOIN users.
  * Admin only.
@@ -47,6 +48,19 @@ final class ListActivityLogAction
             $where[] = 'al.entity_id = ?';
             $params[] = (int) $q['entity_id'];
         }
+        if (trim((string) ($q['q'] ?? '')) !== '') {
+            $like = '%' . addcslashes(trim((string) $q['q']), '%_\\') . '%';
+            $where[] = '(al.action LIKE ? OR u.email LIKE ? OR u.name LIKE ?)';
+            array_push($params, $like, $like, $like);
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($q['from'] ?? '')) === 1) {
+            $where[] = 'al.created_at >= ?';
+            $params[] = $q['from'] . ' 00:00:00';
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($q['to'] ?? '')) === 1) {
+            $where[] = 'al.created_at < DATE_ADD(?, INTERVAL 1 DAY)';
+            $params[] = (string) $q['to'];
+        }
         $limit = max(1, min(500, (int) ($q['limit'] ?? 100)));
         $offset = max(0, (int) ($q['offset'] ?? 0));
 
@@ -79,7 +93,7 @@ final class ListActivityLogAction
         }
 
         // Total count for pagination
-        $countSql = "SELECT COUNT(*) FROM activity_log al $whereSql";
+        $countSql = "SELECT COUNT(*) FROM activity_log al LEFT JOIN users u ON u.id = al.user_id $whereSql";
         $countStmt = $this->db->pdo()->prepare($countSql);
         $countStmt->execute($params);
         $total = (int) $countStmt->fetchColumn();

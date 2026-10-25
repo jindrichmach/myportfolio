@@ -6,16 +6,28 @@ import { RouterLink } from 'vue-router'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Badge, { type BadgeTone } from '@/components/ui/Badge.vue'
-import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
+import DataGrid from '@/components/ui/DataGrid.vue'
+import type { DataColumn } from '@/components/ui/DataTable.vue'
+import type { GridFilter, GridQuery } from '@/components/ui/grid'
 import type { Transaction, TransactionType } from '@/api/portfolio'
 import { formatDec, formatDateTime } from '@/composables/useFormat'
 
+/** Seznam transakcí jako serverový DataGrid: rodič načítá stránku na `change` a předá `rows` + `total`. */
 const props = defineProps<{
   rows: Transaction[]
+  total: number
+  loading?: boolean
+  filters?: GridFilter[]
+  emptyText?: string
+  emptyHint?: string
   /** Zobrazit sloupec pozice (globální seznam). */
   showPosition?: boolean
 }>()
-const emit = defineEmits<{ (e: 'edit', tx: Transaction): void; (e: 'delete', tx: Transaction): void }>()
+const emit = defineEmits<{
+  (e: 'change', query: GridQuery): void
+  (e: 'edit', tx: Transaction): void
+  (e: 'delete', tx: Transaction): void
+}>()
 const { t } = useI18n()
 const { canWrite } = useOwnerContext()
 
@@ -48,7 +60,9 @@ const mono = (tx: Transaction) => ({ 'font-mono': tx.asset_class === 'crypto' })
 </script>
 
 <template>
-  <DataTable :columns="columns" :rows="rows" :row-key="txKey" sticky-first :cards-below="showPosition ? 'lg' : 'md'">
+  <DataGrid :columns="columns" :rows="rows" :row-key="txKey" :total="total" :loading="loading" :filters="filters"
+    :empty-text="emptyText" :empty-hint="emptyHint" sticky-first :cards-below="showPosition ? 'lg' : 'md'"
+    @change="q => emit('change', q)">
     <template #cell-position="{ row: tx }">
       <div class="flex items-center gap-2 min-w-0">
         <EntityIcon :src="tx.valuation_mode === 'market' ? tx.instrument_icon_url : (tx.instrument_icon_url ?? tx.institution_icon_url)" :name="tx.position_name" />
@@ -60,7 +74,7 @@ const mono = (tx: Transaction) => ({ 'font-mono': tx.asset_class === 'crypto' })
     </template>
     <template #cell-executed_at="{ row: tx }">
       <span class="block whitespace-nowrap tabular-nums">{{ formatDateTime(tx.executed_at) }}</span>
-      <Badge :tone="TONES[tx.type]" class="mt-0.5">{{ t(`tx.types.${tx.type}`) }}</Badge>
+      <Badge :tone="TONES[tx.type as TransactionType]" class="mt-0.5">{{ t(`tx.types.${tx.type}`) }}</Badge>
     </template>
     <template #cell-quantity="{ row: tx }">
       <span :class="mono(tx)">
@@ -84,5 +98,5 @@ const mono = (tx: Transaction) => ({ 'font-mono': tx.asset_class === 'crypto' })
         <IconButton icon="trash" variant="danger" :label="t('common.delete')" @click="emit('delete', tx)" />
       </span>
     </template>
-  </DataTable>
+  </DataGrid>
 </template>

@@ -6,6 +6,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import Modal from '@/components/ui/Modal.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import TransactionTable from '@/components/portfolio/TransactionTable.vue'
+import type { GridQuery } from '@/components/ui/grid'
 import TransactionFormModal from '@/components/portfolio/TransactionFormModal.vue'
 import TransferFormModal from '@/components/portfolio/TransferFormModal.vue'
 import PositionValuationPanel from '@/components/portfolio/PositionValuationPanel.vue'
@@ -13,7 +14,6 @@ import HistoryChart from '@/components/portfolio/HistoryChart.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Badge from '@/components/ui/Badge.vue'
-import SectionCard from '@/components/ui/SectionCard.vue'
 import CashBalanceModal from '@/components/portfolio/CashBalanceModal.vue'
 import { portfolioApi, type Account, type Portfolio, type Position, type Transaction } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
@@ -29,9 +29,9 @@ const id = computed(() => Number(route.params.id))
 const position = ref<Position | null>(null)
 const transactions = ref<Transaction[]>([])
 const total = ref(0)
-const page = ref(1)
-const pages = ref(1)
 const loading = ref(true)
+const txLoading = ref(true)
+let lastQuery: GridQuery | null = null
 const notFound = ref(false)
 const valuationPanel = ref<InstanceType<typeof PositionValuationPanel> | null>(null)
 const historyChart = ref<InstanceType<typeof HistoryChart> | null>(null)
@@ -39,14 +39,7 @@ const historyChart = ref<InstanceType<typeof HistoryChart> | null>(null)
 async function load() {
   loading.value = true
   try {
-    const [pos, list] = await Promise.all([
-      portfolioApi.position(id.value),
-      portfolioApi.transactions({ position_id: id.value, page: page.value, per_page: 50 }),
-    ])
-    position.value = pos
-    transactions.value = list.data
-    total.value = list.meta.total
-    pages.value = list.meta.pages
+    ;[position.value] = await Promise.all([portfolioApi.position(id.value), loadTx()])
   } catch (e: any) {
     if (e?.response?.status === 404) notFound.value = true
     else toast.error(apiErrorMessage(e, t('common.error')))
@@ -56,9 +49,18 @@ async function load() {
 }
 onMounted(load)
 
-function goPage(p: number) {
-  page.value = p
-  load()
+/** Stránka transakcí pozice — grid ji vyžádá po připojení a při změně stránky. */
+async function loadTx(query: GridQuery | null = lastQuery) {
+  if (!query) return
+  lastQuery = query
+  txLoading.value = true
+  try {
+    const list = await portfolioApi.transactions({ position_id: id.value, page: query.page, per_page: query.pageSize })
+    transactions.value = list.data
+    total.value = list.meta.total
+  } finally {
+    txLoading.value = false
+  }
 }
 
 // ── Transakce ───────────────────────────────────────────────────────────
@@ -192,15 +194,9 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       <PositionValuationPanel ref="valuationPanel" :position="position" :transaction-count="total" />
       <HistoryChart ref="historyChart" class="mb-4" scope="position" :id="position.id" />
 
-      <SectionCard :title="t('tx.title')" :meta="String(total)" flush>
-        <EmptyState v-if="!transactions.length" :title="t('tx.empty')" />
-        <TransactionTable v-else :rows="transactions" @edit="tx => (txModal = { tx })" @delete="removeTx" />
-        <div v-if="pages > 1" class="px-3 py-2 border-t border-neutral-200 flex items-center justify-end gap-2 text-sm">
-          <button :disabled="page <= 1" @click="goPage(page - 1)" class="cursor-pointer h-8 px-3 border border-neutral-300 rounded-md disabled:opacity-40">{{ t('common.previous') }}</button>
-          <span class="text-neutral-500">{{ t('common.page') }} {{ page }} / {{ pages }}</span>
-          <button :disabled="page >= pages" @click="goPage(page + 1)" class="cursor-pointer h-8 px-3 border border-neutral-300 rounded-md disabled:opacity-40">{{ t('common.next') }}</button>
-        </div>
-      </SectionCard>
+      <h2 class="text-lg font-semibold mb-2">{{ t('tx.title') }}</h2>
+      <TransactionTable :rows="transactions" :total="total" :loading="txLoading" :empty-text="t('tx.empty')"
+        @change="loadTx" @edit="tx => (txModal = { tx })" @delete="removeTx" />
 
     </template>
 

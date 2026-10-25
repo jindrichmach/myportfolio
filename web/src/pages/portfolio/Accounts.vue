@@ -8,7 +8,9 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Badge from '@/components/ui/Badge.vue'
-import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
+import DataGrid from '@/components/ui/DataGrid.vue'
+import type { DataColumn } from '@/components/ui/DataTable.vue'
+import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
 import { catalogApi, type Institution } from '@/api/catalog'
 import { portfolioApi, type Account } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
@@ -92,14 +94,25 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'note', label: t('common.note'), hideBelow: 'lg' },
 ])
 const accountKey = (a: Account) => a.id
+
+const filters = computed<GridFilter[]>(() => [
+  { key: 'q', type: 'text', label: t('grid.search'), placeholder: t('accounts.search_placeholder') },
+  { key: 'institution_id', type: 'select', label: t('accounts.institution'), allLabel: t('accounts.all_institutions'), column: 'institution_id',
+    options: institutions.value.map(i => ({ value: String(i.id), label: i.name })) },
+])
+/** Hledání v názvu účtu, instituci a poznámce. */
+function matchesAccount(a: Account, v: GridFilterValues): boolean {
+  const q = String(v.q ?? '').trim().toLowerCase()
+  return !q || [a.name, a.institution_name, a.note ?? ''].some(x => x.toLowerCase().includes(q))
+}
 const archivedClass = (a: Account) => (a.archived_at ? 'opacity-50' : '')
 
 const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-semibold">{{ t('accounts.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('accounts.subtitle') }}</p>
@@ -109,20 +122,20 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       </button>
     </div>
 
-    <label class="inline-flex items-center gap-2 text-sm text-neutral-600 mb-3">
+    <label class="inline-flex items-center gap-2 text-sm text-neutral-600">
       <input v-model="showArchived" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
       {{ t('common.show_archived') }}
     </label>
 
-    <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
-    <div v-else class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
-      <div v-if="!rows.length">
-        <EmptyState :title="t('accounts.empty')" :message="institutions.length ? undefined : t('accounts.no_institutions')" />
-        <p v-if="!institutions.length" class="text-center pb-8 -mt-6">
-          <RouterLink to="/catalog/institutions" class="text-sm text-primary-700 hover:underline">{{ t('institutions.new') }} →</RouterLink>
-        </p>
-      </div>
-      <DataTable v-else :columns="columns" :rows="rows" :row-key="accountKey" :row-class="archivedClass">
+    <!-- Bez institucí nejde účet založit — prázdný stav s odkazem na katalog -->
+    <div v-if="!loading && !rows.length && !institutions.length" class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
+      <EmptyState :title="t('accounts.empty')" :message="t('accounts.no_institutions')" />
+      <p class="text-center pb-8 -mt-6">
+        <RouterLink to="/catalog/institutions" class="text-sm text-primary-700 hover:underline">{{ t('institutions.new') }} →</RouterLink>
+      </p>
+    </div>
+    <DataGrid v-else :columns="columns" :rows="rows" :row-key="accountKey" :row-class="archivedClass" :filters="filters"
+      :filter-fn="matchesAccount" :loading="loading" :empty-text="t('accounts.empty')">
         <template #cell-name="{ row: r }">
           <span class="flex items-center gap-2.5 min-w-0">
             <EntityIcon :src="r.institution_icon_url" :name="r.institution_name" :size="28" />
@@ -140,8 +153,7 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
             <IconButton icon="trash" variant="danger" :label="t('common.delete')" @click="remove(r)" />
           </span>
         </template>
-      </DataTable>
-    </div>
+    </DataGrid>
 
     <Modal v-if="showForm" :title="form.id === null ? t('accounts.new') : t('accounts.edit_title')" width-class="max-w-md" @close="showForm = false">
       <form id="account-form" class="space-y-3" @submit.prevent="save">

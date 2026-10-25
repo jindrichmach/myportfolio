@@ -13,13 +13,18 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>MyPortfolio</title>
     <script>
-      // Anti-FOUC: nastav .dark ještě před načtením appky, ať dark režim nebliká.
-      // Klíč musí sedět s composables/useTheme.ts (THEME_STORAGE_KEY).
+      // Anti-FOUC: nastav .dark a barevné schéma ještě před načtením appky, ať nic nebliká.
+      // Klíče musí sedět s composables/useTheme.ts (THEME_STORAGE_KEY, SCHEME_STORAGE_KEY).
       (function () {
         try {
           var p = (localStorage.getItem('myportfolio-color-scheme') || 'auto').replace(/^"|"$/g, '');
           if (p === 'dark' || (p !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
+          }
+          var s = (localStorage.getItem('myportfolio-scheme') || '').replace(/^"|"$/g, '');
+          if (/^[a-z]+$/.test(s) && s !== 'forest') {
+            document.documentElement.setAttribute('data-scheme', s);
+            document.querySelector('link[rel="icon"][type="image/svg+xml"]').setAttribute('href', '/pwa/favicon-' + s + '.svg');
           }
         } catch (e) {}
       })();
