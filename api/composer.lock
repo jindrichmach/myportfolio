@@ -2519,16 +2519,16 @@
         },
         {
             "name": "phrity/util-interpolator",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirn-se/phrity-util-interpolator.git",
-                "reference": "18b0362d2aff60984c530808333c5e64c80c3e50"
+                "reference": "44cef5cca373d10d479eaea4654428170f5eaa1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirn-se/phrity-util-interpolator/zipball/18b0362d2aff60984c530808333c5e64c80c3e50",
-                "reference": "18b0362d2aff60984c530808333c5e64c80c3e50",
+                "url": "https://api.github.com/repos/sirn-se/phrity-util-interpolator/zipball/44cef5cca373d10d479eaea4654428170f5eaa1a",
+                "reference": "44cef5cca373d10d479eaea4654428170f5eaa1a",
                 "shasum": ""
             },
             "require": {
@@ -2538,9 +2538,9 @@
             },
             "require-dev": {
                 "phpstan/phpstan": "^2.0",
-                "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+                "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0 || ^13.0",
                 "robiningelbrecht/phpunit-coverage-tools": "^1.9",
-                "squizlabs/php_codesniffer": "^3.5 || ^4.0"
+                "squizlabs/php_codesniffer": "^4.0"
             },
             "type": "library",
             "autoload": {
@@ -2567,9 +2567,9 @@
             ],
             "support": {
                 "issues": "https://github.com/sirn-se/phrity-util-interpolator/issues",
-                "source": "https://github.com/sirn-se/phrity-util-interpolator/tree/1.1.1"
+                "source": "https://github.com/sirn-se/phrity-util-interpolator/tree/1.1.2"
             },
-            "time": "2025-12-05T21:35:25+00:00"
+            "time": "2026-10-25T12:14:18+00:00"
         },
         {
             "name": "phrity/util-transformer",
@@ -2633,16 +2633,16 @@
         },
         {
             "name": "phrity/websocket",
-            "version": "4.0.0",
+            "version": "4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirn-se/websocket-php.git",
-                "reference": "1a392a7e858f6bf67dae98f9328d931cf45b893c"
+                "reference": "24b0b4b97b9d7b0e5f0852908ba077a8acbdbd79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirn-se/websocket-php/zipball/1a392a7e858f6bf67dae98f9328d931cf45b893c",
-                "reference": "1a392a7e858f6bf67dae98f9328d931cf45b893c",
+                "url": "https://api.github.com/repos/sirn-se/websocket-php/zipball/24b0b4b97b9d7b0e5f0852908ba077a8acbdbd79",
+                "reference": "24b0b4b97b9d7b0e5f0852908ba077a8acbdbd79",
                 "shasum": ""
             },
             "require": {
@@ -2664,7 +2664,8 @@
                 "phrity/net-mock": "^2.4",
                 "phrity/util-errorhandler": "^1.1",
                 "robiningelbrecht/phpunit-coverage-tools": "^1.9",
-                "squizlabs/php_codesniffer": "^4.0"
+                "squizlabs/php_codesniffer": "^4.0",
+                "symfony/console": "^7.0 || ^8.0"
             },
             "type": "library",
             "autoload": {
@@ -2695,9 +2696,9 @@
             ],
             "support": {
                 "issues": "https://github.com/sirn-se/websocket-php/issues",
-                "source": "https://github.com/sirn-se/websocket-php/tree/4.0.0"
+                "source": "https://github.com/sirn-se/websocket-php/tree/4.1.0"
             },
-            "time": "2026-09-19T11:07:09+00:00"
+            "time": "2026-10-25T12:50:33+00:00"
         },
         {
             "name": "predis/predis",
