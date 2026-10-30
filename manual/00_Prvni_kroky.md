@@ -16,11 +16,11 @@ od brokera nebo burzy — instrumenty i pozice se při něm založí samy, ručn
 
 ## 0.2 Pět kroků
 
-1. **Instituce** — v **Katalog → Instituce** zkontroluj, že tam tvůj broker nebo burza je; když ne, přidej ji
+1. **Instituce** — v **Účty a katalog → Instituce** zkontroluj, že tam tvůj broker nebo burza je; když ne, přidej ji
    ([4.1](04_Ucty_a_portfolia.md#41-katalog--instituce)).
-2. **Účet** — **Portfolio → Účty → Nový účet**, vyber instituci a dej účtu název
+2. **Účet** — **Účty a katalog → Účty → Nový účet**, vyber instituci a dej účtu název
    ([4.3](04_Ucty_a_portfolia.md#43-účty)).
-3. **Portfolio** — **Portfolio → Portfolia → Nové portfolio**, třeba „Dlouhodobé"
+3. **Portfolio** — **Účty a katalog → Portfolia → Nové portfolio**, třeba „Dlouhodobé"
    ([4.4](04_Ucty_a_portfolia.md#44-portfolia)).
 4. **Import** — stáhni export transakcí od brokera (který soubor, je v tabulce v
    [5.5](05_Transakce.md#55-import-z-burzy--brokera)), v **Portfolio → Import** vyber účet a portfolio, nahraj

@@ -15,6 +15,7 @@ export interface PositionValuation {
   asset_class: AssetClass | null
   category: Category
   valuation_mode: ValuationMode
+  is_cash: boolean
   portfolio_id: number
   portfolio_name: string
   account_id: number

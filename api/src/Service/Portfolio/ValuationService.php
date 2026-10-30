@@ -81,6 +81,7 @@ final class ValuationService
                 'asset_class'      => $position['asset_class'],
                 'category'         => self::category($position),
                 'valuation_mode'   => $position['valuation_mode'],
+                'is_cash'          => !empty($position['is_cash']),
                 'portfolio_id'     => $position['portfolio_id'],
                 'portfolio_name'   => $position['portfolio_name'],
                 'account_id'       => $position['account_id'],

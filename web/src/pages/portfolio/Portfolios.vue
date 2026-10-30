@@ -12,6 +12,7 @@ import { portfolioApi, type Portfolio } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -117,7 +118,9 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
 
     <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
     <div v-else class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
-      <EmptyState v-if="!rows.length" :title="t('portfolios.empty')" :message="t('portfolios.empty_hint')" />
+      <EmptyState v-if="!rows.length" :title="t('portfolios.empty')" :message="t('portfolios.empty_hint')">
+        <div class="mt-3"><ManualLink to="00_Prvni_kroky#01-pojmy-na-jednom-místě" :label="t('manual.terms')" /></div>
+      </EmptyState>
       <DataTable v-else :columns="columns" :rows="rows" :row-key="portfolioKey" :row-class="archivedClass">
         <template #cell-name="{ row: r }">
           <RouterLink :to="{ path: '/positions', query: { portfolio_id: r.id } }" class="font-medium hover:text-primary-700 hover:underline">{{ r.name }}</RouterLink>

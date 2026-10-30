@@ -21,5 +21,6 @@ defineProps<{
       class="inline-flex items-center gap-1.5 mt-4 h-9 px-4 bg-action hover:bg-action-hover text-on-action text-sm font-medium rounded-md">
       {{ cta }}
     </RouterLink>
+    <slot />
   </div>
 </template>

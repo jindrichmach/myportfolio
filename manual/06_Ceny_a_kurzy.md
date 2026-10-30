@@ -34,7 +34,7 @@ se nikdy nesmaže ani nevynuluje; zůstane poslední známá.
 
 ## 6.3 Ruční cena
 
-**Katalog → Instrumenty → Zadat cenu.** Datum, cena a měna. Ruční cena daného
+**Účty a katalog → Instrumenty → Zadat cenu.** Datum, cena a měna. Ruční cena daného
 dne přepíše cenu ze zdroje. Doplňování historie ruční ceny nepřepisuje;
 jen **dnešní** cenu přepíše nejbližší hodinová aktualizace, pokud zdroj funguje.
 
@@ -45,6 +45,6 @@ jen **dnešní** cenu přepíše nejbližší hodinová aktualizace, pokud zdroj
 
 ## 6.4 Kde ceny uvidíš
 
-- **Katalog → Instrumenty** — sloupec Poslední cena
+- **Účty a katalog → Instrumenty** — sloupec Poslední cena
 - **Pozice** a **detail pozice** — poslední cena instrumentu, datum a zdroj
 - **Systém → Ceny a kurzy** — stav všech zdrojů (viz [11.3](11_Administrace.md#113-ceny-a-kurzy))

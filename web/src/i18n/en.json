@@ -251,7 +251,6 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "empty": "The overview appears once you add positions and transactions.",
     "subtitle": "Values in {currency} as of {date} — cost at the purchase-date rate, value at today's rate.",
     "change_currency": "Change display currency",
     "incomplete": "{n} positions have no value (missing price or rate) — excluded from totals.",
@@ -268,7 +267,22 @@
     "targets": "Actual vs target",
     "targets_link": "Edit targets",
     "accounts_n": "Accounts: {n}",
-    "net_worth_hint": "Investments + other assets − liabilities. Pension savings and DIP count as investments."
+    "net_worth_hint": "Investments + other assets − liabilities. Pension savings and DIP count as investments.",
+    "portfolios": "Portfolios",
+    "all_positions": "All positions",
+    "positions_n": "Positions: {n}",
+    "add": "Add",
+    "start_title": "First overview in 5 minutes",
+    "start_intro": "The overview appears once you have your first positions. The fastest way is importing an export from your broker or exchange.",
+    "step_done": "done",
+    "step_account": "Create an account",
+    "step_account_hint": "Your account at a broker, exchange or bank (pick the institution from the catalog, add it if missing).",
+    "step_portfolio": "Create a portfolio",
+    "step_portfolio_hint": "Your own group of positions, e.g. “Long-term”.",
+    "step_import": "Import transactions",
+    "step_import_hint": "Upload your broker’s export — instruments and positions are created automatically.",
+    "step_invest": "…or record the first purchase by hand",
+    "step_invest_hint": "Find the instrument by ticker, ISIN or name and record the purchase."
   },
   "errors": {
     "generic": "Something went wrong",
@@ -304,7 +318,6 @@
     "transactions": "Transactions",
     "accounts": "Accounts",
     "portfolios": "Portfolios",
-    "section_catalog": "Catalog",
     "instruments": "Instruments",
     "institutions": "Institutions",
     "market": "Prices & rates",
@@ -321,7 +334,10 @@
     "household": "Household",
     "manual": "Manual",
     "update": "Updates",
-    "settings": "Settings"
+    "settings": "Settings",
+    "section_setup": "Accounts & catalog",
+    "collapse_menu": "Collapse menu",
+    "expand_menu": "Expand menu"
   },
   "passkeys": {
     "add": "Add passkey",
@@ -637,7 +653,8 @@
       "cash": "Free money on the account — you enter the balance"
     },
     "valued_at": "valued {date}",
-    "no_valuation": "no valuation"
+    "no_valuation": "no valuation",
+    "actions_for": "Actions: {name}"
   },
   "tx": {
     "title": "Transactions",
@@ -795,7 +812,9 @@
     "legend_value": "Value",
     "legend_invested": "Invested",
     "legend_gain": "Gain / loss (difference)",
-    "benchmark_legend": "Same deposits into {symbol}"
+    "benchmark_legend": "Same deposits into {symbol}",
+    "details_show": "Details: TWR, XIRR, inflation, benchmark",
+    "details_hide": "Hide details"
   },
   "weekly_report": {
     "title": "E-mail reports",
@@ -1416,7 +1435,8 @@
     "cs_only": "The manual is available in Czech only for now.",
     "admin_only": "This chapter is for the app administrator only.",
     "how_computed": "How is it calculated?",
-    "guide": "Guide in the manual"
+    "guide": "Guide in the manual",
+    "terms": "What is an account, portfolio and institution?"
   },
   "update": {
     "title": "Updates",
@@ -1491,5 +1511,20 @@
     "clear": "Clear selection",
     "search": "Search",
     "period": "Period"
+  },
+  "invest": {
+    "title": "New investment",
+    "prereq": "You need at least one account and one portfolio first.",
+    "first_steps": "First overview in 5 minutes",
+    "step_instrument": "What you are buying",
+    "search_label": "Ticker, ISIN or name",
+    "search_placeholder": "e.g. VWCE, IE00BK5BQT80, Bitcoin",
+    "no_results": "Nothing in the catalog — create a new instrument",
+    "not_in_catalog": "Not in the catalog? Create a new instrument",
+    "create_hint": "The same fund can have a different ticker and currency per exchange (VWCE on Xetra in EUR, VWRA in London in USD) — enter the one you actually buy.",
+    "back_to_search": "Back to catalog search",
+    "step_where": "Where you hold it",
+    "step_buy": "In the next step you record the first purchase.",
+    "continue": "Continue to purchase"
   }
 }

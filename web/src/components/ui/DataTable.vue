@@ -1,7 +1,9 @@
 <script setup lang="ts" generic="T">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { RouteLocationRaw } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import { useRowLink } from '@/composables/useRowLink'
 
 /**
  * Datová tabulka: od `md` (nebo `cardsBelow`) výš <table>, pod ním karty se stejnými daty (primární sloupec jako titulek,
@@ -9,6 +11,8 @@ import Icon from '@/components/ui/Icon.vue'
  * `expandable(row)` přidá rozbalovací řádek (slot `expanded`) — např. rozpad pozice po účtech.
  * Čísla: `align: 'right'` (vždy tabular-nums), `mono` pro množství a kurzy kryptoměn.
  * Řádek se při najetí myší vždy zvýrazní, aby bylo jasné, na který řádek klikáš.
+ * `rowTo(row)` udělá z celého řádku proklik (detail); klávesnicí vede odkaz v primární buňce, klik na tlačítko
+ * nebo odkaz uvnitř řádku má přednost.
  */
 export interface DataColumn {
   key: string
@@ -39,8 +43,17 @@ const props = defineProps<{
   fixed?: boolean
   /** Pod jakou šířkou karty místo tabulky (široké tabulky už pod `lg`). */
   cardsBelow?: 'md' | 'lg'
+  /** Celý řádek jako proklik (Ctrl/⌘+klik = nový panel). */
+  rowTo?: (row: T) => RouteLocationRaw | null
 }>()
 const { t } = useI18n()
+const navigate = useRowLink()
+function onRowClick(row: T, e: MouseEvent) {
+  const to = props.rowTo?.(row)
+  if (!to || (e.target as HTMLElement).closest('a, button, input, select, textarea, label, [role="menu"]')) return
+  if (window.getSelection()?.toString()) return // označování textu není klik
+  navigate(to, e)
+}
 
 const open = ref(new Set<string | number>())
 function toggle(row: T) {
@@ -88,7 +101,8 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
         </thead>
         <tbody class="divide-y divide-neutral-100">
           <template v-for="row in rows" :key="rowKey(row)">
-            <tr class="transition-colors hover:bg-primary-50" :class="rowClass?.(row)">
+            <tr class="transition-colors hover:bg-primary-50" :class="[rowClass?.(row), rowTo ? 'cursor-pointer' : '']"
+                @click="onRowClick(row, $event)" @auxclick="onRowClick(row, $event)">
               <td v-if="expandable" class="px-2 py-2 align-middle">
                 <button v-if="canExpand(row)" type="button" :aria-expanded="isOpen(row)" :aria-label="isOpen(row) ? t('common.collapse') : t('common.expand')"
                         class="cursor-pointer w-6 h-6 inline-flex items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -112,7 +126,8 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
 
     <!-- mobil: karty -->
     <ul class="divide-y divide-neutral-100" :class="cardsBelow === 'lg' ? 'lg:hidden' : 'md:hidden'">
-      <li v-for="row in rows" :key="rowKey(row)" class="px-4 py-3 transition-colors hover:bg-primary-50" :class="rowClass?.(row)">
+      <li v-for="row in rows" :key="rowKey(row)" class="px-4 py-3 transition-colors hover:bg-primary-50" :class="[rowClass?.(row), rowTo ? 'cursor-pointer' : '']"
+          @click="onRowClick(row, $event)" @auxclick="onRowClick(row, $event)">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0 flex-1" :class="{ 'font-mono': primaryCol().mono }">
             <slot :name="`cell-${primaryCol().key}`" :row="row">{{ value(row, primaryCol().key) }}</slot>

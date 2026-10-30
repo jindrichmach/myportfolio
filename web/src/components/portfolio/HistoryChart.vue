@@ -15,6 +15,7 @@ import { apiErrorMessage } from '@/api/errors'
 import { useWindowSize } from '@vueuse/core'
 import { formatDate, formatMoney, formatMoneyCompact, formatPercent, formatSigned } from '@/composables/useFormat'
 import { gainClass } from '@/utils/tone'
+import Icon from '@/components/ui/Icon.vue'
 import InfoTip from '@/components/ui/InfoTip.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
 import { useChartColors } from '@/composables/useTheme'
@@ -185,6 +186,15 @@ const metricGroups = computed<{ key: string; title: string; items: Metric[] }[]>
     ] },
   ]
 })
+// Metriky výkonnosti (TWR, XIRR, inflace, benchmark) jsou pro začátečníka sbalené pod „Podrobnosti“; volba se pamatuje.
+const DETAILS_KEY = 'myportfolio-history-details'
+const details = ref((() => { try { return localStorage.getItem(DETAILS_KEY) === '1' } catch { return false } })())
+function toggleDetails() {
+  details.value = !details.value
+  try { localStorage.setItem(DETAILS_KEY, details.value ? '1' : '0') } catch { /* jen do obnovení stránky */ }
+}
+const visibleGroups = computed(() => metricGroups.value.filter(g => details.value || g.key !== 'performance'))
+
 const realTitle = computed(() => {
   const m = data.value?.metrics
   if (!m || m.twr_real_pct === null) return ''
@@ -213,7 +223,7 @@ const realTitle = computed(() => {
     <p v-else-if="data && !data.points.length" class="p-8 text-center text-sm text-neutral-500">{{ t('history.empty') }}</p>
     <template v-else-if="data">
       <div class="flex flex-wrap gap-x-6 gap-y-3 px-4 pt-3">
-        <div v-for="g in metricGroups" :key="g.key" class="min-w-0">
+        <div v-for="g in visibleGroups" :key="g.key" class="min-w-0">
           <h3 class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">{{ g.title }}</h3>
           <div class="flex flex-wrap gap-x-6 gap-y-2">
             <div v-for="m in g.items" :key="m.key" class="min-w-[7.5rem]">
@@ -223,6 +233,13 @@ const realTitle = computed(() => {
             </div>
           </div>
         </div>
+      </div>
+      <div class="px-4 pt-2">
+        <button type="button" class="cursor-pointer inline-flex items-center gap-1 text-xs text-primary-700 hover:underline"
+                :aria-expanded="details" @click="toggleDetails">
+          <Icon name="chevron-down" class="w-3.5 h-3.5 transition-transform" :class="{ '-rotate-90': !details }" />
+          {{ details ? t('history.details_hide') : t('history.details_show') }}
+        </button>
       </div>
       <div class="relative h-64 sm:h-72 px-2 pt-3" :class="{ 'opacity-60': loading }">
         <Line :data="chartData" :options="options" :plugins="[crosshair]" :aria-label="t('history.title')" />
@@ -237,7 +254,7 @@ const realTitle = computed(() => {
       </ul>
       <p v-if="hasIncomplete" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.incomplete') }}</p>
       <p v-if="bench && !bench.available" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.benchmark_unavailable', { symbol: bench.symbol }) }}</p>
-      <p v-if="realTitle" class="px-4 pb-3 text-xs text-neutral-500">{{ t('history.real_more', { list: realTitle }) }}</p>
+      <p v-if="realTitle && details" class="px-4 pb-3 text-xs text-neutral-500">{{ t('history.real_more', { list: realTitle }) }}</p>
       <ManualLink class="mx-4 mb-3" to="07_Prehled#75-vývoj-hodnoty-a-výnosové-metriky" />
     </template>
   </section>

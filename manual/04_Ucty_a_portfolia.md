@@ -5,7 +5,7 @@ v katalogu, svůj **účet** u instituce, **portfolio** a v něm **pozici**.
 
 ## 4.1 Katalog — instituce
 
-**Katalog → Instituce.** Burzy, brokeři, peněženky, robo-advisoři, banky a penzijní společnosti.
+**Účty a katalog → Instituce.** Burzy, brokeři, peněženky, robo-advisoři, banky a penzijní společnosti.
 Katalog je **sdílený** všemi uživateli: založit instituci může každý, upravit
 nebo smazat jen admin.
 
@@ -20,7 +20,7 @@ deaktivovat. Seznam jde prohledat podle názvu a filtrovat podle typu (viz [1.4 
 
 ## 4.2 Katalog — instrumenty
 
-**Katalog → Instrumenty.** Co se dá držet: krypto, ETF, akcie, fondy.
+**Účty a katalog → Instrumenty.** Co se dá držet: krypto, ETF, akcie, fondy.
 Vyhledávat lze podle symbolu, názvu nebo ISIN a filtrovat podle třídy aktiv (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry)).
 
 | Pole | Význam |
@@ -53,8 +53,8 @@ Instituce i instrumenty mohou mít ikonu — zobrazí se v katalogu, u účtů, 
 pozic, v detailu pozice, v Přehledu a u transakcí. Ruční pozice (spořicí účet, Portu)
 ukazují ikonu instituce. Bez ikony se zobrazí kolečko s počátečními písmeny.
 
-Ikonu nahraješ tlačítkem **Změnit ikonu** (obrázek) v řádku seznamu **Katalog → Instituce** nebo
-**Katalog → Instrumenty**. Měnit ji může admin a uživatel, který položku založil;
+Ikonu nahraješ tlačítkem **Změnit ikonu** (obrázek) v řádku seznamu **Účty a katalog → Instituce** nebo
+**Účty a katalog → Instrumenty**. Měnit ji může admin a uživatel, který položku založil;
 ostatním se ikona jen zobrazí.
 
 | Požadavek | Hodnota |
@@ -67,7 +67,7 @@ ostatním se ikona jen zobrazí.
 
 ## 4.3 Účty
 
-**Portfolio → Účty.** Tvoje účty u institucí.
+**Účty a katalog → Účty.** Tvoje účty u institucí.
 
 | Pole | Význam |
 |---|---|
@@ -82,7 +82,7 @@ a filtrovat podle instituce (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-fil
 
 ## 4.4 Portfolia
 
-**Portfolio → Portfolia.** Tvoje vlastní seskupení pozic napříč účty, např.
+**Účty a katalog → Portfolia.** Tvoje vlastní seskupení pozic napříč účty, např.
 „Dlouhodobé", „Spekulace", „Hotovost". Pořadí (v seznamech i na Přehledu) změníš šipkami **Posunout výš / níž** u portfolia.
 Kliknutím na název portfolia se otevřou jeho pozice.
 
@@ -106,8 +106,9 @@ Stejný instrument na stejném účtu může být ve dvou portfoliích (dvě poz
 Instrument, režim ocenění a měnu pozice po založení změnit nejde — navazují na
 ně transakce. Smazat jde jen pozici bez transakcí — pozici s transakcemi lze jen archivovat (v úpravě pozice).
 
-**Detail pozice** otevřeš tlačítkem **Detail** (šipka) na konci řádku (v seznamu pozic i v Přehledu)
-nebo kliknutím na název. Ukazuje držené množství (u ručního ocenění čisté vklady),
+**Detail pozice** otevřeš kliknutím kamkoli na řádek pozice (v seznamu pozic i v Přehledu; Ctrl/⌘ + klik
+v novém panelu) nebo na její název. Tlačítko **⋯** na konci řádku nabídne další akce: **Detail**,
+**Nová transakce**, **Převést** (tržní pozice) a **Nastavit zůstatek** (hotovost). Ukazuje držené množství (u ručního ocenění čisté vklady),
 poslední cenu (v měně zobrazení stejně jako průměrná nákupní cena; cena z burzy v původní měně je menším
 písmem pod ní), ocenění (hodnota, nákupní cena, výnos), u tržní pozice FIFO loty
 a prodeje, u ruční pozice ruční ocenění — viz [7.3 FIFO loty](07_Prehled.md#73-fifo-loty) a [7.4 Ruční ocenění](07_Prehled.md#74-ruční-ocenění-portu-spořicí-účty).

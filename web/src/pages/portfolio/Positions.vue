@@ -8,10 +8,9 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import PriceBadge from '@/components/portfolio/PriceBadge.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
-import IconButton from '@/components/ui/IconButton.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
-import CashBalanceModal from '@/components/portfolio/CashBalanceModal.vue'
+import PositionActions from '@/components/portfolio/PositionActions.vue'
 import { catalogApi, type Instrument } from '@/api/catalog'
 import { portfolioApi, type Account, type Portfolio, type Position, type ValuationMode } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
@@ -65,6 +64,7 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'price', label: t('prices.last'), align: 'right', width: '17%' },
 ])
 const positionKey = (p: Position) => p.id
+const positionTo = (p: Position) => `/positions/${p.id}`
 const archivedClass = (p: Position) => (p.archived_at ? 'opacity-50' : '')
 /** Tržní pozice bez vlastní ikony dostane barevné iniciály, ne ikonu instituce. */
 const positionIcon = (p: Position) => (p.valuation_mode === 'market' ? p.instrument_icon_url : (p.instrument_icon_url ?? p.institution_icon_url))
@@ -76,7 +76,6 @@ function holdingLabel(p: Position): string {
     : formatDec(p.holding, 2, p.currency)
 }
 
-const cashModal = ref<Position | null>(null)
 
 // ── Nová pozice ─────────────────────────────────────────────────────────
 const showForm = ref(false)
@@ -181,7 +180,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
 
     <div v-else class="space-y-4">
       <SectionCard v-for="g in groups" :key="g.id" :title="g.name" flush>
-        <DataTable :columns="columns" :rows="g.items" :row-key="positionKey" :row-class="archivedClass" sticky-first fixed>
+        <DataTable :columns="columns" :rows="g.items" :row-key="positionKey" :row-class="archivedClass" :row-to="positionTo" sticky-first fixed>
           <template #cell-position="{ row: p }">
             <div class="flex items-center gap-2.5 min-w-0">
               <EntityIcon :src="positionIcon(p)" :name="p.display_name" :size="28" />
@@ -221,16 +220,11 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
             <span v-else class="text-neutral-400">—</span>
           </template>
           <template #actions="{ row: p }">
-            <span class="inline-flex gap-1">
-              <IconButton v-if="p.is_cash && canWrite" icon="price" :label="t('cash.set')" @click="cashModal = p" />
-              <IconButton icon="detail" :label="t('common.detail')" :to="`/positions/${p.id}`" />
-            </span>
+            <PositionActions :position-id="p.id" :name="p.display_name" :market="p.valuation_mode === 'market'" :cash="p.is_cash" @changed="load" />
           </template>
         </DataTable>
       </SectionCard>
     </div>
-
-    <CashBalanceModal v-if="cashModal" :position="cashModal" @close="cashModal = null" @saved="cashModal = null; load()" />
 
     <Modal v-if="showForm" :title="t('positions.new')" width-class="max-w-lg" @close="showForm = false">
       <form id="position-form" class="space-y-3" @submit.prevent="save">

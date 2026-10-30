@@ -16,6 +16,7 @@ import { portfolioApi, type Account } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -131,7 +132,9 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
 
     <!-- Bez institucí nejde účet založit — prázdný stav s odkazem na katalog -->
     <div v-if="!loading && !rows.length && !institutions.length" class="bg-surface border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
-      <EmptyState :title="t('accounts.empty')" :message="t('accounts.no_institutions')" />
+      <EmptyState :title="t('accounts.empty')" :message="t('accounts.no_institutions')">
+        <div class="mt-3"><ManualLink to="00_Prvni_kroky#01-pojmy-na-jednom-místě" :label="t('manual.terms')" /></div>
+      </EmptyState>
       <p class="text-center pb-8 -mt-6">
         <RouterLink to="/catalog/institutions" class="text-sm text-primary-700 hover:underline">{{ t('institutions.new') }} →</RouterLink>
       </p>

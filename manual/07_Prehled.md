@@ -42,7 +42,14 @@ doplníš v [Ceny a kurzy](06_Ceny_a_kurzy.md) nebo ručně u instrumentu.
 | Vývoj hodnoty | Graf a výnosové metriky za období — viz § 7.5 |
 | Alokace | Donut s podíly podle třídy aktiv, portfolia nebo instituce (přepínač); uprostřed součet, po najetí na výseč nebo řádek legendy její částka a podíl. Máš-li cílovou alokaci, vedle je **Skutečnost a cíl** po třídách |
 | Krypto napříč účty | Každá kryptoměna sečtená přes všechny účty (burzy, peněženky), celkový výnos v Kč i % (stejný jako u pozic v tabulce níž, tedy včetně prodaných kusů, odměn a poplatků); je-li na víc účtech, řádek se rozbalí na jednotlivé účty |
-| Pozice | Tabulka po portfoliích (v záhlaví hodnota portfolia a jeho podíl na celku): množství, hodnota, investováno, celkový výnos v Kč i % |
+| Portfolia | Každé portfolio jako jeden řádek: počet pozic, podíl na celku, hodnota a celkový výnos v Kč i %. Kliknutím se rozbalí tabulka pozic (množství, hodnota, investováno, celkový výnos); rozbalená portfolia si prohlížeč pamatuje. **Všechny pozice** vede na stránku Pozice |
+
+Tlačítko **Přidat** v záhlaví nabídne **Novou investici** (průvodce: instrument podle tickeru, ISINu nebo názvu —
+případně založení nového —, pak účet a portfolio; existující pozici použije, jinak ji založí a hned otevře zápis
+prvního nákupu), **Novou transakci** a **Import**. Nadpis **Alokace** vede na stránku Alokace.
+
+Dokud nemáš žádné pozice, ukazuje Přehled místo čísel checklist prvních kroků (účet, portfolio, import nebo ruční
+nákup) — stejnou cestu popisuje [0. Za 5 minut k prvnímu přehledu](00_Prvni_kroky.md).
 
 Ruční pozice se v alokaci řadí jako **Hotovost** (účet u banky) nebo **Fond**
 (ostatní, např. Portu).
@@ -112,7 +119,8 @@ po dotyku) ukáže svislá čára den a popisek hodnoty všech čar.
 | Porovnání (benchmark) | **Bez porovnání**, nebo **vs.** libovolný instrument z katalogu (Bitcoin je nabídnutý první); volba platí pro všechny grafy |
 
 Metriky nad grafem se vztahují ke zvolenému období. Jsou ve dvou skupinách, **Za období**
-(zisk, výnos, čisté vklady) a **Výkonnost** (TWR, XIRR, inflace, benchmark); ikona ⓘ
+(zisk, výnos, čisté vklady) a **Výkonnost** (TWR, XIRR, inflace, benchmark). Výkonnost je sbalená pod
+**Podrobnosti** — rozbalíš ji jedním klikem a volba se zapamatuje; ikona ⓘ
 u každé metriky ukáže krátké vysvětlení (po najetí myší; klepnutím nebo kliknutím zůstane otevřené,
 zavře ho další klepnutí, klik mimo nebo Escape):
 

@@ -99,6 +99,14 @@ const ICONS = {
   institutions: 'M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4',
 }
 
+// Sbalené menu (jen ikony) na desktopu; volba se pamatuje v prohlížeči.
+const COLLAPSED_KEY = 'myportfolio-sidebar-collapsed'
+const collapsed = ref((() => { try { return localStorage.getItem(COLLAPSED_KEY) === '1' } catch { return false } })())
+function toggleCollapsed() {
+  collapsed.value = !collapsed.value
+  try { localStorage.setItem(COLLAPSED_KEY, collapsed.value ? '1' : '0') } catch { /* jen do obnovení stránky */ }
+}
+
 const navSections = computed<NavSection[]>(() => {
   const sections: NavSection[] = [
     { items: [{ to: '/', label: t('nav.dashboard'), icon: ICONS.dashboard }] },
@@ -115,14 +123,15 @@ const navSections = computed<NavSection[]>(() => {
         { to: '/summary',      label: t('nav.summary'),      icon: ICONS.summary },
         { to: '/income',       label: t('nav.income'),       icon: ICONS.income },
         { to: '/tax-report',   label: t('nav.tax_report'),   icon: ICONS.tax },
-        { to: '/accounts',     label: t('nav.accounts'),     icon: ICONS.accounts },
-        { to: '/portfolios',   label: t('nav.portfolios'),   icon: ICONS.portfolios },
       ],
     },
     {
-      title: t('nav.section_catalog'),
+      // Kde a v čem držíš: účty, portfolia a sdílený katalog — pro nováčka na jednom místě
+      title: t('nav.section_setup'),
       accent: 'warning',
       items: [
+        { to: '/accounts',     label: t('nav.accounts'),     icon: ICONS.accounts },
+        { to: '/portfolios',   label: t('nav.portfolios'),   icon: ICONS.portfolios },
         { to: '/catalog/instruments',  label: t('nav.instruments'),  icon: ICONS.instruments },
         { to: '/catalog/institutions', label: t('nav.institutions'), icon: ICONS.institutions },
       ],
@@ -305,6 +314,7 @@ onMounted(async () => {
         :class="[
           'fixed lg:sticky top-14 z-30 lg:z-auto',
           'h-[calc(100vh-3.5rem)] w-60 shrink-0',
+          collapsed ? 'lg:w-14' : '',
           'bg-surface border-r border-neutral-200',
           'flex flex-col print:hidden',
           'transition-transform duration-200 ease-in-out',
@@ -314,7 +324,8 @@ onMounted(async () => {
         <nav class="flex-1 overflow-y-auto scrollbar-slim px-2.5 py-3">
           <template v-for="(section, si) in navSections" :key="si">
             <!-- Section title — soft pill background v barvě sekce -->
-            <div v-if="section.title" :class="si === 0 ? 'pt-1 pb-1.5' : 'pt-4 pb-1.5'">
+            <div v-if="section.title && collapsed" class="hidden lg:block mx-1 my-2 border-t border-neutral-200" aria-hidden="true"></div>
+            <div v-if="section.title" :class="[si === 0 ? 'pt-1 pb-1.5' : 'pt-4 pb-1.5', collapsed ? 'lg:hidden' : '']">
               <div
                 class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider"
                 :class="section.accent ? ACCENT_CLASSES[section.accent] : 'bg-neutral-100 text-neutral-600'"
@@ -326,6 +337,7 @@ onMounted(async () => {
               :to="item.to"
               active-class=""
               exact-active-class=""
+              :title="collapsed ? item.label : undefined"
               class="flex items-center gap-2.5 px-2.5 py-[7px] rounded-md text-sm transition-colors leading-tight"
               :class="isActive(item)
                 ? 'bg-primary-50 text-primary-700 font-medium'
@@ -334,13 +346,22 @@ onMounted(async () => {
               <svg class="w-[15px] h-[15px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon" />
               </svg>
-              {{ item.label }}
+              <span :class="collapsed ? 'lg:sr-only' : ''">{{ item.label }}</span>
             </RouterLink>
           </template>
         </nav>
 
+        <!-- Sbalit / rozbalit menu (desktop) -->
+        <button type="button" class="cursor-pointer hidden lg:flex items-center gap-2 px-4 py-2 border-t border-neutral-100 text-xs text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50"
+                :aria-expanded="!collapsed" :title="collapsed ? t('nav.expand_menu') : undefined" @click="toggleCollapsed">
+          <svg class="w-4 h-4 shrink-0 transition-transform" :class="{ 'rotate-180': collapsed }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+          <span :class="collapsed ? 'sr-only' : ''">{{ collapsed ? t('nav.expand_menu') : t('nav.collapse_menu') }}</span>
+        </button>
+
         <!-- Verze (dole) -->
-        <div v-if="version" class="px-4 py-2.5 border-t border-neutral-100 text-xs text-neutral-500">
+        <div v-if="version" class="px-4 py-2.5 border-t border-neutral-100 text-xs text-neutral-500" :class="collapsed ? 'lg:hidden' : ''">
           MyPortfolio v{{ version }}
         </div>
 

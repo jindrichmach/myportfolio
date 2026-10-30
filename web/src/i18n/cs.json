@@ -251,7 +251,6 @@
   },
   "dashboard": {
     "title": "Přehled",
-    "empty": "Přehled se tu objeví po přidání pozic a transakcí.",
     "subtitle": "Hodnoty v {currency} k {date} — nákupní cena kurzem ke dni nákupu, hodnota dnešním kurzem.",
     "change_currency": "Změnit měnu zobrazení",
     "incomplete": "{n} pozic nemá hodnotu (chybí cena nebo kurz) — nejsou v součtech.",
@@ -268,7 +267,22 @@
     "targets": "Skutečnost a cíl",
     "targets_link": "Upravit cíle",
     "accounts_n": "Účty: {n}",
-    "net_worth_hint": "Investice + další majetek − závazky. Penzijní spoření a DIP jsou mezi investicemi."
+    "net_worth_hint": "Investice + další majetek − závazky. Penzijní spoření a DIP jsou mezi investicemi.",
+    "portfolios": "Portfolia",
+    "all_positions": "Všechny pozice",
+    "positions_n": "Pozic: {n}",
+    "add": "Přidat",
+    "start_title": "Za 5 minut k prvnímu přehledu",
+    "start_intro": "Přehled se ukáže, jakmile budeš mít první pozice. Nejrychleji to jde importem exportu od brokera nebo burzy.",
+    "step_done": "hotovo",
+    "step_account": "Založ účet",
+    "step_account_hint": "Tvůj účet u brokera, burzy nebo banky (instituci vybereš z katalogu, chybí-li, přidáš ji).",
+    "step_portfolio": "Založ portfolio",
+    "step_portfolio_hint": "Vlastní skupina pozic, třeba „Dlouhodobé“.",
+    "step_import": "Importuj transakce",
+    "step_import_hint": "Nahraj export od brokera — instrumenty i pozice se založí samy.",
+    "step_invest": "…nebo zapiš první nákup ručně",
+    "step_invest_hint": "Najdi instrument podle tickeru, ISINu nebo názvu a zapiš nákup."
   },
   "errors": {
     "generic": "Něco se pokazilo",
@@ -304,7 +318,6 @@
     "transactions": "Transakce",
     "accounts": "Účty",
     "portfolios": "Portfolia",
-    "section_catalog": "Katalog",
     "instruments": "Instrumenty",
     "institutions": "Instituce",
     "market": "Ceny a kurzy",
@@ -321,7 +334,10 @@
     "household": "Domácnost",
     "manual": "Manuál",
     "update": "Aktualizace",
-    "settings": "Nastavení"
+    "settings": "Nastavení",
+    "section_setup": "Účty a katalog",
+    "collapse_menu": "Sbalit menu",
+    "expand_menu": "Rozbalit menu"
   },
   "passkeys": {
     "add": "Přidat přístupový klíč",
@@ -637,7 +653,8 @@
       "cash": "Volné peníze na účtu — zadáváš zůstatek"
     },
     "valued_at": "ocenění {date}",
-    "no_valuation": "bez ocenění"
+    "no_valuation": "bez ocenění",
+    "actions_for": "Akce: {name}"
   },
   "tx": {
     "title": "Transakce",
@@ -795,7 +812,9 @@
     "legend_value": "Hodnota",
     "legend_invested": "Investováno",
     "legend_gain": "Zisk / ztráta (rozdíl)",
-    "benchmark_legend": "Stejné vklady do {symbol}"
+    "benchmark_legend": "Stejné vklady do {symbol}",
+    "details_show": "Podrobnosti: TWR, XIRR, inflace, srovnání",
+    "details_hide": "Skrýt podrobnosti"
   },
   "weekly_report": {
     "title": "Reporty e-mailem",
@@ -1416,7 +1435,8 @@
     "cs_only": "Manuál je zatím jen v češtině.",
     "admin_only": "Tato kapitola je jen pro správce aplikace.",
     "how_computed": "Jak se to počítá?",
-    "guide": "Návod v manuálu"
+    "guide": "Návod v manuálu",
+    "terms": "Co je účet, portfolio a instituce?"
   },
   "update": {
     "title": "Aktualizace",
@@ -1491,5 +1511,20 @@
     "clear": "Zrušit výběr",
     "search": "Hledat",
     "period": "Období"
+  },
+  "invest": {
+    "title": "Nová investice",
+    "prereq": "Nejdřív potřebuješ aspoň jeden účet a jedno portfolio.",
+    "first_steps": "Za 5 minut k prvnímu přehledu",
+    "step_instrument": "Co kupuješ",
+    "search_label": "Ticker, ISIN nebo název",
+    "search_placeholder": "např. VWCE, IE00BK5BQT80, Bitcoin",
+    "no_results": "V katalogu nic — založ nový instrument",
+    "not_in_catalog": "Není v katalogu? Založit nový instrument",
+    "create_hint": "Stejný fond může mít podle burzy jiný ticker a měnu (VWCE na Xetře v EUR, VWRA v Londýně v USD) — vyplň ten, který opravdu kupuješ.",
+    "back_to_search": "Zpět na hledání v katalogu",
+    "step_where": "Kde ho držíš",
+    "step_buy": "V dalším kroku zapíšeš první nákup.",
+    "continue": "Pokračovat na nákup"
   }
 }

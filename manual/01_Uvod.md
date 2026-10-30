@@ -38,7 +38,11 @@ okamžik držela.
 
 ## 1.4 Ovládání
 
-Akce u položek (řádek tabulky, karta) jsou ikonová tlačítka. Název akce ukáže
+Na počítači jde levé menu sbalit jen na ikony tlačítkem **Sbalit menu** dole v menu (název položky pak ukáže
+popisek po najetí myší); volba se zapamatuje. Účty, portfolia a sdílený katalog instrumentů a institucí jsou
+v menu pohromadě ve skupině **Účty a katalog**.
+
+Řádek pozice je celý proklikem do detailu. Akce u položek (řádek tabulky, karta) jsou ikonová tlačítka. Název akce ukáže
 popisek po najetí myší nebo při přechodu klávesou Tab. Vzácné a nevratné akce (Převést, Vrátit import,
 Deaktivovat uživatele, Zrušit token) mají název napsaný přímo vedle ikony.
 
@@ -47,6 +51,7 @@ Deaktivovat uživatele, Zrušit token) mají název napsaný přímo vedle ikony
 | tužka | Upravit / přejmenovat |
 | koš (červená) | Smazat, odebrat, zrušit nebo opustit sdílení |
 | šipka › | Detail |
+| tři tečky ⋯ | Menu dalších akcí u řádku (u pozic: Detail, Nová transakce, Převést, Nastavit zůstatek) |
 | šipky nahoru / dolů | Posunout výš / níž (pořadí portfolií) |
 | cenovka | Zadat cenu, Nastavit zůstatek, Ocenění / Zůstatky |
 | obrázek | Změnit ikonu |
