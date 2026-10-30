@@ -78,7 +78,7 @@ final class HealthAction
                     'code' => 'session_lock_without_unlock_method',
                     'message' => 'Automatický zámek session je zapnutý, ale někteří aktivní '
                         . 'uživatelé nemají passkey. Zamčenou session pak lze jen odhlásit '
-                        . '— registrujte jim passkey, nebo nastavte session.lock_after_minutes = 0.',
+                        . '— zaregistruj jim passkey, nebo nastav session.lock_after_minutes = 0.',
                 ];
             }
             $payload['warnings'] = $warnings;

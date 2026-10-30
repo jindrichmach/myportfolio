@@ -133,6 +133,8 @@ final class ValuationService
             BigDecimal::zero(),
         );
 
+        // Složky výnosu ze stejných (oceněných) pozic jako celkový výnos — dlaždice
+        // nerealizovaný + realizovaný + příjmy − poplatky se tak sečtou přesně na total_return.
         $valued = array_values(array_filter($rows, static fn (array $r) => $r['value'] !== null));
         $invested = $sum($valued, 'invested');
         $total = $sum($valued, 'total_return');
@@ -140,9 +142,9 @@ final class ValuationService
             'value'        => self::out($sum($valued, 'value')),
             'invested'     => self::out($invested),
             'unrealized'   => self::out($sum($valued, 'unrealized')),
-            'realized'     => self::out($sum($rows, 'realized')),
-            'income'       => self::out($sum($rows, 'income')),
-            'fees'         => self::out($sum($rows, 'fees')),
+            'realized'     => self::out($sum($valued, 'realized')),
+            'income'       => self::out($sum($valued, 'income')),
+            'fees'         => self::out($sum($valued, 'fees')),
             'total_return' => self::out($total),
             'return_pct'   => self::pct($total, $sum($valued, 'cost_basis')),
             'incomplete'   => count($rows) - count($valued),
@@ -171,11 +173,14 @@ final class ValuationService
             $c ??= ['instrument_id' => $r['instrument_id'], 'symbol' => $r['display_name'], 'name' => $r['instrument_name'],
                 'icon_url' => $r['instrument_icon_url'],
                 'quantity' => BigDecimal::zero(), 'value' => BigDecimal::zero(), 'invested' => BigDecimal::zero(),
+                'total_return' => BigDecimal::zero(), 'cost_basis' => BigDecimal::zero(),
                 'complete' => true, 'accounts' => []];
             $c['quantity'] = $c['quantity']->plus($r['quantity']);
             if ($r['value'] !== null) {
                 $c['value'] = $c['value']->plus($r['value']);
                 $c['invested'] = $c['invested']->plus($r['invested']);
+                $c['total_return'] = $c['total_return']->plus($r['total_return']);
+                $c['cost_basis'] = $c['cost_basis']->plus($r['cost_basis']);
             } else {
                 $c['complete'] = false;
             }
@@ -183,12 +188,15 @@ final class ValuationService
                 'quantity' => $r['quantity'], 'value' => $r['value']];
             unset($c);
         }
+        // Celkový výnos (vč. prodejů, příjmů a poplatků) — stejný pojem jako v tabulkách pozic.
         $crypto = array_values(array_map(static fn (array $c) => [
             ...$c,
-            'quantity' => Decimal::out((string) $c['quantity']),
-            'value'    => $c['complete'] ? self::out($c['value']) : null,
-            'invested' => self::out($c['invested']),
-            'profit'   => $c['complete'] ? self::out($c['value']->minus($c['invested'])) : null,
+            'quantity'     => Decimal::out((string) $c['quantity']),
+            'value'        => $c['complete'] ? self::out($c['value']) : null,
+            'invested'     => self::out($c['invested']),
+            'total_return' => $c['complete'] ? self::out($c['total_return']) : null,
+            'return_pct'   => $c['complete'] ? self::pct($c['total_return'], $c['cost_basis']) : null,
+            'cost_basis'   => self::out($c['cost_basis']),
         ], $crypto));
         usort($crypto, static fn (array $a, array $b) => BigDecimal::of($b['value'] ?? '0')->compareTo($a['value'] ?? '0'));
 
@@ -305,6 +313,8 @@ final class ValuationService
         return [
             'quantity'     => Decimal::out((string) $quantity),
             'price'        => $price,
+            // Poslední cena dnešním kurzem v měně zobrazení — vedle průměrné nákupní ceny ve stejné měně.
+            'price_display' => $price !== null ? $this->priceDisplay(BigDecimal::of($price['close']), $price['currency'], $currency, $today) : null,
             'value'        => $value !== null ? self::out($value) : null,
             'invested'     => self::out($openCost),
             'cost_basis'   => self::out($costBasis),
@@ -384,11 +394,14 @@ final class ValuationService
         return [
             'quantity'     => null,
             'price'        => null,
+            'price_display' => null,
             'value'        => $value !== null ? self::out($value) : null,
             'invested'     => self::out($invested),
             'cost_basis'   => self::out($invested),
             'avg_cost'     => null,
-            'unrealized'   => $total !== null ? self::out($total) : null,
+            // Hodnota už obsahuje příjmy i poplatky — nerealizovaný zisk je zhodnocení bez nich,
+            // aby platilo total = nerealizovaný + realizovaný + příjmy − poplatky jako u tržních pozic.
+            'unrealized'   => $total !== null ? self::out($total->minus($income)->plus($fees)) : null,
             'realized'     => '0.00',
             'income'       => self::out($income),
             'fees'         => self::out($fees),
@@ -491,6 +504,12 @@ final class ValuationService
         } catch (FxRateMissing) {
             return null;
         }
+    }
+
+    private function priceDisplay(BigDecimal $close, string $from, string $to, string $date): ?string
+    {
+        $v = $this->tryConvert($close, $from, $to, $date);
+        return $v !== null ? (string) $v->toScale(self::SCALE, RoundingMode::HalfUp) : null;
     }
 
     private function tryOut(BigDecimal $amount, string $from, string $to, string $date): ?string

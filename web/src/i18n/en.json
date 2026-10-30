@@ -177,7 +177,8 @@
     "passkey_cancelled": "The passkey check was cancelled. Try again, or use your authenticator code.",
     "passkey_timeout": "The passkey dialog did not open or was not completed. Try again, or use your authenticator code.",
     "passkey_timeout_extension": "A browser extension (password manager) intercepted the passkey request and crashed. Disable it for this site, or use your authenticator code.",
-    "password_change_failed": "Password change failed."
+    "password_change_failed": "Password change failed.",
+    "reset_subtitle": "We’ll email you a link to set a new password."
   },
   "common": {
     "actions": "Actions",
@@ -717,7 +718,6 @@
     "unrealized": "Unrealized gain",
     "realized": "Realized gain",
     "income": "Income",
-    "profit": "Gain",
     "avg_cost": "Avg. cost",
     "lots": "Open lots",
     "lots_hint": "sold oldest first (FIFO)",
@@ -745,7 +745,12 @@
       "fx_missing": "Missing {arg} rate — some values cannot be converted.",
       "valuation_missing": "No manual valuation — value is net deposits only.",
       "fee_other_crypto": "Fee in another cryptocurrency is recorded only (not in P&L)."
-    }
+    },
+    "fees": "Fees",
+    "unrealized_hint": "How much today’s value of the positions you hold exceeds what they cost (excluding units sold).",
+    "realized_hint": "Gain or loss on units already sold (FIFO).",
+    "income_hint": "Dividends, interest and rewards (staking).",
+    "fees_hint": "Fees paid to brokers and exchanges. They reduce the total return."
   },
   "history": {
     "title": "Value over time",
@@ -784,7 +789,8 @@
     "group_performance": "Performance",
     "legend_value": "Value",
     "legend_invested": "Invested",
-    "legend_gain": "Gain / loss (difference)"
+    "legend_gain": "Gain / loss (difference)",
+    "benchmark_legend": "Same deposits into {symbol}"
   },
   "weekly_report": {
     "title": "E-mail reports",
@@ -1459,7 +1465,8 @@
       "amethyst": "Amethyst",
       "orchid": "Orchid",
       "graphite": "Graphite"
-    }
+    },
+    "inherit_now": "currently {name}"
   },
   "grid": {
     "pages": "Pagination",

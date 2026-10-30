@@ -21,7 +21,8 @@ import { useChartColors } from '@/composables/useTheme'
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip)
 
-const props = defineProps<{ scope: HistoryScope; id?: number | string | null }>()
+/** `instrumentId` = instrument pozice v detailu; srovnání se stejným instrumentem (BTC vs. BTC) se nezobrazí. */
+const props = defineProps<{ scope: HistoryScope; id?: number | string | null; instrumentId?: number | null }>()
 const { t } = useI18n()
 const colors = useChartColors()
 
@@ -42,6 +43,10 @@ async function load() {
   }
 }
 watch(() => [props.scope, props.id, range.value], load, { immediate: true })
+const bench = computed(() => {
+  const b = data.value?.benchmark
+  return b && !(props.instrumentId && b.instrument_id === props.instrumentId) ? b : null
+})
 
 // Benchmark (per uživatel): libovolný instrument z katalogu, Bitcoin nabídnutý první
 const instruments = ref<Instrument[]>([])
@@ -104,8 +109,8 @@ const chartData = computed(() => {
         stepped: true,
         spanGaps: true,
       },
-      ...(data.value?.benchmark?.available ? [{
-        label: data.value.benchmark.symbol,
+      ...(bench.value?.available ? [{
+        label: t('history.benchmark_legend', { symbol: bench.value.symbol }),
         data: pts.map(p => (p.benchmark === null || p.benchmark === undefined ? null : Number(p.benchmark))),
         borderColor: c.palette[7],
         pointRadius: 0,
@@ -159,7 +164,7 @@ const rangeOptions = computed(() => HISTORY_RANGES.map(r => ({ value: r, label: 
 interface Metric { key: string; label: string; text: string; cls: string; hint: string; sub?: string }
 const metricGroups = computed<{ key: string; title: string; items: Metric[] }[]>(() => {
   const m = data.value?.metrics
-  const b = data.value?.benchmark
+  const b = bench.value
   if (!m) return []
   return [
     { key: 'result', title: t('history.group_result'), items: [
@@ -227,10 +232,10 @@ const realTitle = computed(() => {
         <li class="inline-flex items-center gap-1.5">
           <span class="inline-flex"><span class="w-2 h-3" :style="{ background: `${colors.gain}55` }"></span><span class="w-2 h-3" :style="{ background: `${colors.loss}55` }"></span></span>{{ t('history.legend_gain') }}
         </li>
-        <li v-if="data.benchmark?.available" class="inline-flex items-center gap-1.5"><span class="w-4 h-0.5 rounded" :style="{ background: colors.palette[7] }"></span>{{ data.benchmark.symbol }}</li>
+        <li v-if="bench?.available" class="inline-flex items-center gap-1.5"><span class="w-4 h-0.5 rounded" :style="{ background: colors.palette[7] }"></span>{{ t('history.benchmark_legend', { symbol: bench.symbol }) }}</li>
       </ul>
       <p v-if="hasIncomplete" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.incomplete') }}</p>
-      <p v-if="data.benchmark && !data.benchmark.available" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.benchmark_unavailable', { symbol: data.benchmark.symbol }) }}</p>
+      <p v-if="bench && !bench.available" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.benchmark_unavailable', { symbol: bench.symbol }) }}</p>
       <p v-if="realTitle" class="px-4 pb-3 text-xs text-neutral-500">{{ t('history.real_more', { list: realTitle }) }}</p>
     </template>
   </section>

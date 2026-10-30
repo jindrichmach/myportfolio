@@ -140,7 +140,12 @@ const inputClass = 'w-full h-9 px-3 border border-field rounded-md bg-surface te
         <KpiTile v-if="position.valuation_mode === 'market'" bare :label="t('positions.holding')" :value="holdingLabel" :value-class="isCrypto ? 'font-mono' : ''" />
         <div v-if="position.valuation_mode === 'market'" class="min-w-0 col-span-2 sm:col-span-1">
           <div class="text-xs text-neutral-500 leading-4">{{ t('prices.last') }}</div>
-          <div class="mt-1 text-lg leading-7 font-semibold"><PriceBadge :price="position.last_price" show-source :mono="isCrypto" class="!items-start" /></div>
+          <!-- V měně zobrazení (jako průměrná nákupní cena), originální cena burzy menším písmem pod ní -->
+          <div v-if="v.price_display !== null && position.last_price?.currency !== cur" class="mt-1">
+            <div class="text-lg leading-7 font-semibold tabular-nums">{{ money(v.price_display, Number(v.price_display) < 1 ? 6 : 2) }}</div>
+            <PriceBadge :price="position.last_price" show-source :mono="isCrypto" class="!items-start text-xs text-neutral-500" />
+          </div>
+          <div v-else class="mt-1 text-lg leading-7 font-semibold"><PriceBadge :price="position.last_price" show-source :mono="isCrypto" class="!items-start" /></div>
         </div>
         <KpiTile v-else bare :label="t('common.currency')" :value="position.currency" value-class="font-mono" />
         <KpiTile v-for="k in kpis" :key="k.key" bare :label="k.label" :value="k.text" :value-class="k.cls" />

@@ -108,7 +108,8 @@ ně transakce. Smazat jde jen pozici bez transakcí — pozici s transakcemi lze
 
 **Detail pozice** otevřeš tlačítkem **Detail** (šipka) na konci řádku (v seznamu pozic i v Přehledu)
 nebo kliknutím na název. Ukazuje držené množství (u ručního ocenění čisté vklady),
-poslední cenu, ocenění (hodnota, nákupní cena, výnos), u tržní pozice FIFO loty
+poslední cenu (v měně zobrazení stejně jako průměrná nákupní cena; cena z burzy v původní měně je menším
+písmem pod ní), ocenění (hodnota, nákupní cena, výnos), u tržní pozice FIFO loty
 a prodeje, u ruční pozice ruční ocenění — viz [7.3 FIFO loty](07_Prehled.md#73-fifo-loty) a [7.4 Ruční ocenění](07_Prehled.md#74-ruční-ocenění-portu-spořicí-účty).
 V záhlaví jsou tlačítka **Upravit**, **Převést** (jen tržní pozice), **Smazat pozici (jen bez transakcí)**, **Nastavit zůstatek**
 (jen hotovost) a **Nová transakce**, dole všechny transakce.

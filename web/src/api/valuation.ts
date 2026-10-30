@@ -26,6 +26,8 @@ export interface PositionValuation {
   currency: string
   quantity: Dec | null
   price: LastPrice | null
+  /** Poslední cena dnešním kurzem v měně zobrazení. */
+  price_display: Dec | null
   value: Dec | null
   invested: Dec
   cost_basis: Dec
@@ -97,7 +99,10 @@ export interface CryptoAcross {
   quantity: Dec
   value: Dec | null
   invested: Dec
-  profit: Dec | null
+  cost_basis: Dec
+  /** Celkový výnos vč. prodejů, příjmů a poplatků — stejný pojem jako u pozic. */
+  total_return: Dec | null
+  return_pct: Dec | null
   accounts: { position_id: number; account: string; quantity: Dec; value: Dec | null }[]
 }
 

@@ -47,8 +47,6 @@ const cur = computed(() => data.value?.currency ?? 'CZK')
 const money = (v: string | null | undefined, dec = 0) => (v === null || v === undefined ? '—' : formatMoney(Number(v), cur.value, dec))
 const signed = (v: string | null | undefined) => formatSigned(v, cur.value, 0)
 const pct = (v: string | null | undefined) => (v === null || v === undefined ? '' : formatPercent(v, 2, true))
-/** Výnos v % jen pro zobrazení (zisk / investováno) — u krypta API procenta nevrací. */
-const ratioPct = (gain: string | null, base: string) => (gain === null || Number(base) <= 0 ? '' : formatPercent((Number(gain) / Number(base)) * 100, 2, true))
 
 const totalValue = computed(() => Number(data.value?.totals.value ?? 0))
 const groups = computed(() => {
@@ -77,10 +75,11 @@ const secondary = computed(() => {
   const x = data.value?.totals
   if (!x) return []
   return [
-    { key: 'invested', label: t('valuation.invested'), value: money(x.invested), cls: '' },
-    { key: 'unrealized', label: t('valuation.unrealized'), value: signed(x.unrealized), cls: gainClass(x.unrealized) },
-    { key: 'realized', label: t('valuation.realized'), value: signed(x.realized), cls: gainClass(x.realized) },
-    { key: 'income', label: t('valuation.income'), value: money(x.income), cls: '' },
+    { key: 'invested', label: t('valuation.invested'), value: money(x.invested), cls: '', hint: undefined },
+    { key: 'unrealized', label: t('valuation.unrealized'), value: signed(x.unrealized), cls: gainClass(x.unrealized), hint: t('valuation.unrealized_hint') },
+    { key: 'realized', label: t('valuation.realized'), value: signed(x.realized), cls: gainClass(x.realized), hint: t('valuation.realized_hint') },
+    { key: 'income', label: t('valuation.income'), value: money(x.income), cls: '', hint: t('valuation.income_hint') },
+    { key: 'fees', label: t('valuation.fees'), value: signed(Number(x.fees) ? `-${x.fees}` : x.fees), cls: '', hint: t('valuation.fees_hint') },
   ]
 })
 
@@ -91,7 +90,7 @@ const cryptoColumns = computed<DataColumn[]>(() => [
   { key: 'symbol', label: t('instruments.symbol'), primary: true },
   { key: 'quantity', label: t('positions.holding'), align: 'right', mono: true },
   { key: 'value', label: t('valuation.value'), align: 'right' },
-  { key: 'profit', label: t('valuation.profit'), align: 'right' },
+  { key: 'total_return', label: t('valuation.total_return'), align: 'right' },
 ])
 const positionColumns = computed<DataColumn[]>(() => [
   { key: 'position', label: t('positions.position'), primary: true },
@@ -128,8 +127,8 @@ const positionKey = (r: PositionValuation) => r.position_id
           <KpiTile bare hero :label="t('dashboard.portfolio_value')" :value="money(data.totals.value)"
                    :sub="`${signed(data.totals.total_return)}${data.totals.return_pct !== null ? ` · ${pct(data.totals.return_pct)}` : ''} ${t('valuation.total_return').toLowerCase()}`"
                    :sub-class="gainClass(data.totals.total_return)" />
-          <div class="mt-4 pt-4 border-t border-neutral-200 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3">
-            <KpiTile v-for="k in secondary" :key="k.key" bare :label="k.label" :value="k.value" :value-class="k.cls" />
+          <div class="mt-4 pt-4 border-t border-neutral-200 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-3">
+            <KpiTile v-for="k in secondary" :key="k.key" bare :label="k.label" :value="k.value" :value-class="k.cls" :hint="k.hint" />
           </div>
         </section>
         <KpiTile v-if="netWorth" :label="t('net_worth.net_worth')" :value="money(netWorth.net_worth)" to="/net-worth" :hint="t('dashboard.net_worth_hint')" class="sm:p-5">
@@ -208,8 +207,8 @@ const positionKey = (r: PositionValuation) => r.position_id
             </template>
             <template #cell-quantity="{ row: c }">{{ formatDec(c.quantity, 8) }}</template>
             <template #cell-value="{ row: c }">{{ money(c.value) }}</template>
-            <template #cell-profit="{ row: c }">
-              <span :class="gainClass(c.profit)">{{ signed(c.profit) }}<span class="block text-xs">{{ ratioPct(c.profit, c.invested) }}</span></span>
+            <template #cell-total_return="{ row: c }">
+              <span :class="gainClass(c.total_return)">{{ signed(c.total_return) }}<span class="block text-xs">{{ pct(c.return_pct) }}</span></span>
             </template>
             <template #expanded="{ row: c }">
               <ul class="space-y-1">

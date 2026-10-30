@@ -152,7 +152,7 @@ final class DemoDataSeeder
             ['category' => 'fund', 'instrument_id' => null, 'target_pct' => '10', 'band_pct' => '5'],
             ['category' => 'cash', 'instrument_id' => null, 'target_pct' => '10', 'band_pct' => '5'],
         ]);
-        $this->preferences->setBenchmark($this->userId, $ins['btc']);
+        $this->preferences->setBenchmark($this->userId, $ins['vwce']); // světový index — srovnání celku s trhem
         $this->netWorth();
 
         $this->alerts->createPriceAlert($this->userId, ['instrument_id' => $ins['btc'], 'direction' => 'above', 'price' => '150000', 'currency' => 'EUR', 'note' => 'demo']);

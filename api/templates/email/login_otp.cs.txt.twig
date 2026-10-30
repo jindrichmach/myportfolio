@@ -4,13 +4,13 @@
 Ověřovací kód
 -------------
 
-Dobrý den{% if name %} {{ name }}{% endif %},
+Ahoj{% if name %} {{ name }}{% endif %},
 
-pro dokončení přihlášení do MyPortfolio zadejte tento ověřovací kód:
+pro dokončení přihlášení do MyPortfolio zadej tento ověřovací kód:
 
     {{ code }}
 
 Kód je platný {{ expiresIn|default('10 min') }} a lze ho použít jen jednou.
 
-Pokud jste se nepřihlašovali, tento e-mail ignorujte a zvažte změnu hesla.
+Pokud ses nepřihlašoval(a), tento e-mail ignoruj a zvaž změnu hesla.
 {% endblock %}

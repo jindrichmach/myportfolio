@@ -64,7 +64,7 @@ async function submit() {
     <div class="w-full max-w-sm">
       <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-6">
         <h1 class="text-xl font-semibold mb-1">{{ t('auth.reset_title') }}</h1>
-        <p class="text-sm text-neutral-500 mb-6">{{ t('auth.reset_send') }}</p>
+        <p class="text-sm text-neutral-500 mb-6">{{ t('auth.reset_subtitle') }}</p>
 
         <div v-if="submitted" role="status" class="rounded-md bg-primary-50 border border-primary-200 p-4 text-sm text-primary-800">
           {{ t('auth.reset_sent') }}

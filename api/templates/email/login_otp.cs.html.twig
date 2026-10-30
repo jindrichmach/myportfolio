@@ -3,9 +3,9 @@
 {% block content %}
 <h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:{{ c.text }};">Ověřovací kód</h1>
 
-<p style="margin:0 0 16px;">Dobrý den{% if name %} {{ name }}{% endif %},</p>
+<p style="margin:0 0 16px;">Ahoj{% if name %} {{ name }}{% endif %},</p>
 
-<p style="margin:0 0 16px;">pro dokončení přihlášení do <strong>MyPortfolio</strong> zadejte tento ověřovací kód:</p>
+<p style="margin:0 0 16px;">pro dokončení přihlášení do <strong>MyPortfolio</strong> zadej tento ověřovací kód:</p>
 
 <p style="margin:24px 0;text-align:center;">
   <span style="display:inline-block;background:{{ c.bg }};color:{{ c.text }};font-weight:700;font-size:30px;letter-spacing:8px;padding:14px 28px;border-radius:8px;font-family:monospace;">
@@ -18,6 +18,6 @@
 </p>
 
 <p style="margin:24px 0 0;font-size:13px;color:{{ c.muted }};">
-  <strong>Pokud jste se nepřihlašovali</strong>, tento e-mail ignorujte a zvažte změnu hesla.
+  <strong>Pokud ses nepřihlašoval(a)</strong>, tento e-mail ignoruj a zvaž změnu hesla.
 </p>
 {% endblock %}

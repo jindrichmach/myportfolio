@@ -11,10 +11,11 @@ zobrazení**, kterou si nastavíš v [profilu](03_Prihlaseni_a_zabezpeceni.md#34
 |---|---|
 | Hodnota | množství × poslední cena, přepočteno **dnešním** kurzem ČNB |
 | Investováno | nákupní cena kusů, které ještě držíš, přepočtená **kurzem ke dni nákupu** |
-| Nerealizovaný zisk | hodnota − investováno |
+| Nerealizovaný zisk | hodnota − investováno; u ručních pozic (spořicí účet, Portu) bez příjmů a poplatků, které už jsou v hodnotě |
 | Realizovaný zisk | výnos z prodejů (kurzem ke dni prodeje) − nákupní cena prodaných kusů (kurzem ke dni nákupu) |
 | Příjmy | dividendy, úroky a odměny (staking) kurzem ke dni připsání |
-| Celkový výnos | nerealizovaný + realizovaný zisk + příjmy − samostatné poplatky |
+| Poplatky | samostatné poplatky brokerům a burzám kurzem ke dni zaplacení |
+| Celkový výnos | nerealizovaný + realizovaný zisk + příjmy − poplatky |
 | % | celkový výnos / nákupní cena všech kdy nakoupených kusů |
 
 Protože se nákupní cena přepočítává kurzem ke dni nákupu, zahrnuje zisk
@@ -35,12 +36,12 @@ doplníš v [Ceny a kurzy](06_Ceny_a_kurzy.md) nebo ručně u instrumentu.
 
 | Část | Obsah |
 |---|---|
-| Souhrn | **Hodnota portfolia** s celkovým výnosem v Kč a %, pod ní Investováno, Nerealizovaný zisk, Realizovaný zisk a Příjmy |
+| Souhrn | **Hodnota portfolia** s celkovým výnosem v Kč a %, pod ní Investováno, Nerealizovaný zisk, Realizovaný zisk, Příjmy a Poplatky. Nerealizovaný + realizovaný zisk + příjmy − poplatky dají přesně celkový výnos; ikona ⓘ u každé dlaždice ukáže, co zahrnuje |
 | Čisté jmění | Samostatný panel (jen když ho vedeš): investice + další majetek − závazky, odkaz na detail |
 | Upozornění | Pozice bez ceny nebo kurzu, zastaralé ceny, chybějící ruční ocenění |
 | Vývoj hodnoty | Graf a výnosové metriky za období — viz § 7.5 |
 | Alokace | Donut s podíly podle třídy aktiv, portfolia nebo instituce (přepínač); uprostřed součet, po najetí na výseč nebo řádek legendy její částka a podíl. Máš-li cílovou alokaci, vedle je **Skutečnost a cíl** po třídách |
-| Krypto napříč účty | Každá kryptoměna sečtená přes všechny účty (burzy, peněženky), zisk v Kč i %; je-li na víc účtech, řádek se rozbalí na jednotlivé účty |
+| Krypto napříč účty | Každá kryptoměna sečtená přes všechny účty (burzy, peněženky), celkový výnos v Kč i % (stejný jako u pozic v tabulce níž, tedy včetně prodaných kusů, odměn a poplatků); je-li na víc účtech, řádek se rozbalí na jednotlivé účty |
 | Pozice | Tabulka po portfoliích (v záhlaví hodnota portfolia a jeho podíl na celku): množství, hodnota, investováno, celkový výnos v Kč i % |
 
 Ruční pozice se v alokaci řadí jako **Hotovost** (účet u banky) nebo **Fond**
@@ -134,6 +135,8 @@ zavře ho další klepnutí, klik mimo nebo Escape):
 den šly do zvoleného instrumentu (cenou a kurzem ČNB toho dne). Díky stejným tokům se porovnává jen výběr
 investic, ne načasování. Po zvolení instrumentu se stáhne jeho historie cen od tvé první transakce a dál ji
 udržuje úloha `cron-prices`. Když benchmark nemá ceny na začátku období, pod grafem je upozornění.
+V legendě je čára popsaná **Stejné vklady do …** (např. Stejné vklady do VWCE). V detailu pozice téhož instrumentu
+(BTC proti BTC) se benchmark nezobrazuje — srovnání by nic neříkalo.
 
 **Inflace ČR** je harmonizovaný index spotřebitelských cen (HICP) z Eurostatu — liší se od národní inflace
 ČSÚ jen nepatrně. Měří se od měsíce před začátkem období do posledního zveřejněného měsíce (Eurostat ho vydává

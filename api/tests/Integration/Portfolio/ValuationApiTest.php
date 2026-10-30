@@ -77,6 +77,7 @@ final class ValuationApiTest extends ApiTestCase
         self::assertSame('1600.00', $b['value']);      // 1 × 80 XTS × 20 Kč
         self::assertSame('500.00', $b['invested']);    // 50 XTS × 10 Kč (kurz ke dni nákupu)
         self::assertSame('1100.00', $b['unrealized']);
+        self::assertSame('1600', rtrim(rtrim($b['price_display'], '0'), '.')); // 80 XTS × 20 Kč
         self::assertSame('100.00', $b['realized']);    // 600 − 500
         self::assertSame('1200.00', $b['total_return']);
         self::assertSame('120.00', $b['return_pct']);  // 1200 / (500 + 500)
@@ -118,6 +119,7 @@ final class ValuationApiTest extends ApiTestCase
         self::assertSame('1100.00', $after['invested']);
         self::assertSame('205.00', $after['total_return']);
         self::assertSame('5.00', $after['income']);
+        self::assertSame('200.00', $after['unrealized']); // zhodnocení bez úroku
 
         // Seznam pozic: ruční pozice nese dnešní hodnotu v měně pozice, tržní ne.
         $list = array_column($this->call($this->userId, 'GET', '/api/positions')['body'], null, 'id');
@@ -132,6 +134,16 @@ final class ValuationApiTest extends ApiTestCase
         $categories = array_column($dash['body']['allocation']['category'], 'value', 'label');
         self::assertSame(['crypto' => '1600.00', 'cash' => '1305.00'], $categories);
         self::assertSame('SYNV', $dash['body']['crypto'][0]['symbol']);
+        // Krypto napříč účty: stejný celkový výnos jako pozice (1600 − 500).
+        self::assertSame('1100.00', $dash['body']['crypto'][0]['total_return']);
+        self::assertSame('220.00', $dash['body']['crypto'][0]['return_pct']);
+        // Dlaždice se sečtou na celkový výnos: nerealizovaný + realizovaný + příjmy − poplatky.
+        $tot = $dash['body']['totals'];
+        self::assertSame('1305.00', $tot['total_return']);
+        self::assertSame(
+            (float) $tot['total_return'],
+            (float) $tot['unrealized'] + (float) $tot['realized'] + (float) $tot['income'] - (float) $tot['fees'],
+        );
 
         // Ocenění jen u ručních pozic; validace data a hodnoty.
         self::assertSame(422, $this->call($this->userId, 'POST', '/api/positions/' . $ids['position'] . '/valuations', ['date' => '2001-06-30', 'value' => '1'])['status']);

@@ -341,7 +341,7 @@ final class LoginAction
                     $this->logger->log('auth.email_otp_sent', (int) $user['id'], 'user', (int) $user['id'], [
                         'email' => $email, 'sent' => $issued['sent'], 'resend' => $resendOtp,
                     ], $ip, $userAgent);
-                    return Json::error($response, 'email_otp_required', 'Zadejte kód, který jsme poslali na váš e-mail.', 401, [
+                    return Json::error($response, 'email_otp_required', 'Zadej kód, který jsme ti poslali e-mailem.', 401, [
                         'otp_sent'           => $issued['sent'],
                         'cooldown_remaining' => $issued['cooldown_remaining'],
                         'email_masked'       => $this->maskEmail((string) $user['email']),

@@ -194,7 +194,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       </div>
 
       <PositionValuationPanel ref="valuationPanel" :position="position" :transaction-count="total" />
-      <HistoryChart ref="historyChart" class="mb-4" scope="position" :id="position.id" />
+      <HistoryChart ref="historyChart" class="mb-4" scope="position" :id="position.id" :instrument-id="position.instrument_id" />
 
       <h2 class="text-lg font-semibold mb-2">{{ t('tx.title') }}</h2>
       <TransactionTable :rows="transactions" :total="total" :loading="txLoading" :empty-text="t('tx.empty')"

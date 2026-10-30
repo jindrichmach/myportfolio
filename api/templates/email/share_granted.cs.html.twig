@@ -1,9 +1,9 @@
 {% extends '_layout.html.twig' %}
 
 {% block content %}
-<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:{{ c.text }};">{{ owner_name }} s Vámi sdílí portfolio</h1>
+<h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:{{ c.text }};">{{ owner_name }} s tebou sdílí portfolio</h1>
 
-<p style="margin:0 0 16px;"><strong>{{ owner_name }}</strong> Vám v <strong>MyPortfolio</strong> nasdílel(a) svá data ({{ scope_text }}, {{ permission_text }}).</p>
+<p style="margin:0 0 16px;"><strong>{{ owner_name }}</strong> ti v <strong>MyPortfolio</strong> nasdílel(a) svá data ({{ scope_text }}, {{ permission_text }}).</p>
 
 <p style="margin:24px 0;text-align:center;">
   <a href="{{ link }}" style="display:inline-block;background:{{ accent }};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 28px;border-radius:6px;font-size:15px;">
@@ -15,5 +15,5 @@
   {{ link }}
 </p>
 
-<p style="margin:24px 0 0;font-size:13px;color:{{ c.muted }};">Sdílená data zobrazíte přepínačem v záhlaví aplikace. Sdílení můžete kdykoli opustit v Účet → Sdílení.</p>
+<p style="margin:24px 0 0;font-size:13px;color:{{ c.muted }};">Sdílená data zobrazíš přepínačem v záhlaví aplikace. Sdílení můžeš kdykoli opustit v Účet → Sdílení.</p>
 {% endblock %}

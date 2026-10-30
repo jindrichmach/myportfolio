@@ -11,6 +11,8 @@ import { useToast } from '@/composables/useToast'
 import { loadReceivedShares, useOwnerContext } from '@/composables/useOwnerContext'
 
 const { t, locale } = useI18n()
+// Názvy jazyků se nepřekládají — každý v jazyce, který zapíná.
+const LOCALES = [{ code: 'cs', name: 'Čeština' }, { code: 'en', name: 'English' }] as const
 function setLocale(l: 'cs' | 'en') {
   locale.value = l
   localStorage.setItem('locale', l)
@@ -245,33 +247,12 @@ onMounted(async () => {
             :title="t('auth.profile_title')"
           >{{ auth.user?.name }}</RouterLink>
 
-          <!-- Locale switcher (CZ / EN s SVG vlajkami) -->
-          <div class="hidden sm:inline-flex items-center border border-neutral-200 rounded-md overflow-hidden">
-            <button
-              @click="setLocale('cs')" title="Čeština" aria-label="Čeština"
-              class="cursor-pointer h-8 px-2 inline-flex items-center"
-              :class="locale === 'cs' ? 'bg-primary-50' : 'hover:bg-neutral-50 grayscale opacity-60 hover:grayscale-0 hover:opacity-100'"
-            >
-              <svg width="22" height="15" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
-                <rect width="6" height="2" fill="#ffffff"/>
-                <rect y="2" width="6" height="2" fill="#d7141a"/>
-                <polygon points="0,0 3,2 0,4" fill="#11457e"/>
-              </svg>
-            </button>
-            <button
-              @click="setLocale('en')" title="English" aria-label="English"
-              class="cursor-pointer h-8 px-2 inline-flex items-center border-l border-neutral-200"
-              :class="locale === 'en' ? 'bg-primary-50' : 'hover:bg-neutral-50 grayscale opacity-60 hover:grayscale-0 hover:opacity-100'"
-            >
-              <svg width="22" height="15" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
-                <clipPath id="uk-flag-tb"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
-                <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
-                <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
-                <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-flag-tb)" stroke="#C8102E" stroke-width="4"/>
-                <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
-                <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
-              </svg>
-            </button>
+          <!-- Přepínač jazyka textem (vlajka znamená zemi, ne jazyk); celý název v aria-label -->
+          <div class="hidden sm:inline-flex items-center border border-neutral-200 rounded-md overflow-hidden text-xs font-medium" role="group" :aria-label="t('common.language')">
+            <button v-for="l in LOCALES" :key="l.code" type="button" @click="setLocale(l.code)" :lang="l.code"
+              :title="l.name" :aria-label="l.name" :aria-pressed="locale === l.code"
+              class="cursor-pointer h-8 px-2.5 inline-flex items-center uppercase [&:not(:first-child)]:border-l border-neutral-200"
+              :class="locale === l.code ? 'bg-primary-50 text-primary-700' : 'text-neutral-600 hover:bg-neutral-50'">{{ l.code }}</button>
           </div>
 
           <!-- Přepínač motivu (System / Light / Dark) — na mobilu je v drawer patičce -->
@@ -381,32 +362,10 @@ onMounted(async () => {
           <div class="flex items-center justify-between gap-2">
             <!-- Přepínač motivu (System / Light / Dark) — mobilní varianta -->
             <ThemeToggle />
-            <div class="inline-flex items-center border border-neutral-200 bg-surface rounded-md overflow-hidden">
-              <button
-                @click="setLocale('cs')" title="Čeština"
-                class="cursor-pointer h-9 px-3 inline-flex items-center"
-                :class="locale === 'cs' ? 'bg-primary-50' : 'hover:bg-neutral-50 grayscale opacity-60'"
-              >
-                <svg width="22" height="15" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="6" height="2" fill="#ffffff"/>
-                  <rect y="2" width="6" height="2" fill="#d7141a"/>
-                  <polygon points="0,0 3,2 0,4" fill="#11457e"/>
-                </svg>
-              </button>
-              <button
-                @click="setLocale('en')" title="English"
-                class="cursor-pointer h-9 px-3 inline-flex items-center border-l border-neutral-200"
-                :class="locale === 'en' ? 'bg-primary-50' : 'hover:bg-neutral-50 grayscale opacity-60'"
-              >
-                <svg width="22" height="15" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
-                  <clipPath id="uk-flag-mob"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
-                  <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
-                  <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
-                  <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-flag-mob)" stroke="#C8102E" stroke-width="4"/>
-                  <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
-                  <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
-                </svg>
-              </button>
+            <div class="inline-flex items-center border border-neutral-200 bg-surface rounded-md overflow-hidden text-sm" role="group" :aria-label="t('common.language')">
+              <button v-for="l in LOCALES" :key="l.code" type="button" @click="setLocale(l.code)" :lang="l.code" :aria-pressed="locale === l.code"
+                class="cursor-pointer h-9 px-3 inline-flex items-center [&:not(:first-child)]:border-l border-neutral-200"
+                :class="locale === l.code ? 'bg-primary-50 text-primary-700 font-medium' : 'text-neutral-600 hover:bg-neutral-50'">{{ l.name }}</button>
             </div>
           </div>
           <div class="grid gap-2" :class="canLockSession ? 'grid-cols-2' : 'grid-cols-1'">

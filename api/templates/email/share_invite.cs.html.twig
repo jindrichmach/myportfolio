@@ -3,7 +3,7 @@
 {% block content %}
 <h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:{{ c.text }};">Pozvánka do MyPortfolio</h1>
 
-<p style="margin:0 0 16px;"><strong>{{ owner_name }}</strong> Vás zve do <strong>MyPortfolio</strong> a chce s Vámi sdílet svá data ({{ scope_text }}, {{ permission_text }}). Pro přijetí si založte účet:</p>
+<p style="margin:0 0 16px;"><strong>{{ owner_name }}</strong> tě zve do <strong>MyPortfolio</strong> a chce s tebou sdílet svá data ({{ scope_text }}, {{ permission_text }}). Pro přijetí si založ účet:</p>
 
 <p style="margin:24px 0;text-align:center;">
   <a href="{{ link }}" style="display:inline-block;background:{{ accent }};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 28px;border-radius:6px;font-size:15px;">
@@ -15,5 +15,5 @@
   {{ link }}
 </p>
 
-<p style="margin:24px 0 0;font-size:13px;color:{{ c.muted }};">Odkaz platí do {{ expires_f }}. Pokud pozvánku nečekáte, e-mail ignorujte.</p>
+<p style="margin:24px 0 0;font-size:13px;color:{{ c.muted }};">Odkaz platí do {{ expires_f }}. Pokud pozvánku nečekáš, e-mail ignoruj.</p>
 {% endblock %}

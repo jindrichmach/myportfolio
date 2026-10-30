@@ -21,7 +21,7 @@ const { t } = useI18n()
       <AppLogo :colors="COLOR_SCHEMES[inherit]" class="w-8 h-8 shrink-0" />
       <span class="min-w-0 text-sm leading-tight">
         <span class="block font-medium text-neutral-900">{{ t('appearance.inherit') }}</span>
-        <span class="block text-xs text-neutral-500">{{ t(`appearance.names.${inherit}`) }}</span>
+        <span class="block text-xs text-neutral-500">{{ t('appearance.inherit_now', { name: t(`appearance.names.${inherit}`) }) }}</span>
       </span>
     </label>
     <label v-for="key in COLOR_SCHEME_KEYS" :key="key"
