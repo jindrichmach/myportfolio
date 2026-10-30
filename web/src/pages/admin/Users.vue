@@ -162,7 +162,7 @@ function roleBadge(role: string): string {
       </template>
       <template #actions="{ row }">
         <div class="inline-flex gap-1">
-          <IconButton v-if="auth.user?.id === row.id" icon="shield" :label="t('auth.totp_2fa')" to="/profile/totp" />
+          <IconButton v-if="auth.user?.id === row.id" icon="shield" :label="t('auth.totp_2fa')" to="/profile?tab=totp" />
           <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(row)" />
           <IconButton v-if="row.is_active" icon="ban" show-label variant="danger" :label="t('users.deactivate')" :disabled="isLastAdmin(row)"
             :tooltip="isLastAdmin(row) ? t('users.is_last_admin_lock') : undefined" @click="deactivate(row)" />

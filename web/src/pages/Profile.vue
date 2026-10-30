@@ -1,11 +1,10 @@
 <script setup lang="ts">
 /**
- * Profil uživatele po záložkách: Účet (jméno, jazyk UI, měna zobrazení, barevné schéma), Reporty e-mailem a Upozornění.
- * Heslo, 2FA a passkeys jsou na /profile/password.
+ * Profil uživatele po záložkách: Účet (jméno, jazyk UI, měna zobrazení, barevné schéma), zabezpečení (heslo, 2FA,
+ * přístupové klíče, zámek aplikace — components/profile/SecuritySettings.vue), Reporty e-mailem a Upozornění.
  */
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
 import { settingsApi, type Profile } from '@/api/settings'
 import type { DisplayCurrency } from '@/api/auth'
 import { apiErrorMessage } from '@/api/errors'
@@ -13,6 +12,7 @@ import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import WeeklyReportCard from '@/components/profile/WeeklyReportCard.vue'
 import AlertsCard from '@/components/profile/AlertsCard.vue'
+import SecuritySettings from '@/components/profile/SecuritySettings.vue'
 import ColorSchemePicker from '@/components/ColorSchemePicker.vue'
 import { DEFAULT_COLOR_SCHEME } from '@/theme/colorSchemes'
 import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
@@ -26,10 +26,19 @@ const auth = useAuthStore()
 
 const CURRENCIES: DisplayCurrency[] = ['CZK', 'EUR', 'USD']
 
-const TAB_KEYS = ['account', 'reports', 'alerts'] as const
+const TAB_KEYS = ['account', 'password', 'totp', 'passkeys', 'session-lock', 'reports', 'alerts'] as const
 type ProfileTab = (typeof TAB_KEYS)[number]
 const tab = useTabQuery<ProfileTab>(TAB_KEYS, 'account')
-const tabs = computed<TabItem<ProfileTab>[]>(() => TAB_KEYS.map(key => ({ key, label: t(`profile.tab_${key}`) })))
+const totpOn = ref(false)
+const tabs = computed<TabItem<ProfileTab>[]>(() => [
+  { key: 'account', label: t('profile.tab_account') },
+  { key: 'password', label: t('auth.change_password_title') },
+  { key: 'totp', label: t('auth.totp_tab'), badge: totpOn.value ? t('auth.totp_badge_on') : null },
+  { key: 'passkeys', label: t('passkeys.title') },
+  { key: 'session-lock', label: t('session_lock.preference_tab') },
+  { key: 'reports', label: t('profile.tab_reports') },
+  { key: 'alerts', label: t('profile.tab_alerts') },
+])
 
 const form = ref<Profile | null>(null)
 const busy = ref(false)
@@ -106,10 +115,7 @@ async function save() {
           <ColorSchemePicker v-model="form.color_scheme" name="profile-scheme"
                              :inherit="auth.setupStatus?.color_scheme ?? DEFAULT_COLOR_SCHEME" />
         </div>
-        <div class="flex items-center justify-between gap-3 pt-2">
-          <RouterLink to="/profile/password" class="text-sm text-primary-700 hover:text-primary-800 hover:underline">
-            {{ t('profile.security_link') }}
-          </RouterLink>
+        <div class="flex items-center justify-end gap-3 pt-2">
           <button type="submit" :disabled="busy"
                   class="cursor-pointer px-4 h-10 bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action font-medium rounded-md">
             {{ busy ? '…' : t('common.save') }}
@@ -119,6 +125,8 @@ async function save() {
 
       <WeeklyReportCard v-else-if="tab === 'reports'" />
       <AlertsCard v-else-if="tab === 'alerts'" />
+      <!-- Vždy připojené (hlásí stav TOTP pro odznak), mimo bezpečnostní záložky nic nevykreslí -->
+      <SecuritySettings :tab="tab" class="max-w-2xl" @totp-status="totpOn = $event" />
     </div>
   </div>
 </template>

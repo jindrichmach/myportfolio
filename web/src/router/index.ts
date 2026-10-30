@@ -33,18 +33,18 @@ const routes: RouteRecordRaw[] = [
       { path: 'admin/users',            name: 'admin-users',    component: () => import('@/pages/admin/Users.vue'),       meta: { title: 'nav.users', adminOnly: true } },
       // Nastavení instance po záložkách (?tab=smtp)
       { path: 'admin/settings',         name: 'admin-settings', component: () => import('@/pages/admin/Settings.vue'),    meta: { title: 'nav.settings', adminOnly: true } },
-      // Profil — záložky na /profile/password; staré URL přesměrují na příslušnou záložku.
+      // Profil — jedna stránka se záložkami (?tab=password|totp|passkeys|session-lock|reports|alerts); staré URL přesměrují.
       { path: 'profile',                name: 'profile',               component: () => import('@/pages/Profile.vue'), meta: { title: 'nav.profile' } },
-      { path: 'profile/totp',           name: 'profile-totp',          redirect: (to) => ({ path: '/profile/password', query: { ...to.query, tab: 'totp' } }) },
-      { path: 'profile/password',       name: 'profile-password',      component: () => import('@/pages/PasswordChange.vue'), meta: { title: 'auth.profile_title' } },
+      { path: 'profile/totp',           name: 'profile-totp',          redirect: (to) => ({ path: '/profile', query: { ...to.query, tab: 'totp' } }) },
+      { path: 'profile/password',       name: 'profile-password',      redirect: (to) => ({ path: '/profile', query: { ...to.query, tab: to.query.tab ?? 'password' } }) },
       { path: 'profile/api',            name: 'profile-api',           component: () => import('@/pages/Api.vue'), meta: { title: 'nav.api' } },
       { path: 'profile/api-tokens',     name: 'profile-api-tokens',    redirect: (to) => ({ path: '/profile/api', query: to.query }) },
       { path: 'manual/:chapter?',       name: 'manual',          component: () => import('@/pages/Manual.vue'), meta: { title: 'nav.manual' } },
       { path: 'profile/sharing',        name: 'profile-sharing',       component: () => import('@/pages/Sharing.vue'), meta: { title: 'nav.sharing' } },
       { path: 'profile/exchanges',      name: 'profile-exchanges',     component: () => import('@/pages/Exchanges.vue'), meta: { title: 'nav.exchanges' } },
       { path: 'profile/bank-notices',   name: 'profile-bank-notices',  component: () => import('@/pages/BankNotices.vue'), meta: { title: 'nav.bank_notices' } },
-      { path: 'profile/passkeys',       name: 'profile-passkeys',      redirect: (to) => ({ path: '/profile/password', query: { ...to.query, tab: 'passkeys' } }) },
-      { path: 'profile/session-lock',   name: 'profile-session-lock',  redirect: (to) => ({ path: '/profile/password', query: { ...to.query, tab: 'session-lock' } }) },
+      { path: 'profile/passkeys',       name: 'profile-passkeys',      redirect: (to) => ({ path: '/profile', query: { ...to.query, tab: 'passkeys' } }) },
+      { path: 'profile/session-lock',   name: 'profile-session-lock',  redirect: (to) => ({ path: '/profile', query: { ...to.query, tab: 'session-lock' } }) },
     ],
   },
   { path: '/login',  name: 'login',  component: () => import('@/pages/Login.vue'),          meta: { title: 'auth.login_title', public: true } },

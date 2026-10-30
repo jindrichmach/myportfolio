@@ -1,14 +1,14 @@
 <script setup lang="ts">
 /**
- * Profil uživatele — záložky:
+ * Bezpečnostní záložky profilu (záložky řídí pages/Profile.vue přes `tab`):
  *   - Heslo  (změna hesla, self-service)
  *   - 2FA    (TOTP setup, status, aktivace)
  *   - Passkeys (registrace a správa přístupových klíčů)
  *   - Zámek aplikace (osobní interval nečinnosti)
+ * Pro jiné záložky nevykreslí nic; stav TOTP hlásí rodiči kvůli odznaku v záložkách.
  */
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { authApi, type SessionLockPreference, type TotpSetup } from '@/api/auth'
 import { useToast } from '@/composables/useToast'
 import { apiErrorMessage } from '@/api/errors'
@@ -16,26 +16,16 @@ import { useAuthStore } from '@/stores/auth'
 import { useSessionSecurityStore } from '@/stores/sessionSecurity'
 import Passkeys from '@/pages/Passkeys.vue'
 import Icon from '@/components/ui/Icon.vue'
-import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
-import { useTabQuery } from '@/composables/useTabQuery'
 import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
 const fid = useFieldId()
 const toast = useToast()
-const router = useRouter()
 const auth = useAuthStore()
 const sessionSecurity = useSessionSecurityStore()
 
-const TAB_KEYS = ['password', 'totp', 'passkeys', 'session-lock'] as const
-type Tab = (typeof TAB_KEYS)[number]
-const tab = useTabQuery<Tab>(TAB_KEYS, 'password')
-const tabs = computed<TabItem<Tab>[]>(() => [
-  { key: 'password', label: t('auth.change_password_title') },
-  { key: 'totp', label: t('auth.totp_tab'), badge: totpStatus.value?.enabled ? t('auth.totp_badge_on') : null },
-  { key: 'passkeys', label: t('passkeys.title') },
-  { key: 'session-lock', label: t('session_lock.preference_tab') },
-])
+const props = defineProps<{ tab: string }>()
+const emit = defineEmits<{ 'totp-status': [enabled: boolean] }>()
 
 // ── Heslo ─────────────────────────────────────────────────────────────
 const MIN_LEN = 12
@@ -80,6 +70,7 @@ const totpError = ref('')
 async function loadTotpStatus() {
   try {
     totpStatus.value = await authApi.totpStatus()
+    emit('totp-status', totpStatus.value.enabled)
   } catch (e: any) {
     totpError.value = apiErrorMessage(e, t('common.error'))
   }
@@ -187,7 +178,7 @@ async function saveLockPreference() {
   }
 }
 
-watch(tab, next => {
+watch(() => props.tab, next => {
   if (next === 'session-lock' && lockPreference.value === null) {
     void loadLockPreference()
   }
@@ -195,21 +186,14 @@ watch(tab, next => {
 
 onMounted(() => {
   loadTotpStatus()
-  if (tab.value === 'session-lock') {
+  if (props.tab === 'session-lock') {
     void loadLockPreference()
   }
 })
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto">
-    <div class="mb-4">
-      <h1 class="text-2xl font-semibold">{{ t('auth.profile_title') }}</h1>
-      <p class="text-sm text-neutral-500 mt-0.5">{{ t('auth.profile_subtitle') }}</p>
-    </div>
-
-    <Tabs v-model="tab" :tabs="tabs" :label="t('auth.profile_title')" class="mb-4" />
-
+  <div>
     <!-- ── Heslo ── -->
     <form v-if="tab === 'password'" @submit.prevent="submitPw"
           class="bg-surface border border-neutral-200 rounded-lg p-5 shadow-sm space-y-4">
@@ -262,11 +246,7 @@ onMounted(() => {
         {{ pwError }}
       </div>
 
-      <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
-        <button type="button" @click="router.back()"
-                class="cursor-pointer h-10 px-4 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50">
-          {{ t('common.back') }}
-        </button>
+      <div class="flex items-center justify-end pt-2 border-t border-neutral-100">
         <button type="submit" :disabled="!canSubmitPw"
                 class="cursor-pointer h-10 px-5 text-sm bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action font-medium rounded-md">
           {{ pwBusy ? t('common.saving') : t('auth.change_password_submit') }}
@@ -340,7 +320,7 @@ onMounted(() => {
     <Passkeys v-else-if="tab === 'passkeys'" />
 
     <!-- ── Automatický zámek ── -->
-    <form v-else @submit.prevent="saveLockPreference"
+    <form v-else-if="tab === 'session-lock'" @submit.prevent="saveLockPreference"
           class="bg-surface border border-neutral-200 rounded-lg p-5 shadow-sm space-y-4">
       <div>
         <h2 class="font-medium text-neutral-900">{{ t('session_lock.preference_title') }}</h2>

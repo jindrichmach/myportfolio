@@ -144,7 +144,6 @@
     "passwordless_passkey_login": "Sign in with a passkey",
     "passwordless_passkey_unsupported": "This browser does not support passkey sign-in. Use your email and password.",
     "passwords_dont_match": "Passwords do not match",
-    "profile_subtitle": "Change password and two-factor authentication.",
     "profile_title": "Profile",
     "recovery_code": "Backup code",
     "recovery_hint": "One of the codes you saved when they were generated. Each one works only once.",
@@ -528,11 +527,10 @@
   },
   "profile": {
     "title": "Profile",
-    "subtitle": "Account, appearance, email reports and alerts.",
+    "subtitle": "Account, security (password, two-factor authentication, passkeys, app lock), email reports and alerts.",
     "display_currency": "Display currency",
     "display_currency_hint": "Portfolio values are converted to this currency.",
     "saved": "Profile saved.",
-    "security_link": "Password, 2FA and passkeys →",
     "tab_account": "Account",
     "tab_reports": "Reports",
     "tab_alerts": "Alerts"

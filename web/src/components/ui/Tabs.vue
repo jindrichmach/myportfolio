@@ -9,7 +9,8 @@ export interface TabItem<T extends string = string> {
 
 <script setup lang="ts" generic="K extends string">
 /**
- * Záložky stránky. Na úzkém displeji select (dlouhé překlady se nemačkají), jinak řada záložek.
+ * Záložky stránky. Na úzkém displeji select (dlouhé překlady se nemačkají), jinak řada záložek; když se nevejde,
+ * vodorovně se posouvá (spodní linka je stín, ať ji overflow neořízne).
  * Volbu v URL drží `useTabQuery`.
  */
 defineProps<{ tabs: TabItem<K>[]; label: string }>()
@@ -24,9 +25,9 @@ const model = defineModel<K>({ required: true })
         {{ tb.label }}{{ tb.badge != null && tb.badge !== '' ? ` (${tb.badge})` : '' }}
       </option>
     </select>
-    <div role="tablist" :aria-label="label" class="hidden sm:flex gap-1 border-b border-neutral-200">
+    <div role="tablist" :aria-label="label" class="hidden sm:flex gap-1 overflow-x-auto scrollbar-slim shadow-[inset_0_-1px_0_var(--color-neutral-200)]">
       <button v-for="tb in tabs" :key="tb.key" type="button" role="tab" :aria-selected="model === tb.key"
-        class="cursor-pointer inline-flex items-center gap-2 px-4 h-10 text-sm font-medium border-b-2 -mb-px whitespace-nowrap"
+        class="cursor-pointer inline-flex items-center gap-2 px-4 h-10 shrink-0 text-sm font-medium border-b-2 whitespace-nowrap"
         :class="model === tb.key ? 'border-primary-600 text-primary-700' : 'border-transparent text-neutral-500 hover:text-neutral-800'"
         @click="model = tb.key">
         {{ tb.label }}

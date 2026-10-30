@@ -144,7 +144,6 @@
     "passwordless_passkey_login": "Přihlásit přístupovým klíčem",
     "passwordless_passkey_unsupported": "Tento prohlížeč přihlášení přístupovým klíčem nepodporuje. Použij e-mail a heslo.",
     "passwords_dont_match": "Hesla se neshodují",
-    "profile_subtitle": "Změna hesla a dvoufaktorové ověření.",
     "profile_title": "Profil",
     "recovery_code": "Záložní kód",
     "recovery_hint": "Jeden z kódů, které sis uložil(a) při jejich vygenerování. Každý funguje jen jednou.",
@@ -528,11 +527,10 @@
   },
   "profile": {
     "title": "Profil",
-    "subtitle": "Účet, vzhled, reporty a upozornění e-mailem.",
+    "subtitle": "Účet, zabezpečení (heslo, dvoufaktorové ověření, přístupové klíče, zámek aplikace), reporty a upozornění e-mailem.",
     "display_currency": "Měna zobrazení",
     "display_currency_hint": "V této měně se přepočítávají hodnoty portfolia.",
     "saved": "Profil uložen.",
-    "security_link": "Heslo, 2FA a passkeys →",
     "tab_account": "Účet",
     "tab_reports": "Reporty",
     "tab_alerts": "Upozornění"

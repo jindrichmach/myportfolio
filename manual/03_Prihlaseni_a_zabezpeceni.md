@@ -23,8 +23,9 @@ Nepřišel-li e-mail, zkontroluj spam. Jinak požádej správce — zkontroluje 
 
 ## 3.3 Profil
 
-**Profil** v menu (sekce Účet) má tři záložky: **Účet**, **Reporty** a **Upozornění**. Vybraná záložka
-je v adrese stránky (`?tab=`), takže na ni jde odkázat.
+**Profil** v menu (sekce Účet) — nebo kliknutí na své jméno v horní liště — je jedna stránka se záložkami
+**Účet**, **Změna hesla**, **2FA / TOTP**, **Přístupové klíče**, **Zámek aplikace**, **Reporty** a **Upozornění**.
+Vybraná záložka je v adrese stránky (`?tab=`), takže na ni jde odkázat. Na telefonu se záložka vybírá ze seznamu.
 
 Na záložce **Účet** upravíš:
 
@@ -40,8 +41,7 @@ Světlý / tmavý režim se přepíná zvlášť ikonami v horní liště a plat
 Záložka **Reporty** nastavuje týdenní, měsíční a roční report e-mailem — viz [8.1 Týdenní report](08_Reporty_a_upozorneni.md#81-týdenní-report-e-mailem).
 Záložka **Upozornění** nastavuje denní souhrn upozornění — viz [8.2 Upozornění e-mailem](08_Reporty_a_upozorneni.md#82-upozornění-e-mailem).
 
-Odkaz **Heslo, 2FA a passkeys** (nebo kliknutí na své jméno v horní liště)
-otevře záložky zabezpečení:
+Záložky zabezpečení:
 
 | Záložka | Co tam je |
 |---|---|

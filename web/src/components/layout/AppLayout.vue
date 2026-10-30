@@ -251,7 +251,7 @@ onMounted(async () => {
           </select>
           <!-- Jméno uživatele (desktop) — link na profil (heslo + 2FA v záložkách). -->
           <RouterLink
-            to="/profile/password"
+            to="/profile"
             class="hidden lg:inline text-sm text-neutral-600 hover:text-primary-700 hover:underline"
             :title="t('auth.profile_title')"
           >{{ auth.user?.name }}</RouterLink>
@@ -369,7 +369,7 @@ onMounted(async () => {
         <div class="lg:hidden border-t border-neutral-200 px-4 py-3 bg-neutral-50 space-y-3">
           <div class="flex items-center justify-between">
             <RouterLink
-              to="/profile/password"
+              to="/profile"
               @click="mobileOpen = false"
               class="group min-w-0 flex-1 rounded-md -ml-2 px-2 py-1.5 text-sm hover:bg-surface"
               :title="t('auth.profile_title')"
