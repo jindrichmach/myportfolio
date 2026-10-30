@@ -39,6 +39,14 @@ export type InstitutionInput = Pick<Institution, 'name' | 'type' | 'website'> & 
 export type InstrumentInput = Omit<Instrument, 'id' | 'is_active' | 'last_price' | 'icon_url' | 'can_edit_icon'> & { is_active?: boolean }
 export type CatalogKind = 'institutions' | 'instruments'
 
+export interface IconLibrary {
+  crypto: { symbol: string; name: string; url: string }[]
+  /** Loga správců ETF (iShares, Vanguard…). */
+  etf: { slug: string; name: string; url: string }[]
+  /** `icon`/`url` = přibalené logo (weby, odkud stažení nejde); jinak se logo stahuje z `website`. */
+  institutions: { name: string; type: InstitutionType; website: string; icon: string | null; url: string | null }[]
+}
+
 export const catalogApi = {
   institutions: (all = false) =>
     api.get<Institution[]>('/institutions', { params: all ? { all: 1 } : {} }).then(r => r.data),
@@ -65,4 +73,11 @@ export const catalogApi = {
       .then(r => r.data.icon_url)
   },
   removeIcon: (kind: CatalogKind, id: number) => api.delete(`/${kind}/${id}/icon`),
+  /** Přibalená knihovna: ikony kryptoměn a české instituce s webem (loga se stahují z webu). */
+  iconLibrary: () => api.get<IconLibrary>('/icon-library').then(r => r.data),
+  setIconFromLibrary: (kind: CatalogKind, id: number, pick: { symbol: string } | { etf: string } | { institution: string }) =>
+    api.post<{ icon_url: string }>(`/${kind}/${id}/icon/library`, pick).then(r => r.data.icon_url),
+  /** Logo z webu instituce (`url` = jiný web než u instituce, např. z knihovny). */
+  setIconFromWebsite: (id: number, url?: string) =>
+    api.post<{ icon_url: string }>(`/institutions/${id}/icon/website`, url ? { url } : {}).then(r => r.data.icon_url),
 }

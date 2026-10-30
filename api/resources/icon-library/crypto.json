@@ -1,0 +1,562 @@
+[
+ {
+  "symbol": "BTC",
+  "name": "Bitcoin",
+  "file": "crypto/btc.png"
+ },
+ {
+  "symbol": "ETH",
+  "name": "Ethereum",
+  "file": "crypto/eth.png"
+ },
+ {
+  "symbol": "USDT",
+  "name": "Tether",
+  "file": "crypto/usdt.png"
+ },
+ {
+  "symbol": "BNB",
+  "name": "Binance Coin",
+  "file": "crypto/bnb.png"
+ },
+ {
+  "symbol": "SOL",
+  "name": "Solana",
+  "file": "crypto/sol.png"
+ },
+ {
+  "symbol": "XRP",
+  "name": "XRP",
+  "file": "crypto/xrp.png"
+ },
+ {
+  "symbol": "USDC",
+  "name": "USD Coin",
+  "file": "crypto/usdc.png"
+ },
+ {
+  "symbol": "ADA",
+  "name": "Cardano",
+  "file": "crypto/ada.png"
+ },
+ {
+  "symbol": "DOGE",
+  "name": "Dogecoin",
+  "file": "crypto/doge.png"
+ },
+ {
+  "symbol": "TRX",
+  "name": "TRON",
+  "file": "crypto/trx.png"
+ },
+ {
+  "symbol": "DOT",
+  "name": "Polkadot",
+  "file": "crypto/dot.png"
+ },
+ {
+  "symbol": "MATIC",
+  "name": "Polygon",
+  "file": "crypto/matic.png"
+ },
+ {
+  "symbol": "LINK",
+  "name": "ChainLink",
+  "file": "crypto/link.png"
+ },
+ {
+  "symbol": "AVAX",
+  "name": "Avalanche",
+  "file": "crypto/avax.png"
+ },
+ {
+  "symbol": "LTC",
+  "name": "Litecoin",
+  "file": "crypto/ltc.png"
+ },
+ {
+  "symbol": "BCH",
+  "name": "Bitcoin Cash",
+  "file": "crypto/bch.png"
+ },
+ {
+  "symbol": "UNI",
+  "name": "Uniswap",
+  "file": "crypto/uni.png"
+ },
+ {
+  "symbol": "XLM",
+  "name": "Stellar",
+  "file": "crypto/xlm.png"
+ },
+ {
+  "symbol": "ATOM",
+  "name": "Cosmos",
+  "file": "crypto/atom.png"
+ },
+ {
+  "symbol": "XMR",
+  "name": "Monero",
+  "file": "crypto/xmr.png"
+ },
+ {
+  "symbol": "ETC",
+  "name": "Ethereum Classic",
+  "file": "crypto/etc.png"
+ },
+ {
+  "symbol": "FIL",
+  "name": "Filecoin [IOU]",
+  "file": "crypto/fil.png"
+ },
+ {
+  "symbol": "ALGO",
+  "name": "Algorand",
+  "file": "crypto/algo.png"
+ },
+ {
+  "symbol": "ICP",
+  "name": "Internet Computer",
+  "file": "crypto/icp.png"
+ },
+ {
+  "symbol": "AAVE",
+  "name": "AAVE",
+  "file": "crypto/aave.png"
+ },
+ {
+  "symbol": "GRT",
+  "name": "The Graph",
+  "file": "crypto/grt.png"
+ },
+ {
+  "symbol": "MKR",
+  "name": "Maker",
+  "file": "crypto/mkr.png"
+ },
+ {
+  "symbol": "QNT",
+  "name": "Quant",
+  "file": "crypto/qnt.png"
+ },
+ {
+  "symbol": "SAND",
+  "name": "The Sandbox",
+  "file": "crypto/sand.png"
+ },
+ {
+  "symbol": "MANA",
+  "name": "Decentraland",
+  "file": "crypto/mana.png"
+ },
+ {
+  "symbol": "THETA",
+  "name": "Theta Network",
+  "file": "crypto/theta.png"
+ },
+ {
+  "symbol": "XTZ",
+  "name": "Tezos",
+  "file": "crypto/xtz.png"
+ },
+ {
+  "symbol": "EOS",
+  "name": "EOS",
+  "file": "crypto/eos.png"
+ },
+ {
+  "symbol": "CHZ",
+  "name": "Chiliz",
+  "file": "crypto/chz.png"
+ },
+ {
+  "symbol": "CRV",
+  "name": "Curve DAO Token",
+  "file": "crypto/crv.png"
+ },
+ {
+  "symbol": "ZEC",
+  "name": "Zcash",
+  "file": "crypto/zec.png"
+ },
+ {
+  "symbol": "DASH",
+  "name": "Dash",
+  "file": "crypto/dash.png"
+ },
+ {
+  "symbol": "NEO",
+  "name": "NEO",
+  "file": "crypto/neo.png"
+ },
+ {
+  "symbol": "COMP",
+  "name": "Compound",
+  "file": "crypto/comp.png"
+ },
+ {
+  "symbol": "SNX",
+  "name": "Synthetix",
+  "file": "crypto/snx.png"
+ },
+ {
+  "symbol": "ENJ",
+  "name": "Enjin Coin",
+  "file": "crypto/enj.png"
+ },
+ {
+  "symbol": "BAT",
+  "name": "Basic Attention Token",
+  "file": "crypto/bat.png"
+ },
+ {
+  "symbol": "1INCH",
+  "name": "1inch Network",
+  "file": "crypto/1inch.png"
+ },
+ {
+  "symbol": "ZRX",
+  "name": "0x",
+  "file": "crypto/zrx.png"
+ },
+ {
+  "symbol": "YFI",
+  "name": "yearn.finance",
+  "file": "crypto/yfi.png"
+ },
+ {
+  "symbol": "SUSHI",
+  "name": "SushiSwap",
+  "file": "crypto/sushi.png"
+ },
+ {
+  "symbol": "LRC",
+  "name": "Loopring",
+  "file": "crypto/lrc.png"
+ },
+ {
+  "symbol": "OMG",
+  "name": "OMG Network",
+  "file": "crypto/omg.png"
+ },
+ {
+  "symbol": "KSM",
+  "name": "Kusama",
+  "file": "crypto/ksm.png"
+ },
+ {
+  "symbol": "WAVES",
+  "name": "Waves",
+  "file": "crypto/waves.png"
+ },
+ {
+  "symbol": "ZIL",
+  "name": "Zilliqa",
+  "file": "crypto/zil.png"
+ },
+ {
+  "symbol": "ICX",
+  "name": "ICON",
+  "file": "crypto/icx.png"
+ },
+ {
+  "symbol": "ONT",
+  "name": "Ontology",
+  "file": "crypto/ont.png"
+ },
+ {
+  "symbol": "QTUM",
+  "name": "Qtum",
+  "file": "crypto/qtum.png"
+ },
+ {
+  "symbol": "DCR",
+  "name": "Decred",
+  "file": "crypto/dcr.png"
+ },
+ {
+  "symbol": "RVN",
+  "name": "Ravencoin",
+  "file": "crypto/rvn.png"
+ },
+ {
+  "symbol": "SC",
+  "name": "Siacoin",
+  "file": "crypto/sc.png"
+ },
+ {
+  "symbol": "DGB",
+  "name": "DigiByte",
+  "file": "crypto/dgb.png"
+ },
+ {
+  "symbol": "XEM",
+  "name": "NEM",
+  "file": "crypto/xem.png"
+ },
+ {
+  "symbol": "LSK",
+  "name": "Lisk",
+  "file": "crypto/lsk.png"
+ },
+ {
+  "symbol": "STX",
+  "name": "Stacks",
+  "file": "crypto/stx.png"
+ },
+ {
+  "symbol": "GNO",
+  "name": "Gnosis",
+  "file": "crypto/gno.png"
+ },
+ {
+  "symbol": "BAL",
+  "name": "Balancer",
+  "file": "crypto/bal.png"
+ },
+ {
+  "symbol": "UMA",
+  "name": "UMA",
+  "file": "crypto/uma.png"
+ },
+ {
+  "symbol": "ANKR",
+  "name": "Ankr Network",
+  "file": "crypto/ankr.png"
+ },
+ {
+  "symbol": "STORJ",
+  "name": "Storj",
+  "file": "crypto/storj.png"
+ },
+ {
+  "symbol": "NMR",
+  "name": "Numeraire",
+  "file": "crypto/nmr.png"
+ },
+ {
+  "symbol": "BNT",
+  "name": "Bancor Network Token",
+  "file": "crypto/bnt.png"
+ },
+ {
+  "symbol": "KNC",
+  "name": "Kyber Network",
+  "file": "crypto/knc.png"
+ },
+ {
+  "symbol": "REN",
+  "name": "Ren",
+  "file": "crypto/ren.png"
+ },
+ {
+  "symbol": "ZEN",
+  "name": "Horizen",
+  "file": "crypto/zen.png"
+ },
+ {
+  "symbol": "XVG",
+  "name": "Verge",
+  "file": "crypto/xvg.png"
+ },
+ {
+  "symbol": "NANO",
+  "name": "Nano",
+  "file": "crypto/nano.png"
+ },
+ {
+  "symbol": "BTG",
+  "name": "Bitcoin Gold",
+  "file": "crypto/btg.png"
+ },
+ {
+  "symbol": "DAI",
+  "name": "Dai",
+  "file": "crypto/dai.png"
+ },
+ {
+  "symbol": "TUSD",
+  "name": "TrueUSD",
+  "file": "crypto/tusd.png"
+ },
+ {
+  "symbol": "PAX",
+  "name": "PAX Token",
+  "file": "crypto/pax.png"
+ },
+ {
+  "symbol": "GUSD",
+  "name": "Gemini dollar",
+  "file": "crypto/gusd.png"
+ },
+ {
+  "symbol": "PAXG",
+  "name": "PAX Gold",
+  "file": "crypto/paxg.png"
+ },
+ {
+  "symbol": "LEO",
+  "name": "Unus Sed LEO",
+  "file": "crypto/leo.png"
+ },
+ {
+  "symbol": "HT",
+  "name": "HOTTO",
+  "file": "crypto/ht.png"
+ },
+ {
+  "symbol": "KCS",
+  "name": "KuCoin Shares",
+  "file": "crypto/kcs.png"
+ },
+ {
+  "symbol": "VET",
+  "name": "VeChain",
+  "file": "crypto/vet.png"
+ },
+ {
+  "symbol": "WBTC",
+  "name": "Wrapped Bitcoin",
+  "file": "crypto/wbtc.png"
+ },
+ {
+  "symbol": "AMP",
+  "name": "HyperSpace (Synereo)",
+  "file": "crypto/amp.png"
+ },
+ {
+  "symbol": "BAND",
+  "name": "Band Protocol",
+  "file": "crypto/band.png"
+ },
+ {
+  "symbol": "BTT",
+  "name": "BitTorrent",
+  "file": "crypto/btt.png"
+ },
+ {
+  "symbol": "CVC",
+  "name": "Civic",
+  "file": "crypto/cvc.png"
+ },
+ {
+  "symbol": "ELF",
+  "name": "aelf",
+  "file": "crypto/elf.png"
+ },
+ {
+  "symbol": "HOT",
+  "name": "Holo",
+  "file": "crypto/hot.png"
+ },
+ {
+  "symbol": "IOST",
+  "name": "IOStoken",
+  "file": "crypto/iost.png"
+ },
+ {
+  "symbol": "LPT",
+  "name": "Livepeer Token",
+  "file": "crypto/lpt.png"
+ },
+ {
+  "symbol": "NEXO",
+  "name": "Nexo",
+  "file": "crypto/nexo.png"
+ },
+ {
+  "symbol": "OXT",
+  "name": "Orchid",
+  "file": "crypto/oxt.png"
+ },
+ {
+  "symbol": "POWR",
+  "name": "Power Ledger",
+  "file": "crypto/powr.png"
+ },
+ {
+  "symbol": "REQ",
+  "name": "Request",
+  "file": "crypto/req.png"
+ },
+ {
+  "symbol": "RLC",
+  "name": "iExec RLC",
+  "file": "crypto/rlc.png"
+ },
+ {
+  "symbol": "SKL",
+  "name": "SKALE Network",
+  "file": "crypto/skl.png"
+ },
+ {
+  "symbol": "ARK",
+  "name": "Ark",
+  "file": "crypto/ark.png"
+ },
+ {
+  "symbol": "SYS",
+  "name": "Syscoin",
+  "file": "crypto/sys.png"
+ },
+ {
+  "symbol": "ALEPH",
+  "name": "Aleph.im",
+  "file": "crypto/aleph.png"
+ },
+ {
+  "symbol": "AUCTION",
+  "name": "Bounce",
+  "file": "crypto/auction.png"
+ },
+ {
+  "symbol": "CELO",
+  "name": "Celo",
+  "file": "crypto/celo.png"
+ },
+ {
+  "symbol": "CLV",
+  "name": "Clover Finance",
+  "file": "crypto/clv.png"
+ },
+ {
+  "symbol": "FET",
+  "name": "Fetch.ai",
+  "file": "crypto/fet.png"
+ },
+ {
+  "symbol": "FORTH",
+  "name": "Ampleforth Governance",
+  "file": "crypto/forth.png"
+ },
+ {
+  "symbol": "GAL",
+  "name": "Galxe",
+  "file": "crypto/gal.png"
+ },
+ {
+  "symbol": "IOTX",
+  "name": "IoTeX",
+  "file": "crypto/iotx.png"
+ },
+ {
+  "symbol": "LUNA",
+  "name": "Terra",
+  "file": "crypto/luna.png"
+ },
+ {
+  "symbol": "NEAR",
+  "name": "NEAR Protocol",
+  "file": "crypto/near.png"
+ },
+ {
+  "symbol": "NU",
+  "name": "NuCypher",
+  "file": "crypto/nu.png"
+ },
+ {
+  "symbol": "RNDR",
+  "name": "Render",
+  "file": "crypto/rndr.png"
+ }
+]

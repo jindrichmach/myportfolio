@@ -211,7 +211,8 @@
     "explain": "Explain: {name}",
     "total": "Total",
     "expand": "Expand",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "drag_to_reorder": "Drag to reorder"
   },
   "cron_jobs": {
     "ago_days": "{n} d ago",
@@ -537,13 +538,25 @@
   },
   "icons": {
     "column": "Icon",
-    "change": "Change icon",
-    "title_for": "Icon — {name}",
     "upload": "Upload image",
     "replace": "Upload another",
     "remove": "Remove",
     "hint": "PNG, JPEG, WebP or GIF up to 1 MB. The image is scaled down to 128 × 128 px.",
-    "too_large": "The image is larger than 1 MB."
+    "too_large": "The image is larger than 1 MB.",
+    "field": "Icon",
+    "choose_library": "Choose from library",
+    "after_save": "Set the icon after saving — in the item’s edit form.",
+    "library_title": "Choose icon — {name}",
+    "website_hint": "Institution logos are not bundled (trademarks). The app downloads the logo from the institution’s website and stores it.",
+    "from_own_website": "Download logo from {site}",
+    "fetching": "Downloading…",
+    "search_crypto": "Symbol or name, e.g. BTC",
+    "search_institution": "Bank, broker or exchange name",
+    "use_logo": "Use logo",
+    "no_match": "Nothing found.",
+    "etf_issuers": "ETF issuers",
+    "crypto": "Cryptocurrencies",
+    "library_license": "Crypto icons: cryptocurrency-icons (CC0). Issuer and institution logos are trademarks of their owners."
   },
   "institutions": {
     "title": "Institutions",
@@ -615,9 +628,10 @@
     "edit_title": "Edit portfolio",
     "empty": "No portfolios yet",
     "empty_hint": "A portfolio groups positions across accounts.",
-    "positions_count": "Positions",
+    "positions_count": "Contents",
     "move_up": "Move up",
-    "move_down": "Move down"
+    "move_down": "Move down",
+    "positions_n": "Empty so far | {n} position | {n} positions"
   },
   "positions": {
     "title": "Positions",

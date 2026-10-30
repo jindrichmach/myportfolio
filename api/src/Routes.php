@@ -152,6 +152,10 @@ final class Routes
         $app->post  ('/api/{kind:institutions|instruments}/{id:[0-9]+}/icon', [IconAction::class, 'upload']);
         $app->delete('/api/{kind:institutions|instruments}/{id:[0-9]+}/icon', [IconAction::class, 'remove']);
         $app->get   ('/api/icons/{file:[0-9a-f]{32}\.png}',                  [IconAction::class, 'show']);
+        $app->post  ('/api/{kind:institutions|instruments}/{id:[0-9]+}/icon/library', [IconAction::class, 'fromLibrary']);
+        $app->post  ('/api/institutions/{id:[0-9]+}/icon/website',          [IconAction::class, 'fromWebsite']);
+        $app->get   ('/api/icon-library',                                   [IconAction::class, 'library']);
+        $app->get   ('/api/icon-library/{set:crypto|etf|institutions}/{slug:[a-z0-9-]{1,40}}.png', [IconAction::class, 'libraryImage']);
 
         // Ceny a kurzy (globální data)
         $app->get ('/api/prices',   [PricesAction::class, 'list']);

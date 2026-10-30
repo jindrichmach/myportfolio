@@ -53,9 +53,8 @@ Deaktivovat uživatele, Zrušit token) mají název napsaný přímo vedle ikony
 | koš (červená) | Smazat, odebrat, zrušit nebo opustit sdílení |
 | šipka › | Detail |
 | tři tečky ⋯ | Menu dalších akcí u řádku (u pozic: Detail, Nová transakce, Převést, Nastavit zůstatek) |
-| šipky nahoru / dolů | Posunout výš / níž (pořadí portfolií) |
+| šipky nahoru / dolů, úchyt ⠿ | Posunout výš / níž, přetažení myší (pořadí portfolií) |
 | cenovka | Zadat cenu, Nastavit zůstatek, Ocenění / Zůstatky |
-| obrázek | Změnit ikonu |
 | dvě šipky | Převést mezi účty |
 | blesk | Test připojení |
 | kruhové šipky | Načíst teď, Synchronizovat teď, Znovu aktivovat, Poslat pozvánku znovu |

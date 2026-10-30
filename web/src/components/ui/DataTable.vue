@@ -12,7 +12,10 @@ import { useRowLink } from '@/composables/useRowLink'
  * Čísla: `align: 'right'` (vždy tabular-nums), `mono` pro množství a kurzy kryptoměn.
  * Řádek se při najetí myší vždy zvýrazní, aby bylo jasné, na který řádek klikáš.
  * `rowTo(row)` udělá z celého řádku proklik (detail); klávesnicí vede odkaz v primární buňce, klik na tlačítko
- * nebo odkaz uvnitř řádku má přednost.
+ * nebo odkaz uvnitř řádku má přednost. Rozbalovací řádek bez `rowTo` se rozbalí klikem kamkoli na něj
+ * (klávesnicí šipkou / tlačítkem Rozbalit).
+ * `reorderable` = řádky jde přetáhnout myší za úchyt (emit `reorder(from, to)`); klávesnici a dotyk musí
+ * obsloužit rodič jinak (šipky v akcích).
  */
 export interface DataColumn {
   key: string
@@ -45,15 +48,46 @@ const props = defineProps<{
   cardsBelow?: 'md' | 'lg'
   /** Celý řádek jako proklik (Ctrl/⌘+klik = nový panel). */
   rowTo?: (row: T) => RouteLocationRaw | null
+  /** Přetahování řádků myší (pořadí). */
+  reorderable?: boolean
 }>()
+const emit = defineEmits<{ reorder: [from: number, to: number] }>()
 const { t } = useI18n()
-const navigate = useRowLink()
-function onRowClick(row: T, e: MouseEvent) {
-  const to = props.rowTo?.(row)
-  if (!to || (e.target as HTMLElement).closest('a, button, input, select, textarea, label, [role="menu"]')) return
-  if (window.getSelection()?.toString()) return // označování textu není klik
-  navigate(to, e)
+
+// ── Přetahování ────────────────────────────────────────────────────────
+const dragFrom = ref<number | null>(null)
+const dragOver = ref<number | null>(null)
+function onDragStart(i: number, e: DragEvent) {
+  dragFrom.value = i
+  e.dataTransfer?.setData('text/plain', String(i))
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
 }
+function onDragOver(i: number, e: DragEvent) {
+  if (dragFrom.value === null) return
+  e.preventDefault()
+  dragOver.value = i
+}
+function onDrop(i: number) {
+  const from = dragFrom.value
+  dragFrom.value = dragOver.value = null
+  if (from !== null && from !== i) emit('reorder', from, i)
+}
+function onDragEnd() { dragFrom.value = dragOver.value = null }
+/** Linka v místě vložení: nad řádkem při tažení nahoru, pod ním při tažení dolů. */
+function dropClass(i: number): string {
+  if (dragOver.value !== i || dragFrom.value === null || dragFrom.value === i) return dragFrom.value === i ? 'opacity-50' : ''
+  return dragFrom.value > i ? 'shadow-[inset_0_2px_0_var(--color-primary-500)]' : 'shadow-[inset_0_-2px_0_var(--color-primary-500)]'
+}
+const navigate = useRowLink()
+/** Klik na řádek: proklik (`rowTo`), jinak rozbalení rozbalovacího řádku — stejně jako šipka vlevo. */
+function onRowClick(row: T, e: MouseEvent) {
+  if ((e.target as HTMLElement).closest('a, button, input, select, textarea, label, [role="menu"]')) return
+  if (window.getSelection()?.toString()) return // označování textu není klik
+  const to = props.rowTo?.(row)
+  if (to) navigate(to, e)
+  else if (canExpand(row) && e.button === 0) toggle(row)
+}
+const clickable = (row: T) => !!props.rowTo?.(row) || canExpand(row)
 
 const open = ref(new Set<string | number>())
 function toggle(row: T) {
@@ -94,15 +128,21 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
       <table class="w-full text-sm" :class="{ 'table-sticky-first': stickyFirst, 'table-fixed min-w-[720px]': fixed }">
         <thead class="text-xs text-neutral-500 uppercase tracking-wide">
           <tr>
+            <th v-if="reorderable" class="w-8 px-1"><span class="sr-only">{{ t('common.drag_to_reorder') }}</span></th>
             <th v-if="expandable" class="w-10 px-2"><span class="sr-only">{{ t('common.expand') }}</span></th>
             <th v-for="c in columns" :key="c.key" class="px-4 py-2 font-medium" :class="cellClass({ ...c, mono: false })" :style="c.width ? { width: c.width } : undefined">{{ c.label }}</th>
             <th v-if="$slots.actions" class="px-4 py-2" :class="fixed ? 'w-28' : 'w-px'"><span class="sr-only">{{ t('common.actions') }}</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-neutral-100">
-          <template v-for="row in rows" :key="rowKey(row)">
-            <tr class="transition-colors hover:bg-primary-50" :class="[rowClass?.(row), rowTo ? 'cursor-pointer' : '']"
+          <template v-for="(row, i) in rows" :key="rowKey(row)">
+            <tr class="transition-colors hover:bg-primary-50" :class="[rowClass?.(row), clickable(row) ? 'cursor-pointer' : '', reorderable ? dropClass(i) : '']"
+                :draggable="reorderable ? 'true' : undefined"
+                @dragstart="reorderable && onDragStart(i, $event)" @dragover="onDragOver(i, $event)" @drop.prevent="onDrop(i)" @dragend="onDragEnd"
                 @click="onRowClick(row, $event)" @auxclick="onRowClick(row, $event)">
+              <td v-if="reorderable" class="px-1 py-2 align-middle text-neutral-400 cursor-grab active:cursor-grabbing" :title="t('common.drag_to_reorder')" aria-hidden="true">
+                <svg class="w-4 h-4 mx-auto" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+              </td>
               <td v-if="expandable" class="px-2 py-2 align-middle">
                 <button v-if="canExpand(row)" type="button" :aria-expanded="isOpen(row)" :aria-label="isOpen(row) ? t('common.collapse') : t('common.expand')"
                         class="cursor-pointer w-6 h-6 inline-flex items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -116,7 +156,7 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
               <td v-if="$slots.actions" class="px-4 py-2 text-right whitespace-nowrap"><slot name="actions" :row="row" /></td>
             </tr>
             <tr v-if="canExpand(row) && isOpen(row)" class="bg-neutral-50">
-              <td :colspan="columns.length + 1 + ($slots.actions ? 1 : 0)" class="px-4 py-2 pl-12"><slot name="expanded" :row="row" /></td>
+              <td :colspan="columns.length + 1 + ($slots.actions ? 1 : 0) + (reorderable ? 1 : 0)" class="px-4 py-2 pl-12"><slot name="expanded" :row="row" /></td>
             </tr>
           </template>
         </tbody>
@@ -126,7 +166,7 @@ const value = (row: T, key: string) => String((row as Record<string, unknown>)[k
 
     <!-- mobil: karty -->
     <ul class="divide-y divide-neutral-100" :class="cardsBelow === 'lg' ? 'lg:hidden' : 'md:hidden'">
-      <li v-for="row in rows" :key="rowKey(row)" class="px-4 py-3 transition-colors hover:bg-primary-50" :class="[rowClass?.(row), rowTo ? 'cursor-pointer' : '']"
+      <li v-for="row in rows" :key="rowKey(row)" class="px-4 py-3 transition-colors hover:bg-primary-50" :class="[rowClass?.(row), clickable(row) ? 'cursor-pointer' : '']"
           @click="onRowClick(row, $event)" @auxclick="onRowClick(row, $event)">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0 flex-1" :class="{ 'font-mono': primaryCol().mono }">

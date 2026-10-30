@@ -53,9 +53,21 @@ Instituce i instrumenty mohou mít ikonu — zobrazí se v katalogu, u účtů, 
 pozic, v detailu pozice, v Přehledu a u transakcí. Ruční pozice (spořicí účet, Portu)
 ukazují ikonu instituce. Bez ikony se zobrazí kolečko s počátečními písmeny.
 
-Ikonu nahraješ tlačítkem **Změnit ikonu** (obrázek) v řádku seznamu **Účty a katalog → Instituce** nebo
-**Účty a katalog → Instrumenty**. Měnit ji může admin a uživatel, který položku založil;
-ostatním se ikona jen zobrazí.
+Ikonu nastavíš v úpravě položky (tužka v řádku seznamu **Účty a katalog → Instituce** nebo
+**Účty a katalog → Instrumenty**), v poli **Ikona** nahoře ve formuláři — ukládá se hned, bez tlačítka Uložit.
+U nové položky ji nastavíš až po uložení. Měnit ji může admin a uživatel, který položku založil (ten ve formuláři
+mění jen ikonu, ostatní pole upravuje admin); ostatním se ikona jen zobrazí.
+
+| Volba | Co udělá |
+|---|---|
+| Nahrát obrázek | Vlastní soubor z počítače (požadavky v tabulce níž) |
+| Vybrat z knihovny — instrument | Loga správců ETF (iShares, Vanguard, L&G, Amundi, Xtrackers, SPDR, Invesco, WisdomTree, VanEck, HSBC, UBS, Franklin Templeton, ARK, Lyxor) a asi 100 nejběžnějších kryptoměn (sada cryptocurrency-icons, licence CC0); hledání podle názvu nebo symbolu, u ETF je předvyplněné první slovo názvu |
+| Vybrat z knihovny — instituce | **Stáhnout logo** z webu instituce, nebo vybrat ze seznamu českých bank, brokerů, burz, peněženek a penzijních společností — u části z nich je logo přibalené v aplikaci (náhled v seznamu), u ostatních se stáhne z jejich webu |
+| Odebrat | Zpět na kolečko s počátečními písmeny |
+
+Většinu log institucí aplikace stáhne na tvůj pokyn z webu instituce (`apple-touch-icon` nebo ikona z úvodní
+stránky, jen přes https a jen z veřejných adres) a uloží si je jako běžný nahraný obrázek; přibalená jsou jen loga
+institucí, jejichž web stažení neumožňuje. Loga jsou ochranné známky svých vlastníků a slouží jen k označení. Když web logo v podporovaném formátu nemá, nahraj obrázek ručně.
 
 | Požadavek | Hodnota |
 |---|---|
@@ -83,7 +95,8 @@ a filtrovat podle instituce (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-fil
 ## 4.4 Portfolia
 
 **Účty a katalog → Portfolia.** Tvoje vlastní seskupení pozic napříč účty, např.
-„Dlouhodobé", „Spekulace", „Hotovost". Pořadí (v seznamech i na Přehledu) změníš šipkami **Posunout výš / níž** u portfolia.
+„Dlouhodobé", „Spekulace", „Hotovost". Pořadí (v seznamech i na Přehledu) změníš přetažením řádku myší za úchyt ⠿ vlevo, nebo šipkami
+**Posunout výš / níž** u portfolia (klávesnice, dotyk). Sloupec **Obsah** ukazuje, kolik pozic portfolio má („3 pozice“, „Zatím prázdné“); kliknutím otevřeš jeho pozice.
 Kliknutím na název portfolia se otevřou jeho pozice.
 
 ## 4.5 Pozice

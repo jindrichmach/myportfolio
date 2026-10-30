@@ -41,7 +41,7 @@ doplníš v [Ceny a kurzy](06_Ceny_a_kurzy.md) nebo ručně u instrumentu.
 | Upozornění | Pozice bez ceny nebo kurzu, zastaralé ceny, chybějící ruční ocenění |
 | Vývoj hodnoty | Graf a výnosové metriky za období — viz § 7.5 |
 | Alokace | Donut s podíly podle třídy aktiv, portfolia nebo instituce (přepínač); uprostřed součet, po najetí na výseč nebo řádek legendy její částka a podíl. Máš-li cílovou alokaci, vedle je **Skutečnost a cíl** po třídách |
-| Krypto napříč účty | Každá kryptoměna sečtená přes všechny účty (burzy, peněženky), celkový výnos v Kč i % (stejný jako u pozic v tabulce níž, tedy včetně prodaných kusů, odměn a poplatků); je-li na víc účtech, řádek se rozbalí na jednotlivé účty |
+| Krypto napříč účty | Každá kryptoměna sečtená přes všechny účty (burzy, peněženky), celkový výnos v Kč i % (stejný jako u pozic v tabulce níž, tedy včetně prodaných kusů, odměn a poplatků); je-li na víc účtech, kliknutím kamkoli na řádek se rozbalí na jednotlivé účty (na jednom účtu vede klik rovnou do detailu pozice) |
 | Portfolia | Každé portfolio jako jeden řádek: počet pozic, podíl na celku, hodnota a celkový výnos v Kč i %. Kliknutím se rozbalí tabulka pozic (množství, hodnota, investováno, celkový výnos; u ETF a akcií je pod tickerem i název fondu či firmy — stejný ticker může na jiné burze znamenat jiný fond); rozbalená portfolia si prohlížeč pamatuje. **Všechny pozice** vede na stránku Pozice |
 
 Tlačítko **Přidat** v záhlaví nabídne **Novou investici** (průvodce: instrument podle tickeru, ISINu nebo názvu —

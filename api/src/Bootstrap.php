@@ -112,6 +112,11 @@ final class Bootstrap
             // Kurzy a ceny — externí zdroje za rozhraním (v testech fake s fixtures).
             \MyPortfolio\Service\Market\HttpFetcher::class => fn (ContainerInterface $c) => $c->get(\MyPortfolio\Service\Market\GuzzleHttpFetcher::class),
             \MyPortfolio\Service\Exchange\ExchangeHttp::class => fn (ContainerInterface $c) => $c->get(\MyPortfolio\Service\Exchange\GuzzleExchangeHttp::class),
+            // Logo z webu instituce — vlastní HTTP klient s kontrolou přesměrování (SSRF), ne klient cen.
+            \MyPortfolio\Service\Catalog\WebsiteIconFetcher::class => fn (ContainerInterface $c) => new \MyPortfolio\Service\Catalog\WebsiteIconFetcher(
+                $c->get(\MyPortfolio\Service\Catalog\GuzzleIconHttp::class),
+                $c->get(\MyPortfolio\Service\Catalog\PublicUrlGuard::class),
+            ),
             \MyPortfolio\Service\Price\XtbWidgetTransport::class => fn () => new \MyPortfolio\Service\Price\WebSocketXtbTransport(),
             \MyPortfolio\Service\BankNotice\ImapClientInterface::class => fn (ContainerInterface $c) => $c->get(\MyPortfolio\Service\BankNotice\WebklexImapClient::class),
             \MyPortfolio\Service\Price\PriceService::class => fn (ContainerInterface $c) => new \MyPortfolio\Service\Price\PriceService(

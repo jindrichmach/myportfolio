@@ -61,12 +61,14 @@ async function save() {
   }
 }
 
-// Pořadí šipkami: přeskládá seznam a uloží pořadí 0, 10, 20… jen u změněných portfolií.
+// Pořadí přetažením nebo šipkami: přeskládá seznam a uloží pořadí 0, 10, 20… jen u změněných portfolií.
 const moving = ref(false)
-async function move(index: number, delta: -1 | 1) {
+async function reorder(from: number, to: number) {
+  if (moving.value) return
   const list = [...rows.value]
-  const [item] = list.splice(index, 1)
-  list.splice(index + delta, 0, item)
+  const [item] = list.splice(from, 1)
+  list.splice(to, 0, item)
+  rows.value = list // hned v novém pořadí, server pak potvrdí
   moving.value = true
   try {
     await Promise.all(list.map((p, i) => (p.sort === i * 10 ? null
@@ -74,6 +76,7 @@ async function move(index: number, delta: -1 | 1) {
     await load()
   } catch (e) {
     toast.error(apiErrorMessage(e, t('common.error')))
+    await load()
   } finally {
     moving.value = false
   }
@@ -91,7 +94,7 @@ async function remove(row: Portfolio) {
 
 const columns = computed<DataColumn[]>(() => [
   { key: 'name', label: t('common.name'), primary: true },
-  { key: 'position_count', label: t('portfolios.positions_count'), align: 'right' },
+  { key: 'position_count', label: t('portfolios.positions_count') },
 ])
 const portfolioKey = (p: Portfolio) => p.id
 const archivedClass = (p: Portfolio) => (p.archived_at ? 'opacity-50' : '')
@@ -121,15 +124,21 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <EmptyState v-if="!rows.length" :title="t('portfolios.empty')" :message="t('portfolios.empty_hint')">
         <div class="mt-3"><ManualLink to="00_Prvni_kroky#01-pojmy-na-jednom-místě" :label="t('manual.terms')" /></div>
       </EmptyState>
-      <DataTable v-else :columns="columns" :rows="rows" :row-key="portfolioKey" :row-class="archivedClass">
+      <DataTable v-else :columns="columns" :rows="rows" :row-key="portfolioKey" :row-class="archivedClass" :reorderable="canManage" @reorder="reorder">
+        <template #cell-position_count="{ row: r }">
+          <RouterLink v-if="r.position_count" :to="{ path: '/positions', query: { portfolio_id: r.id } }" class="text-primary-700 hover:underline">
+            {{ t('portfolios.positions_n', r.position_count) }}
+          </RouterLink>
+          <span v-else class="text-neutral-500">{{ t('portfolios.positions_n', 0) }}</span>
+        </template>
         <template #cell-name="{ row: r }">
           <RouterLink :to="{ path: '/positions', query: { portfolio_id: r.id } }" class="font-medium hover:text-primary-700 hover:underline">{{ r.name }}</RouterLink>
           <Badge v-if="r.archived_at" class="ml-1.5">{{ t('common.archived') }}</Badge>
         </template>
         <template v-if="canManage" #actions="{ row: r }">
           <span class="inline-flex gap-1">
-            <IconButton icon="up" :label="t('portfolios.move_up')" :disabled="moving || rows.indexOf(r) === 0" @click="move(rows.indexOf(r), -1)" />
-            <IconButton icon="down" :label="t('portfolios.move_down')" :disabled="moving || rows.indexOf(r) === rows.length - 1" @click="move(rows.indexOf(r), 1)" />
+            <IconButton icon="up" :label="t('portfolios.move_up')" :disabled="moving || rows.indexOf(r) === 0" @click="reorder(rows.indexOf(r), rows.indexOf(r) - 1)" />
+            <IconButton icon="down" :label="t('portfolios.move_down')" :disabled="moving || rows.indexOf(r) === rows.length - 1" @click="reorder(rows.indexOf(r), rows.indexOf(r) + 1)" />
             <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(r)" />
             <IconButton icon="trash" variant="danger" :label="t('common.delete')" @click="remove(r)" />
           </span>

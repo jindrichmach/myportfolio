@@ -17,7 +17,7 @@ final class ShareAccess
      * bankovní avíza) a globální číselníky (instituce, instrumenty, ceny, kurzy, ikony) — ty nepatří žádnému uživateli.
      */
     private const PERSONAL_PREFIXES = ['/api/auth/', '/api/settings/', '/api/shares', '/api/household', '/api/admin/', '/api/public/',
-        '/api/price-alerts', '/api/bank-notices', '/api/icons/',
+        '/api/price-alerts', '/api/bank-notices', '/api/icons/', '/api/icon-library',
         '/api/institutions', '/api/instruments', '/api/prices', '/api/fx-rates', '/api/catalog', '/api/health', '/api/version',
         '/api/api-catalog', '/api/openapi.json'];
 

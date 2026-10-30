@@ -1,0 +1,16 @@
+[
+ {"slug": "ishares", "name": "iShares (BlackRock)"},
+ {"slug": "vanguard", "name": "Vanguard"},
+ {"slug": "legal-general", "name": "L&G (Legal & General)"},
+ {"slug": "amundi", "name": "Amundi"},
+ {"slug": "xtrackers", "name": "Xtrackers (DWS)"},
+ {"slug": "spdr", "name": "SPDR (State Street)"},
+ {"slug": "invesco", "name": "Invesco"},
+ {"slug": "wisdomtree", "name": "WisdomTree"},
+ {"slug": "vaneck", "name": "VanEck"},
+ {"slug": "hsbc", "name": "HSBC"},
+ {"slug": "ubs", "name": "UBS"},
+ {"slug": "franklin-templeton", "name": "Franklin Templeton"},
+ {"slug": "ark", "name": "ARK Invest"},
+ {"slug": "lyxor", "name": "Lyxor"}
+]

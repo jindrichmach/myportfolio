@@ -58,6 +58,13 @@ final class CatalogIcons
         $this->release($row['icon']);
     }
 
+    /** Web instituce (pro stažení loga); null = položka nemá web. */
+    public function institutionWebsite(int $id): ?string
+    {
+        $row = $this->institutions->find($id) ?? throw DomainError::notFound('Položka katalogu nenalezena.');
+        return $row['website'] !== null && $row['website'] !== '' ? (string) $row['website'] : null;
+    }
+
     public function hasNoIcon(string $kind, int $id): bool
     {
         $row = $this->repo($kind)->find($id);

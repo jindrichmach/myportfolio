@@ -3,7 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
-import IconUploadModal from '@/components/catalog/IconUploadModal.vue'
+import IconField from '@/components/catalog/IconField.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
@@ -22,7 +22,8 @@ const toast = useToast()
 const rows = ref<Institution[]>([])
 const loading = ref(true)
 const showForm = ref(false)
-const iconFor = ref<Institution | null>(null)
+// Upravovaná položka (ikona se mění hned, i autorovi, který není admin — ostatní pole smí jen admin)
+const editRow = ref<Institution | null>(null)
 const busy = ref(false)
 const error = ref('')
 const form = reactive({
@@ -41,11 +42,13 @@ async function load() {
 onMounted(load)
 
 function openCreate() {
+  editRow.value = null
   Object.assign(form, { id: null, name: '', type: 'exchange', website: '', is_active: true })
   error.value = ''
   showForm.value = true
 }
 function openEdit(row: Institution) {
+  editRow.value = row
   Object.assign(form, { id: row.id, name: row.name, type: row.type, website: row.website ?? '', is_active: row.is_active })
   error.value = ''
   showForm.value = true
@@ -117,20 +120,18 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </template>
         <template #actions="{ row: r }">
           <span class="inline-flex gap-1">
-            <IconButton v-if="r.can_edit_icon" icon="image" :label="t('icons.change')" @click="iconFor = r" />
-            <template v-if="auth.isAdmin">
-              <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(r)" />
-              <IconButton icon="trash" variant="danger" :label="t('common.delete')" @click="remove(r)" />
-            </template>
+            <IconButton v-if="auth.isAdmin || r.can_edit_icon" icon="edit" :label="t('common.edit')" @click="openEdit(r)" />
+            <IconButton v-if="auth.isAdmin" icon="trash" variant="danger" :label="t('common.delete')" @click="remove(r)" />
           </span>
         </template>
     </DataGrid>
 
-    <IconUploadModal v-if="iconFor" kind="institutions" :id="iconFor.id" :name="iconFor.name" :icon-url="iconFor.icon_url"
-                     @close="iconFor = null" @changed="url => { if (iconFor) iconFor.icon_url = url }" />
-
     <Modal v-if="showForm" :title="form.id === null ? t('institutions.new') : t('institutions.edit_title')" width-class="max-w-md" @close="showForm = false">
       <form id="institution-form" class="space-y-3" @submit.prevent="save">
+        <IconField v-if="editRow?.can_edit_icon" kind="institutions" :id="editRow.id" :name="editRow.name" :icon-url="editRow.icon_url"
+          :website="editRow.website" :hint="editRow.name" @changed="url => { if (editRow) editRow.icon_url = url }" />
+        <p v-else-if="form.id === null" class="text-xs text-neutral-500">{{ t('icons.after_save') }}</p>
+        <fieldset :disabled="!auth.isAdmin && form.id !== null" class="space-y-3">
         <div>
           <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
           <input :id="fid('name')" v-model="form.name" required maxlength="120" :class="inputClass" />
@@ -149,11 +150,12 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
           <input v-model="form.is_active" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('common.active') }}
         </label>
+        </fieldset>
         <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>
       </form>
       <template #footer>
-        <button type="button" class="cursor-pointer px-3 h-9 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50" @click="showForm = false">{{ t('common.cancel') }}</button>
-        <button type="submit" form="institution-form" :disabled="busy" class="cursor-pointer px-4 h-9 text-sm bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action font-medium rounded-md">{{ t('common.save') }}</button>
+        <button type="button" class="cursor-pointer px-3 h-9 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50" @click="showForm = false">{{ auth.isAdmin || form.id === null ? t('common.cancel') : t('common.close') }}</button>
+        <button v-if="auth.isAdmin || form.id === null" type="submit" form="institution-form" :disabled="busy" class="cursor-pointer px-4 h-9 text-sm bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action font-medium rounded-md">{{ t('common.save') }}</button>
       </template>
     </Modal>
   </div>

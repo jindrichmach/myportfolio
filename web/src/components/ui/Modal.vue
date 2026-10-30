@@ -1,3 +1,8 @@
+<script lang="ts">
+// Otevřené dialogy (vnořený dialog = výběr ikony ve formuláři): Escape a past Tab řeší jen ten nejvrchnější.
+const openStack: symbol[] = []
+</script>
+
 <script setup lang="ts">
 import { nextTick, onMounted, onBeforeUnmount, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -25,6 +30,7 @@ const titleId = useId()
 const dialog = ref<HTMLElement | null>(null)
 const body = ref<HTMLElement | null>(null)
 let opener: HTMLElement | null = null
+const self = Symbol('modal')
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
@@ -34,6 +40,7 @@ function focusables(root: HTMLElement | null): HTMLElement[] {
 }
 
 function onKey(e: KeyboardEvent) {
+  if (openStack[openStack.length - 1] !== self) return
   if (e.key === 'Escape') emit('close')
   if (e.key !== 'Tab' || !dialog.value) return
   const items = focusables(dialog.value)
@@ -48,6 +55,7 @@ function onKey(e: KeyboardEvent) {
 
 onMounted(async () => {
   opener = document.activeElement as HTMLElement | null
+  openStack.push(self)
   document.addEventListener('keydown', onKey)
   // Zamkni body scroll dokud je modal otevřený.
   document.body.style.overflow = 'hidden'
@@ -57,7 +65,8 @@ onMounted(async () => {
 })
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKey)
-  document.body.style.overflow = ''
+  openStack.splice(openStack.indexOf(self), 1)
+  if (!openStack.length) document.body.style.overflow = ''
   if (opener?.isConnected) opener.focus()
 })
 

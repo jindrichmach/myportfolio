@@ -6,6 +6,10 @@ namespace MyPortfolio\Tests\Integration\Catalog;
 
 use DI\Container;
 use MyPortfolio\Service\Catalog\IconStore;
+use MyPortfolio\Service\Catalog\PublicUrlGuard;
+use MyPortfolio\Service\Catalog\WebsiteIconFetcher;
+use MyPortfolio\Service\Market\HttpFetcher;
+use MyPortfolio\Service\Market\MarketDataException;
 use MyPortfolio\Tests\Support\ApiTestCase;
 use MyPortfolio\Tests\Unit\Service\Catalog\IconStoreTest;
 use PHPUnit\Framework\Attributes\Group;
@@ -108,5 +112,60 @@ final class IconApiTest extends ApiTestCase
         self::assertSame(200, $r['status'], $r['raw']);
         $row = array_column($this->call($this->userId, 'GET', '/api/instruments?q=SYNICO')['body'], null, 'id')[$ins['body']['id']];
         self::assertSame($r['body']['icon_url'], $row['icon_url']);
+    }
+
+    public function testLibraryAndWebsiteIcons(): void
+    {
+        // Podvržené HTTP pro logo z webu (žádná síť) — dřív, než kontejner sestaví IconAction
+        $container = $this->container;
+        self::assertInstanceOf(Container::class, $container);
+        $png = IconStoreTest::image(180, 180);
+        $container->set(WebsiteIconFetcher::class, new WebsiteIconFetcher(
+            new class ($png) implements HttpFetcher {
+                public function __construct(private string $png) {}
+                public function get(string $url, array $headers = []): string
+                {
+                    return $url === 'https://bank.example.invalid/apple-touch-icon.png' ? $this->png : throw new MarketDataException('404');
+                }
+            },
+            new PublicUrlGuard(static fn () => ['93.184.216.34']),
+        ));
+        $lib = $this->call($this->userId, 'GET', '/api/icon-library');
+        self::assertSame(200, $lib['status']);
+        $btc = array_column($lib['body']['crypto'], null, 'symbol')['BTC'] ?? null;
+        self::assertSame('/api/icon-library/crypto/btc.png', $btc['url'] ?? null);
+        self::assertContains('Fio banka', array_column($lib['body']['institutions'], 'name'));
+        self::assertSame(['image/png'], $this->call($this->userId, 'GET', '/api/icon-library/crypto/btc.png')['headers']['Content-Type']);
+
+        $ins = $this->call($this->userId, 'POST', '/api/instruments', [
+            'asset_class' => 'crypto', 'symbol' => 'SYNICO', 'name' => 'Synthetic icon coin', 'quote_currency' => 'EUR', 'price_source' => 'manual',
+        ]);
+        self::assertSame(201, $ins['status'], $ins['raw']);
+        $set = $this->call($this->userId, 'POST', "/api/instruments/{$ins['body']['id']}/icon/library", ['symbol' => 'btc']);
+        self::assertSame(200, $set['status'], $set['raw']);
+        self::assertCount(1, $this->files());
+        self::assertSame(404, $this->call($this->userId, 'POST', "/api/instruments/{$ins['body']['id']}/icon/library", ['symbol' => 'nope'])['status']);
+        // Logo správce ETF
+        self::assertContains('ishares', array_column($lib['body']['etf'], 'slug'));
+        self::assertSame(200, $this->call($this->userId, 'GET', '/api/icon-library/etf/ishares.png')['status']);
+        self::assertSame(200, $this->call($this->userId, 'POST', "/api/instruments/{$ins['body']['id']}/icon/library", ['etf' => 'vanguard'])['status']);
+        // Cizí položku (autor admin) uživatel nemění ani z knihovny
+        $foreign = $this->call($this->adminId, 'POST', '/api/instruments', [
+            'asset_class' => 'crypto', 'symbol' => 'SYNICA', 'name' => 'Synthetic admin coin', 'quote_currency' => 'EUR', 'price_source' => 'manual',
+        ]);
+        self::assertSame(403, $this->call($this->userId, 'POST', "/api/instruments/{$foreign['body']['id']}/icon/library", ['symbol' => 'eth'])['status']);
+
+        // Logo z webu: bez webu chyba; s webem přes podvržené HTTP (žádná síť)
+        $bank = $this->call($this->userId, 'POST', '/api/institutions', ['name' => 'Synthetic Web Bank', 'type' => 'bank']);
+        self::assertSame(400, $this->call($this->userId, 'POST', "/api/institutions/{$bank['body']['id']}/icon/website")['status']);
+        // Přibalené logo instituce (web, odkud stažení nejde)
+        $rb = array_column($lib['body']['institutions'], null, 'name')['Raiffeisenbank'];
+        self::assertSame('/api/icon-library/institutions/raiffeisenbank.png', $rb['url']);
+        self::assertSame(200, $this->call($this->userId, 'GET', $rb['url'])['status']);
+        self::assertSame(200, $this->call($this->userId, 'POST', "/api/institutions/{$bank['body']['id']}/icon/library", ['institution' => $rb['icon']])['status']);
+        self::assertSame(404, $this->call($this->userId, 'POST', "/api/institutions/{$bank['body']['id']}/icon/library", ['institution' => '../crypto/btc'])['status']);
+        $web = $this->call($this->userId, 'POST', "/api/institutions/{$bank['body']['id']}/icon/website", ['url' => 'https://bank.example.invalid']);
+        self::assertSame(200, $web['status'], $web['raw']);
+        self::assertSame(400, $this->call($this->userId, 'POST', "/api/institutions/{$bank['body']['id']}/icon/website", ['url' => 'http://bank.example.invalid'])['status']);
     }
 }

@@ -211,7 +211,8 @@
     "explain": "Vysvětlení: {name}",
     "total": "Celkem",
     "expand": "Rozbalit",
-    "collapse": "Sbalit"
+    "collapse": "Sbalit",
+    "drag_to_reorder": "Přetažením změníš pořadí"
   },
   "cron_jobs": {
     "ago_days": "před {n} d",
@@ -537,13 +538,25 @@
   },
   "icons": {
     "column": "Ikona",
-    "change": "Změnit ikonu",
-    "title_for": "Ikona — {name}",
     "upload": "Nahrát obrázek",
     "replace": "Nahrát jiný",
     "remove": "Odebrat",
     "hint": "PNG, JPEG, WebP nebo GIF do 1 MB. Obrázek se zmenší na 128 × 128 px.",
-    "too_large": "Obrázek je větší než 1 MB."
+    "too_large": "Obrázek je větší než 1 MB.",
+    "field": "Ikona",
+    "choose_library": "Vybrat z knihovny",
+    "after_save": "Ikonu nastavíš po uložení — v úpravě položky.",
+    "library_title": "Vybrat ikonu — {name}",
+    "website_hint": "Loga institucí se nepřibalují (ochranné známky). Aplikace stáhne logo z webu instituce a uloží si ho.",
+    "from_own_website": "Stáhnout logo z {site}",
+    "fetching": "Stahuji…",
+    "search_crypto": "Symbol nebo název, např. BTC",
+    "search_institution": "Název banky, brokera nebo burzy",
+    "use_logo": "Použít logo",
+    "no_match": "Nic nenalezeno.",
+    "etf_issuers": "Správci ETF",
+    "crypto": "Kryptoměny",
+    "library_license": "Ikony kryptoměn: cryptocurrency-icons (CC0). Loga správců a institucí jsou ochranné známky svých vlastníků."
   },
   "institutions": {
     "title": "Instituce",
@@ -615,9 +628,10 @@
     "edit_title": "Upravit portfolio",
     "empty": "Zatím žádná portfolia",
     "empty_hint": "Portfolio seskupuje pozice napříč účty.",
-    "positions_count": "Pozice",
+    "positions_count": "Obsah",
     "move_up": "Posunout výš",
-    "move_down": "Posunout níž"
+    "move_down": "Posunout níž",
+    "positions_n": "Zatím prázdné | {n} pozice | {n} pozice | {n} pozic"
   },
   "positions": {
     "title": "Pozice",
