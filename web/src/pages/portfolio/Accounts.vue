@@ -15,8 +15,10 @@ import { catalogApi, type Institution } from '@/api/catalog'
 import { portfolioApi, type Account } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const { canManage } = useOwnerContext()
 const toast = useToast()
 
@@ -107,7 +109,7 @@ function matchesAccount(a: Account, v: GridFilterValues): boolean {
 }
 const archivedClass = (a: Account) => (a.archived_at ? 'opacity-50' : '')
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -123,7 +125,7 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     </div>
 
     <label class="inline-flex items-center gap-2 text-sm text-neutral-600">
-      <input v-model="showArchived" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+      <input v-model="showArchived" type="checkbox" class="rounded border-field text-primary-700" />
       {{ t('common.show_archived') }}
     </label>
 
@@ -158,27 +160,27 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     <Modal v-if="showForm" :title="form.id === null ? t('accounts.new') : t('accounts.edit_title')" width-class="max-w-md" @close="showForm = false">
       <form id="account-form" class="space-y-3" @submit.prevent="save">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('accounts.institution') }}</label>
-          <select v-model="form.institution_id" required :class="inputClass">
+          <label :for="fid('institution_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('accounts.institution') }}</label>
+          <select :id="fid('institution_id')" v-model="form.institution_id" required :class="inputClass">
             <option v-for="i in institutions" :key="i.id" :value="i.id">{{ i.name }}</option>
           </select>
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
-            <input v-model="form.name" required maxlength="120" :placeholder="t('accounts.name_placeholder')" :class="inputClass" />
+            <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
+            <input :id="fid('name')" v-model="form.name" required maxlength="120" :placeholder="t('accounts.name_placeholder')" :class="inputClass" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-            <input v-model="form.currency" required maxlength="3" class="uppercase font-mono" :class="inputClass" />
+            <label :for="fid('currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
+            <input :id="fid('currency')" v-model="form.currency" required maxlength="3" class="uppercase font-mono" :class="inputClass" />
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-          <input v-model="form.note" maxlength="500" :class="inputClass" />
+          <label :for="fid('note')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+          <input :id="fid('note')" v-model="form.note" maxlength="500" :class="inputClass" />
         </div>
         <label v-if="form.id !== null" class="flex items-center gap-2 text-sm">
-          <input v-model="form.archived" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="form.archived" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('common.archived') }}
         </label>
         <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>

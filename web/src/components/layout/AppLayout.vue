@@ -233,7 +233,7 @@ onMounted(async () => {
         <div class="flex items-center gap-2 text-sm">
           <!-- Čí data zobrazuji (sdílení pro domácnost) -->
           <select v-if="owner.received.value.length" :value="owner.ownerId.value ?? ''" :aria-label="t('sharing.context_label')"
-                  class="h-8 px-2 border border-neutral-300 rounded-md bg-surface text-sm max-w-44"
+                  class="h-8 px-2 border border-field rounded-md bg-surface text-sm max-w-44"
                   @change="owner.switchTo(($event.target as HTMLSelectElement).value === '' ? null : Number(($event.target as HTMLSelectElement).value))">
             <option value="">{{ t('sharing.my_data') }}</option>
             <option v-for="s in owner.received.value" :key="s.id" :value="s.owner_user_id">{{ s.owner_name }}</option>
@@ -359,7 +359,7 @@ onMounted(async () => {
         </nav>
 
         <!-- Verze (dole) -->
-        <div v-if="version" class="px-4 py-2.5 border-t border-neutral-100 text-xs text-neutral-400">
+        <div v-if="version" class="px-4 py-2.5 border-t border-neutral-100 text-xs text-neutral-500">
           MyPortfolio v{{ version }}
         </div>
 

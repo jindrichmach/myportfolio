@@ -5,8 +5,10 @@ import { weeklyReportApi, type WeeklyReportSettings } from '@/api/settings'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDateTime } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 
 const settings = ref<WeeklyReportSettings | null>(null)
@@ -72,32 +74,32 @@ async function sendNow() {
       <p class="text-sm text-neutral-500 mt-0.5">{{ t('weekly_report.subtitle') }}</p>
     </div>
     <label class="flex items-center gap-2 text-sm">
-      <input v-model="form.enabled" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+      <input v-model="form.enabled" type="checkbox" class="rounded border-field text-primary-700" />
       {{ t('weekly_report.enabled') }}
     </label>
     <div>
       <label class="flex items-center gap-2 text-sm">
-        <input v-model="form.detailed" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+        <input v-model="form.detailed" type="checkbox" class="rounded border-field text-primary-700" />
         {{ t('weekly_report.detailed') }}
       </label>
       <p class="text-xs text-neutral-500 mt-1 ml-6">{{ form.detailed ? t('weekly_report.detailed_on') : t('weekly_report.detailed_off') }}</p>
     </div>
     <div class="space-y-1">
       <label class="flex items-center gap-2 text-sm">
-        <input v-model="form.monthly" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+        <input v-model="form.monthly" type="checkbox" class="rounded border-field text-primary-700" />
         {{ t('weekly_report.monthly') }}
         <a :href="weeklyReportApi.periodPreviewUrl()" target="_blank" rel="noopener" class="text-xs text-primary-700 hover:underline">{{ t('weekly_report.preview') }}</a>
       </label>
       <label class="flex items-center gap-2 text-sm">
-        <input v-model="form.yearly" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+        <input v-model="form.yearly" type="checkbox" class="rounded border-field text-primary-700" />
         {{ t('weekly_report.yearly') }}
         <a :href="weeklyReportApi.periodPreviewUrl(String(new Date().getFullYear() - 1))" target="_blank" rel="noopener" class="text-xs text-primary-700 hover:underline">{{ t('weekly_report.preview') }}</a>
       </label>
     </div>
     <div>
-      <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('weekly_report.recipients') }}</label>
-      <input v-model="form.recipients" :placeholder="settings.default_email" autocomplete="off"
-             class="w-full h-10 px-3 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
+      <label :for="fid('recipients')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('weekly_report.recipients') }}</label>
+      <input :id="fid('recipients')" v-model="form.recipients" :placeholder="settings.default_email" autocomplete="off"
+             class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
       <p class="text-xs text-neutral-500 mt-1">{{ t('weekly_report.recipients_hint', { email: settings.default_email }) }}</p>
     </div>
     <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>

@@ -80,7 +80,7 @@ function printPage() {
   window.print()
 }
 
-const selectClass = 'h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>

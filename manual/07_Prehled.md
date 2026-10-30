@@ -112,7 +112,8 @@ po dotyku) ukáže svislá čára den a popisek hodnoty všech čar.
 
 Metriky nad grafem se vztahují ke zvolenému období. Jsou ve dvou skupinách, **Za období**
 (zisk, výnos, čisté vklady) a **Výkonnost** (TWR, XIRR, inflace, benchmark); ikona ⓘ
-u každé metriky ukáže krátké vysvětlení:
+u každé metriky ukáže krátké vysvětlení (po najetí myší; klepnutím nebo kliknutím zůstane otevřené,
+zavře ho další klepnutí, klik mimo nebo Escape):
 
 | Metrika | Co říká |
 |---|---|

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const fid = useFieldId()
 import AppShell from '@/components/layout/AppShell.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTurnstile } from '@/composables/useTurnstile'
@@ -14,6 +15,7 @@ import {
   isWebAuthnAvailable,
   webAuthnErrorKey,
 } from '@/security/webauthn'
+import { useFieldId } from '@/composables/useFieldId'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -298,7 +300,7 @@ async function resendCode() {
   <AppShell :title="t('auth.login_title')">
     <div class="w-full max-w-sm">
       <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold mb-1">{{ t('auth.login_title') }}</h2>
+        <h1 class="text-xl font-semibold mb-1">{{ t('auth.login_title') }}</h1>
         <p class="text-sm text-neutral-500 mb-6">{{ t('auth.login_subtitle') }}</p>
 
         <form ref="loginForm" @submit.prevent="submit" class="space-y-4">
@@ -327,31 +329,31 @@ async function resendCode() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email') }}</label>
-            <input
+            <label :for="fid('email')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email') }}</label>
+            <input :id="fid('email')"
               v-model="email"
               type="email"
               autocomplete="email"
               required
               :autofocus="!auth.setupStatus?.passwordless_login_enabled"
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+              class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.password') }}</label>
-            <input
+            <label :for="fid('password')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.password') }}</label>
+            <input :id="fid('password')"
               v-model="password"
               type="password"
               autocomplete="current-password"
               required
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+              class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
             />
           </div>
 
           <div v-if="totpRequired">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.totp_code') }}</label>
-            <input
+            <label :for="fid('totp')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.totp_code') }}</label>
+            <input :id="fid('totp')"
               v-model="totp"
               :disabled="auth.loading"
               type="text"
@@ -361,21 +363,21 @@ async function resendCode() {
               pattern="\d{6}"
               placeholder="000000"
               autofocus
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono text-lg tracking-widest text-center focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+              class="w-full h-10 px-3 border border-field rounded-md font-mono text-lg tracking-widest text-center focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
             />
             <p class="text-xs text-neutral-500 mt-1">{{ t('auth.totp_hint') }}</p>
           </div>
 
           <div v-if="recoveryRequired">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.recovery_code') }}</label>
-            <input
+            <label :for="fid('recoverycode')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.recovery_code') }}</label>
+            <input :id="fid('recoverycode')"
               v-model="recoveryCode"
               type="text"
               autocomplete="one-time-code"
               maxlength="16"
               placeholder="XXXXX-XXXXX"
               autofocus
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono tracking-widest text-center focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+              class="w-full h-10 px-3 border border-field rounded-md font-mono tracking-widest text-center focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
             />
             <p class="text-xs text-neutral-500 mt-1">{{ t('auth.recovery_hint') }}</p>
           </div>
@@ -402,8 +404,8 @@ async function resendCode() {
           </div>
 
           <div v-if="emailOtpRequired">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email_otp_code') }}</label>
-            <input
+            <label :for="fid('emailotp')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email_otp_code') }}</label>
+            <input :id="fid('emailotp')"
               v-model="emailOtp"
               type="text"
               inputmode="numeric"
@@ -412,12 +414,12 @@ async function resendCode() {
               pattern="\d{6}"
               placeholder="000000"
               autofocus
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono text-lg tracking-widest text-center focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+              class="w-full h-10 px-3 border border-field rounded-md font-mono text-lg tracking-widest text-center focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
             />
             <p class="text-xs text-neutral-500 mt-1">{{ t('auth.email_otp_hint', { email: otpEmailMasked }) }}</p>
 
             <label class="flex items-center gap-2 mt-3 text-sm text-neutral-700 cursor-pointer select-none">
-              <input v-model="rememberDevice" type="checkbox" class="rounded border-neutral-300 text-primary-700 focus:ring-primary-500/20" />
+              <input v-model="rememberDevice" type="checkbox" class="rounded border-field text-primary-700 focus:ring-primary-500/20" />
               {{ t('auth.remember_device', { days: REMEMBER_DAYS }) }}
             </label>
 
@@ -441,7 +443,7 @@ async function resendCode() {
             <div ref="turnstileEl"></div>
           </div>
 
-          <div v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
+          <div role="alert" v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
             {{ error }}
           </div>
 

@@ -190,7 +190,7 @@ function tableSlotNames(): string[] {
         </div>
         <label class="inline-flex items-center gap-2">
           {{ t('grid.page_size') }}
-          <select :value="pageSize" class="h-8 px-2 border border-neutral-300 rounded bg-surface text-sm text-neutral-700"
+          <select :value="pageSize" class="h-8 px-2 border border-field rounded bg-surface text-sm text-neutral-700"
             @change="setPageSize(Number(($event.target as HTMLSelectElement).value))">
             <option v-for="n in pageSizes" :key="n" :value="n">{{ n }}</option>
           </select>

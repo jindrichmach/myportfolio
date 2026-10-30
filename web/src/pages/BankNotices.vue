@@ -12,8 +12,10 @@ import { portfolioApi, type Position } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDateTime, formatDec } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 
 const accounts = ref<ImapAccount[]>([])
@@ -130,7 +132,7 @@ function amount(n: BankNotice): string {
   return p?.amount ? formatDec(p.amount, 2, p.currency ?? 'CZK') : '—'
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 const noticeColumns = computed<DataColumn[]>(() => [
   { key: 'date', label: t('bank_notices.col_date') },
   { key: 'status', label: t('bank_notices.col_status') },
@@ -240,54 +242,54 @@ const noticeKey = (n: BankNotice) => n.id
     <Modal v-if="showForm" :title="editId === null ? t('bank_notices.new') : t('bank_notices.edit_title')" width-class="max-w-lg" @close="showForm = false">
       <form id="imap-form" class="space-y-3" @submit.prevent="save">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
-          <input v-model="form.name" required maxlength="120" :placeholder="t('bank_notices.name_placeholder')" :class="inputClass" />
+          <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
+          <input :id="fid('name')" v-model="form.name" required maxlength="120" :placeholder="t('bank_notices.name_placeholder')" :class="inputClass" />
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.host') }}</label>
-            <input v-model="form.host" required placeholder="imap.example.com" autocomplete="off" :class="inputClass" />
+            <label :for="fid('host')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.host') }}</label>
+            <input :id="fid('host')" v-model="form.host" required placeholder="imap.example.com" autocomplete="off" :class="inputClass" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.port') }}</label>
-            <input v-model.number="form.port" type="number" min="1" max="65535" required :class="inputClass" />
+            <label :for="fid('port')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.port') }}</label>
+            <input :id="fid('port')" v-model.number="form.port" type="number" min="1" max="65535" required :class="inputClass" />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.encryption') }}</label>
-            <select v-model="form.encryption" :class="inputClass">
+            <label :for="fid('encryption')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.encryption') }}</label>
+            <select :id="fid('encryption')" v-model="form.encryption" :class="inputClass">
               <option value="ssl">SSL/TLS</option>
               <option value="tls">STARTTLS</option>
               <option value="none">{{ t('bank_notices.encryption_none') }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.folder') }}</label>
-            <input v-model="form.folder" placeholder="INBOX" :class="inputClass" />
+            <label :for="fid('folder')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.folder') }}</label>
+            <input :id="fid('folder')" v-model="form.folder" placeholder="INBOX" :class="inputClass" />
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.username') }}</label>
-          <input v-model="form.username" required autocomplete="off" :class="inputClass" />
+          <label :for="fid('username')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.username') }}</label>
+          <input :id="fid('username')" v-model="form.username" required autocomplete="off" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.password') }}</label>
-          <input v-model="form.password" type="password" :required="editId === null" autocomplete="new-password"
+          <label :for="fid('password')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.password') }}</label>
+          <input :id="fid('password')" v-model="form.password" type="password" :required="editId === null" autocomplete="new-password"
                  :placeholder="editId === null ? '' : t('bank_notices.password_keep')" :class="inputClass" />
         </div>
         <div class="space-y-2 pt-1">
           <label class="flex items-center gap-2 text-sm">
-            <input v-model="form.require_email_auth" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+            <input v-model="form.require_email_auth" type="checkbox" class="rounded border-field text-primary-700" />
             {{ t('bank_notices.require_auth') }}
           </label>
           <p class="text-xs text-neutral-500 -mt-1 ml-6">{{ t('bank_notices.require_auth_hint') }}</p>
           <label class="flex items-center gap-2 text-sm">
-            <input v-model="form.validate_cert" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+            <input v-model="form.validate_cert" type="checkbox" class="rounded border-field text-primary-700" />
             {{ t('bank_notices.validate_cert') }}
           </label>
           <label class="flex items-center gap-2 text-sm">
-            <input v-model="form.enabled" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+            <input v-model="form.enabled" type="checkbox" class="rounded border-field text-primary-700" />
             {{ t('bank_notices.enabled') }}
           </label>
         </div>
@@ -295,12 +297,12 @@ const noticeKey = (n: BankNotice) => n.id
           <summary class="cursor-pointer text-neutral-600">{{ t('bank_notices.advanced') }}</summary>
           <div class="grid grid-cols-2 gap-3 mt-3">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.max_messages') }}</label>
-              <input v-model.number="form.max_messages_per_run" type="number" min="1" max="500" :class="inputClass" />
+              <label :for="fid('max_messages_per_run')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.max_messages') }}</label>
+              <input :id="fid('max_messages_per_run')" v-model.number="form.max_messages_per_run" type="number" min="1" max="500" :class="inputClass" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.auth_serv_id') }}</label>
-              <input v-model="form.auth_serv_id" placeholder="mx.example.com" :class="inputClass" />
+              <label :for="fid('auth_serv_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.auth_serv_id') }}</label>
+              <input :id="fid('auth_serv_id')" v-model="form.auth_serv_id" placeholder="mx.example.com" :class="inputClass" />
             </div>
           </div>
         </details>

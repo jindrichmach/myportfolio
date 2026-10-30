@@ -5,8 +5,10 @@ import { useI18n } from 'vue-i18n'
 import AppShell from '@/components/layout/AppShell.vue'
 import { sharesApi, type InviteInfo } from '@/api/shares'
 import { apiErrorMessage } from '@/api/errors'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const route = useRoute()
 const token = String(route.params.token ?? '')
 
@@ -46,14 +48,14 @@ async function submit() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
 </script>
 
 <template>
   <AppShell :title="t('sharing.invite_title')">
     <div class="w-full max-w-sm">
       <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold mb-1">{{ t('sharing.invite_title') }}</h2>
+        <h1 class="text-xl font-semibold mb-1">{{ t('sharing.invite_title') }}</h1>
         <p v-if="loading" class="text-sm text-neutral-500 mt-4">{{ t('common.loading') }}</p>
 
         <template v-else-if="info && !done">
@@ -67,21 +69,21 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md focus:
           </div>
           <form v-else @submit.prevent="submit" class="space-y-4 mt-4">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.email') }}</label>
-              <input :value="info.email" disabled :class="inputClass + ' bg-neutral-50'" />
+              <label :for="fid('email')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.email') }}</label>
+              <input :id="fid('email')" :value="info.email" disabled :class="inputClass + ' bg-neutral-50'" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
-              <input v-model="name" required maxlength="120" autocomplete="name" :class="inputClass" />
+              <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
+              <input :id="fid('name')" v-model="name" required maxlength="120" autocomplete="name" :class="inputClass" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password') }}</label>
-              <input v-model="password" type="password" required autocomplete="new-password" :class="inputClass" />
+              <label :for="fid('password')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password') }}</label>
+              <input :id="fid('password')" v-model="password" type="password" required autocomplete="new-password" :class="inputClass" />
               <p class="text-xs text-neutral-500 mt-1" :class="{ 'text-danger-500': password && !passwordOk }">{{ t('auth.min_chars', { n: 12 }) }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password_confirm') }}</label>
-              <input v-model="passwordConfirm" type="password" required autocomplete="new-password" :class="inputClass" />
+              <label :for="fid('passwordconfirm')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password_confirm') }}</label>
+              <input :id="fid('passwordconfirm')" v-model="passwordConfirm" type="password" required autocomplete="new-password" :class="inputClass" />
               <p v-if="passwordConfirm && !passwordMatch" class="text-xs text-danger-500 mt-1">{{ t('auth.passwords_dont_match') }}</p>
             </div>
             <div v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</div>

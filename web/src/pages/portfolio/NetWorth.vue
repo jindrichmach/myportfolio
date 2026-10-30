@@ -22,10 +22,12 @@ import { useWindowSize } from '@vueuse/core'
 import { formatDate, formatDec, formatMoney, formatMoneyCompact, formatSigned } from '@/composables/useFormat'
 import { useChartColors } from '@/composables/useTheme'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip)
 
 const { t } = useI18n()
+const fid = useFieldId()
 const { canManage } = useOwnerContext()
 const toast = useToast()
 const colors = useChartColors()
@@ -227,7 +229,7 @@ async function removeEntry(e: NetWorthEntry) {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -303,50 +305,50 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     <Modal v-if="showItem" :title="editItem ? t('net_worth.edit_title') : t('net_worth.new')" width-class="max-w-lg" @close="showItem = false">
       <form id="nw-item-form" class="space-y-3" @submit.prevent="saveItem">
         <div v-if="!editItem">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.kind') }}</label>
-          <select v-model="itemForm.kind" :class="inputClass">
+          <label :for="fid('kind')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.kind') }}</label>
+          <select :id="fid('kind')" v-model="itemForm.kind" :class="inputClass">
             <option v-for="k in NET_WORTH_KINDS" :key="k" :value="k">{{ t(`net_worth.kinds.${k}`) }}</option>
           </select>
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
-            <input v-model="itemForm.name" required maxlength="120" :placeholder="t(`net_worth.placeholders.${itemForm.kind}`)" :class="inputClass" />
+            <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
+            <input :id="fid('name')" v-model="itemForm.name" required maxlength="120" :placeholder="t(`net_worth.placeholders.${itemForm.kind}`)" :class="inputClass" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-            <input v-model="itemForm.currency" maxlength="3" required :class="inputClass" />
+            <label :for="fid('currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
+            <input :id="fid('currency')" v-model="itemForm.currency" maxlength="3" required :class="inputClass" />
           </div>
         </div>
         <template v-if="!editItem">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t(itemForm.kind === 'liability' ? 'net_worth.start_date' : 'net_worth.value_date') }}</label>
-              <input v-model="itemForm.date" type="date" :required="itemForm.kind === 'liability'" :class="inputClass" />
+              <label :for="fid('date')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t(itemForm.kind === 'liability' ? 'net_worth.start_date' : 'net_worth.value_date') }}</label>
+              <input :id="fid('date')" v-model="itemForm.date" type="date" :required="itemForm.kind === 'liability'" :class="inputClass" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t(itemForm.kind === 'liability' ? 'net_worth.principal' : 'net_worth.value') }}</label>
-              <input v-model="itemForm.value" inputmode="decimal" :required="itemForm.kind === 'liability'" :class="inputClass" />
+              <label :for="fid('value')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t(itemForm.kind === 'liability' ? 'net_worth.principal' : 'net_worth.value') }}</label>
+              <input :id="fid('value')" v-model="itemForm.value" inputmode="decimal" :required="itemForm.kind === 'liability'" :class="inputClass" />
             </div>
           </div>
           <div v-if="itemForm.kind === 'liability'" class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.rate') }}</label>
-              <input v-model="itemForm.rate_pct" inputmode="decimal" required :class="inputClass" />
+              <label :for="fid('rate_pct')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.rate') }}</label>
+              <input :id="fid('rate_pct')" v-model="itemForm.rate_pct" inputmode="decimal" required :class="inputClass" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.payment') }}</label>
-              <input v-model="itemForm.payment" inputmode="decimal" required :class="inputClass" />
+              <label :for="fid('payment')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.payment') }}</label>
+              <input :id="fid('payment')" v-model="itemForm.payment" inputmode="decimal" required :class="inputClass" />
             </div>
           </div>
           <p class="text-xs text-neutral-500">{{ t(itemForm.kind === 'liability' ? 'net_worth.loan_hint' : 'net_worth.value_hint') }}</p>
         </template>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
-          <input v-model="itemForm.note" maxlength="500" :class="inputClass" />
+          <label :for="fid('note')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
+          <input :id="fid('note')" v-model="itemForm.note" maxlength="500" :class="inputClass" />
         </div>
         <label v-if="editItem" class="flex items-center gap-2 text-sm">
-          <input v-model="itemForm.archived" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="itemForm.archived" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('net_worth.archived') }}
         </label>
         <p v-if="itemError" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ itemError }}</p>
@@ -361,22 +363,22 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       <form v-if="canManage" id="nw-entry-form" class="space-y-3" @submit.prevent="saveEntry">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.date') }}</label>
-            <input v-model="entryForm.date" type="date" required :class="inputClass" />
+            <label :for="fid('date2')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.date') }}</label>
+            <input :id="fid('date2')" v-model="entryForm.date" type="date" required :class="inputClass" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t(entriesFor.kind === 'liability' ? 'net_worth.balance' : 'net_worth.value') }} ({{ entriesFor.currency }})</label>
-            <input v-model="entryForm.value" inputmode="decimal" required :class="inputClass" />
+            <label :for="fid('value2')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t(entriesFor.kind === 'liability' ? 'net_worth.balance' : 'net_worth.value') }} ({{ entriesFor.currency }})</label>
+            <input :id="fid('value2')" v-model="entryForm.value" inputmode="decimal" required :class="inputClass" />
           </div>
         </div>
         <div v-if="entriesFor.kind === 'liability'" class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.rate') }}</label>
-            <input v-model="entryForm.rate_pct" inputmode="decimal" :placeholder="t('net_worth.unchanged')" :class="inputClass" />
+            <label :for="fid('rate_pct2')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.rate') }}</label>
+            <input :id="fid('rate_pct2')" v-model="entryForm.rate_pct" inputmode="decimal" :placeholder="t('net_worth.unchanged')" :class="inputClass" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.payment') }}</label>
-            <input v-model="entryForm.payment" inputmode="decimal" :placeholder="t('net_worth.unchanged')" :class="inputClass" />
+            <label :for="fid('payment2')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.payment') }}</label>
+            <input :id="fid('payment2')" v-model="entryForm.payment" inputmode="decimal" :placeholder="t('net_worth.unchanged')" :class="inputClass" />
           </div>
         </div>
         <p class="text-xs text-neutral-500">{{ t(entriesFor.kind === 'liability' ? 'net_worth.correction_hint' : 'net_worth.valuation_hint') }}</p>

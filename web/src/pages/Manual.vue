@@ -44,12 +44,13 @@ function go(slug: string) {
 <template>
   <div>
     <div class="mb-4">
-      <h1 class="text-2xl font-semibold">{{ t('manual.title') }}</h1>
+      <!-- Jediná H1 stránky je název kapitoly v obsahu. -->
+      <p class="text-2xl font-semibold">{{ t('manual.title') }}</p>
       <p v-if="locale !== 'cs'" class="text-sm text-warning-600 mt-1">{{ t('manual.cs_only') }}</p>
     </div>
 
     <!-- Mobil: výběr kapitoly -->
-    <select class="lg:hidden w-full h-10 px-3 mb-4 border border-neutral-300 rounded-md bg-surface text-sm"
+    <select class="lg:hidden w-full h-10 px-3 mb-4 border border-field rounded-md bg-surface text-sm"
             :value="current?.slug" :aria-label="t('manual.chapters')" @change="go(($event.target as HTMLSelectElement).value)">
       <option v-for="c in chapters" :key="c.slug" :value="c.slug">{{ c.title }}</option>
     </select>

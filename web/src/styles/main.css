@@ -52,6 +52,8 @@
   --color-neutral-700: #3D413D;
   --color-neutral-800: #262A27;
   --color-neutral-900: #111512;   /* text */
+  /* Rámeček vstupních polí — mezi 400 a 500, aby měl ≥ 3:1 vůči surface (WCAG 1.4.11) ve všech schématech i v tmavém režimu */
+  --color-field: color-mix(in srgb, var(--color-neutral-400) 50%, var(--color-neutral-500));
 
   /* ─── Surfaces (hodnoty přepínané v .dark) ─── */
   --color-surface:   #FFFFFF;   /* karty, panely, modály, topbar, sidebar (light = bílá) */

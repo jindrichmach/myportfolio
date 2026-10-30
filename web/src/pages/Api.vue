@@ -235,7 +235,7 @@ const tokenKey = (tk: { id: number }) => tk.id
         </p>
       </div>
 
-      <div v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 mb-3 text-sm text-danger-500">
+      <div role="alert" v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 mb-3 text-sm text-danger-500">
         {{ error }}
       </div>
 
@@ -268,7 +268,7 @@ const tokenKey = (tk: { id: number }) => tk.id
             <span class="text-neutral-700 font-medium">{{ t('api_tokens.col_name') }}</span>
             <input v-model="form.name" type="text" maxlength="100"
               :placeholder="t('api_tokens.name_placeholder')"
-              class="mt-1 w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface" />
+              class="mt-1 w-full h-10 px-3 border border-field rounded-md bg-surface" />
           </label>
 
           <fieldset class="block text-sm">
@@ -294,7 +294,7 @@ const tokenKey = (tk: { id: number }) => tk.id
           <label class="block text-sm">
             <span class="text-neutral-700 font-medium">{{ t('api_tokens.col_expires') }} <span class="text-neutral-400">{{ t('common.optional') }}</span></span>
             <input v-model="form.expires_at" type="date"
-              class="mt-1 w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface" />
+              class="mt-1 w-full h-10 px-3 border border-field rounded-md bg-surface" />
           </label>
 
           <div v-if="hasPasskey" class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
@@ -314,7 +314,7 @@ const tokenKey = (tk: { id: number }) => tk.id
             <span class="text-neutral-700 font-medium">{{ t('auth.totp_code') }}</span>
             <input v-model="form.totp_code" type="text" inputmode="numeric" maxlength="6" pattern="\d{6}"
               placeholder="000000"
-              class="mt-1 w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface font-mono text-lg tracking-widest text-center" />
+              class="mt-1 w-full h-10 px-3 border border-field rounded-md bg-surface font-mono text-lg tracking-widest text-center" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('api_tokens.totp_hint') }}</p>
           </label>
         </div>

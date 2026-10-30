@@ -14,7 +14,7 @@ function bgClass(type: string): string {
 
 <template>
   <teleport to="body">
-    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm">
+    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm" aria-live="polite">
       <transition-group
         enter-active-class="transition ease-out duration-200"
         enter-from-class="opacity-0 translate-x-4"
@@ -23,12 +23,12 @@ function bgClass(type: string): string {
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
       >
-        <div v-for="t in toasts" :key="t.id"
+        <div v-for="t in toasts" :key="t.id" :role="t.type === 'error' ? 'alert' : 'status'"
           class="rounded-md border px-4 py-2.5 text-sm shadow-md flex items-start gap-2 cursor-pointer"
           :class="bgClass(t.type)"
           @click="dismiss(t.id)">
           <span class="flex-1 whitespace-pre-line">{{ t.text }}</span>
-          <span class="text-lg leading-none opacity-60">×</span>
+          <span class="text-lg leading-none opacity-60" aria-hidden="true">×</span>
         </div>
       </transition-group>
     </div>

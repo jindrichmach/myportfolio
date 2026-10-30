@@ -6,8 +6,10 @@ import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
 import { useTurnstile } from '@/composables/useTurnstile'
 import { apiErrorMessage } from '@/api/errors'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const auth = useAuthStore()
 const email = ref('')
 const submitted = ref(false)
@@ -61,17 +63,17 @@ async function submit() {
   <AppShell :title="t('auth.reset_title')">
     <div class="w-full max-w-sm">
       <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold mb-1">{{ t('auth.reset_title') }}</h2>
+        <h1 class="text-xl font-semibold mb-1">{{ t('auth.reset_title') }}</h1>
         <p class="text-sm text-neutral-500 mb-6">{{ t('auth.reset_send') }}</p>
 
-        <div v-if="submitted" class="rounded-md bg-primary-50 border border-primary-200 p-4 text-sm text-primary-800">
+        <div v-if="submitted" role="status" class="rounded-md bg-primary-50 border border-primary-200 p-4 text-sm text-primary-800">
           {{ t('auth.reset_sent') }}
         </div>
 
         <form v-else @submit.prevent="submit" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email') }}</label>
-            <input v-model="email" type="email" required autofocus autocomplete="email" class="w-full h-10 px-3 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
+            <label :for="fid('email')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email') }}</label>
+            <input :id="fid('email')" v-model="email" type="email" required autofocus autocomplete="email" class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
           </div>
 
           <!-- Turnstile widget — vždy v DOM. Lokální template ref + assign
@@ -80,7 +82,7 @@ async function submit() {
             <div ref="turnstileEl"></div>
           </div>
 
-          <div v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 p-3 text-sm text-danger-600">
+          <div role="alert" v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 p-3 text-sm text-danger-600">
             {{ error }}
           </div>
 

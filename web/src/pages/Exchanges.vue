@@ -13,8 +13,10 @@ import { portfolioApi, type Account, type Portfolio } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDateTime } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 
 const providers = ref<ExchangeProvider[]>([])
@@ -140,7 +142,7 @@ async function save() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -200,34 +202,34 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     <Modal v-if="showForm" :title="editId === null ? t('exchanges.new') : t('exchanges.edit_title')" width-class="max-w-lg" @close="showForm = false">
       <form id="exchange-form" class="space-y-3" @submit.prevent="save">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.provider') }}</label>
-          <select v-model="form.provider" :disabled="editId !== null" :class="inputClass" @change="form.credentials = {}; testResult = null">
+          <label :for="fid('provider')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.provider') }}</label>
+          <select :id="fid('provider')" v-model="form.provider" :disabled="editId !== null" :class="inputClass" @change="form.credentials = {}; testResult = null">
             <option v-for="p in providers" :key="p.provider" :value="p.provider">{{ p.label }}</option>
           </select>
           <p class="text-xs text-neutral-500 mt-1">{{ t('exchanges.key_hint') }}</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.account') }}</label>
-            <select v-model="form.account_id" required :class="inputClass">
+            <label :for="fid('account_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.account') }}</label>
+            <select :id="fid('account_id')" v-model="form.account_id" required :class="inputClass">
               <option value="" disabled>—</option>
               <option v-for="a in activeAccounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.portfolio') }}</label>
-            <select v-model="form.portfolio_id" required :class="inputClass">
+            <label :for="fid('portfolio_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.portfolio') }}</label>
+            <select :id="fid('portfolio_id')" v-model="form.portfolio_id" required :class="inputClass">
               <option value="" disabled>—</option>
               <option v-for="p in activePortfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
           </div>
         </div>
         <div v-for="f in fields" :key="f.key">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ f.label }}</label>
-          <textarea v-if="f.multiline" v-model="form.credentials[f.key]" rows="4" :required="editId === null"
+          <label :for="fid(`cred-${f.key}`)" class="block text-sm font-medium text-neutral-700 mb-1">{{ f.label }}</label>
+          <textarea :id="fid(`cred-${f.key}`)" v-if="f.multiline" v-model="form.credentials[f.key]" rows="4" :required="editId === null"
                     autocomplete="off" spellcheck="false" :placeholder="editId === null ? '' : t('exchanges.keep_key')"
-                    class="w-full px-3 py-2 border border-neutral-300 rounded-md bg-surface text-xs font-mono"></textarea>
-          <input v-else v-model="form.credentials[f.key]" :type="f.secret ? 'password' : 'text'" :required="editId === null"
+                    class="w-full px-3 py-2 border border-field rounded-md bg-surface text-xs font-mono"></textarea>
+          <input v-else :id="fid(`cred-${f.key}`)" v-model="form.credentials[f.key]" :type="f.secret ? 'password' : 'text'" :required="editId === null"
                  autocomplete="off" spellcheck="false" :placeholder="editId === null ? '' : t('exchanges.keep_key')" :class="inputClass" />
         </div>
         <div class="flex items-center gap-3">
@@ -243,13 +245,13 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
         <fieldset v-if="editId === null" class="space-y-2 pt-1">
           <legend class="text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.start') }}</legend>
           <label v-for="s in (['continue', 'date', 'all'] as const)" :key="s" class="flex items-start gap-2 text-sm">
-            <input v-model="form.start" type="radio" :value="s" class="mt-0.5 border-neutral-300 text-primary-700" />
+            <input v-model="form.start" type="radio" :value="s" class="mt-0.5 border-field text-primary-700" />
             <span>{{ t(`exchanges.start_${s}`) }}<span class="block text-xs text-neutral-500">{{ t(`exchanges.start_${s}_hint`) }}</span></span>
           </label>
           <input v-if="form.start === 'date'" v-model="form.start_date" type="date" required :class="inputClass" />
         </fieldset>
         <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.enabled" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="form.enabled" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('exchanges.enabled') }}
         </label>
         <p v-if="formError" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ formError }}</p>

@@ -18,9 +18,11 @@ import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
 import Badge from '@/components/ui/Badge.vue'
 import PriceBadge from '@/components/portfolio/PriceBadge.vue'
 import { gainClass } from '@/utils/tone'
+import { useFieldId } from '@/composables/useFieldId'
 
 const props = defineProps<{ position: Position; transactionCount?: number }>()
 const { t } = useI18n()
+const fid = useFieldId()
 const { canWrite } = useOwnerContext()
 const toast = useToast()
 
@@ -127,7 +129,7 @@ async function removeValuation(row: ManualValuation) {
   }
 }
 
-const inputClass = 'w-full h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-9 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -189,16 +191,16 @@ const inputClass = 'w-full h-9 px-3 border border-neutral-300 rounded-md bg-surf
     <SectionCard v-else-if="!position.is_cash" :title="t('valuation.manual_title')" flush>
       <form v-if="canWrite" class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 items-end border-b border-neutral-100" @submit.prevent="saveValuation">
         <div>
-          <label class="block text-xs font-medium text-neutral-700 mb-1">{{ t('valuation.date') }}</label>
-          <input v-model="form.date" type="date" :max="today" required :class="inputClass" />
+          <label :for="fid('date')" class="block text-xs font-medium text-neutral-700 mb-1">{{ t('valuation.date') }}</label>
+          <input :id="fid('date')" v-model="form.date" type="date" :max="today" required :class="inputClass" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-neutral-700 mb-1">{{ t('valuation.balance', { currency: position.currency }) }}</label>
-          <input v-model="form.value" inputmode="decimal" required autocomplete="off" :class="inputClass" />
+          <label :for="fid('value')" class="block text-xs font-medium text-neutral-700 mb-1">{{ t('valuation.balance', { currency: position.currency }) }}</label>
+          <input :id="fid('value')" v-model="form.value" inputmode="decimal" required autocomplete="off" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
-          <input v-model="form.note" maxlength="500" :class="inputClass" />
+          <label :for="fid('note')" class="block text-xs font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
+          <input :id="fid('note')" v-model="form.note" maxlength="500" :class="inputClass" />
         </div>
         <button type="submit" :disabled="busy" class="cursor-pointer h-9 px-3 bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action text-sm font-medium rounded-md">
           {{ t('valuation.save') }}

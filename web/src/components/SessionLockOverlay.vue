@@ -198,7 +198,7 @@ onUnmounted(() => {
       <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center"><Icon name="lock" class="w-6 h-6" /></div>
       <h2 class="text-xl font-semibold">{{ t('session_lock.title') }}</h2>
       <p class="mt-2 text-sm text-neutral-500">{{ t('session_lock.message') }}</p>
-      <p v-if="security.error" class="mt-3 text-sm text-danger-500">
+      <p role="alert" v-if="security.error" class="mt-3 text-sm text-danger-500">
         {{ security.error === 'logout_failed'
           ? t('session_lock.logout_failed')
           : security.error === 'session_status_failed'

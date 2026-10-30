@@ -16,8 +16,10 @@ import { catalogApi, type Instrument } from '@/api/catalog'
 import { portfolioApi, type Account, type Portfolio, type Position, type ValuationMode } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDec } from '@/composables/useFormat'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const { canWrite } = useOwnerContext()
 const route = useRoute()
 const router = useRouter()
@@ -141,7 +143,7 @@ async function save() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -158,12 +160,12 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     </div>
 
     <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm mb-4 p-3 flex flex-wrap items-center gap-3">
-      <select v-model="portfolioFilter" class="h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm">
+      <select v-model="portfolioFilter" class="h-9 px-3 border border-field rounded-md bg-surface text-sm">
         <option value="">{{ t('positions.all_portfolios') }}</option>
         <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
       </select>
       <label class="inline-flex items-center gap-2 text-sm text-neutral-600">
-        <input v-model="showArchived" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+        <input v-model="showArchived" type="checkbox" class="rounded border-field text-primary-700" />
         {{ t('common.show_archived') }}
       </label>
     </div>
@@ -243,14 +245,14 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
-            <select v-model="form.portfolio_id" required :class="inputClass">
+            <label :for="fid('portfolio_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
+            <select :id="fid('portfolio_id')" v-model="form.portfolio_id" required :class="inputClass">
               <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
-            <select v-model="form.account_id" required :class="inputClass">
+            <label :for="fid('account_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
+            <select :id="fid('account_id')" v-model="form.account_id" required :class="inputClass">
               <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
             </select>
           </div>
@@ -258,8 +260,8 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
 
         <template v-if="form.valuation_mode === 'market'">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.instrument') }}</label>
-            <SearchableSelect v-model="form.instrument_id" remote :loading="searching"
+            <label :for="fid('instrument_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.instrument') }}</label>
+            <SearchableSelect :input-id="fid('instrument_id')" v-model="form.instrument_id" remote :loading="searching"
               :options="instrumentOptions.map(i => ({ value: i.id, label: `${i.symbol} (${i.quote_currency})`, secondary: i.name }))"
               :placeholder="t('instruments.search_placeholder')" @search="searchInstruments" />
             <p class="text-xs text-neutral-500 mt-1">
@@ -270,18 +272,18 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
         </template>
         <template v-else>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }} <span v-if="form.valuation_mode === 'cash'" class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-            <input v-model="form.name" :required="form.valuation_mode === 'manual'" maxlength="120"
+            <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }} <span v-if="form.valuation_mode === 'cash'" class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+            <input :id="fid('name')" v-model="form.name" :required="form.valuation_mode === 'manual'" maxlength="120"
               :placeholder="form.valuation_mode === 'cash' ? t('cash.name_placeholder', { currency: (form.currency || accounts.find(a => a.id === form.account_id)?.currency || 'CZK').toUpperCase() }) : t('positions.manual_name_placeholder')" :class="inputClass" />
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-              <input v-model="form.currency" maxlength="3" :placeholder="accounts.find(a => a.id === form.account_id)?.currency" class="uppercase font-mono" :class="inputClass" />
+              <label :for="fid('currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
+              <input :id="fid('currency')" v-model="form.currency" maxlength="3" :placeholder="accounts.find(a => a.id === form.account_id)?.currency" class="uppercase font-mono" :class="inputClass" />
             </div>
             <div v-if="form.valuation_mode === 'manual'">
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.interest_rate') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-              <input v-model="form.interest_rate_pa" inputmode="decimal" :class="inputClass" />
+              <label :for="fid('interest_rate_pa')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.interest_rate') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+              <input :id="fid('interest_rate_pa')" v-model="form.interest_rate_pa" inputmode="decimal" :class="inputClass" />
             </div>
           </div>
         </template>

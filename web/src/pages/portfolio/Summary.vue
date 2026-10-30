@@ -96,7 +96,7 @@ const options = computed<ChartOptions<'bar'>>(() => ({
   },
 }))
 
-const selectClass = 'w-full min-w-0 h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const selectClass = 'w-full min-w-0 h-9 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>

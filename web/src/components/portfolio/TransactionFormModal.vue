@@ -11,6 +11,7 @@ import {
   portfolioApi, MARKET_TYPES, MANUAL_TYPES,
   type Position, type Transaction, type TransactionInput, type TransactionType,
 } from '@/api/portfolio'
+import { useFieldId } from '@/composables/useFieldId'
 
 const props = defineProps<{
   /** Pevná pozice (detail pozice). */
@@ -23,6 +24,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved', tx: Transaction): void }>()
 const { t } = useI18n()
+const fid = useFieldId()
 
 function nowLocal(): string {
   const d = new Date()
@@ -96,15 +98,15 @@ async function save() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
 </script>
 
 <template>
   <Modal :title="transaction ? t('tx.edit_title') : t('tx.new')" width-class="max-w-lg" @close="emit('close')">
     <form id="tx-form" class="space-y-3" @submit.prevent="save">
       <div v-if="!position">
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.position') }}</label>
-        <select v-model="form.position_id" :disabled="!!transaction" required :class="inputClass">
+        <label :for="fid('position_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.position') }}</label>
+        <select :id="fid('position_id')" v-model="form.position_id" :disabled="!!transaction" required :class="inputClass">
           <option :value="null" disabled>—</option>
           <option v-for="p in positions" :key="p.id" :value="p.id">
             {{ p.display_name }} · {{ p.institution_name }} / {{ p.account_name }} · {{ p.portfolio_name }}
@@ -114,71 +116,71 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
-          <select v-model="form.type" :class="inputClass">
+          <label :for="fid('type')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
+          <select :id="fid('type')" v-model="form.type" :class="inputClass">
             <option v-for="tp in types" :key="tp" :value="tp">{{ t(`tx.types.${tp}`) }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
-          <input v-model="form.executed_at" type="datetime-local" required :class="inputClass" />
+          <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
+          <input :id="fid('executed_at')" v-model="form.executed_at" type="datetime-local" required :class="inputClass" />
         </div>
       </div>
 
       <div v-if="hasQuantity">
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.quantity') }}</label>
-        <input v-model="form.quantity" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        <label :for="fid('quantity')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.quantity') }}</label>
+        <input :id="fid('quantity')" v-model="form.quantity" inputmode="decimal" autocomplete="off" required :class="inputClass" />
       </div>
 
       <div v-if="isSplit">
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.split_ratio') }}</label>
-        <input v-model="form.split_ratio" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        <label :for="fid('split_ratio')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.split_ratio') }}</label>
+        <input :id="fid('split_ratio')" v-model="form.split_ratio" inputmode="decimal" autocomplete="off" required :class="inputClass" />
         <p class="text-xs text-neutral-500 mt-1">{{ t('tx.split_hint') }}</p>
       </div>
 
       <div v-if="!isSplit" class="grid grid-cols-3 gap-3">
         <div class="col-span-2">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">
+          <label :for="fid('amount')" class="block text-sm font-medium text-neutral-700 mb-1">
             {{ form.type === 'reward' ? t('tx.reward_value') : t('tx.amount') }}
           </label>
-          <input v-model="form.amount" inputmode="decimal" autocomplete="off" :required="!isTrade && form.type !== 'reward'" :class="inputClass" />
+          <input :id="fid('amount')" v-model="form.amount" inputmode="decimal" autocomplete="off" :required="!isTrade && form.type !== 'reward'" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-          <input v-model="form.price_currency" maxlength="3" class="uppercase" :class="inputClass" />
+          <label :for="fid('price_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
+          <input :id="fid('price_currency')" v-model="form.price_currency" maxlength="3" class="uppercase" :class="inputClass" />
         </div>
       </div>
 
       <div v-if="isTrade">
-        <label class="block text-sm font-medium text-neutral-700 mb-1">
+        <label :for="fid('unit_price')" class="block text-sm font-medium text-neutral-700 mb-1">
           {{ t('tx.unit_price') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
         </label>
-        <input v-model="form.unit_price" inputmode="decimal" autocomplete="off" :class="inputClass" />
+        <input :id="fid('unit_price')" v-model="form.unit_price" inputmode="decimal" autocomplete="off" :class="inputClass" />
         <p class="text-xs text-neutral-500 mt-1">{{ t('tx.amount_hint') }}</p>
       </div>
 
       <div v-if="!isSplit" class="grid grid-cols-3 gap-3">
         <div class="col-span-2">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">
+          <label :for="fid('fee')" class="block text-sm font-medium text-neutral-700 mb-1">
             {{ t('tx.fee') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
           </label>
-          <input v-model="form.fee" inputmode="decimal" autocomplete="off" :class="inputClass" />
+          <input :id="fid('fee')" v-model="form.fee" inputmode="decimal" autocomplete="off" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.fee_currency') }}</label>
-          <input v-model="form.fee_currency" maxlength="10" :placeholder="form.price_currency" class="uppercase" :class="inputClass" />
+          <label :for="fid('fee_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.fee_currency') }}</label>
+          <input :id="fid('fee_currency')" v-model="form.fee_currency" maxlength="10" :placeholder="form.price_currency" class="uppercase" :class="inputClass" />
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
-        <input v-model="form.note" maxlength="500" :class="inputClass" />
+        <label :for="fid('note')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
+        <input :id="fid('note')" v-model="form.note" maxlength="500" :class="inputClass" />
       </div>
 
-      <ul v-if="Object.keys(fieldErrors).length" class="text-xs text-danger-500 space-y-0.5">
+      <ul role="alert" v-if="Object.keys(fieldErrors).length" class="text-xs text-danger-500 space-y-0.5">
         <li v-for="(msgs, field) in fieldErrors" :key="field">{{ field }}: {{ msgs.join(', ') }}</li>
       </ul>
-      <p v-else-if="error" class="text-sm text-danger-500">{{ error }}</p>
+      <p role="alert" v-else-if="error" class="text-sm text-danger-500">{{ error }}</p>
     </form>
 
     <template #footer>

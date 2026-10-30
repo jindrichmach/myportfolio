@@ -7,10 +7,12 @@ import { portfolioApi, type Position } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDec } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const props = defineProps<{ position: Position }>()
 const emit = defineEmits<{ close: []; saved: [] }>()
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 
 const today = new Date().toLocaleDateString('sv-SE')
@@ -32,7 +34,7 @@ async function save() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -41,17 +43,17 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       <p class="text-sm text-neutral-500">{{ t('cash.hint') }}</p>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.date') }}</label>
-          <input v-model="form.date" type="date" required :max="today" :class="inputClass" />
+          <label :for="fid('date')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.date') }}</label>
+          <input :id="fid('date')" v-model="form.date" type="date" required :max="today" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.balance', { currency: position.currency }) }}</label>
-          <input v-model="form.balance" required inputmode="decimal" :class="inputClass + ' tabular-nums'" />
+          <label :for="fid('balance')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.balance', { currency: position.currency }) }}</label>
+          <input :id="fid('balance')" v-model="form.balance" required inputmode="decimal" :class="inputClass + ' tabular-nums'" />
         </div>
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.note') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-        <input v-model="form.note" maxlength="200" :class="inputClass" />
+        <label :for="fid('note')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.note') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+        <input :id="fid('note')" v-model="form.note" maxlength="200" :class="inputClass" />
       </div>
       <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>
     </form>

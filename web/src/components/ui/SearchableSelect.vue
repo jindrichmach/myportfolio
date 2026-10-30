@@ -18,6 +18,8 @@ const props = withDefaults(defineProps<{
   loadingLabel?: string
   /** Vybraná položka pro zobrazení labelu, i když není v options (edit / po hledání). */
   selectedOption?: Option | null
+  /** id vnitřního inputu — pro <label for>. */
+  inputId?: string
 }>(), {
   placeholder: '',
   emptyLabel: '',
@@ -166,6 +168,7 @@ onUnmounted(() => {
     <div class="relative">
       <input
         ref="input"
+        :id="inputId"
         v-model="query"
         type="text"
         role="combobox"
@@ -175,7 +178,7 @@ onUnmounted(() => {
         :disabled="disabled"
         autocomplete="off"
         :class="[
-          'w-full h-10 pl-3 pr-16 border border-neutral-300 rounded-md text-sm bg-surface',
+          'w-full h-10 pl-3 pr-16 border border-field rounded-md text-sm bg-surface',
           'focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none',
           'disabled:bg-neutral-50 disabled:text-neutral-400',
         ]"

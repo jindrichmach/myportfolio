@@ -153,7 +153,7 @@ const positionKey = (r: PositionValuation) => r.position_id
 
       <HistoryChart class="mb-4" :scope="historyScope" :id="historyId">
         <template #actions>
-          <select v-model="historyKey" :aria-label="t('history.title')" class="h-7 px-2 border border-neutral-300 rounded-md bg-surface text-xs">
+          <select v-model="historyKey" :aria-label="t('history.title')" class="h-7 px-2 border border-field rounded-md bg-surface text-xs">
             <option value="total">{{ t('history.scope_total') }}</option>
             <optgroup :label="t('nav.portfolios')">
               <option v-for="g in groups" :key="g.id" :value="`portfolio:${g.id}`">{{ g.name }}</option>
@@ -167,7 +167,7 @@ const positionKey = (r: PositionValuation) => r.position_id
 
       <SectionCard :title="t('dashboard.allocation')" class="mb-4">
           <template #actions>
-            <select v-model="allocationBy" :aria-label="t('dashboard.allocation')" class="h-7 px-2 border border-neutral-300 rounded-md bg-surface text-xs">
+            <select v-model="allocationBy" :aria-label="t('dashboard.allocation')" class="h-7 px-2 border border-field rounded-md bg-surface text-xs">
               <option value="category">{{ t('dashboard.by_category') }}</option>
               <option value="portfolio">{{ t('dashboard.by_portfolio') }}</option>
               <option value="institution">{{ t('dashboard.by_institution') }}</option>

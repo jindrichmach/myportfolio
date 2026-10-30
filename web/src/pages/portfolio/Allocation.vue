@@ -168,7 +168,7 @@ async function clearTargets() {
   await saveTargets()
 }
 
-const inputClass = 'w-full h-9 px-2 border border-neutral-300 rounded-md bg-surface text-sm tabular-nums'
+const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface text-sm tabular-nums'
 </script>
 
 <template>
@@ -179,7 +179,7 @@ const inputClass = 'w-full h-9 px-2 border border-neutral-300 rounded-md bg-surf
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('allocation.subtitle') }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-        <select v-model="scope" class="flex-1 sm:flex-none min-w-0 h-9 px-2 border border-neutral-300 rounded-md bg-surface text-sm">
+        <select v-model="scope" class="flex-1 sm:flex-none min-w-0 h-9 px-2 border border-field rounded-md bg-surface text-sm">
           <option :value="null">{{ t('allocation.scope_total') }}</option>
           <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
@@ -299,7 +299,7 @@ const inputClass = 'w-full h-9 px-2 border border-neutral-300 rounded-md bg-surf
             <div class="text-sm">
               <span class="font-medium">{{ categoryLabel(c.category) }}</span>
               <label v-if="SPLITTABLE.includes(c.category)" class="ml-3 inline-flex items-center gap-1 text-xs text-neutral-600">
-                <input v-model="c.split" type="checkbox" class="rounded border-neutral-300 text-primary-700" @change="toggleSplit(c)" />
+                <input v-model="c.split" type="checkbox" class="rounded border-field text-primary-700" @change="toggleSplit(c)" />
                 {{ t('allocation.split') }}
               </label>
             </div>

@@ -10,8 +10,10 @@ import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDateTime } from '@/composables/useFormat'
 import { useOwnerContext } from '@/composables/useOwnerContext'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 const owner = useOwnerContext()
 
@@ -182,35 +184,35 @@ function actionText(a: { method?: string; path?: string }): string {
     <Modal v-if="showForm" :title="editId === null ? t('sharing.new') : t('sharing.edit_title')" width-class="max-w-lg" @close="showForm = false">
       <form id="share-form" class="space-y-4" @submit.prevent="save">
         <div v-if="editId === null">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.email') }}</label>
-          <input v-model="form.email" type="email" required maxlength="190" autocomplete="off" class="w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm" />
+          <label :for="fid('email')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.email') }}</label>
+          <input :id="fid('email')" v-model="form.email" type="email" required maxlength="190" autocomplete="off" class="w-full h-10 px-3 border border-field rounded-md bg-surface text-sm" />
           <p class="text-xs text-neutral-500 mt-1">{{ t('sharing.email_hint') }}</p>
         </div>
         <fieldset class="space-y-2">
           <legend class="text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.permission') }}</legend>
           <label v-for="p in (['read', 'write'] as const)" :key="p" class="flex items-start gap-2 text-sm">
-            <input v-model="form.permission" type="radio" :value="p" class="mt-0.5 border-neutral-300 text-primary-700" />
+            <input v-model="form.permission" type="radio" :value="p" class="mt-0.5 border-field text-primary-700" />
             <span>{{ t(`sharing.permissions.${p}`) }}<span class="block text-xs text-neutral-500">{{ t(`sharing.permission_hints.${p}`) }}</span></span>
           </label>
         </fieldset>
         <fieldset class="space-y-2">
           <legend class="text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.scope') }}</legend>
           <label class="flex items-center gap-2 text-sm">
-            <input v-model="form.scope" type="radio" value="all" class="border-neutral-300 text-primary-700" /> {{ t('sharing.scope_all') }}
+            <input v-model="form.scope" type="radio" value="all" class="border-field text-primary-700" /> {{ t('sharing.scope_all') }}
           </label>
           <label class="flex items-center gap-2 text-sm">
-            <input v-model="form.scope" type="radio" value="portfolios" class="border-neutral-300 text-primary-700" /> {{ t('sharing.scope_portfolios') }}
+            <input v-model="form.scope" type="radio" value="portfolios" class="border-field text-primary-700" /> {{ t('sharing.scope_portfolios') }}
           </label>
           <div v-if="form.scope === 'portfolios'" class="ml-6 space-y-1">
             <label v-for="p in portfolios" :key="p.id" class="flex items-center gap-2 text-sm">
-              <input v-model="form.portfolio_ids" type="checkbox" :value="p.id" class="rounded border-neutral-300 text-primary-700" /> {{ p.name }}
+              <input v-model="form.portfolio_ids" type="checkbox" :value="p.id" class="rounded border-field text-primary-700" /> {{ p.name }}
             </label>
           </div>
         </fieldset>
         <fieldset v-if="form.scope === 'all'" class="space-y-2">
           <legend class="text-sm font-medium text-neutral-700 mb-1">{{ t('sharing.sections_title') }}</legend>
           <label v-for="s in SHARE_SECTIONS" :key="s" class="flex items-center gap-2 text-sm">
-            <input v-model="form.sections" type="checkbox" :value="s" class="rounded border-neutral-300 text-primary-700" /> {{ t(`sharing.sections.${s}`) }}
+            <input v-model="form.sections" type="checkbox" :value="s" class="rounded border-field text-primary-700" /> {{ t(`sharing.sections.${s}`) }}
           </label>
           <p class="text-xs text-neutral-500">{{ t('sharing.sections_hint') }}</p>
         </fieldset>

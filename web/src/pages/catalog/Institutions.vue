@@ -12,8 +12,10 @@ import { catalogApi, INSTITUTION_TYPES, type Institution, type InstitutionType }
 import { apiErrorMessage } from '@/api/errors'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const auth = useAuthStore()
 const toast = useToast()
 
@@ -89,7 +91,7 @@ const filters = computed<GridFilter[]>(() => [
 ])
 const inactiveClass = (i: Institution) => (i.is_active ? '' : 'opacity-50')
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -130,21 +132,21 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     <Modal v-if="showForm" :title="form.id === null ? t('institutions.new') : t('institutions.edit_title')" width-class="max-w-md" @close="showForm = false">
       <form id="institution-form" class="space-y-3" @submit.prevent="save">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
-          <input v-model="form.name" required maxlength="120" :class="inputClass" />
+          <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
+          <input :id="fid('name')" v-model="form.name" required maxlength="120" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
-          <select v-model="form.type" :class="inputClass">
+          <label :for="fid('type')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
+          <select :id="fid('type')" v-model="form.type" :class="inputClass">
             <option v-for="tp in INSTITUTION_TYPES" :key="tp" :value="tp">{{ t(`institutions.types.${tp}`) }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('institutions.website') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-          <input v-model="form.website" type="url" placeholder="https://" :class="inputClass" />
+          <label :for="fid('website')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('institutions.website') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+          <input :id="fid('website')" v-model="form.website" type="url" placeholder="https://" :class="inputClass" />
         </div>
         <label v-if="form.id !== null" class="flex items-center gap-2 text-sm">
-          <input v-model="form.is_active" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="form.is_active" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('common.active') }}
         </label>
         <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>

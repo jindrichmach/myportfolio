@@ -165,7 +165,7 @@ onMounted(() => void loadStatus())
         </label>
         <input id="recovery-totp" v-model="totpCode" type="text" inputmode="numeric"
                autocomplete="one-time-code" maxlength="6" pattern="\d{6}"
-               class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono" />
+               class="w-full h-10 px-3 border border-field rounded-md font-mono" />
       </div>
 
       <button type="button" @click="generate"

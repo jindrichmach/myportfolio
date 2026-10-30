@@ -194,7 +194,7 @@ const realTitle = computed(() => {
       <div class="flex flex-wrap items-center gap-2">
         <slot name="actions" />
         <select v-if="instruments.length" :value="data?.benchmark?.instrument_id ?? ''" :disabled="benchmarkBusy" :aria-label="t('history.benchmark_hint')"
-                class="h-7 px-2 border border-neutral-300 rounded-md bg-surface text-xs max-w-40" @change="setBenchmark">
+                class="h-7 px-2 border border-field rounded-md bg-surface text-xs max-w-40" @change="setBenchmark">
           <option value="">{{ t('history.benchmark_none') }}</option>
           <option v-for="i in instruments" :key="i.id" :value="i.id">{{ t('history.benchmark_vs', { symbol: i.symbol }) }}</option>
         </select>

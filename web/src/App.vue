@@ -22,6 +22,11 @@ watchEffect(() => {
   const scheme = auth.user && own === undefined ? undefined : (own ?? auth.setupStatus?.color_scheme)
   if (isColorScheme(scheme)) colorScheme.value = scheme
 })
+// Titulek okna podle stránky (WCAG 2.4.2); klíč i18n v meta.title routy, reaguje i na změnu jazyka.
+watchEffect(() => {
+  const key = route.meta.title
+  document.title = typeof key === 'string' ? `${t(key)} · MyPortfolio` : 'MyPortfolio'
+})
 const security = useSessionSecurityStore()
 const protectedPrivateRoute = computed(() => route.matched.some(record => record.meta.requiresAuth)
   && route.name !== 'setup-mfa')

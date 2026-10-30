@@ -182,7 +182,7 @@ onMounted(() => {
         </label>
         <input id="passkey-label" v-model="label" type="text" maxlength="100"
                autocomplete="off" required :placeholder="t('passkeys.label_placeholder')"
-               class="w-full h-10 px-3 border border-neutral-300 rounded-md" />
+               class="w-full h-10 px-3 border border-field rounded-md" />
       </div>
       <div v-if="list.length === 0 && !auth.user?.totp_enabled">
         <label for="passkey-current-password" class="block text-sm font-medium text-neutral-700 mb-1">
@@ -190,7 +190,7 @@ onMounted(() => {
         </label>
         <input id="passkey-current-password" v-model="currentPassword"
                type="password" autocomplete="current-password" required
-               class="w-full h-10 px-3 border border-neutral-300 rounded-md" />
+               class="w-full h-10 px-3 border border-field rounded-md" />
       </div>
       <div v-if="totpUsable">
         <label for="passkey-totp" class="block text-sm font-medium text-neutral-700 mb-1">
@@ -200,7 +200,7 @@ onMounted(() => {
                autocomplete="one-time-code" maxlength="6" pattern="\d{6}"
                :required="totpRequired"
                :placeholder="totpRequired ? t('passkeys.totp_required_placeholder') : t('passkeys.totp_optional')"
-               class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono" />
+               class="w-full h-10 px-3 border border-field rounded-md font-mono" />
         <p v-if="totpRequired" class="text-xs text-neutral-500 mt-1">
           {{ t('passkeys.totp_required_hint') }}
         </p>
@@ -213,7 +213,7 @@ onMounted(() => {
       <p class="text-xs text-neutral-500">{{ t('passkeys.fresh_auth_hint') }}</p>
     </div>
 
-    <p v-if="error" class="mb-4 rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>
+    <p role="alert" v-if="error" class="mb-4 rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>
     <div class="space-y-3">
       <div v-for="item in list" :key="item.id"
            class="bg-surface border border-neutral-200 rounded-lg p-4 flex items-center justify-between gap-4">

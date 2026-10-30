@@ -155,13 +155,13 @@ function pretty(text: string): string {
 
 const IN_ORDER: Record<string, number> = { path: 0, query: 1, form: 2, body: 3 }
 const sortedParams = (e: ApiEndpoint) => [...e.params].sort((a, b) => IN_ORDER[a.in] - IN_ORDER[b.in])
-const inputClass = 'w-full h-8 px-2 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-8 px-2 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
   <div>
     <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</div>
+    <div role="alert" v-else-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</div>
     <template v-else-if="catalog">
       <!-- Úvod -->
       <section class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-4 mb-4 text-sm space-y-2">
@@ -181,8 +181,8 @@ const inputClass = 'w-full h-8 px-2 border border-neutral-300 rounded-md bg-surf
       </section>
 
       <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm mb-4 p-3 flex flex-wrap items-center gap-2">
-        <input v-model="search" type="search" :placeholder="t('api.search')" class="h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm flex-1 min-w-48" />
-        <select v-model="group" class="h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm">
+        <input v-model="search" type="search" :placeholder="t('api.search')" class="h-9 px-3 border border-field rounded-md bg-surface text-sm flex-1 min-w-48" />
+        <select v-model="group" class="h-9 px-3 border border-field rounded-md bg-surface text-sm">
           <option value="">{{ t('api.all_groups') }}</option>
           <option v-for="g in catalog.groups" :key="g.key" :value="g.key">{{ g.label }}</option>
         </select>
@@ -255,12 +255,12 @@ const inputClass = 'w-full h-8 px-2 border border-neutral-300 rounded-md bg-surf
                   <label v-for="p in sortedParams(e)" :key="p.name" class="text-xs">
                     <span class="block text-neutral-600 mb-0.5"><code>{{ p.name }}</code><span v-if="p.required" class="text-danger-500"> *</span></span>
                     <input v-if="p.type === 'file'" type="file" class="block w-full text-sm" @change="ev => (tryFiles[e.id] = (ev.target as HTMLInputElement).files?.[0] ?? null)" />
-                    <input v-else-if="p.type === 'boolean'" v-model="tryValues[e.id][p.name]" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+                    <input v-else-if="p.type === 'boolean'" v-model="tryValues[e.id][p.name]" type="checkbox" class="rounded border-field text-primary-700" />
                     <select v-else-if="p.enum" v-model="tryValues[e.id][p.name]" :class="inputClass">
                       <option value="">—</option>
                       <option v-for="v in p.enum" :key="String(v)" :value="v">{{ v }}</option>
                     </select>
-                    <textarea v-else-if="p.type === 'object'" v-model="tryValues[e.id][p.name] as string" rows="2" placeholder="{ }" class="w-full px-2 py-1 border border-neutral-300 rounded-md bg-surface text-sm font-mono"></textarea>
+                    <textarea v-else-if="p.type === 'object'" v-model="tryValues[e.id][p.name] as string" rows="2" placeholder="{ }" class="w-full px-2 py-1 border border-field rounded-md bg-surface text-sm font-mono"></textarea>
                     <input v-else v-model="tryValues[e.id][p.name]" :type="p.type === 'date' ? 'date' : 'text'" :placeholder="p.example !== null ? String(p.example) : ''" :class="inputClass" />
                   </label>
                 </div>

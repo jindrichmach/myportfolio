@@ -17,8 +17,10 @@ import {
 import { apiErrorMessage } from '@/api/errors'
 import { formatDateTime, formatDec } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 const route = useRoute()
 const router = useRouter()
@@ -209,7 +211,7 @@ const batchColumns = computed<DataColumn[]>(() => [
 const batchKey = (b: { id: number }) => b.id
 const NOTICE = 'rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500'
 
-const inputClass = 'w-full h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-9 px-3 border border-field rounded-md bg-surface text-sm'
 const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
 </script>
 
@@ -231,31 +233,31 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
       <SectionCard v-if="!preview" class="mb-6">
         <form class="grid gap-3 md:grid-cols-2" @submit.prevent="loadPreview">
           <div>
-            <label :class="labelClass">{{ t('import.account') }}</label>
-            <select v-model="upload.account_id" required :class="inputClass">
+            <label :for="fid('account_id')" :class="labelClass">{{ t('import.account') }}</label>
+            <select :id="fid('account_id')" v-model="upload.account_id" required :class="inputClass">
               <option value="" disabled>{{ t('import.choose') }}</option>
               <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }} ({{ a.currency }})</option>
             </select>
             <p class="text-xs text-neutral-500 mt-1">{{ t('import.account_hint') }}</p>
           </div>
           <div>
-            <label :class="labelClass">{{ t('import.portfolio') }}</label>
-            <select v-model="upload.portfolio_id" required :class="inputClass">
+            <label :for="fid('portfolio_id')" :class="labelClass">{{ t('import.portfolio') }}</label>
+            <select :id="fid('portfolio_id')" v-model="upload.portfolio_id" required :class="inputClass">
               <option value="" disabled>{{ t('import.choose') }}</option>
               <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
             <p class="text-xs text-neutral-500 mt-1">{{ t('import.portfolio_hint') }}</p>
           </div>
           <div>
-            <label :class="labelClass">{{ t('import.source') }}</label>
-            <select v-model="upload.source" :class="inputClass">
+            <label :for="fid('source')" :class="labelClass">{{ t('import.source') }}</label>
+            <select :id="fid('source')" v-model="upload.source" :class="inputClass">
               <option value="">{{ t('import.source_auto') }}</option>
               <option v-for="s in sources" :key="s.key" :value="s.key">{{ s.label }}</option>
             </select>
           </div>
           <div>
-            <label :class="labelClass">{{ t('import.file') }}</label>
-            <input ref="fileInput" type="file" required accept=".csv,.txt,.xlsx,.zip" @change="onFile"
+            <label :for="fid('field')" :class="labelClass">{{ t('import.file') }}</label>
+            <input :id="fid('field')" ref="fileInput" type="file" required accept=".csv,.txt,.xlsx,.zip" @change="onFile"
               class="block w-full text-sm file:mr-3 file:h-9 file:px-3 file:border-0 file:rounded-md file:bg-neutral-100 file:text-sm file:cursor-pointer" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('import.file_hint') }}</p>
           </div>
@@ -345,7 +347,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
         <!-- Řádky -->
         <SectionCard :title="t('import.rows_title')" flush class="mb-4">
           <template #actions>
-            <select v-model="statusFilter" :aria-label="t('import.rows_title')" class="h-7 px-2 border border-neutral-300 rounded-md bg-surface text-xs">
+            <select v-model="statusFilter" :aria-label="t('import.rows_title')" class="h-7 px-2 border border-field rounded-md bg-surface text-xs">
               <option value="">{{ t('import.all_rows', { n: preview.summary.rows }) }}</option>
               <option v-for="s in (['new', 'duplicate', 'skip'] as const)" :key="s" :value="s">{{ t(`import.statuses.${s}`) }}</option>
             </select>

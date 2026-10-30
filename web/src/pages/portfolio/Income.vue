@@ -107,7 +107,7 @@ const empty = computed(() => !!data.value && data.value.payments.length === 0)
         <h1 class="text-2xl font-semibold">{{ t('income.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('income.subtitle') }}</p>
       </div>
-      <select v-model="year" class="h-9 w-full sm:w-auto px-3 border border-neutral-300 rounded-md bg-surface text-sm" :aria-label="t('tax.year')">
+      <select v-model="year" class="h-9 w-full sm:w-auto px-3 border border-field rounded-md bg-surface text-sm" :aria-label="t('tax.year')">
         <option :value="null">{{ t('income.all_years') }}</option>
         <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
       </select>

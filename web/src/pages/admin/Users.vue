@@ -11,8 +11,10 @@ import Modal from '@/components/ui/Modal.vue'
 import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const auth = useAuthStore()
 const toast = useToast()
 
@@ -172,24 +174,24 @@ function roleBadge(role: string): string {
     <Modal v-if="showForm" :title="form.id === null ? t('users.new_title') : t('users.edit_title', { email: form.email })" width-class="max-w-md" @close="showForm = false">
         <form id="user-form" class="space-y-3" @submit.prevent="save">
           <div v-if="form.id === null">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.email_required') }}</label>
-            <input v-model="form.email" type="email" class="w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm" />
+            <label :for="fid('email')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.email_required') }}</label>
+            <input :id="fid('email')" v-model="form.email" type="email" class="w-full h-10 px-3 border border-field rounded-md bg-surface text-sm" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.name_required') }}</label>
-            <input v-model="form.name" type="text" class="w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm" />
+            <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.name_required') }}</label>
+            <input :id="fid('name')" v-model="form.name" type="text" class="w-full h-10 px-3 border border-field rounded-md bg-surface text-sm" />
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.role') }}</label>
-              <select v-model="form.role" class="w-full h-10 px-3 border border-neutral-300 rounded-md text-sm bg-surface">
+              <label :for="fid('role')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.role') }}</label>
+              <select :id="fid('role')" v-model="form.role" class="w-full h-10 px-3 border border-field rounded-md text-sm bg-surface">
                 <option value="admin">admin</option>
                 <option value="user">user</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
-              <select v-model="form.locale" class="w-full h-10 px-3 border border-neutral-300 rounded-md text-sm bg-surface">
+              <label :for="fid('locale')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
+              <select :id="fid('locale')" v-model="form.locale" class="w-full h-10 px-3 border border-field rounded-md text-sm bg-surface">
                 <option value="cs">cs</option>
                 <option value="en">en</option>
               </select>
@@ -197,16 +199,16 @@ function roleBadge(role: string): string {
           </div>
           <div v-if="form.id !== null">
             <label class="flex items-center gap-2 text-sm">
-              <input v-model="form.is_active" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+              <input v-model="form.is_active" type="checkbox" class="rounded border-field text-primary-700" />
               {{ t('common.active') }}
             </label>
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">
+            <label :for="fid('password')" class="block text-sm font-medium text-neutral-700 mb-1">
               {{ t('auth.password') }} {{ form.id === null ? '*' : t('users.password_change_hint') }}
             </label>
-            <input v-model="form.password" type="password" autocomplete="new-password"
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm font-mono" />
+            <input :id="fid('password')" v-model="form.password" type="password" autocomplete="new-password"
+              class="w-full h-10 px-3 border border-field rounded-md bg-surface text-sm font-mono" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('users.password_min') }}</p>
           </div>
           <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>

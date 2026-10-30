@@ -11,9 +11,9 @@ const { t } = useI18n()
       <div class="max-w-6xl mx-auto px-6 py-4 flex items-center gap-3">
         <AppLogo class="w-9 h-9" />
         <div>
-          <h1 class="text-lg font-semibold leading-tight">
+          <p class="text-lg font-semibold leading-tight">
             My<span class="text-primary-700">Portfolio</span>
-          </h1>
+          </p>
           <p class="text-xs text-neutral-500 leading-tight">{{ title ?? t('app.subtitle') }}</p>
         </div>
       </div>

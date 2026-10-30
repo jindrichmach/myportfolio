@@ -6,8 +6,10 @@ import { apiErrorMessage } from '@/api/errors'
 import { formatDateTime } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 const auth = useAuthStore()
 
@@ -77,7 +79,7 @@ async function test() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
 </script>
 
@@ -93,65 +95,65 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
     <form v-if="data" @submit.prevent="save" class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-5 space-y-4">
       <div class="grid grid-cols-1 sm:grid-cols-6 gap-3">
         <div class="sm:col-span-3">
-          <label :class="labelClass">{{ t('smtp.host') }}</label>
-          <input v-model="form.host" required placeholder="smtp.example.com" autocomplete="off" :class="inputClass" />
+          <label :for="fid('host')" :class="labelClass">{{ t('smtp.host') }}</label>
+          <input :id="fid('host')" v-model="form.host" required placeholder="smtp.example.com" autocomplete="off" :class="inputClass" />
         </div>
         <div class="sm:col-span-2">
-          <label :class="labelClass">{{ t('smtp.encryption') }}</label>
-          <select v-model="form.encryption" :class="inputClass" @change="onEncryption">
+          <label :for="fid('encryption')" :class="labelClass">{{ t('smtp.encryption') }}</label>
+          <select :id="fid('encryption')" v-model="form.encryption" :class="inputClass" @change="onEncryption">
             <option value="tls">STARTTLS</option>
             <option value="ssl">SSL/TLS</option>
             <option value="none">{{ t('smtp.encryption_none') }}</option>
           </select>
         </div>
         <div>
-          <label :class="labelClass">{{ t('smtp.port') }}</label>
-          <input v-model.number="form.port" type="number" min="1" max="65535" required :class="inputClass" />
+          <label :for="fid('port')" :class="labelClass">{{ t('smtp.port') }}</label>
+          <input :id="fid('port')" v-model.number="form.port" type="number" min="1" max="65535" required :class="inputClass" />
         </div>
       </div>
 
       <label class="flex items-center gap-2 text-sm">
-        <input v-model="form.auth_enabled" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+        <input v-model="form.auth_enabled" type="checkbox" class="rounded border-field text-primary-700" />
         {{ t('smtp.auth_enabled') }}
       </label>
       <div v-if="form.auth_enabled" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label :class="labelClass">{{ t('smtp.username') }}</label>
-          <input v-model="form.username" required autocomplete="off" :class="inputClass" />
+          <label :for="fid('username')" :class="labelClass">{{ t('smtp.username') }}</label>
+          <input :id="fid('username')" v-model="form.username" required autocomplete="off" :class="inputClass" />
         </div>
         <div>
-          <label :class="labelClass">{{ t('smtp.password') }}</label>
-          <input v-model="form.password" type="password" autocomplete="new-password"
+          <label :for="fid('password')" :class="labelClass">{{ t('smtp.password') }}</label>
+          <input :id="fid('password')" v-model="form.password" type="password" autocomplete="new-password"
                  :placeholder="data.settings?.has_password ? t('smtp.password_keep') : ''" :class="inputClass" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-neutral-200 pt-4">
         <div>
-          <label :class="labelClass">{{ t('smtp.from_email') }}</label>
-          <input v-model="form.from_email" type="email" required :class="inputClass" />
+          <label :for="fid('from_email')" :class="labelClass">{{ t('smtp.from_email') }}</label>
+          <input :id="fid('from_email')" v-model="form.from_email" type="email" required :class="inputClass" />
         </div>
         <div>
-          <label :class="labelClass">{{ t('smtp.from_name') }}</label>
-          <input v-model="form.from_name" maxlength="120" :class="inputClass" />
+          <label :for="fid('from_name')" :class="labelClass">{{ t('smtp.from_name') }}</label>
+          <input :id="fid('from_name')" v-model="form.from_name" maxlength="120" :class="inputClass" />
         </div>
         <div>
-          <label :class="labelClass">{{ t('smtp.reply_to_email') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-          <input v-model="form.reply_to_email" type="email" :class="inputClass" />
+          <label :for="fid('reply_to_email')" :class="labelClass">{{ t('smtp.reply_to_email') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+          <input :id="fid('reply_to_email')" v-model="form.reply_to_email" type="email" :class="inputClass" />
         </div>
         <div>
-          <label :class="labelClass">{{ t('smtp.reply_to_name') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
-          <input v-model="form.reply_to_name" maxlength="120" :class="inputClass" />
+          <label :for="fid('reply_to_name')" :class="labelClass">{{ t('smtp.reply_to_name') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>
+          <input :id="fid('reply_to_name')" v-model="form.reply_to_name" maxlength="120" :class="inputClass" />
         </div>
       </div>
 
       <div class="space-y-2 border-t border-neutral-200 pt-4">
         <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.verify_peer" type="checkbox" :disabled="form.encryption === 'none'" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="form.verify_peer" type="checkbox" :disabled="form.encryption === 'none'" class="rounded border-field text-primary-700" />
           {{ t('smtp.verify_peer') }}
         </label>
         <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.enabled" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="form.enabled" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('smtp.enabled') }}
         </label>
         <p class="text-xs text-neutral-500 ml-6">{{ t('smtp.enabled_hint') }}</p>
@@ -174,7 +176,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('smtp.test_hint') }}</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <input v-model="testTo" type="email" :placeholder="t('smtp.test_to')" class="flex-1 min-w-56 h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm" />
+        <input v-model="testTo" type="email" :placeholder="t('smtp.test_to')" class="flex-1 min-w-56 h-10 px-3 border border-field rounded-md bg-surface text-sm" />
         <button type="button" :disabled="busy !== null || !testTo.trim()" @click="test"
                 class="cursor-pointer px-4 h-10 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50 disabled:opacity-50">
           {{ busy === 'test' ? '…' : t('smtp.test_send') }}

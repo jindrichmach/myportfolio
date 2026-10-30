@@ -8,10 +8,12 @@ import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { portfolioApi, type Position } from '@/api/portfolio'
+import { useFieldId } from '@/composables/useFieldId'
 
 const props = defineProps<{ from: Position; positions: Position[] }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 const { t } = useI18n()
+const fid = useFieldId()
 
 const targets = computed(() => props.positions.filter(p =>
   p.id !== props.from.id && p.valuation_mode === 'market' && p.instrument_id === props.from.instrument_id))
@@ -54,7 +56,7 @@ async function save() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
 </script>
 
 <template>
@@ -63,8 +65,8 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     <form v-else id="transfer-form" class="space-y-3" @submit.prevent="save">
       <p class="text-xs text-neutral-500">{{ t('tx.transfer_hint') }}</p>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.transfer_to') }}</label>
-        <select v-model="form.to_position_id" required :class="inputClass">
+        <label :for="fid('to_position_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.transfer_to') }}</label>
+        <select :id="fid('to_position_id')" v-model="form.to_position_id" required :class="inputClass">
           <option v-for="p in targets" :key="p.id" :value="p.id">
             {{ p.institution_name }} / {{ p.account_name }} · {{ p.portfolio_name }}
           </option>
@@ -72,32 +74,32 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.quantity') }}</label>
-          <input v-model="form.quantity" inputmode="decimal" required autocomplete="off" :class="inputClass" />
+          <label :for="fid('quantity')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.quantity') }}</label>
+          <input :id="fid('quantity')" v-model="form.quantity" inputmode="decimal" required autocomplete="off" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
-          <input v-model="form.executed_at" type="datetime-local" required :class="inputClass" />
+          <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
+          <input :id="fid('executed_at')" v-model="form.executed_at" type="datetime-local" required :class="inputClass" />
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3">
         <div class="col-span-2">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">
+          <label :for="fid('fee')" class="block text-sm font-medium text-neutral-700 mb-1">
             {{ t('tx.fee') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
           </label>
-          <input v-model="form.fee" inputmode="decimal" autocomplete="off" :class="inputClass" />
+          <input :id="fid('fee')" v-model="form.fee" inputmode="decimal" autocomplete="off" :class="inputClass" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.fee_currency') }}</label>
-          <select v-model="form.fee_currency" :class="inputClass">
+          <label :for="fid('fee_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.fee_currency') }}</label>
+          <select :id="fid('fee_currency')" v-model="form.fee_currency" :class="inputClass">
             <option v-for="c in feeCurrencies" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
       </div>
       <p class="text-xs text-neutral-500 -mt-1">{{ t('tx.fee_instrument_hint') }}</p>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
-        <input v-model="form.note" maxlength="500" :class="inputClass" />
+        <label :for="fid('note')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
+        <input :id="fid('note')" v-model="form.note" maxlength="500" :class="inputClass" />
       </div>
       <p v-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>
     </form>

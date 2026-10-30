@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { GridDateRange, GridFilter } from '@/components/ui/grid'
 
@@ -8,10 +8,9 @@ const props = defineProps<{ filter: Exclude<GridFilter, { type: 'custom' }>; mod
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>()
 const { t } = useI18n()
 
-let uid = 0
-const id = `grid-filter-${++uid}`
+const id = useId()
 
-const inputClass = 'h-9 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
 const labelClass = 'text-xs font-medium text-neutral-600'
 const selected = computed<string[]>(() => (Array.isArray(props.modelValue) ? props.modelValue : []))
 const range = computed<GridDateRange>(() => (props.modelValue as GridDateRange) ?? { from: '', to: '' })
@@ -80,7 +79,7 @@ function setRange(part: keyof GridDateRange, value: string) {
       </button>
       <div v-if="open" class="absolute top-full z-20 mt-1 min-w-52 max-h-64 overflow-y-auto bg-surface border border-neutral-200 rounded-md shadow-lg p-2 space-y-1">
         <label v-for="o in filter.options" :key="o.value" class="flex items-center gap-2 px-1 py-1 text-sm cursor-pointer hover:bg-primary-50 rounded">
-          <input type="checkbox" :checked="selected.includes(o.value)" class="rounded border-neutral-300 text-primary-700" @change="toggleOption(o.value)" />
+          <input type="checkbox" :checked="selected.includes(o.value)" class="rounded border-field text-primary-700" @change="toggleOption(o.value)" />
           {{ o.label }}
         </label>
         <button v-if="selected.length" type="button" class="cursor-pointer w-full text-left px-1 py-1 text-xs text-primary-700 hover:underline"

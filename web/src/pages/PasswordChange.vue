@@ -18,8 +18,10 @@ import Passkeys from '@/pages/Passkeys.vue'
 import Icon from '@/components/ui/Icon.vue'
 import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
 import { useTabQuery } from '@/composables/useTabQuery'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 const router = useRouter()
 const auth = useAuthStore()
@@ -212,11 +214,11 @@ onMounted(() => {
     <form v-if="tab === 'password'" @submit.prevent="submitPw"
           class="bg-surface border border-neutral-200 rounded-lg p-5 shadow-sm space-y-4">
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.current_password') }} *</label>
+        <label :for="fid('current')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.current_password') }} *</label>
         <div class="flex gap-2">
-          <input v-model="current" :type="showCurrent ? 'text' : 'password'"
+          <input :id="fid('current')" v-model="current" :type="showCurrent ? 'text' : 'password'"
                  autocomplete="current-password" required
-                 class="flex-1 h-10 px-3 border border-neutral-300 rounded-md text-sm" />
+                 class="flex-1 h-10 px-3 border border-field rounded-md text-sm" />
           <button type="button" @click="showCurrent = !showCurrent" :aria-label="showCurrent ? t('auth.hide_password') : t('auth.show_password')"
                   :title="showCurrent ? t('auth.hide_password') : t('auth.show_password')"
                   class="cursor-pointer h-10 px-3 border border-neutral-300 rounded-md hover:bg-neutral-50 text-sm">
@@ -226,12 +228,12 @@ onMounted(() => {
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password') }} *</label>
+        <label :for="fid('next')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password') }} *</label>
         <div class="flex gap-2">
-          <input v-model="next" :type="showNext ? 'text' : 'password'"
+          <input :id="fid('next')" v-model="next" :type="showNext ? 'text' : 'password'"
                  autocomplete="new-password" :minlength="MIN_LEN" :maxlength="MAX_LEN" required
                  class="flex-1 h-10 px-3 border rounded-md text-sm"
-                 :class="next === '' ? 'border-neutral-300' : nextLenOk ? 'border-success-500/40' : 'border-warning-500/40'" />
+                 :class="next === '' ? 'border-field' : nextLenOk ? 'border-success-500/40' : 'border-warning-500/40'" />
           <button type="button" @click="showNext = !showNext" :aria-label="showNext ? t('auth.hide_password') : t('auth.show_password')"
                   :title="showNext ? t('auth.hide_password') : t('auth.show_password')"
                   class="cursor-pointer h-10 px-3 border border-neutral-300 rounded-md hover:bg-neutral-50 text-sm">
@@ -246,17 +248,17 @@ onMounted(() => {
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password_confirm') }} *</label>
-        <input v-model="confirm" :type="showNext ? 'text' : 'password'"
+        <label :for="fid('confirm')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.new_password_confirm') }} *</label>
+        <input :id="fid('confirm')" v-model="confirm" :type="showNext ? 'text' : 'password'"
                autocomplete="new-password" required
                class="w-full h-10 px-3 border rounded-md text-sm"
-               :class="confirm === '' ? 'border-neutral-300' : matchOk ? 'border-success-500/40' : 'border-danger-500/40'" />
+               :class="confirm === '' ? 'border-field' : matchOk ? 'border-success-500/40' : 'border-danger-500/40'" />
         <p v-if="confirm !== '' && !matchOk" class="text-xs text-danger-500 mt-1">
           {{ t('auth.password_mismatch') }}
         </p>
       </div>
 
-      <div v-if="pwError" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
+      <div role="alert" v-if="pwError" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
         {{ pwError }}
       </div>
 
@@ -314,10 +316,10 @@ onMounted(() => {
           <p class="text-sm text-neutral-700 mb-2">{{ t('auth.totp_setup_step2') }}</p>
           <input v-model="totpCode" type="text" inputmode="numeric" maxlength="6"
                  pattern="\d{6}" placeholder="000000" @keydown.enter="activateTotp"
-                 class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono text-lg tracking-widest text-center" />
+                 class="w-full h-10 px-3 border border-field rounded-md font-mono text-lg tracking-widest text-center" />
         </div>
 
-        <div v-if="totpError" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
+        <div role="alert" v-if="totpError" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
           {{ totpError }}
         </div>
 
@@ -383,7 +385,7 @@ onMounted(() => {
             <span class="flex items-center gap-2 mt-2">
               <input v-model.number="lockMinutes" type="number" min="1"
                      :max="lockMaximum" :disabled="lockMode !== 'custom'"
-                     class="w-28 h-10 px-3 border border-neutral-300 rounded-md text-sm disabled:bg-neutral-100" />
+                     class="w-28 h-10 px-3 border border-field rounded-md text-sm disabled:bg-neutral-100" />
               <span class="text-sm text-neutral-600">{{ t('session_lock.preference_minutes') }}</span>
             </span>
             <span class="block text-xs mt-1"
@@ -405,7 +407,7 @@ onMounted(() => {
           {{ t('session_lock.preference_no_passkey') }}
         </div>
 
-        <div v-if="lockError"
+        <div role="alert" v-if="lockError"
              class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
           {{ lockError }}
         </div>

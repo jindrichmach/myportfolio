@@ -107,12 +107,12 @@ onMounted(loadStatus)
             maxlength="6"
             pattern="\d{6}"
             placeholder="000000"
-            class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono text-lg tracking-widest text-center"
+            class="w-full h-10 px-3 border border-field rounded-md font-mono text-lg tracking-widest text-center"
             @keydown.enter="activate"
           />
         </div>
 
-        <div v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
+        <div role="alert" v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
           {{ error }}
         </div>
 

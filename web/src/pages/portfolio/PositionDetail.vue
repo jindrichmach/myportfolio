@@ -18,8 +18,10 @@ import CashBalanceModal from '@/components/portfolio/CashBalanceModal.vue'
 import { portfolioApi, type Account, type Portfolio, type Position, type Transaction } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const { canWrite, canManage } = useOwnerContext()
 const route = useRoute()
 const router = useRouter()
@@ -154,7 +156,7 @@ async function removePosition() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -206,43 +208,43 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
     <Modal v-if="editOpen && position" :title="t('positions.edit_title')" width-class="max-w-md" @close="editOpen = false">
       <form id="position-edit-form" class="space-y-3" @submit.prevent="saveEdit">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
-          <select v-model="editForm.portfolio_id" :class="inputClass">
+          <label :for="fid('portfolio_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
+          <select :id="fid('portfolio_id')" v-model="editForm.portfolio_id" :class="inputClass">
             <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
-          <select v-model="editForm.account_id" :class="inputClass">
+          <label :for="fid('account_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
+          <select :id="fid('account_id')" v-model="editForm.account_id" :class="inputClass">
             <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">
+          <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">
             {{ t('common.name') }}
             <span v-if="position.valuation_mode === 'market'" class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
           </label>
-          <input v-model="editForm.name" maxlength="120" :required="position.valuation_mode === 'manual'" :class="inputClass" />
+          <input :id="fid('name')" v-model="editForm.name" maxlength="120" :required="position.valuation_mode === 'manual'" :class="inputClass" />
         </div>
         <div v-if="position.valuation_mode === 'manual'">
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.interest_rate') }}</label>
-          <input v-model="editForm.interest_rate_pa" inputmode="decimal" :class="inputClass" />
+          <label :for="fid('interest_rate_pa')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.interest_rate') }}</label>
+          <input :id="fid('interest_rate_pa')" v-model="editForm.interest_rate_pa" inputmode="decimal" :class="inputClass" />
         </div>
         <div v-if="position.valuation_mode === 'manual'" class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-neutral-200 pt-3">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">
+            <label :for="fid('bank_account')" class="block text-sm font-medium text-neutral-700 mb-1">
               {{ t('bank_notices.position_account') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
             </label>
-            <input v-model="editForm.bank_account" placeholder="123456789/2010" autocomplete="off" :class="inputClass" />
+            <input :id="fid('bank_account')" v-model="editForm.bank_account" placeholder="123456789/2010" autocomplete="off" :class="inputClass" />
           </div>
           <div v-if="editForm.bank_account.trim()">
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.notices_from') }}</label>
-            <input v-model="editForm.bank_notices_from" type="date" :class="inputClass" />
+            <label :for="fid('bank_notices_from')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.notices_from') }}</label>
+            <input :id="fid('bank_notices_from')" v-model="editForm.bank_notices_from" type="date" :class="inputClass" />
           </div>
           <p class="sm:col-span-2 text-xs text-neutral-500">{{ t('bank_notices.position_hint') }}</p>
         </div>
         <label class="flex items-center gap-2 text-sm">
-          <input v-model="editForm.archived" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+          <input v-model="editForm.archived" type="checkbox" class="rounded border-field text-primary-700" />
           {{ t('common.archived') }}
         </label>
         <p v-if="editError" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ editError }}</p>

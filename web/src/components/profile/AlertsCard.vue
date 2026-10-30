@@ -8,8 +8,10 @@ import { catalogApi, type Instrument } from '@/api/catalog'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDateTime, formatDec } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 
 const settings = ref<AlertSettings | null>(null)
@@ -127,7 +129,7 @@ async function removePrice(a: PriceAlert) {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
 </script>
 
 <template>
@@ -137,36 +139,36 @@ const inputClass = 'w-full h-10 px-3 border border-neutral-300 rounded-md bg-sur
       <p class="text-sm text-neutral-500 mt-0.5">{{ t('alerts.subtitle') }}</p>
     </div>
     <label class="flex items-center gap-2 text-sm">
-      <input v-model="form.enabled" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+      <input v-model="form.enabled" type="checkbox" class="rounded border-field text-primary-700" />
       {{ t('alerts.enabled') }}
     </label>
 
     <div class="grid gap-4 sm:grid-cols-3">
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('alerts.move_portfolio') }}</label>
-        <input v-model="form.move_portfolio_pct" inputmode="decimal" :placeholder="t('alerts.off')" :class="inputClass" />
+        <label :for="fid('move_portfolio_pct')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('alerts.move_portfolio') }}</label>
+        <input :id="fid('move_portfolio_pct')" v-model="form.move_portfolio_pct" inputmode="decimal" :placeholder="t('alerts.off')" :class="inputClass" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('alerts.move_position') }}</label>
-        <input v-model="form.move_position_pct" inputmode="decimal" :placeholder="t('alerts.off')" :class="inputClass" />
+        <label :for="fid('move_position_pct')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('alerts.move_position') }}</label>
+        <input :id="fid('move_position_pct')" v-model="form.move_position_pct" inputmode="decimal" :placeholder="t('alerts.off')" :class="inputClass" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('alerts.holding_days') }}</label>
-        <input v-model="form.holding_days" type="number" min="1" max="365" :placeholder="t('alerts.off')" :class="inputClass" />
+        <label :for="fid('holding_days')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('alerts.holding_days') }}</label>
+        <input :id="fid('holding_days')" v-model="form.holding_days" type="number" min="1" max="365" :placeholder="t('alerts.off')" :class="inputClass" />
       </div>
     </div>
     <p class="text-xs text-neutral-500 -mt-2">{{ t('alerts.thresholds_hint') }}</p>
     <label class="flex items-center gap-2 text-sm">
-      <input v-model="form.data_issues" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+      <input v-model="form.data_issues" type="checkbox" class="rounded border-field text-primary-700" />
       {{ t('alerts.data_issues') }}
     </label>
     <label class="flex items-center gap-2 text-sm">
-      <input v-model="form.allocation" type="checkbox" class="rounded border-neutral-300 text-primary-700" />
+      <input v-model="form.allocation" type="checkbox" class="rounded border-field text-primary-700" />
       {{ t('alerts.allocation') }}
     </label>
     <div>
-      <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('weekly_report.recipients') }}</label>
-      <input v-model="form.recipients" :placeholder="settings.email" autocomplete="off" :class="inputClass" />
+      <label :for="fid('recipients')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('weekly_report.recipients') }}</label>
+      <input :id="fid('recipients')" v-model="form.recipients" :placeholder="settings.email" autocomplete="off" :class="inputClass" />
       <p class="text-xs text-neutral-500 mt-1">{{ t('weekly_report.recipients_hint', { email: settings.email }) }}</p>
     </div>
 

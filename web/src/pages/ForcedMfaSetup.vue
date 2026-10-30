@@ -177,17 +177,17 @@ onMounted(async () => {
           <template v-else>
             <input v-model="passkeyLabel" maxlength="100"
               :placeholder="t('mfa_setup.passkey_label')"
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md" />
+              class="w-full h-10 px-3 border border-field rounded-md" />
             <template v-if="passkeyRequiresTotpStepUp">
               <p class="text-sm text-neutral-600">{{ t('mfa_setup.transition_totp_hint') }}</p>
               <input v-model="totpCode" inputmode="numeric" autocomplete="one-time-code"
                 maxlength="6" pattern="\d{6}" :placeholder="t('auth.totp_code')"
-                class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono text-lg tracking-widest text-center"
+                class="w-full h-10 px-3 border border-field rounded-md font-mono text-lg tracking-widest text-center"
                 @keydown.enter="completePasskey" />
             </template>
             <input v-else v-model="currentPassword" type="password" autocomplete="current-password"
               :placeholder="t('auth.current_password')"
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md"
+              class="w-full h-10 px-3 border border-field rounded-md"
               @keydown.enter="completePasskey" />
             <button type="button" @click="completePasskey" :disabled="busy || !passkeyAuthorizationReady"
               class="w-full h-10 bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action font-medium rounded-md">
@@ -208,7 +208,7 @@ onMounted(async () => {
             </details>
             <input v-model="totpCode" inputmode="numeric" autocomplete="one-time-code"
               maxlength="6" pattern="\d{6}" placeholder="000000"
-              class="w-full h-10 px-3 border border-neutral-300 rounded-md font-mono text-lg tracking-widest text-center"
+              class="w-full h-10 px-3 border border-field rounded-md font-mono text-lg tracking-widest text-center"
               @keydown.enter="completeTotp" />
             <button type="button" @click="completeTotp" :disabled="busy || totpCode.length !== 6"
               class="w-full h-10 bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action font-medium rounded-md">
@@ -223,7 +223,7 @@ onMounted(async () => {
           {{ t('mfa_setup.no_method_available') }}
         </p>
 
-        <p v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
+        <p role="alert" v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
           {{ error }}
         </p>
 

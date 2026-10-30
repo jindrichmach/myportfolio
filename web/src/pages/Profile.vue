@@ -17,8 +17,10 @@ import ColorSchemePicker from '@/components/ColorSchemePicker.vue'
 import { DEFAULT_COLOR_SCHEME } from '@/theme/colorSchemes'
 import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
 import { useTabQuery } from '@/composables/useTabQuery'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t, locale } = useI18n()
+const fid = useFieldId()
 const toast = useToast()
 const auth = useAuthStore()
 
@@ -74,26 +76,26 @@ async function save() {
     <div class="max-w-3xl">
       <form v-if="tab === 'account' && form" @submit.prevent="save" class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-5 space-y-4">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.name') }}</label>
-          <input v-model="form.name" required maxlength="120"
-                 class="w-full h-10 px-3 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
+          <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.name') }}</label>
+          <input :id="fid('name')" v-model="form.name" required maxlength="120"
+                 class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email') }}</label>
-          <input :value="form.email" disabled
+          <label :for="fid('email')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.email') }}</label>
+          <input :id="fid('email')" :value="form.email" disabled
                  class="w-full h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 text-neutral-500" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
-            <select v-model="form.locale" class="w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface">
+            <label :for="fid('locale')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
+            <select :id="fid('locale')" v-model="form.locale" class="w-full h-10 px-3 border border-field rounded-md bg-surface">
               <option value="cs">Čeština</option>
               <option value="en">English</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">{{ t('profile.display_currency') }}</label>
-            <select v-model="form.display_currency" class="w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface">
+            <label :for="fid('display_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('profile.display_currency') }}</label>
+            <select :id="fid('display_currency')" v-model="form.display_currency" class="w-full h-10 px-3 border border-field rounded-md bg-surface">
               <option v-for="c in CURRENCIES" :key="c" :value="c">{{ c }}</option>
             </select>
             <p class="text-xs text-neutral-500 mt-1">{{ t('profile.display_currency_hint') }}</p>

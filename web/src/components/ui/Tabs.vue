@@ -19,7 +19,7 @@ const model = defineModel<K>({ required: true })
 <template>
   <div>
     <select v-model="model" :aria-label="label"
-      class="sm:hidden w-full h-10 px-3 border border-neutral-300 rounded-md bg-surface text-sm">
+      class="sm:hidden w-full h-10 px-3 border border-field rounded-md bg-surface text-sm">
       <option v-for="tb in tabs" :key="tb.key" :value="tb.key">
         {{ tb.label }}{{ tb.badge != null && tb.badge !== '' ? ` (${tb.badge})` : '' }}
       </option>
