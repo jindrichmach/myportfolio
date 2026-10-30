@@ -60,6 +60,24 @@ async function save() {
   }
 }
 
+// Pořadí šipkami: přeskládá seznam a uloží pořadí 0, 10, 20… jen u změněných portfolií.
+const moving = ref(false)
+async function move(index: number, delta: -1 | 1) {
+  const list = [...rows.value]
+  const [item] = list.splice(index, 1)
+  list.splice(index + delta, 0, item)
+  moving.value = true
+  try {
+    await Promise.all(list.map((p, i) => (p.sort === i * 10 ? null
+      : portfolioApi.updatePortfolio(p.id, { name: p.name, sort: i * 10, archived: p.archived_at !== null }))))
+    await load()
+  } catch (e) {
+    toast.error(apiErrorMessage(e, t('common.error')))
+  } finally {
+    moving.value = false
+  }
+}
+
 async function remove(row: Portfolio) {
   if (!confirm(t('common.confirm_delete', { name: row.name }))) return
   try {
@@ -73,7 +91,6 @@ async function remove(row: Portfolio) {
 const columns = computed<DataColumn[]>(() => [
   { key: 'name', label: t('common.name'), primary: true },
   { key: 'position_count', label: t('portfolios.positions_count'), align: 'right' },
-  { key: 'sort', label: t('portfolios.sort'), align: 'right', hideBelow: 'sm' },
 ])
 const portfolioKey = (p: Portfolio) => p.id
 const archivedClass = (p: Portfolio) => (p.archived_at ? 'opacity-50' : '')
@@ -106,9 +123,10 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
           <RouterLink :to="{ path: '/positions', query: { portfolio_id: r.id } }" class="font-medium hover:text-primary-700 hover:underline">{{ r.name }}</RouterLink>
           <Badge v-if="r.archived_at" class="ml-1.5">{{ t('common.archived') }}</Badge>
         </template>
-        <template #cell-sort="{ row: r }"><span class="text-neutral-500">{{ r.sort }}</span></template>
         <template v-if="canManage" #actions="{ row: r }">
           <span class="inline-flex gap-1">
+            <IconButton icon="up" :label="t('portfolios.move_up')" :disabled="moving || rows.indexOf(r) === 0" @click="move(rows.indexOf(r), -1)" />
+            <IconButton icon="down" :label="t('portfolios.move_down')" :disabled="moving || rows.indexOf(r) === rows.length - 1" @click="move(rows.indexOf(r), 1)" />
             <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(r)" />
             <IconButton icon="trash" variant="danger" :label="t('common.delete')" @click="remove(r)" />
           </span>
@@ -118,15 +136,9 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
 
     <Modal v-if="showForm" :title="form.id === null ? t('portfolios.new') : t('portfolios.edit_title')" width-class="max-w-md" @close="showForm = false">
       <form id="portfolio-form" class="space-y-3" @submit.prevent="save">
-        <div class="grid grid-cols-3 gap-3">
-          <div class="col-span-2">
-            <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
-            <input :id="fid('name')" v-model="form.name" required maxlength="120" :class="inputClass" />
-          </div>
-          <div>
-            <label :for="fid('sort')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('portfolios.sort') }}</label>
-            <input :id="fid('sort')" v-model.number="form.sort" type="number" :class="inputClass" />
-          </div>
+        <div>
+          <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.name') }}</label>
+          <input :id="fid('name')" v-model="form.name" required maxlength="120" :class="inputClass" />
         </div>
         <label v-if="form.id !== null" class="flex items-center gap-2 text-sm">
           <input v-model="form.archived" type="checkbox" class="rounded border-field text-primary-700" />

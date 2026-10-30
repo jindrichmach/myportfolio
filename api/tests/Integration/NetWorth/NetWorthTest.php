@@ -88,6 +88,11 @@ final class NetWorthTest extends ApiTestCase
         // Archivace vyřadí položku z přehledu
         self::assertSame(200, $this->call($this->userId, 'PUT', "/api/net-worth/items/{$house['body']['id']}", ['name' => 'Byt', 'archived' => true])['status']);
         self::assertSame('0.00', $this->call($this->userId, 'GET', '/api/net-worth')['body']['assets']);
+        // ?archived=1: archivovaná položka je v seznamu, ale ne v součtech
+        $withArchived = $this->call($this->userId, 'GET', '/api/net-worth?archived=1')['body'];
+        self::assertSame('0.00', $withArchived['assets']);
+        self::assertContains($house['body']['id'], array_column($withArchived['items'], 'id'));
+        self::assertNotContains($house['body']['id'], array_column($this->call($this->userId, 'GET', '/api/net-worth')['body']['items'], 'id'));
         self::assertSame(204, $this->call($this->userId, 'DELETE', "/api/net-worth/items/$id")['status']);
     }
 

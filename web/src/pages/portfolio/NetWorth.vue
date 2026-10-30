@@ -9,6 +9,7 @@ import Modal from '@/components/ui/Modal.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Icon from '@/components/ui/Icon.vue'
+import Badge from '@/components/ui/Badge.vue'
 import KpiTile from '@/components/ui/KpiTile.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
@@ -36,6 +37,7 @@ const data = ref<NetWorthOverview | null>(null)
 const loading = ref(true)
 const range = ref<HistoryRange>('1Y')
 const points = ref<NetWorthPoint[]>([])
+const showArchived = ref(false)
 
 const cur = computed(() => data.value?.currency ?? 'CZK')
 const money = (v: string | null | undefined, currency = cur.value) => (v === null || v === undefined ? '—' : formatMoney(Number(v), currency, 0))
@@ -44,7 +46,7 @@ const today = () => new Date().toISOString().slice(0, 10)
 async function load() {
   loading.value = true
   try {
-    data.value = await netWorthApi.overview()
+    data.value = await netWorthApi.overview(showArchived.value)
   } catch (e) {
     toast.error(apiErrorMessage(e, t('common.error')))
   } finally {
@@ -168,6 +170,18 @@ async function saveItem() {
     itemBusy.value = false
   }
 }
+// Splacený úvěr (nulový zůstatek) jde jedním klikem archivovat — zmizí ze seznamu, historie zůstane.
+const isPaidOff = (i: NetWorthItem) => i.kind === 'liability' && i.archived_at === null && i.value !== null && Number(i.value) === 0
+async function archivePaidOff(i: NetWorthItem) {
+  try {
+    await netWorthApi.updateItem(i.id, { name: i.name, currency: i.currency, note: i.note, archived: true })
+    await load()
+  } catch (e) {
+    toast.error(apiErrorMessage(e, t('common.error')))
+  }
+}
+watch(showArchived, load)
+
 async function removeItem(i: NetWorthItem) {
   if (!confirm(t('common.confirm_delete', { name: i.name }))) return
   try {
@@ -252,6 +266,10 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
           <KpiTile v-for="k in tiles" :key="k.key" bare :label="k.label" :value="k.text" :value-class="k.cls" />
         </div>
       </section>
+      <label class="inline-flex items-center gap-2 text-sm text-neutral-600 mb-3">
+        <input v-model="showArchived" type="checkbox" class="rounded border-field text-primary-700" />
+        {{ t('common.show_archived') }}
+      </label>
       <p v-if="data.investments_incomplete" class="mb-4 rounded-md bg-warning-50 border border-warning-500/40 px-3 py-2 text-sm text-warning-600">
         <Icon name="warning" class="w-4 h-4 align-[-3px] mr-1" />{{ t('net_worth.investments_incomplete', { n: data.investments_incomplete }) }}
       </p>
@@ -271,9 +289,9 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       </div>
       <SectionCard v-for="g in groups" :key="g.kind" :title="t(`net_worth.kinds.${g.kind}`)" flush class="mb-4">
         <div class="divide-y divide-neutral-100">
-          <div v-for="i in g.items" :key="i.id" class="px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+          <div v-for="i in g.items" :key="i.id" class="px-4 py-3 flex flex-wrap items-center justify-between gap-3" :class="{ 'opacity-60': i.archived_at }">
             <div class="min-w-0">
-              <div class="font-medium">{{ i.name }}</div>
+              <div class="font-medium">{{ i.name }}<Badge v-if="i.archived_at" class="ml-1.5">{{ t('common.archived') }}</Badge></div>
               <p class="text-xs text-neutral-500">
                 <template v-if="i.last_date">{{ t(i.kind === 'liability' ? 'net_worth.balance_from' : 'net_worth.valued_on', { date: formatDate(i.last_date) }) }}</template>
                 <template v-else>{{ t('net_worth.no_value') }}</template>
@@ -290,7 +308,9 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
                 </div>
                 <div v-if="i.currency !== cur && i.value" class="text-xs text-neutral-500">{{ money(i.value, i.currency) }}</div>
               </div>
-              <div class="inline-flex gap-1">
+              <div class="inline-flex flex-wrap items-center gap-1">
+                <button v-if="canManage && isPaidOff(i)" type="button" @click="archivePaidOff(i)"
+                  class="cursor-pointer h-8 px-3 text-sm border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50">{{ t('net_worth.paid_off_archive') }}</button>
                 <IconButton icon="price" :label="t(i.kind === 'liability' ? 'net_worth.balances' : 'net_worth.valuations')" @click="openEntries(i)" />
                 <IconButton v-if="canManage" icon="edit" :label="t('common.edit')" @click="openEdit(i)" />
                 <IconButton v-if="canManage" icon="trash" variant="danger" :label="t('common.delete')" @click="removeItem(i)" />

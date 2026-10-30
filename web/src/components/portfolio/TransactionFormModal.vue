@@ -6,6 +6,8 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
+import SegmentControl from '@/components/ui/SegmentControl.vue'
+import { marketApi } from '@/api/market'
 import { apiErrorMessage } from '@/api/errors'
 import {
   portfolioApi, MARKET_TYPES, MANUAL_TYPES,
@@ -46,6 +48,16 @@ const form = reactive({
   split_ratio: tx?.split_ratio ?? '',
   note: tx?.note ?? '',
 })
+// Obchod: zadává se buď celková částka, nebo cena za kus — druhou hodnotu dopočítá backend.
+const priceMode = ref<'total' | 'unit'>(tx && tx.amount === null && tx.unit_price !== null ? 'unit' : 'total')
+const priceModes = computed(() => [
+  { value: 'total' as const, label: t('tx.mode_total') },
+  { value: 'unit' as const, label: t('tx.mode_unit') },
+])
+// Měny pro výběr: CZK + měny s kurzem ČNB; zachová i měnu upravované transakce.
+const fxCurrencies = ref<string[]>([])
+marketApi.fxRates().then(r => { fxCurrencies.value = r.rates.map(x => x.currency) }).catch(() => {})
+const currencies = computed(() => [...new Set(['CZK', ...fxCurrencies.value, form.price_currency].filter(Boolean))].sort())
 const busy = ref(false)
 const error = ref('')
 const fieldErrors = ref<Record<string, string[]>>({})
@@ -77,8 +89,8 @@ async function save() {
     type: form.type,
     executed_at: form.executed_at,
     quantity: hasQuantity.value ? nullable(form.quantity) : null,
-    amount: isSplit.value ? null : nullable(form.amount),
-    unit_price: isTrade.value ? nullable(form.unit_price) : null,
+    amount: isSplit.value || (isTrade.value && priceMode.value === 'unit') ? null : nullable(form.amount),
+    unit_price: isTrade.value && priceMode.value === 'unit' ? nullable(form.unit_price) : null,
     price_currency: isSplit.value ? null : nullable(form.price_currency),
     fee: isSplit.value ? null : nullable(form.fee),
     fee_currency: nullable(form.fee_currency),
@@ -138,25 +150,28 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <p class="text-xs text-neutral-500 mt-1">{{ t('tx.split_hint') }}</p>
       </div>
 
+      <div v-if="isTrade">
+        <SegmentControl v-model="priceMode" :options="priceModes" :label="t('tx.mode_label')" />
+        <p class="text-xs text-neutral-500 mt-1">{{ t('tx.amount_hint') }}</p>
+      </div>
+
       <div v-if="!isSplit" class="grid grid-cols-3 gap-3">
-        <div class="col-span-2">
+        <div v-if="isTrade && priceMode === 'unit'" class="col-span-2">
+          <label :for="fid('unit_price')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.unit_price') }}</label>
+          <input :id="fid('unit_price')" v-model="form.unit_price" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        </div>
+        <div v-else class="col-span-2">
           <label :for="fid('amount')" class="block text-sm font-medium text-neutral-700 mb-1">
-            {{ form.type === 'reward' ? t('tx.reward_value') : t('tx.amount') }}
+            {{ form.type === 'reward' ? t('tx.reward_value') : isTrade ? t('tx.amount_total') : t('tx.amount') }}
           </label>
-          <input :id="fid('amount')" v-model="form.amount" inputmode="decimal" autocomplete="off" :required="!isTrade && form.type !== 'reward'" :class="inputClass" />
+          <input :id="fid('amount')" v-model="form.amount" inputmode="decimal" autocomplete="off" :required="form.type !== 'reward'" :class="inputClass" />
         </div>
         <div>
           <label :for="fid('price_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-          <input :id="fid('price_currency')" v-model="form.price_currency" maxlength="3" class="uppercase" :class="inputClass" />
+          <select :id="fid('price_currency')" v-model="form.price_currency" :class="inputClass">
+            <option v-for="c in currencies" :key="c" :value="c">{{ c }}</option>
+          </select>
         </div>
-      </div>
-
-      <div v-if="isTrade">
-        <label :for="fid('unit_price')" class="block text-sm font-medium text-neutral-700 mb-1">
-          {{ t('tx.unit_price') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
-        </label>
-        <input :id="fid('unit_price')" v-model="form.unit_price" inputmode="decimal" autocomplete="off" :class="inputClass" />
-        <p class="text-xs text-neutral-500 mt-1">{{ t('tx.amount_hint') }}</p>
       </div>
 
       <div v-if="!isSplit" class="grid grid-cols-3 gap-3">

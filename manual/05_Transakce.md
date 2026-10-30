@@ -24,9 +24,9 @@ nebo v přehledu **Portfolio → Transakce**, kde vybereš i pozici.
 |---|---|
 | Datum | Datum a čas provedení; nesmí být v budoucnosti |
 | Množství | Kusy / coiny, až 18 desetinných míst |
-| Částka | Hrubá částka obchodu **bez** poplatku |
-| Měna | Měna částky; výchozí je měna pozice (lze změnit, např. SOL placený v CZK) |
-| Cena za kus | Alternativa k částce — stačí vyplnit jedno, druhé se dopočítá |
+| Celková částka / Cena za kus | U nákupu a prodeje přepínač, jak cenu zadáš: **Celková částka** (hrubá částka obchodu **bez** poplatku), nebo **Cena za kus**. Vyplníš jen jedno, druhé se dopočítá z množství |
+| Částka | U ostatních typů (vklad, výběr, dividenda, úrok…) částka pohybu |
+| Měna | Výběr z CZK a měn s kurzem ČNB; výchozí je měna pozice (lze změnit, např. SOL placený v CZK) |
 | Poplatek + měna poplatku | Např. `12.5 EUR` nebo `0.00005 BTC`; měnou může být i symbol kryptoměny |
 | Poznámka | Volitelně |
 

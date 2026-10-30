@@ -83,7 +83,7 @@ a filtrovat podle instituce (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-fil
 ## 4.4 Portfolia
 
 **Portfolio → Portfolia.** Tvoje vlastní seskupení pozic napříč účty, např.
-„Dlouhodobé", „Spekulace", „Hotovost". Pořadí určuje číslo **Pořadí**.
+„Dlouhodobé", „Spekulace", „Hotovost". Pořadí (v seznamech i na Přehledu) změníš šipkami **Posunout výš / níž** u portfolia.
 Kliknutím na název portfolia se otevřou jeho pozice.
 
 ## 4.5 Pozice

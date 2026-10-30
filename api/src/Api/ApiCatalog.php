@@ -307,7 +307,9 @@ final class ApiCatalog
                 self::p('portfolio_id', 'query', 'integer', false, 'Cíle portfolia (bez = celý majetek)', 'Portfolio targets (omitted = all holdings)'),
                 self::p('deposit', 'query', 'string', false, 'Plánovaný vklad v měně zobrazení → návrh nákupů', 'Planned deposit in display currency → purchase plan', ['example' => '10000']),
             ], $ok('Třídy a instrumenty: hodnota, podíl, cíl, odchylka, mimo toleranci; návrh vkladu a plný rebalancing (prodeje se zdanitelnými kusy z lotů < 3 roky).', 'Classes and instruments: value, share, target, deviation, out of band; deposit plan and full rebalancing (sells with taxable quantity from lots < 3 years).')),
-            $e('net_worth', 'overview', 'GET', '/api/net-worth', $R, 'Čisté jmění', 'Net worth', [],
+            $e('net_worth', 'overview', 'GET', '/api/net-worth', $R, 'Čisté jmění', 'Net worth', [
+                self::p('archived', 'query', 'string', false, '„1" = v seznamu i archivované položky (do součtů se nepočítají)', '"1" = also list archived items (not counted in totals)', ['enum' => ['1']]),
+            ],
                 $ok('Investice + majetek mimo investice (nemovitosti, ostatní) − závazky; položky s hodnotou, u úvěru úrok, splátka a odhad doplacení.', 'Investments + other assets (real estate, other) − liabilities; items with value, for loans rate, payment and payoff estimate.')),
             $e('net_worth_history', 'overview', 'GET', '/api/net-worth/history', $R, 'Historie čistého jmění', 'Net worth history', [
                 self::p('range', 'query', 'string', false, 'Období', 'Range', ['enum' => ['1M', '3M', 'YTD', '1Y', 'ALL'], 'default' => '1Y']),

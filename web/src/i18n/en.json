@@ -602,7 +602,8 @@
     "empty": "No portfolios yet",
     "empty_hint": "A portfolio groups positions across accounts.",
     "positions_count": "Positions",
-    "sort": "Order"
+    "move_up": "Move up",
+    "move_down": "Move down"
   },
   "positions": {
     "title": "Positions",
@@ -650,7 +651,7 @@
     "quantity": "Quantity",
     "unit_price": "Unit price",
     "amount": "Amount",
-    "amount_hint": "Enter either the total amount or the unit price — the other is computed.",
+    "amount_hint": "Fill in just one — we compute the other from the quantity.",
     "reward_value": "Value when received",
     "fee": "Fee",
     "fee_currency": "Fee currency",
@@ -679,7 +680,11 @@
       "fee": "Fee",
       "split": "Split"
     },
-    "fee_instrument_hint": "A fee in the transferred coin reduces quantity; its cost is carried over to the transferred units."
+    "fee_instrument_hint": "A fee in the transferred coin reduces quantity; its cost is carried over to the transferred units.",
+    "mode_label": "How you enter the price",
+    "mode_total": "Total amount",
+    "mode_unit": "Unit price",
+    "amount_total": "Total amount"
   },
   "prices": {
     "last": "Last price",
@@ -1246,7 +1251,8 @@
     "entry_delete_confirm": "Delete the entry of {date}?",
     "schedule": "Balance outlook (end of month)",
     "archived": "Archive (hide from overview)",
-    "note": "Net worth = investments (position valuations including cash) + other assets − liabilities. Return metrics, allocation and taxes exclude items outside investments."
+    "note": "Net worth = investments (position valuations including cash) + other assets − liabilities. Return metrics, allocation and taxes exclude items outside investments.",
+    "paid_off_archive": "Paid off – archive"
   },
   "sharing": {
     "title": "Sharing",

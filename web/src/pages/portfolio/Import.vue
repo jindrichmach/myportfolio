@@ -410,7 +410,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
             <template v-else>{{ b.transactions }}</template>
           </template>
           <template #actions="{ row: b }">
-            <IconButton v-if="!b.reverted_at" icon="undo" variant="danger" :label="t('import.revert')"
+            <IconButton v-if="!b.reverted_at" icon="undo" show-label variant="danger" :label="t('import.revert')"
               :loading="reverting === b.id" :disabled="reverting !== null" @click="revert(b)" />
           </template>
         </DataTable>

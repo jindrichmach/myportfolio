@@ -43,7 +43,8 @@ final class NetWorthAction
     public function overview(Request $request, Response $response): Response
     {
         $userId = CurrentUser::owner($request);
-        return Json::ok($response, $this->service->overview($userId, $this->preferences->displayCurrency(CurrentUser::id($request))));
+        $archived = ($request->getQueryParams()['archived'] ?? '') === '1';
+        return Json::ok($response, $this->service->overview($userId, $this->preferences->displayCurrency(CurrentUser::id($request)), $archived));
     }
 
     public function history(Request $request, Response $response): Response

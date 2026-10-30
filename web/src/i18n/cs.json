@@ -602,7 +602,8 @@
     "empty": "Zatím žádná portfolia",
     "empty_hint": "Portfolio seskupuje pozice napříč účty.",
     "positions_count": "Pozice",
-    "sort": "Pořadí"
+    "move_up": "Posunout výš",
+    "move_down": "Posunout níž"
   },
   "positions": {
     "title": "Pozice",
@@ -650,7 +651,7 @@
     "quantity": "Množství",
     "unit_price": "Cena za kus",
     "amount": "Částka",
-    "amount_hint": "Stačí vyplnit celkovou částku nebo cenu za kus — druhou hodnotu dopočítáme.",
+    "amount_hint": "Vyplň jen jedno z toho — druhou hodnotu dopočítáme z množství.",
     "reward_value": "Hodnota v době připsání",
     "fee": "Poplatek",
     "fee_currency": "Měna poplatku",
@@ -679,7 +680,11 @@
       "fee": "Poplatek",
       "split": "Split"
     },
-    "fee_instrument_hint": "Poplatek v převáděné měně sníží množství; jeho nákupní cena přejde na převedené kusy."
+    "fee_instrument_hint": "Poplatek v převáděné měně sníží množství; jeho nákupní cena přejde na převedené kusy.",
+    "mode_label": "Jak zadáš cenu",
+    "mode_total": "Celková částka",
+    "mode_unit": "Cena za kus",
+    "amount_total": "Celková částka"
   },
   "prices": {
     "last": "Poslední cena",
@@ -1246,7 +1251,8 @@
     "entry_delete_confirm": "Smazat záznam k {date}?",
     "schedule": "Výhled zůstatku (konec měsíce)",
     "archived": "Archivovat (skrýt z přehledu)",
-    "note": "Čisté jmění = investice (ocenění pozic včetně hotovosti) + další majetek − závazky. Výnosové metriky, alokace a daně položky mimo investice nezahrnují."
+    "note": "Čisté jmění = investice (ocenění pozic včetně hotovosti) + další majetek − závazky. Výnosové metriky, alokace a daně položky mimo investice nezahrnují.",
+    "paid_off_archive": "Splaceno – archivovat"
   },
   "sharing": {
     "title": "Sdílení",

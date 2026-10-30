@@ -39,13 +39,15 @@ okamžik držela.
 ## 1.4 Ovládání
 
 Akce u položek (řádek tabulky, karta) jsou ikonová tlačítka. Název akce ukáže
-popisek po najetí myší nebo při přechodu klávesou Tab.
+popisek po najetí myší nebo při přechodu klávesou Tab. Vzácné a nevratné akce (Převést, Vrátit import,
+Deaktivovat uživatele, Zrušit token) mají název napsaný přímo vedle ikony.
 
 | Ikona | Akce |
 |---|---|
 | tužka | Upravit / přejmenovat |
 | koš (červená) | Smazat, odebrat, zrušit nebo opustit sdílení |
 | šipka › | Detail |
+| šipky nahoru / dolů | Posunout výš / níž (pořadí portfolií) |
 | cenovka | Zadat cenu, Nastavit zůstatek, Ocenění / Zůstatky |
 | obrázek | Změnit ikonu |
 | dvě šipky | Převést mezi účty |

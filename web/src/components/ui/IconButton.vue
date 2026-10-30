@@ -19,7 +19,9 @@ const props = withDefaults(defineProps<{
   loading?: boolean
   /** Text tooltipu, když se liší od label (např. důvod, proč je akce zakázaná) */
   tooltip?: string
-}>(), { variant: 'default', disabled: false, loading: false })
+  /** Popisek i viditelně vedle ikony — pro vzácné a nevratné akce (Vrátit import, Deaktivovat…) */
+  showLabel?: boolean
+}>(), { variant: 'default', disabled: false, loading: false, showLabel: false })
 
 defineEmits<{ click: [event: MouseEvent] }>()
 defineOptions({ inheritAttrs: false })
@@ -37,11 +39,14 @@ const ICONS = {
   play:     'M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664zM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',
   ban:      'M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636',
   undo:     'M3 10h10a8 8 0 0 1 8 8v2M3 10l6 6m-6-6l6-6',
+  up:       'M5 15l7-7 7 7',
+  down:     'M19 9l-7 7-7-7',
   shield:   'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
 } as const
 
 const classes = computed(() => [
-  'cursor-pointer inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-md border border-neutral-300 bg-surface transition-colors',
+  'cursor-pointer inline-flex items-center justify-center shrink-0 h-8 rounded-md border border-neutral-300 bg-surface transition-colors',
+  props.showLabel ? 'gap-1.5 px-2.5 text-sm whitespace-nowrap' : 'w-8',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
   'disabled:opacity-40 disabled:cursor-not-allowed',
   props.variant === 'danger'
@@ -69,6 +74,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', hide, true))
     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" :d="ICONS[icon]" />
     </svg>
+    <span v-if="showLabel">{{ label }}</span>
   </RouterLink>
   <button v-else ref="el" v-bind="$attrs" type="button" :aria-label="label" :disabled="disabled || loading" :class="classes"
           @mouseenter="show" @mouseleave="hide" @focus="show" @blur="hide" @click="hide(); $emit('click', $event)">
@@ -79,9 +85,10 @@ onBeforeUnmount(() => window.removeEventListener('scroll', hide, true))
     <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" :d="ICONS[icon]" />
     </svg>
+    <span v-if="showLabel">{{ label }}</span>
   </button>
   <Teleport to="body">
-    <div v-if="tip" role="tooltip" :style="{ top: `${tip.top}px`, left: `${tip.left}px` }"
+    <div v-if="tip && (!showLabel || tooltip)" role="tooltip" :style="{ top: `${tip.top}px`, left: `${tip.left}px` }"
          class="fixed z-[100] -translate-x-1/2 -translate-y-full pointer-events-none px-2 py-1 rounded bg-neutral-900 text-surface text-xs whitespace-nowrap shadow-md">
       {{ tooltip ?? label }}
     </div>

@@ -51,7 +51,7 @@ export interface NetWorthItemInput {
 }
 
 export const netWorthApi = {
-  overview: () => api.get<NetWorthOverview>('/net-worth').then(r => r.data),
+  overview: (archived = false) => api.get<NetWorthOverview>('/net-worth', { params: archived ? { archived: 1 } : {} }).then(r => r.data),
   history: (range: HistoryRange) =>
     api.get<{ currency: string; points: NetWorthPoint[] }>('/net-worth/history', { params: { range } }).then(r => r.data),
   createItem: (p: NetWorthItemInput) => api.post<NetWorthItem>('/net-worth/items', p).then(r => r.data),

@@ -185,7 +185,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <div class="flex flex-wrap items-center gap-2">
           <div class="inline-flex gap-1">
             <IconButton v-if="canWrite" icon="edit" :label="t('common.edit')" @click="openEdit" />
-            <IconButton v-if="position.valuation_mode === 'market' && canWrite" icon="transfer" :label="t('tx.transfer')" @click="openTransfer" />
+            <IconButton v-if="position.valuation_mode === 'market' && canWrite" icon="transfer" show-label :label="t('tx.transfer')" @click="openTransfer" />
             <IconButton v-if="canManage" icon="trash" variant="danger" :label="t('positions.delete')" @click="removePosition" />
           </div>
           <button v-if="position.is_cash && canWrite" @click="cashOpen = true" class="cursor-pointer h-9 px-3 border border-primary-600 text-primary-700 hover:bg-primary-50 text-sm font-medium rounded-md">{{ t('cash.set') }}</button>

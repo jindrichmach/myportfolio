@@ -319,6 +319,10 @@ Tlačítkem **Ocenění** (u závazku **Zůstatky**) zapíšeš novou hodnotu k 
 - **Závazek** — zůstatek k datu po mimořádné splátce, refixaci nebo podle výpisu banky; volitelně nový úrok
   a splátku (prázdné = beze změny). Od tohoto data se umořuje dál. Pod seznamem je výhled zůstatku na 12 měsíců.
 
+Splacený úvěr (zůstatek 0) má u sebe tlačítko **Splaceno – archivovat**: zmizí ze seznamu, historie čistého jmění
+zůstane. Archivované položky zobrazíš přepínačem **Zobrazit archivované** — jsou zašedlé a do součtů se nepočítají;
+archivaci zrušíš v Upravit.
+
 > 🛈 Poznámka: Výnosové metriky (TWR, XIRR, souhrny), alokace a daňový report položky čistého jmění nezahrnují —
 > jsou jen přehled majetku. Graf čistého jmění vychází z denní historie investic, takže začíná první transakcí.
 

@@ -30,7 +30,8 @@ final class NetWorthService
     ) {}
 
     /** @return array<string,mixed> */
-    public function overview(int $userId, string $currency): array
+    /** `$archived` = v `items` i archivované položky; do součtů se nepočítají. */
+    public function overview(int $userId, string $currency, bool $archived = false): array
     {
         $today = $this->fx->today()->format('Y-m-d');
         $investments = BigDecimal::zero();
@@ -47,7 +48,7 @@ final class NetWorthService
         $liabilities = BigDecimal::zero();
         $items = [];
         $warnings = [];
-        foreach ($this->repository->items($userId) as $item) {
+        foreach ($this->repository->items($userId, $archived) as $item) {
             $list = $entries[$item['id']] ?? [];
             $own = $this->valueOn($item, $list, [$today])[$today];
             $display = null;
@@ -58,7 +59,7 @@ final class NetWorthService
                     $warnings[] = ['item_id' => $item['id'], 'code' => 'fx_missing:' . $item['currency']];
                 }
             }
-            if ($display !== null) {
+            if ($display !== null && $item['archived_at'] === null) {
                 $item['kind'] === 'liability' ? $liabilities = $liabilities->plus($display) : $assets = $assets->plus($display);
             }
             $last = $list !== [] ? $list[array_key_last($list)] : null;

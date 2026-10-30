@@ -254,7 +254,7 @@ const tokenKey = (tk: { id: number }) => tk.id
           <template #cell-expires="{ row: tk }"><span class="text-neutral-500">{{ tk.expires_at ? fmtTime(tk.expires_at) : t('api_tokens.expires_never') }}</span></template>
           <template #cell-status="{ row: tk }"><span class="px-2 py-0.5 rounded text-xs font-medium" :class="badgeClass(tk)">{{ statusLabel(tk) }}</span></template>
           <template #actions="{ row: tk }">
-            <IconButton v-if="!tk.is_revoked" icon="ban" variant="danger" :label="t('api_tokens.revoke')" @click="revoke(tk.id, tk.name)" />
+            <IconButton v-if="!tk.is_revoked" icon="ban" show-label variant="danger" :label="t('api_tokens.revoke')" @click="revoke(tk.id, tk.name)" />
           </template>
         </DataTable>
       </div>
