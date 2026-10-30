@@ -176,7 +176,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
               <Badge v-if="position.archived_at" class="ml-1 align-middle font-sans">{{ t('common.archived') }}</Badge>
             </h1>
             <p class="flex flex-wrap items-center gap-1 text-sm text-neutral-500 mt-0.5">
-              <template v-if="position.instrument_name">{{ position.instrument_name }} · </template>
+              <template v-if="position.instrument_name">{{ position.instrument_name }}<template v-if="position.asset_class !== 'crypto' && position.quote_currency"> ({{ position.quote_currency }})</template> · </template>
               <EntityIcon :src="position.institution_icon_url" :name="position.institution_name" :size="16" />
               {{ position.institution_name }} / {{ position.account_name }} · {{ position.portfolio_name }}
             </p>

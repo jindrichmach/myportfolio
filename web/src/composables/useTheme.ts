@@ -76,6 +76,8 @@ const chartColors = computed(() => {
     gain: token('chart-gain'),
     loss: token('chart-loss'),
     palette: Array.from({ length: 10 }, (_, i) => token(`chart-${i + 1}`)),
+    /** Barva třídy aktiv podle rizikovosti (crypto → cash). */
+    risk: Object.fromEntries(['crypto', 'stock', 'etf', 'fund', 'cash'].map(c => [c, token(`risk-${c}`)])) as Record<string, string>,
   }
 })
 

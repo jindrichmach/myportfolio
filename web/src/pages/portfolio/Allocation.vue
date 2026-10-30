@@ -17,6 +17,7 @@ import Icon from '@/components/ui/Icon.vue'
 import Badge from '@/components/ui/Badge.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import ManualLink from '@/components/ui/ManualLink.vue'
+import { useChartColors } from '@/composables/useTheme'
 
 const { t } = useI18n()
 const { canManage } = useOwnerContext()
@@ -37,6 +38,9 @@ const money = (v: string | null | undefined, signed = false) =>
   signed ? formatSigned(v, cur.value, 0) : v === null || v === undefined ? '—' : formatMoney(Number(v), cur.value, 0)
 const pct = (v: string | null | undefined, signed = false) => formatPercent(v, 2, signed)
 const categoryLabel = (c: string) => t(`allocation.categories.${c}`)
+// Barva třídy podle rizikovosti (stejná jako v donutu na Přehledu)
+const chartColors = useChartColors()
+const risk = (c: string) => chartColors.value.risk[c] ?? 'transparent'
 const lineLabel = (l: AllocationLine) => l.label ?? categoryLabel(l.category)
 
 async function load() {
@@ -209,6 +213,7 @@ const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface te
             <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
               <button type="button" class="cursor-pointer flex items-center gap-2 font-medium text-left rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" :aria-expanded="c.items.length ? !!expanded[c.category] : undefined" @click="expanded[c.category] = !expanded[c.category]">
                 <span class="w-4 shrink-0 text-neutral-500"><Icon v-if="c.items.length" name="chevron-down" class="w-4 h-4 transition-transform" :class="expanded[c.category] ? '' : '-rotate-90'" /></span>
+                <span class="w-2.5 h-2.5 rounded-sm shrink-0" :style="{ background: risk(c.category) }" aria-hidden="true"></span>
                 {{ categoryLabel(c.category) }}
                 <Badge v-if="c.out_of_band" tone="warning">{{ t('allocation.out_of_band') }}</Badge>
               </button>
@@ -299,7 +304,7 @@ const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface te
         <div v-for="c in form" :key="c.category" class="border-t border-neutral-100 pt-2">
           <div class="grid grid-cols-[1fr_5.5rem_5.5rem] gap-2 items-center">
             <div class="text-sm">
-              <span class="font-medium">{{ categoryLabel(c.category) }}</span>
+              <span class="inline-flex items-center gap-1.5 font-medium"><span class="w-2.5 h-2.5 rounded-sm shrink-0" :style="{ background: risk(c.category) }" aria-hidden="true"></span>{{ categoryLabel(c.category) }}</span>
               <label v-if="SPLITTABLE.includes(c.category)" class="ml-3 inline-flex items-center gap-1 text-xs text-neutral-600">
                 <input v-model="c.split" type="checkbox" class="rounded border-field text-primary-700" @change="toggleSplit(c)" />
                 {{ t('allocation.split') }}

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, nextTick, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { manualChapters, renderManual } from '@/utils/manual'
+import { manualChapters, renderManual, searchManual } from '@/utils/manual'
+import { useFieldId } from '@/composables/useFieldId'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -12,6 +13,14 @@ const auth = useAuthStore()
 
 const chapters = computed(() => manualChapters.filter(c => !c.adminOnly || auth.user?.role === 'admin'))
 const current = computed(() => chapters.value.find(c => c.slug === route.params.chapter) ?? chapters.value[0])
+// Hledání napříč kapitolami (jen kapitoly, které uživatel vidí)
+const fid = useFieldId()
+const query = ref('')
+const hits = computed(() => searchManual(chapters.value, query.value))
+function openHit(slug: string, id: string) {
+  query.value = ''
+  router.push({ name: 'manual', params: { chapter: slug }, hash: id ? `#${id}` : '' })
+}
 const html = computed(() => (current.value ? renderManual(current.value.source) : ''))
 /** Odkaz do kapitoly jen pro správce (instalace, administrace) */
 const adminOnly = computed(() => !chapters.value.some(c => c.slug === route.params.chapter) && manualChapters.some(c => c.slug === route.params.chapter))
@@ -47,7 +56,25 @@ function go(slug: string) {
       <!-- Jediná H1 stránky je název kapitoly v obsahu. -->
       <p class="text-2xl font-semibold">{{ t('manual.title') }}</p>
       <p v-if="locale !== 'cs'" class="text-sm text-warning-600 mt-1">{{ t('manual.cs_only') }}</p>
+      <div class="mt-3 max-w-md">
+        <label :for="fid('q')" class="block text-xs font-medium text-neutral-600 mb-1">{{ t('manual.search') }}</label>
+        <input :id="fid('q')" v-model="query" type="search" :placeholder="t('manual.search_placeholder')"
+               class="w-full h-10 px-3 border border-field rounded-md bg-surface text-sm" />
+      </div>
     </div>
+
+    <section v-if="query.trim().length >= 2" class="mb-4 bg-surface border border-neutral-200 rounded-lg shadow-sm" aria-live="polite">
+      <p class="px-4 py-2.5 border-b border-neutral-200 text-xs text-neutral-500">{{ t('manual.search_results', { n: hits.length }) }}</p>
+      <ul class="divide-y divide-neutral-100">
+        <li v-for="h in hits" :key="`${h.slug}#${h.id}`">
+          <button type="button" class="cursor-pointer block w-full text-left px-4 py-2.5 hover:bg-primary-50" @click="openHit(h.slug, h.id)">
+            <span class="block text-sm font-medium text-primary-700">{{ h.section }}</span>
+            <span class="block text-xs text-neutral-500">{{ h.chapter }}</span>
+            <span class="block text-xs text-neutral-600 mt-0.5">{{ h.snippet }}</span>
+          </button>
+        </li>
+      </ul>
+    </section>
 
     <!-- Mobil: výběr kapitoly -->
     <select class="lg:hidden w-full h-10 px-3 mb-4 border border-field rounded-md bg-surface text-sm"

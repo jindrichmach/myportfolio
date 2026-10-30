@@ -87,7 +87,7 @@ const memberKey = (m: HouseholdMember) => m.user_id
           </DataTable>
         </SectionCard>
         <SectionCard :title="t('dashboard.allocation')">
-          <AllocationDonut :slices="data.allocation" :currency="data.currency" :label-for="categoryLabel" />
+          <AllocationDonut :slices="data.allocation" :currency="data.currency" :label-for="categoryLabel" by-risk />
         </SectionCard>
       </div>
     </template>

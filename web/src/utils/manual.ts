@@ -34,6 +34,35 @@ export const manualChapters: ManualChapter[] = Object.entries(sources)
   })
   .sort((a, b) => a.slug.localeCompare(b.slug))
 
+/** Text bez diakritiky a velkých písmen — hledání „uroky“ najde „Úroky“. */
+const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+/** Markdown → prostý text pro úryvek (odkazy, zvýraznění, tabulky, kód). */
+const plain = (s: string) => s.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*`>|#_]/g, ' ').replace(/\s+/g, ' ').trim()
+
+export interface ManualHit { slug: string; chapter: string; id: string; section: string; snippet: string }
+
+/** Fulltext přes kapitoly: oddíly (H2), ve kterých se vyskytuje dotaz, s úryvkem kolem nálezu. */
+export function searchManual(chapters: ManualChapter[], query: string, limit = 30): ManualHit[] {
+  const q = fold(query.trim())
+  if (q.length < 2) return []
+  const hits: ManualHit[] = []
+  for (const c of chapters) {
+    const parts = c.source.split(/^(?=## )/m)
+    for (const part of parts) {
+      const heading = part.match(/^## (.+)$/m)?.[1]?.trim() ?? null
+      const text = plain(part.replace(/^#{1,2} .+$/m, ''))
+      const at = fold(text).indexOf(q)
+      const inTitle = heading !== null && fold(heading).includes(q)
+      if (at < 0 && !inTitle) continue
+      const from = Math.max(0, at - 60)
+      const snippet = at < 0 ? text.slice(0, 140) : `${from > 0 ? '…' : ''}${text.slice(from, at + q.length + 80)}…`
+      hits.push({ slug: c.slug, chapter: c.title, id: heading ? headingSlug(heading) : '', section: heading ?? c.title, snippet })
+      if (hits.length >= limit) return hits
+    }
+  }
+  return hits
+}
+
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
 // Kotvy nadpisů (duplicity -1, -2 jako na GitHubu)

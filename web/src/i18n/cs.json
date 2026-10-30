@@ -1436,7 +1436,10 @@
     "admin_only": "Tato kapitola je jen pro správce aplikace.",
     "how_computed": "Jak se to počítá?",
     "guide": "Návod v manuálu",
-    "terms": "Co je účet, portfolio a instituce?"
+    "terms": "Co je účet, portfolio a instituce?",
+    "search": "Hledat v manuálu",
+    "search_placeholder": "např. dividenda, FIFO, záloha",
+    "search_results": "Nalezeno oddílů: {n}"
   },
   "update": {
     "title": "Aktualizace",

@@ -15,14 +15,15 @@ import { useChartColors } from '@/composables/useTheme'
 
 ChartJS.register(ArcElement, Tooltip)
 
-const props = defineProps<{ slices: AllocationSlice[]; currency: string; labelFor?: (label: string) => string }>()
+/** `byRisk` = slices jsou třídy aktiv → barvy podle rizikovosti místo palety. */
+const props = defineProps<{ slices: AllocationSlice[]; currency: string; labelFor?: (label: string) => string; byRisk?: boolean }>()
 const { t } = useI18n()
 const colors = useChartColors()
 
 const total = computed(() => props.slices.reduce((s, x) => s + Number(x.value), 0))
 const label = (l: string) => props.labelFor?.(l) ?? l
 const pct = (v: string) => (total.value > 0 ? (Number(v) / total.value) * 100 : 0)
-const color = (i: number) => colors.value.palette[i % colors.value.palette.length]
+const color = (i: number) => (props.byRisk && colors.value.risk[props.slices[i]?.label]) || colors.value.palette[i % colors.value.palette.length]
 
 const active = ref<number | null>(null)
 const chartRef = ref<{ chart?: ChartJS } | null>(null)

@@ -25,6 +25,7 @@ import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDec, formatMoney, formatPercent, formatSigned } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import { gainClass } from '@/utils/tone'
+import { useChartColors } from '@/composables/useTheme'
 import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
@@ -136,6 +137,7 @@ function toggleGroup(id: number) {
 }
 
 const categoryLabel = (l: string) => t(`instruments.classes.${l}`)
+const chartColors = useChartColors()
 
 // Graf historie: celkem / portfolio / třída aktiv
 const historyKey = ref('total')
@@ -278,7 +280,7 @@ const positionTo = (r: PositionValuation) => `/positions/${r.position_id}`
           </template>
           <div class="grid gap-x-8 gap-y-4" :class="allocation && targetClasses.length ? 'lg:grid-cols-2' : ''">
           <AllocationDonut :slices="data.allocation[allocationBy]" :currency="data.currency"
-            :label-for="allocationBy === 'category' ? categoryLabel : undefined" />
+            :label-for="allocationBy === 'category' ? categoryLabel : undefined" :by-risk="allocationBy === 'category'" />
           <div v-if="allocation && targetClasses.length" class="space-y-3 pt-4 border-t border-neutral-200 lg:pt-0 lg:border-t-0 lg:pl-8 lg:border-l">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-500">{{ t('dashboard.targets') }}</h3>
@@ -287,7 +289,7 @@ const positionTo = (r: PositionValuation) => `/positions/${r.position_id}`
                 <RouterLink to="/allocation" class="text-xs text-primary-700 hover:underline">{{ t('dashboard.targets_link') }}</RouterLink>
               </span>
             </div>
-            <AllocationBar v-for="c in targetClasses" :key="c.category" :label="t(`allocation.categories.${c.category}`)"
+            <AllocationBar v-for="c in targetClasses" :key="c.category" :label="t(`allocation.categories.${c.category}`)" :color="chartColors.risk[c.category]"
               :pct="c.pct" :target="c.target_pct" :out-of-band="c.out_of_band"
               :detail="c.diff_amount !== null ? t('dashboard.vs_target', { amount: signed(c.diff_amount) }) : undefined" />
           </div>
@@ -349,6 +351,8 @@ const positionTo = (r: PositionValuation) => `/positions/${r.position_id}`
                     <div class="min-w-0">
                       <RouterLink :to="`/positions/${r.position_id}`" class="font-medium hover:text-primary-700" :class="{ 'font-mono': r.valuation_mode === 'market' }">{{ r.display_name }}</RouterLink>
                       <span v-if="r.warnings.length" class="ml-1 text-warning-600" :title="r.warnings.map(w => t(warningKey(w).key, warningKey(w).params)).join('\n')"><Icon name="warning" class="w-4 h-4 align-[-3px]" /></span>
+                      <!-- U ETF a akcií i název: stejný ticker může být jiný fond podle správce, burzy a měny -->
+                      <span v-if="r.category !== 'crypto' && r.instrument_name" class="block text-xs text-neutral-600 truncate">{{ r.instrument_name }}</span>
                       <span class="flex items-center gap-1 text-xs text-neutral-500 truncate">
                         <EntityIcon :src="r.institution_icon_url" :name="r.institution_name" :size="14" />
                         {{ r.institution_name }} / {{ r.account_name }}

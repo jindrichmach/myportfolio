@@ -1436,7 +1436,10 @@
     "admin_only": "This chapter is for the app administrator only.",
     "how_computed": "How is it calculated?",
     "guide": "Guide in the manual",
-    "terms": "What is an account, portfolio and institution?"
+    "terms": "What is an account, portfolio and institution?",
+    "search": "Search the manual",
+    "search_placeholder": "e.g. dividend, FIFO, backup",
+    "search_results": "Sections found: {n}"
   },
   "update": {
     "title": "Updates",

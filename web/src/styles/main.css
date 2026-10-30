@@ -88,6 +88,13 @@
   --color-chart-8:  #9372C8;
   --color-chart-9:  #B7E5BF;
   --color-chart-10: #DB9152;
+  /* Třídy aktiv podle rizikovosti (alokace): od volatilního krypta (červená) po konzervativní hotovost (modrá).
+     Sémantické — stejné ve všech barevných schématech; ≥ 3:1 vůči surface. */
+  --color-risk-crypto: #C0392B;
+  --color-risk-stock:  #D9622B;
+  --color-risk-etf:    #B07D12;
+  --color-risk-fund:   #2A8C8C;
+  --color-risk-cash:   #3A6EA5;
   --color-chart-gain:    #0AABB2;
   --color-chart-loss:    #C13C3B;
   --color-chart-grid:    #E3E8E3;
@@ -168,6 +175,11 @@
   --color-chart-8:  #AA8DDE;
   --color-chart-9:  #295935;
   --color-chart-10: #C16E2D;
+  --color-risk-crypto: #F0705F;
+  --color-risk-stock:  #F2965A;
+  --color-risk-etf:    #E2B84A;
+  --color-risk-fund:   #4FC0BC;
+  --color-risk-cash:   #7FA8DA;
   --color-chart-gain:    #129297;
   --color-chart-loss:    #DE6F69;
   --color-chart-grid:    #272B28;

@@ -121,7 +121,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <select :id="fid('position_id')" v-model="form.position_id" :disabled="!!transaction" required :class="inputClass">
           <option :value="null" disabled>—</option>
           <option v-for="p in positions" :key="p.id" :value="p.id">
-            {{ p.display_name }} · {{ p.institution_name }} / {{ p.account_name }} · {{ p.portfolio_name }}
+            {{ p.display_name }}<template v-if="p.asset_class !== 'crypto' && p.instrument_name"> ({{ p.instrument_name }})</template> · {{ p.institution_name }} / {{ p.account_name }} · {{ p.portfolio_name }}
           </option>
         </select>
       </div>

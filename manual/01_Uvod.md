@@ -8,8 +8,9 @@ Jedna instalace slouží **více uživatelům** — každý vidí jen svá data.
 jen katalog institucí a instrumentů a ceny s kurzy.
 
 Tento manuál je i přímo v aplikaci: **Účet → Manuál** (správce ho má v sekci **Systém**). Kapitoly
-jsou ve svislých záložkách vlevo, u otevřené kapitoly i její oddíly. Kapitoly 2. Instalace
-a 9. Administrace vidí jen správce.
+jsou ve svislých záložkách vlevo, u otevřené kapitoly i její oddíly. Pole **Hledat v manuálu** nahoře prohledá
+všechny kapitoly (bez ohledu na diakritiku) a ukáže oddíly s úryvkem. Kapitoly 2. Instalace a 11. Administrace
+vidí jen správce. Na řadě obrazovek vede do příslušného oddílu odkaz **Jak se to počítá?**.
 
 ## 1.1 Základní pojmy
 
