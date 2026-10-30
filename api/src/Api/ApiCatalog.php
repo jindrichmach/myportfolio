@@ -151,8 +151,8 @@ final class ApiCatalog
         $e = static fn (...$a) => self::e(...$a);
         return [
             // ── Systém ─────────────────────────────────────────────────────
-            $e('health', 'system', 'GET', '/api/health', $R, 'Stav aplikace', 'Application health', [], $ok('Stav, verze, dostupnost DB a Redisu.', 'Status, version, DB and Redis availability.', ['status' => 'ok', 'version' => '0.4.0-dev', 'db' => true, 'redis' => false])),
-            $e('version', 'system', 'GET', '/api/version', $R, 'Verze aplikace', 'Application version', [], $ok('Aktuální verze.', 'Current version.', ['current' => '0.4.0-dev'])),
+            $e('health', 'system', 'GET', '/api/health', $R, 'Stav aplikace', 'Application health', [], $ok('Stav, verze, dostupnost DB a Redisu.', 'Status, version, DB and Redis availability.', ['status' => 'ok', 'version' => '1.0.0', 'db' => true, 'redis' => false])),
+            $e('version', 'system', 'GET', '/api/version', $R, 'Verze aplikace', 'Application version', [], $ok('Aktuální verze.', 'Current version.', ['current' => '1.0.0'])),
             $e('api_me', 'system', 'GET', '/api/auth/api-me', $R, 'Ověření tokenu', 'Token check', [], $ok('Uživatel a token, kterým je požadavek ověřený.', 'User and token that authenticated the request.',
                 ['user' => ['id' => 1, 'email' => 'user@example.invalid', 'name' => 'Jan', 'role' => 'user'], 'auth_method' => 'bearer', 'token' => ['id' => 3, 'name' => 'Home Assistant', 'prefix' => 'mp_ab12', 'scope' => 'read', 'expires_at' => null]])),
             $e('openapi', 'system', 'GET', '/api/openapi.json', $R, 'Specifikace OpenAPI', 'OpenAPI specification', [], $ok('OpenAPI 3.1 všech endpointů z tohoto seznamu (Swagger, Postman).', 'OpenAPI 3.1 of all endpoints in this list (Swagger, Postman).')),

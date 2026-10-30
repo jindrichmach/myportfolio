@@ -5,6 +5,49 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-10-30
+
+První stabilní verze: Přehled jako rozcestník, průvodce Nová investice, knihovna ikon, přístupnost (WCAG 2.2 AA)
+a manuál s prvními kroky a hledáním. Docker image stabilních verzí dostává i značku `latest`.
+
+### Přidáno
+- **Nová investice** (Přidat → Nová investice) — průvodce: instrument z katalogu podle tickeru, ISINu nebo názvu
+  (nebo nový), účet a portfolio, první nákup. Tlačítko Přidat nabízí i Novou transakci a Import.
+- **Knihovna ikon** — ikona instituce / instrumentu se nastavuje v jeho úpravě (pole Ikona): nahrání obrázku,
+  loga správců ETF, asi 100 kryptoměn (CC0), české instituce; logo instituce se stáhne z jejího webu
+  (jen https, jen veřejné adresy). Endpointy `GET /api/icon-library`, `POST …/icon/library`,
+  `POST /api/institutions/{id}/icon/website`.
+- **Manuál** — kapitola 0 „Za 5 minut k prvnímu přehledu", pole Hledat v manuálu (fulltext bez ohledu na diakritiku),
+  odkazy „Jak se to počítá?" z Přehledu, grafu vývoje, Importu, Daňového reportu, Alokace a Čistého jmění.
+- Dlaždice **Poplatky** na Přehledu, vysvětlivky ⓘ u dlaždic výnosu.
+- Prázdný Přehled ukazuje checklist prvních kroků.
+- Čisté jmění: **Splaceno – archivovat** u nulového úvěru, přepínač Zobrazit archivované.
+- Menu řádku **⋯** u pozic (Detail, Nová transakce, Převést, Nastavit zůstatek).
+
+### Změněno
+- **Přehled** — portfolia jako sbalitelné řádky (hodnota, podíl, výnos), metriky výkonnosti pod Podrobnosti;
+  celý řádek pozice je proklik do detailu, rozbalovací řádek se rozbalí klikem kamkoli.
+- Krypto napříč účty ukazuje celkový výnos a % stejně jako tabulky pozic; složky výnosu se sečtou přesně.
+- Detail pozice: poslední cena v měně zobrazení, cena burzy menším písmem.
+- **Alokace** — barvy tříd aktiv podle rizikovosti (krypto červená → hotovost modrá); u ETF a akcií název pod tickerem.
+- **Profil** a zabezpečení (heslo, 2FA, přístupové klíče, zámek aplikace) na jedné stránce se záložkami;
+  staré adresy `/profile/password` apod. přesměrují.
+- **Portfolia** — pořadí přetažením řádku nebo šipkami Posunout výš / níž, sloupec Obsah.
+- Nová transakce: přepínač Celková částka / Cena za kus, měna výběrem z CZK a měn ČNB.
+- Menu sbalitelné na ikony; Účty, Portfolia a Katalog ve skupině „Účty a katalog".
+- Tykání na přihlášení, v bezpečnostních hláškách a českých e-mailech; přepínač jazyka textem místo vlajek.
+- Manuál: kapitola 7 rozdělená na Přehled a výpočty, Reporty a upozornění, Alokace a čisté jmění (dřívější 8–11 jsou 10–13).
+- Aktualizace závislostí: chart.js 4.6.1, Guzzle 8.3.1, symfony/mailer 8.1.10, phrity/websocket 4.1.0, PHPStan 2.3.2.
+
+### Přístupnost
+- Popisky propojené s poli, dialogy s rolí `dialog`, pastí Tab a návratem fokusu (vnořené dialogy řeší jen nejvrchnější),
+  chyby jako `alert`, potvrzení jako `status`, titulek okna podle stránky, jedna H1 na stránku.
+- Vysvětlivky ⓘ jdou otevřít klepnutím a Escape je zavře; kontrast rámečku polí ≥ 3:1 ve všech schématech.
+
+### Opraveno
+- Nerealizovaný zisk ruční pozice nepočítá znovu příjmy a poplatky (jsou už v hodnotě).
+- Duplicitní id ve filtrech seznamů.
+
 ## [0.4.0-dev] — 2026-10-25
 
 Barevná schémata vzhledu, jednotné seznamy s filtry a stránkováním, nastavení a profil se záložkami.
