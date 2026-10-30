@@ -9,6 +9,7 @@ import Badge, { type BadgeTone } from '@/components/ui/Badge.vue'
 import { taxApi, type Exemption, type RateMethod, type TaxReport, type TaxSection } from '@/api/tax'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDec } from '@/composables/useFormat'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
 
@@ -89,6 +90,7 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
       <div>
         <h1 class="text-2xl font-semibold">{{ t('tax.title', { year }) }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('tax.subtitle') }}</p>
+        <ManualLink class="mt-1" to="12_Danovy_report" />
       </div>
       <div class="flex flex-wrap items-center gap-2 print:hidden">
         <select v-model="year" :class="selectClass" :aria-label="t('tax.year')">

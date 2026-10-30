@@ -18,6 +18,7 @@ import { apiErrorMessage } from '@/api/errors'
 import { formatDateTime, formatDec } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -221,6 +222,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
       <div>
         <h1 class="text-2xl font-semibold">{{ t('import.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('import.subtitle') }}</p>
+        <ManualLink class="mt-1" to="05_Transakce#55-import-z-burzy--brokera" :label="t('manual.guide')" />
       </div>
       <RouterLink to="/transactions" class="h-9 px-3 inline-flex items-center border border-neutral-300 rounded-md text-sm hover:bg-neutral-50 shrink-0">
         {{ t('nav.transactions') }}

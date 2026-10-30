@@ -10,7 +10,7 @@ cmd/install.sh --yes      # bez dotazů, s výchozími hodnotami
 ```
 
 Skript připraví prostředí (konfiguraci, databázi, závislosti, build, migrace, cron) a na konci
-vypíše adresu **webového průvodce** (`/setup`, [3.1 Úvodní nastavení](03_Prihlaseni_a_zabezpeceni.md#31-úvodní-nastavení)).
+vypíše adresu **webového průvodce** (`/setup`, [11.1 Úvodní nastavení](11_Administrace.md#111-úvodní-nastavení)).
 Tam založíš správce, nastavíš e-mail a můžeš zaškrtnout **ukázková data**.
 Skript lze spustit znovu — existující konfiguraci nepřepíše bez dotazu. Při přepsání uloží zálohu `cfg.php` do
 `storage/backup/config/` (mimo dosah webu) a ponechá stávající pepper a šifrovací klíč — nové by zneplatnily hesla
@@ -59,12 +59,12 @@ Virtuální host míří na kořen repozitáře. Plánované úlohy (`cmd/cronta
 | `cron-prices` | každou hodinu | aktuální ceny + chybějící historie |
 | `cron-fx` | pracovní dny 14:45 | kurzy ČNB |
 | `cron-snapshot` | denně 00:30 | denní historie hodnoty (grafy) |
-| `cron-weekly-report` | pondělí 08:00 | týdenní e-mailový report ([7.6](07_Prehled.md#76-týdenní-report-e-mailem)) |
-| `cron-period-report` | 1. den v měsíci 08:05 | měsíční a roční souhrn e-mailem ([7.6](07_Prehled.md#76-týdenní-report-e-mailem)) |
+| `cron-weekly-report` | pondělí 08:00 | týdenní e-mailový report ([8.1](08_Reporty_a_upozorneni.md#81-týdenní-report-e-mailem)) |
+| `cron-period-report` | 1. den v měsíci 08:05 | měsíční a roční souhrn e-mailem ([8.1](08_Reporty_a_upozorneni.md#81-týdenní-report-e-mailem)) |
 | `cron-exchange-sync` | každou hodinu | synchronizace transakcí přes API burz ([5.6](05_Transakce.md#56-napojení-burzy-přes-api)) |
 | `cron-cpi` | denně 6:40 | inflace ČR pro reálný výnos ([7.5](07_Prehled.md#benchmark-a-inflace)) |
-| `cron-alerts` | denně 07:30 | e-mailová upozornění ([7.7](07_Prehled.md#77-upozornění-e-mailem)) |
-| `cron-bank-notices` | každých 15 min | bankovní e-mailová avíza ([8. Bankovní avíza](08_Bankovni_aviza.md)) |
+| `cron-alerts` | denně 07:30 | e-mailová upozornění ([8.2](08_Reporty_a_upozorneni.md#82-upozornění-e-mailem)) |
+| `cron-bank-notices` | každých 15 min | bankovní e-mailová avíza ([10. Bankovní avíza](10_Bankovni_aviza.md)) |
 | `cron-backup` | denně 02:00 | záloha databáze a ikon katalogu |
 | `cron-cleanup` | denně 03:00 | úklid session a logů |
 
@@ -91,7 +91,7 @@ php8.5 api/bin/backfill-market.php --from=RRRR-MM-DD            # kurzy ČNB, in
 Příkazová řádka navíc založí **demo partnera** `partner.<jméno>@example.invalid` s vlastním spořicím
 účtem a ETF a s náhodným heslem (vypíše ho) — partner ti sdílí své portfolio pro zápis a ty jemu vše
 pro čtení včetně čistého jmění. Ukáže tak přepínač sdílených dat a stránku Domácnost
-([11. Sdílení pro domácnost](11_Sdileni.md)). Webový průvodce partnera nezakládá. `--reset` smaže
+([13. Sdílení pro domácnost](13_Sdileni.md)). Webový průvodce partnera nezakládá. `--reset` smaže
 i demo partnera.
 
 > ⚠️ Ukázková data jsou v účtu správce. Pro ostrý provoz je smaž (nebo si založ samostatného
@@ -101,8 +101,8 @@ i demo partnera.
 
 Aktuální verze je vidět dole v levém menu („MyPortfolio v…") a v souboru `VERSION`; změny popisuje `CHANGELOG.md`.
 Jestli vyšla nová verze, ukáže správci stránka **Systém → Aktualizace** i s příkazy pro tuto instalaci
-(viz [9.6 Aktualizace](09_Administrace.md#96-aktualizace)).
-Před aktualizací si stáhni zálohu (`cron-backup`, viz [9.7 Zálohy a obnova](09_Administrace.md#97-zálohy-a-obnova)).
+(viz [11.7 Aktualizace](11_Administrace.md#117-aktualizace)).
+Před aktualizací si stáhni zálohu (`cron-backup`, viz [11.8 Zálohy a obnova](11_Administrace.md#118-zálohy-a-obnova)).
 
 **Docker** (image z GHCR, `docker-compose.production.yml`):
 

@@ -1414,7 +1414,9 @@
     "title": "Manual",
     "chapters": "Chapters",
     "cs_only": "The manual is available in Czech only for now.",
-    "admin_only": "This chapter is for the app administrator only."
+    "admin_only": "This chapter is for the app administrator only.",
+    "how_computed": "How is it calculated?",
+    "guide": "Guide in the manual"
   },
   "update": {
     "title": "Updates",

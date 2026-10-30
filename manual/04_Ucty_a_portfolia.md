@@ -100,7 +100,7 @@ Novou pozici založíš tlačítkem **Nová pozice**:
 | Název | — | např. „Portu — Vyvážená" | volitelně, jinak „Hotovost CZK" |
 | Měna | podle kotace instrumentu | výchozí měna účtu | výchozí měna účtu |
 | Úrok % p.a. | — | volitelně (spořicí účet) | — |
-| Číslo účtu pro avíza | — | volitelně v úpravě pozice — viz [8. Bankovní avíza](08_Bankovni_aviza.md) | — |
+| Číslo účtu pro avíza | — | volitelně v úpravě pozice — viz [10. Bankovní avíza](10_Bankovni_aviza.md) | — |
 
 Stejný instrument na stejném účtu může být ve dvou portfoliích (dvě pozice).
 Instrument, režim ocenění a měnu pozice po založení změnit nejde — navazují na

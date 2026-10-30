@@ -1,9 +1,9 @@
-# 11. Sdílení pro domácnost
+# 13. Sdílení pro domácnost
 
 **Účet → Sdílení** — sdílíš svá data s partnerem (jen pro čtení, nebo i pro zápis) a oba uvidíte společný
 přehled domácnosti. Každý dál vidí a spravuje jen své nastavení; sdílet jde v obou směrech zvlášť.
 
-## 11.1 Sdílet s partnerem
+## 13.1 Sdílet s partnerem
 
 Tlačítko **Sdílet**:
 
@@ -18,7 +18,7 @@ V seznamu **Sdílím** sdílení upravíš, zrušíš nebo u čekající pozván
 nemůže měnit účty, portfolia, cíle alokace, čisté jmění ani žádné nastavení (profil, upozornění, API, burzy,
 bankovní avíza).
 
-## 11.2 Data, která sdílí partner
+## 13.2 Data, která sdílí partner
 
 Kdo s tebou sdílí, je v seznamu **Sdílí se mnou** a v záhlaví aplikace se objeví přepínač **Moje data / jméno**.
 Po přepnutí zobrazuje celá aplikace data partnera v rozsahu sdílení — nahoře je pruh s tím, čí data
@@ -27,13 +27,13 @@ partner nesdílí, zmizí z menu. Částky jsou v **tvé** měně zobrazení, v 
 
 Tlačítkem **Opustit sdílení** sdílení ukončíš ze své strany.
 
-## 11.3 Kdo co změnil
+## 13.3 Kdo co změnil
 
 Transakci, kterou do tvých dat zapsal partner, poznáš ve výpisu transakcí podle štítku **zapsal(a) jméno**.
 Všechny změny partnerů (zápis, úprava, smazání transakce, ocenění, pozice, importu) jsou na stránce Sdílení
 v části **Změny od partnerů v mých datech**.
 
-## 11.4 Domácnost
+## 13.4 Domácnost
 
 **Portfolio → Domácnost** (zobrazí se, když s tebou někdo sdílí) — tvoje data a data partnerů dohromady:
 čisté jmění, hodnota investic, celkový výnos, majetek a závazky, rozpad po členech a alokace podle tříd.

@@ -60,8 +60,10 @@ Deaktivovat uživatele, Zrušit token) mají název napsaný přímo vedle ikony
 
 ### Seznamy s filtry
 
-Delší seznamy mají nad tabulkou lištu filtrů. Každý filtr má nad sebou popisek, první je vždy
-**Hledat**. Na mobilu jsou ostatní filtry schované pod tlačítkem **Filtry** s počtem nastavených.
+Delší seznamy mají nad tabulkou lištu filtrů. Každý filtr má nad sebou popisek. Seznamy s textem k hledání
+(účty, instrumenty, instituce, uživatelé…) mají jako první filtr **Hledat**; Pozice a Transakce se filtrují jen
+výběrem (portfolio, účet, typ, období). Na mobilu jsou filtry kromě prvního schované pod tlačítkem **Filtry**
+s počtem nastavených.
 Tlačítko **Zrušit filtr** se ukáže, jen když je nějaký filtr nastavený, a vrátí všechny do výchozího stavu.
 
 Pod tabulkou je počet záznamů („1–25 z 137“), číslované stránky (první, poslední a pár kolem aktuální,
@@ -80,12 +82,12 @@ seznam na první stránku. Filtry se při obnovení stránky vynulují.
 | Kurzy ČNB, ceny krypta a ETF, ruční ceny | [6](06_Ceny_a_kurzy.md) |
 | Ocenění, zisk/ztráta (FIFO), přehled | [7.1](07_Prehled.md#71-jak-se-počítá-hodnota-a-zisk) |
 | Historie hodnoty, výnosové metriky (TWR, XIRR), benchmark, inflace a reálný výnos | [7.5](07_Prehled.md#75-vývoj-hodnoty-a-výnosové-metriky) |
-| Týdenní report, měsíční a roční souhrn e-mailem | [7.6](07_Prehled.md#76-týdenní-report-e-mailem) |
-| Upozornění e-mailem (cenové hranice, denní pohyb, časový test, alokace, problémy s daty) | [7.7](07_Prehled.md#77-upozornění-e-mailem) |
-| Měsíční a roční souhrny, přehled dividend a úroků | [7.8](07_Prehled.md#78-měsíční-a-roční-souhrn), [7.9](07_Prehled.md#79-dividendy-a-úroky) |
-| Cílová alokace a rebalancing | [7.10](07_Prehled.md#710-cílová-alokace-a-rebalancing) |
-| Čisté jmění (nemovitosti, další majetek, úvěry) | [7.11](07_Prehled.md#711-čisté-jmění) |
-| Bankovní e-mailová avíza (Fio, Air Bank, Moneta, Raiffeisenbank, ČSOB, Česká spořitelna, CREDITAS, UniCredit) | [8](08_Bankovni_aviza.md) |
-| Daňový report (cenné papíry, krypto, zahraniční dividendy, úroky) a podklad pro přiznání | [10](10_Danovy_report.md) |
-| Sdílení s partnerem a přehled domácnosti | [11](11_Sdileni.md) |
-| API tokeny a popis API (OpenAPI) | [3.7](03_Prihlaseni_a_zabezpeceni.md#37-api) |
+| Týdenní report, měsíční a roční souhrn e-mailem | [8.1](08_Reporty_a_upozorneni.md#81-týdenní-report-e-mailem) |
+| Upozornění e-mailem (cenové hranice, denní pohyb, časový test, alokace, problémy s daty) | [8.2](08_Reporty_a_upozorneni.md#82-upozornění-e-mailem) |
+| Měsíční a roční souhrny, přehled dividend a úroků | [8.3](08_Reporty_a_upozorneni.md#83-měsíční-a-roční-souhrn), [8.4](08_Reporty_a_upozorneni.md#84-dividendy-a-úroky) |
+| Cílová alokace a rebalancing | [9.1](09_Alokace_a_ciste_jmeni.md#91-cílová-alokace-a-rebalancing) |
+| Čisté jmění (nemovitosti, další majetek, úvěry) | [9.2](09_Alokace_a_ciste_jmeni.md#92-čisté-jmění) |
+| Bankovní e-mailová avíza (Fio, Air Bank, Moneta, Raiffeisenbank, ČSOB, Česká spořitelna, CREDITAS, UniCredit) | [10](10_Bankovni_aviza.md) |
+| Daňový report (cenné papíry, krypto, zahraniční dividendy, úroky) a podklad pro přiznání | [12](12_Danovy_report.md) |
+| Sdílení s partnerem a přehled domácnosti | [13](13_Sdileni.md) |
+| API tokeny a popis API (OpenAPI) | [3.6](03_Prihlaseni_a_zabezpeceni.md#36-api) |

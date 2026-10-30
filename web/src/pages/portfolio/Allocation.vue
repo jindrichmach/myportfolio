@@ -16,6 +16,7 @@ import { useToast } from '@/composables/useToast'
 import Icon from '@/components/ui/Icon.vue'
 import Badge from '@/components/ui/Badge.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
 const { canManage } = useOwnerContext()
@@ -177,6 +178,7 @@ const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface te
       <div>
         <h1 class="text-2xl font-semibold">{{ t('allocation.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('allocation.subtitle') }}</p>
+        <ManualLink class="mt-1" to="09_Alokace_a_ciste_jmeni#91-cílová-alokace-a-rebalancing" />
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <select v-model="scope" class="flex-1 sm:flex-none min-w-0 h-9 px-2 border border-field rounded-md bg-surface text-sm">

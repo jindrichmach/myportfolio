@@ -31,4 +31,4 @@ jako funkce, kterou popisuje.
 Kapitoly `NN_*.md` se při buildu frontendu přibalí do stránky **Manuál** (`web/src/pages/Manual.vue`,
 `web/src/utils/manual.ts`) — po úpravě manuálu je potřeba `pnpm build`. Kotvy nadpisů se tvoří jako na GitHubu,
 odkazy `[text](NN_Kapitola.md#kotva)` fungují v repozitáři i v aplikaci; jejich platnost hlídá
-`web/tests/manual-links.test.mjs`. HTML v markdownu je vypnuté. Kapitoly 02 a 09 vidí jen správce.
+`web/tests/manual-links.test.mjs`. HTML v markdownu je vypnuté. Kapitoly 02 a 11 vidí jen správce.

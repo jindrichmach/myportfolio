@@ -1,8 +1,25 @@
-# 9. Administrace
+# 11. Administrace
 
 Sekce **Systém** v menu je viditelná jen pro roli **admin**.
 
-## 9.1 Uživatelé
+## 11.1 Úvodní nastavení
+
+Při prvním spuštění (prázdná databáze) aplikace zobrazí průvodce o pěti krocích. Vše se uloží
+až tlačítkem **Dokončit** v posledním kroku.
+
+| Krok | Pole | Význam |
+|---|---|---|
+| Správce | Jméno, e-mail, heslo | První uživatel s rolí **admin**; heslo nejméně 12 znaků (doporučená je delší věta) |
+| | Jazyk, měna zobrazení | Jazyk aplikace a e-mailů a měna, ve které vidíš hodnoty; obojí jde změnit v Profilu |
+| Zabezpečení | Vynutit vícefaktorové ověření | Všichni uživatelé si po přihlášení musí nastavit passkey nebo TOTP |
+| E-mail | Nastavit odesílání e-mailů teď | SMTP server, port, šifrování, přihlášení a odesílatel. **Poslat zkušební e-mail** ověří nastavení ještě před dokončením. Nastavit jde i později ([11.4 Nastavení](#114-nastavení)) |
+| Data | Vygenerovat ukázková data | Asi 5 let ukázkové historie do účtu správce ([2.3 Ukázková data](02_Instalace.md#23-ukázková-data)) |
+| Shrnutí | | Přehled voleb před dokončením |
+
+Po dokončení jsi rovnou přihlášen (při vynuceném MFA nejdřív nastavíš druhý faktor).
+Další uživatele zakládá admin v [Administraci](#112-uživatelé).
+
+## 11.2 Uživatelé
 
 **Systém → Uživatelé.** Založení, úprava a deaktivace účtů. Seznam jde prohledat podle e-mailu nebo jména
 a filtrovat podle role a stavu (aktivní, neaktivní) — viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
@@ -15,7 +32,12 @@ a filtrovat podle role a stavu (aktivní, neaktivní) — viz [1.4 Seznamy s fil
 Data uživatelů jsou oddělená — admin cizí pozice ani transakce nevidí.
 Posledního aktivního admina nelze deaktivovat ani mu odebrat roli.
 
-## 9.2 Ceny a kurzy
+Když uživatel zapomene heslo a e-mail s odkazem nedorazí, nastavíš mu heslo na serveru
+`php8.5 api/bin/set-password.php <email>`. Kdo ztratil passkey, autentikátor i záložní kódy, tomu vícefaktorové
+ověření vypne `php8.5 api/bin/reset-mfa.php <email>` (zároveň odhlásí všechna zařízení) — viz
+[11.9 Příkazy na serveru](#119-příkazy-na-serveru).
+
+## 11.3 Ceny a kurzy
 
 **Systém → Ceny a kurzy.** Přehled pro kontrolu, že ceny chodí:
 
@@ -31,7 +53,7 @@ chybí) — viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
 Pod tabulkou je poslední kurzový lístek ČNB a poslední měsíc indexu cen pro inflaci (úloha `cron-cpi`). Tlačítka **Stáhnout kurzy ČNB**
 a **Aktualizovat ceny** spustí úlohy hned na pozadí.
 
-## 9.3 Nastavení
+## 11.4 Nastavení
 
 Stránka **Systém → Nastavení** drží nastavení celé instance na záložkách. Každá záložka má vlastní
 tlačítko **Uložit** a ukládá se samostatně. Vybraná záložka je v adrese stránky (`?tab=`), takže na ni
@@ -64,7 +86,7 @@ a ukáže odpověď serveru nebo chybu. Před uložením si tak ověříš, že 
 
 Záložka **Vzhled** — výchozí barevné schéma instance. Platí pro přihlašovací stránku, pro e-maily
 (barvy i logo) a pro všechny uživatele, kteří si v profilu nevybrali vlastní schéma
-(viz [3.4 Profil](03_Prihlaseni_a_zabezpeceni.md#34-profil)).
+(viz [3.3 Profil](03_Prihlaseni_a_zabezpeceni.md#33-profil)).
 
 Na výběr je deset schémat seřazených podle barvy: Malina, Terakota, Bronz, Oliva, **Les** (výchozí, zelené),
 Oceán, Indigo, Ametyst, Orchidej a Grafit. Každé má světlý i tmavý režim a vlastní barvu loga a favikony.
@@ -72,7 +94,7 @@ Barvy zisku, ztráty a varování jsou ve všech schématech stejné.
 
 Ikona nainstalované aplikace (PWA) zůstává ve výchozí zelené.
 
-## 9.4 Log
+## 11.5 Log
 
 **Systém → Log** — auditní záznam přihlášení, změn zabezpečení a správy
 uživatelů s IP adresou.
@@ -80,13 +102,13 @@ uživatelů s IP adresou.
 Filtry: **Hledat** (název akce, e-mail nebo jméno uživatele), **Akce**, **Entita** a **Období**
 (od–do, včetně celého posledního dne). Ovládání seznamu viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
 
-## 9.5 Plánované úlohy
+## 11.6 Plánované úlohy
 
 **Systém → Plánované úlohy** — poslední běh, stav a doporučená frekvence úloh
 (`cron-prices`, `cron-fx`, `cron-snapshot`, `cron-bank-notices`, `cron-weekly-report`, `cron-period-report`, `cron-exchange-sync`, `cron-cpi`, `cron-alerts`, `cron-backup`, `cron-cleanup`). Úloha, která dlouho
 neproběhla nebo selhává, je označená. Tlačítkem **Spustit nyní** ji spustíš ručně.
 
-## 9.6 Aktualizace
+## 11.7 Aktualizace
 
 **Systém → Aktualizace** ukáže nainstalovanou verzi a nejnovější vydanou verzi z GitHubu (vydání
 repozitáře, včetně vývojových verzí `-dev`) a u nové verze i její popis. Výsledek kontroly se drží
@@ -99,7 +121,7 @@ instalace a doplní cestu k aplikaci a k PHP, příkazy jdou zkopírovat. Aktual
 sám; aplikace nemá práva měnit vlastní soubory ani Docker image. Postup je stejný jako
 v [2.4 Aktualizace](02_Instalace.md#24-aktualizace).
 
-## 9.7 Zálohy a obnova
+## 11.8 Zálohy a obnova
 
 Úloha `cron-backup` každou noc uloží do `storage/backup/` (v Dockeru `/data/storage/backup/`) ZIP
 s výpisem databáze a ikonami katalogu. Drží se 30 denních a 12 měsíčních záloh. Pokud je
@@ -123,7 +145,7 @@ tak může být i ze starší verze aplikace. Při obnově se ztratí všechno, 
 > `… restore-backup.php <soubor>.zip --yes --db=myportfolio_zkouska` (ikony se v tom případě nepřepisují).
 > Zkušební databázi pak smaž.
 
-## 9.8 Příkazy na serveru
+## 11.9 Příkazy na serveru
 
 | Příkaz | Účel |
 |---|---|
@@ -137,4 +159,4 @@ tak může být i ze starší verze aplikace. Při obnově se ztratí všechno, 
 | `php8.5 api/bin/rebuild-lots.php [--user=<id>]` | Přepočet FIFO lotů z transakcí (po importu nebo opravě dat; běžně proběhne sám) |
 | `php8.5 api/bin/backfill-snapshots.php [--user=<id>] [--from=RRRR-MM-DD]` | Přepočet denní historie hodnoty (po importu nebo doplnění cen; běžně proběhne sám) |
 | `php8.5 api/bin/seed-demo.php --user=<email> [--backfill] [--reset] [--no-partner]` | Ukázková data do uživatele bez účtů včetně demo partnera se sdílením ([2.3](02_Instalace.md#23-ukázková-data)); `--reset` jen pro `app.env` = development |
-| `php8.5 api/bin/restore-backup.php <zip> [--yes] [--db=…]` | Obnova ze zálohy ([9.7](#97-zálohy-a-obnova)) |
+| `php8.5 api/bin/restore-backup.php <zip> [--yes] [--db=…]` | Obnova ze zálohy ([11.8](#118-zálohy-a-obnova)) |

@@ -1414,7 +1414,9 @@
     "title": "Manuál",
     "chapters": "Kapitoly",
     "cs_only": "Manuál je zatím jen v češtině.",
-    "admin_only": "Tato kapitola je jen pro správce aplikace."
+    "admin_only": "Tato kapitola je jen pro správce aplikace.",
+    "how_computed": "Jak se to počítá?",
+    "guide": "Návod v manuálu"
   },
   "update": {
     "title": "Aktualizace",

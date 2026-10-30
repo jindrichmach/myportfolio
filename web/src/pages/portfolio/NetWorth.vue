@@ -24,6 +24,7 @@ import { formatDate, formatDec, formatMoney, formatMoneyCompact, formatSigned } 
 import { useChartColors } from '@/composables/useTheme'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip)
 
@@ -252,6 +253,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <div>
         <h1 class="text-2xl font-semibold">{{ t('net_worth.title') }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('net_worth.subtitle') }}</p>
+        <ManualLink class="mt-1" to="09_Alokace_a_ciste_jmeni#92-čisté-jmění" />
       </div>
       <button v-if="canManage" @click="openCreate()" class="cursor-pointer h-9 px-3 bg-action hover:bg-action-hover text-on-action text-sm font-medium rounded-md shrink-0">
         {{ t('net_worth.new') }}

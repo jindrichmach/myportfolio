@@ -1,4 +1,4 @@
-# 8. Bankovní avíza
+# 10. Bankovní avíza
 
 Banky posílají při každém pohybu na účtu e-mail s částkou a zůstatkem. MyPortfolio umí tyto
 e-maily číst z IMAP schránky a zapsat je do ruční pozice spořicího účtu — nemusíš pak ručně
@@ -20,7 +20,7 @@ Podporovaná avíza:
 U banky, jejíž avízo zůstatek neuvádí, se hodnota pozice počítá z posledního ručního ocenění
 a pohybů po něm (viz [7.4 Ruční ocenění](07_Prehled.md#74-ruční-ocenění-portu-spořicí-účty)).
 
-## 8.1 Co se z avíza zapíše
+## 10.1 Co se z avíza zapíše
 
 | Avízo | V pozici |
 |---|---|
@@ -33,7 +33,7 @@ a pohybů po něm (viz [7.4 Ruční ocenění](07_Prehled.md#74-ruční-oceněn�
 Transakce z avíza mají zdroj „bank_notice" a stejné avízo se nikdy nezapíše dvakrát.
 Když přijde víc avíz za jeden den, platí zůstatek z posledního.
 
-## 8.2 Schránka
+## 10.2 Schránka
 
 **Účet → Bankovní avíza → Nová schránka.** Zadej schránku, do které banka avíza posílá.
 
@@ -52,7 +52,7 @@ zpracuje avíza hned. Schránka se jen čte — e-maily zůstanou nepřečtené 
 > 💡 Pro avíza je nejlepší samostatná schránka nebo alias, ať se nečtou ostatní e-maily.
 > Pokud používáš heslo pro aplikace (Gmail, Seznam s dvoufázovým ověřením), zadej ho místo hesla k účtu.
 
-## 8.3 Napojení na pozici
+## 10.3 Napojení na pozici
 
 Avízo se přiřadí ruční pozici podle **čísla účtu**. V detailu spořicího účtu klikni na
 **Upravit** a vyplň:
@@ -67,7 +67,7 @@ délky a kódu banky. Když stejné masce odpovídá víc napojených účtů, a
 zadej pohyb ručně. Měna avíza musí odpovídat měně pozice. Směr platby (příchozí / odchozí) se bere z předmětu
 nebo z věty o zůstatku účtu, ne z popisu platby od protistrany.
 
-## 8.4 Zpracovaná avíza
+## 10.4 Zpracovaná avíza
 
 Pod schránkami je přehled napojených účtů a seznam posledních zpracovaných avíz se stavem:
 

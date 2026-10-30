@@ -8,7 +8,7 @@ import MarkdownIt from 'markdown-it'
 const sources = import.meta.glob('../../../manual/[0-9][0-9]_*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
 /** Kapitoly jen pro správce (instalace, administrace systému) */
-const ADMIN_ONLY = ['02', '09']
+const ADMIN_ONLY = ['02', '11']
 
 export interface ManualChapter {
   slug: string

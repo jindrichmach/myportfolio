@@ -21,6 +21,7 @@ import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDec, formatMoney, formatPercent, formatSigned } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import { gainClass } from '@/utils/tone'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -130,6 +131,7 @@ const positionKey = (r: PositionValuation) => r.position_id
           <div class="mt-4 pt-4 border-t border-neutral-200 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-3">
             <KpiTile v-for="k in secondary" :key="k.key" bare :label="k.label" :value="k.value" :value-class="k.cls" :hint="k.hint" />
           </div>
+          <ManualLink class="mt-3" to="07_Prehled#71-jak-se-počítá-hodnota-a-zisk" />
         </section>
         <KpiTile v-if="netWorth" :label="t('net_worth.net_worth')" :value="money(netWorth.net_worth)" to="/net-worth" :hint="t('dashboard.net_worth_hint')" class="sm:p-5">
           <dl class="mt-3 pt-3 border-t border-neutral-200 space-y-1 text-sm">

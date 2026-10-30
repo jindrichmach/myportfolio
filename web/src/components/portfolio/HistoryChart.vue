@@ -18,6 +18,7 @@ import { gainClass } from '@/utils/tone'
 import InfoTip from '@/components/ui/InfoTip.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
 import { useChartColors } from '@/composables/useTheme'
+import ManualLink from '@/components/ui/ManualLink.vue'
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip)
 
@@ -237,6 +238,7 @@ const realTitle = computed(() => {
       <p v-if="hasIncomplete" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.incomplete') }}</p>
       <p v-if="bench && !bench.available" class="px-4 pb-3 text-xs text-warning-600">{{ t('history.benchmark_unavailable', { symbol: bench.symbol }) }}</p>
       <p v-if="realTitle" class="px-4 pb-3 text-xs text-neutral-500">{{ t('history.real_more', { list: realTitle }) }}</p>
+      <ManualLink class="mx-4 mb-3" to="07_Prehled#75-vývoj-hodnoty-a-výnosové-metriky" />
     </template>
   </section>
 </template>

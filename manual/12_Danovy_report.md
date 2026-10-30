@@ -1,4 +1,4 @@
-# 10. Daňový report
+# 12. Daňový report
 
 **Portfolio → Daňový report** — podklad pro přiznání k dani z příjmů fyzických osob za kalendářní
 rok: prodeje cenných papírů a kryptoaktiv, zahraniční dividendy a přehled úroků. Všechno v Kč.
@@ -16,7 +16,7 @@ rok: prodeje cenných papírů a kryptoaktiv, zahraniční dividendy a přehled 
 Jednotný kurz jde spočítat jen pro uzavřený rok, ke kterému jsou v aplikaci kurzy ČNB za všech
 12 měsíců. Když chybí, report to napíše.
 
-## 10.1 Prodeje
+## 12.1 Prodeje
 
 Cenné papíry (akcie, ETF, fondy) a kryptoaktiva jsou dva samostatné bloky — zisky a ztráty se mezi
 nimi nesčítají. Uvnitř bloku se v roce vzájemně započítají (ztráta jednoho prodeje sníží zisk jiného);
@@ -49,7 +49,7 @@ Dílčí základ daně patří do přílohy č. 2 přiznání (ostatní příjmy
 > 🛈 Poznámka: Pozice s ručním oceněním (Portu, spořicí účty) nemají loty, v prodejích nejsou.
 > Portu vydává vlastní daňový podklad.
 
-## 10.2 Zahraniční dividendy
+## 12.2 Zahraniční dividendy
 
 Dividendy po zemích — země je podle ISIN instrumentu (první dvě písmena). U každé země:
 
@@ -62,14 +62,14 @@ Dividendy po zemích — země je podle ISIN instrumentu (první dvě písmena).
 | Doplatek | Česká daň − započitatelná část |
 
 Smlouva o zamezení dvojího zdanění může zápočet omezit níž než na 15 % — ověř u konkrétní země.
-Patří do přílohy č. 4 (samostatný základ daně) nebo na ř. 38 s přílohou č. 3 — viz [10.4](#104-podklad-pro-přiznání). České dividendy (ISIN `CZ…`) zdanil plátce srážkou, report je jen zmíní.
+Patří do přílohy č. 4 (samostatný základ daně) nebo na ř. 38 s přílohou č. 3 — viz [12.4](#124-podklad-pro-přiznání). České dividendy (ISIN `CZ…`) zdanil plátce srážkou, report je jen zmíní.
 
-## 10.3 Úroky
+## 12.3 Úroky
 
 Úroky ze spořicích účtů po pozicích. Česká banka daň srazila sama, do přiznání se neuvádějí —
 přehled je informativní.
 
-## 10.4 Podklad pro přiznání
+## 12.4 Podklad pro přiznání
 
 Pod souhrnem prodejů je karta **Podklad pro přiznání**. Nejdřív zvolíš, jak přiznání podáváš — aplikace si volbu
 pamatuje a podle ní nabídne výstup:

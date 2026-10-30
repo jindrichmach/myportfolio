@@ -47,4 +47,4 @@ jen **dnešní** cenu přepíše nejbližší hodinová aktualizace, pokud zdroj
 
 - **Katalog → Instrumenty** — sloupec Poslední cena
 - **Pozice** a **detail pozice** — poslední cena instrumentu, datum a zdroj
-- **Systém → Ceny a kurzy** — stav všech zdrojů (viz [9.2](09_Administrace.md#92-ceny-a-kurzy))
+- **Systém → Ceny a kurzy** — stav všech zdrojů (viz [11.3](11_Administrace.md#113-ceny-a-kurzy))
