@@ -9,7 +9,9 @@ const isField = (el: EventTarget | null): el is Field =>
 /**
  * Nativní bubliny HTML5 validace mluví jazykem prohlížeče, ne aplikace. Jeden globální listener
  * (capture `invalid`) nahradí text hláškou z i18n podle `validity`; při úpravě pole se vlastní text smaže,
- * ať pole zase validuje prohlížeč. Volá se jednou v App.vue.
+ * ať pole zase validuje prohlížeč. Chrome navíc ukazuje `validationMessage` jako tooltip při najetí myší
+ * (ještě před odesláním) — ten přebije `title`, proto ho na neplatném poli nastavíme na přeloženou hlášku.
+ * Volá se jednou v App.vue.
  */
 export function useValidationMessages() {
   const { t } = useI18n()
@@ -25,7 +27,7 @@ export function useValidationMessages() {
     if (v.stepMismatch) return t('validation.step')
     if (v.tooShort) return t('validation.min_length', { min: (el as HTMLInputElement).minLength })
     if (v.tooLong) return t('validation.max_length', { max: (el as HTMLInputElement).maxLength })
-    if (v.patternMismatch) return el.title || t('validation.pattern')
+    if (v.patternMismatch) return (el.dataset.i18nTitle ? '' : el.title) || t('validation.pattern')
     return ''
   }
 
@@ -48,14 +50,31 @@ export function useValidationMessages() {
     el.setCustomValidity('')
   }
 
+  // Vlastní title stránky nepřepisujeme; náš title se při každém najetí přepočítá (nebo smaže, když je pole platné).
+  function onHover(e: Event) {
+    const el = e.target
+    if (!isField(el) || (el.hasAttribute('title') && !el.dataset.i18nTitle)) return
+    const own = el.validity.customError && !el.dataset.i18nValidity
+    const text = el.validity.valid ? '' : own ? el.validationMessage : message(el)
+    if (text) {
+      el.title = text
+      el.dataset.i18nTitle = '1'
+    } else if (el.dataset.i18nTitle) {
+      el.removeAttribute('title')
+      delete el.dataset.i18nTitle
+    }
+  }
+
   onMounted(() => {
     document.addEventListener('invalid', onInvalid, true)
     document.addEventListener('input', onEdit, true)
     document.addEventListener('change', onEdit, true)
+    document.addEventListener('mouseover', onHover, true)
   })
   onBeforeUnmount(() => {
     document.removeEventListener('invalid', onInvalid, true)
     document.removeEventListener('input', onEdit, true)
     document.removeEventListener('change', onEdit, true)
+    document.removeEventListener('mouseover', onHover, true)
   })
 }

@@ -15,3 +15,10 @@ test('hlášky HTML5 validace mají klíče v cs i en a composable je zapnutý v
   }
   assert.match(await read('App.vue'), /useValidationMessages\(\)/)
 })
+
+test('tooltip při najetí na neplatné pole je přeložený (Chrome jinak ukáže validationMessage prohlížeče)', async () => {
+  const composable = await read('composables/useValidationMessages.ts')
+  assert.match(composable, /addEventListener\('mouseover', onHover, true\)/)
+  assert.match(composable, /removeEventListener\('mouseover', onHover, true\)/)
+  assert.match(composable, /el\.title = text/)
+})
