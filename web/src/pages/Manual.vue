@@ -3,7 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { manualChapters, renderManual, searchManual } from '@/utils/manual'
+import { findHeading, manualChapters, renderManual, searchManual } from '@/utils/manual'
 import { useFieldId } from '@/composables/useFieldId'
 
 const { t, locale } = useI18n()
@@ -11,7 +11,8 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 
-const chapters = computed(() => manualChapters.filter(c => !c.adminOnly || auth.user?.role === 'admin'))
+const all = computed(() => manualChapters(locale.value))
+const chapters = computed(() => all.value.filter(c => !c.adminOnly || auth.user?.role === 'admin'))
 const current = computed(() => chapters.value.find(c => c.slug === route.params.chapter) ?? chapters.value[0])
 // Hledání napříč kapitolami (jen kapitoly, které uživatel vidí)
 const fid = useFieldId()
@@ -23,13 +24,13 @@ function openHit(slug: string, id: string) {
 }
 const html = computed(() => (current.value ? renderManual(current.value.source) : ''))
 /** Odkaz do kapitoly jen pro správce (instalace, administrace) */
-const adminOnly = computed(() => !chapters.value.some(c => c.slug === route.params.chapter) && manualChapters.some(c => c.slug === route.params.chapter))
+const adminOnly = computed(() => !chapters.value.some(c => c.slug === route.params.chapter) && all.value.some(c => c.slug === route.params.chapter))
 
 // Kotva z URL (#55-import…) po vykreslení kapitoly; jinak nahoru
-watch(() => [current.value?.slug, route.hash], async () => {
+watch(() => [current.value?.slug, route.hash, locale.value], async () => {
   await nextTick()
   const id = decodeURIComponent(route.hash.replace(/^#/, ''))
-  const target = id ? document.getElementById(id) : null
+  const target = id ? findHeading(document, id) : null
   if (target) target.scrollIntoView({ block: 'start' })
   else window.scrollTo({ top: 0 })
 }, { immediate: true })
@@ -55,7 +56,6 @@ function go(slug: string) {
     <div class="mb-4">
       <!-- Jediná H1 stránky je název kapitoly v obsahu. -->
       <p class="text-2xl font-semibold">{{ t('manual.title') }}</p>
-      <p v-if="locale !== 'cs'" class="text-sm text-warning-600 mt-1">{{ t('manual.cs_only') }}</p>
       <div class="mt-3 max-w-md">
         <label :for="fid('q')" class="block text-xs font-medium text-neutral-600 mb-1">{{ t('manual.search') }}</label>
         <input :id="fid('q')" v-model="query" type="search" :placeholder="t('manual.search_placeholder')"

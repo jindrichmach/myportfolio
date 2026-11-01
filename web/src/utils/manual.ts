@@ -1,11 +1,13 @@
 /**
- * Uživatelský manuál (`manual/NN_Nazev.md`, česky) přibalený do frontendu při buildu. Kapitoly se řadí podle čísla,
- * nadpisy dostanou kotvy jako na GitHubu (odkazy `[x](05_Transakce.md#55-import…)` v manuálu tak fungují beze změny)
- * a odkazy mezi kapitolami se přepíšou na routy `/manual/<kapitola>#kotva`.
+ * Uživatelský manuál přibalený do frontendu při buildu: česky `manual/NN_Nazev.md`, anglicky `manual/en/NN_Nazev.md`
+ * (stejné názvy souborů = stejné routy). Kapitoly se řadí podle čísla, nadpisy dostanou kotvy jako na GitHubu
+ * (odkazy `[x](05_Transakce.md#55-import…)` v manuálu tak fungují beze změny) a odkazy mezi kapitolami se přepíšou
+ * na routy `/manual/<kapitola>#kotva`.
  */
 import MarkdownIt from 'markdown-it'
 
-const sources = import.meta.glob('../../../manual/[0-9][0-9]_*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+const sourcesCs = import.meta.glob('../../../manual/[0-9][0-9]_*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+const sourcesEn = import.meta.glob('../../../manual/en/[0-9][0-9]_*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
 /** Kapitoly jen pro správce (instalace, administrace systému) */
 const ADMIN_ONLY = ['02', '11']
@@ -24,15 +26,36 @@ export function headingSlug(text: string): string {
   return text.trim().toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, '').replace(/\s/g, '-')
 }
 
-export const manualChapters: ManualChapter[] = Object.entries(sources)
-  .map(([path, source]) => {
-    const slug = path.split('/').pop()!.replace(/\.md$/, '')
-    const number = slug.slice(0, 2)
-    const title = (source.match(/^# (.+)$/m)?.[1] ?? slug).trim()
-    const sections = [...source.matchAll(/^## (.+)$/gm)].map(m => ({ id: headingSlug(m[1]), title: m[1].trim() }))
-    return { slug, number, title, source, adminOnly: ADMIN_ONLY.includes(number), sections }
-  })
-  .sort((a, b) => a.slug.localeCompare(b.slug))
+function chapters(sources: Record<string, string>): ManualChapter[] {
+  return Object.entries(sources)
+    .map(([path, source]) => {
+      const slug = path.split('/').pop()!.replace(/\.md$/, '')
+      const number = slug.slice(0, 2)
+      const title = (source.match(/^# (.+)$/m)?.[1] ?? slug).trim()
+      const sections = [...source.matchAll(/^## (.+)$/gm)].map(m => ({ id: headingSlug(m[1]), title: m[1].trim() }))
+      return { slug, number, title, source, adminOnly: ADMIN_ONLY.includes(number), sections }
+    })
+    .sort((a, b) => a.slug.localeCompare(b.slug))
+}
+
+const chaptersCs = chapters(sourcesCs)
+const chaptersEn = new Map(chapters(sourcesEn).map(c => [c.slug, c]))
+
+/** Kapitoly v jazyce aplikace; chybějící anglický překlad kapitoly nahradí česká verze. */
+export function manualChapters(locale: string): ManualChapter[] {
+  return locale === 'cs' ? chaptersCs : chaptersCs.map(c => chaptersEn.get(c.slug) ?? c)
+}
+
+/**
+ * Element nadpisu pro kotvu z URL. Odkazy z aplikace (ManualLink) mají české kotvy — v anglické kapitole
+ * se nadpis najde podle čísla oddílu na začátku kotvy („91-cílová-…" → „91-target-…").
+ */
+export function findHeading(root: ParentNode, id: string): HTMLElement | null {
+  const exact = root.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`)
+  if (exact) return exact
+  const number = id.match(/^(\d+)-/)?.[1]
+  return number ? root.querySelector<HTMLElement>(`[id^="${number}-"]`) : null
+}
 
 /** Text bez diakritiky a velkých písmen — hledání „uroky“ najde „Úroky“. */
 const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()

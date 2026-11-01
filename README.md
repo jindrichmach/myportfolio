@@ -12,6 +12,7 @@
 <p align="center">
   <a href="LICENSE">MIT</a> ·
   <a href="manual/INDEX.md">Manuál</a> ·
+  <a href="manual/en/INDEX.md">Manual (EN)</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
   verze <code>1.0.0</code>
 </p>
@@ -185,7 +186,7 @@ web/             Vue 3 SPA (src/, public/, tests/)
 db/migrations/   číslované idempotentní SQL migrace
 docker/          nginx, php-fpm, entrypoint, cron wrapper
 cmd/             shell skripty (instalace, testy, Docker, cron)
-manual/          uživatelský manuál v Markdownu (je i přímo v aplikaci)
+manual/          uživatelský manuál v Markdownu, anglicky v manual/en/ (je i přímo v aplikaci)
 docs/            screenshoty pro README
 styles/          statika z rootu (logo)
 ```
@@ -198,7 +199,7 @@ MyPortfolio is a self-hosted, multi-user tracker for personal investments — cr
 robo-advisor Portu, savings accounts, pension schemes and net worth (property, loans). It is built primarily for
 **Czech investors**: CZK base currency with Czech National Bank rates, a Czech capital-gains tax report (FIFO lots,
 3-year holding test, 100k CZK exemption, foreign dividends) and parsers for Czech bank e-mail notices. The UI is
-available in Czech and English; the user manual and developer rules (`AGENTS.md`) are in Czech.
+available in Czech and English, and so is the [user manual](manual/en/INDEX.md); developer rules (`AGENTS.md`) are in Czech.
 
 - **Stack:** PHP 8.5 + Slim 4, MariaDB 11, Vue 3 + TypeScript + Tailwind; Docker image on GHCR.
 - **Highlights:** exact decimal arithmetic (no floats), TWR / XIRR, benchmark and target allocation with

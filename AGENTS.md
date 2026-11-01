@@ -23,7 +23,7 @@ Skelet (auth, MFA, session, middleware, migrace, Docker, CI) je převzatý z MyI
 - `docker/` — nginx, php-fpm, entrypoint, cron wrapper pro Docker image
 - `cmd/` — shell wrappery (testy, Docker, cron)
 - `tools/` — pomocné skripty (generování crontabu pro Docker)
-- `manual/` — uživatelský manuál (Markdown, česky; je i přímo v aplikaci)
+- `manual/` — uživatelský manuál (Markdown, česky; anglicky v `manual/en/`; je i přímo v aplikaci)
 - `docs/screenshots/` — screenshoty pro README (jen z ukázkových dat `seed-demo.php`)
 - `styles/` — statika servírovaná z rootu (logo)
 
@@ -168,6 +168,9 @@ docker compose up -d / down
 
 - Zdroj v `manual/*.md` (česky, konvence v `manual/README.md`, přehled v `manual/INDEX.md`). Každá funkce viditelná
   uživatelem má kapitolu aktualizovanou **ve stejném commitu** — manuál je součást hotového milníku.
+- Manuál je **ve dvou jazycích**: `manual/NN_*.md` česky a `manual/en/NN_*.md` anglicky (stejné názvy souborů).
+  Každou změnu promítni **do obou verzí ve stejném commitu**; stejné kapitoly a stejně číslované nadpisy hlídá test.
+  UI popisky v anglické verzi přesně podle `web/src/i18n/en.json`.
 - Piš **jen aktuální stav** — žádné „od verze X.Y.Z", žádné odkazy na historii vývoje.
 - Manuál je i ve webu (stránka Manuál, přibalený při `pnpm build`) — odkazy mezi kapitolami piš jako
   `NN_Kapitola.md#kotva-nadpisu` (kotvy jako na GitHubu); hlídá je `web/tests/manual-links.test.mjs`.

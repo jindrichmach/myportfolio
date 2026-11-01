@@ -1,6 +1,6 @@
 # Manuál — konvence
 
-Adresář `manual/` obsahuje uživatelskou dokumentaci v Markdownu (česky).
+Adresář `manual/` obsahuje uživatelskou dokumentaci v Markdownu — česky, anglický překlad je v `manual/en/`.
 
 ## Struktura
 
@@ -9,6 +9,9 @@ manual/
 ├── INDEX.md          # navigace + skupiny (podle menu aplikace)
 ├── 01_Uvod.md        # kapitoly NN_Nazev.md, řazené podle menu
 ├── …
+├── en/               # anglická verze: stejné názvy souborů, stejně číslované nadpisy
+│   ├── INDEX.md
+│   └── 01_Uvod.md …
 └── README.md         # tento soubor
 ```
 
@@ -20,6 +23,16 @@ manual/
 - Odkazy mezi kapitolami přes název souboru a kotvu nadpisu (`[Převod mezi účty](05_Transakce.md#53-převod-mezi-účty)`).
 - Piš **jen aktuální stav** — žádné „od verze X", žádná historie vývoje.
 - Screenshoty v manuálu zatím nejsou; pokud přibudou, jen ze syntetických dat (žádné reálné zůstatky, adresy peněženek, čísla účtů).
+
+## Dvě jazykové verze
+
+- Každá změna kapitoly se promítne do české i anglické verze **ve stejném commitu**.
+- Anglický soubor má stejný název jako český (název je zároveň routa `/manual/NN_Nazev`) a stejné nadpisy
+  se stejným číslováním — hlídá `web/tests/manual-links.test.mjs`.
+- Popisky tlačítek, polí a menu v anglické verzi přesně podle `web/src/i18n/en.json`.
+- Odkazy v anglické verzi míří na kotvy anglických nadpisů. Odkazy z aplikace (`ManualLink`) mají české kotvy;
+  v angličtině se oddíl dohledá podle čísla (`91-…`).
+- Aplikace ukáže manuál v jazyce rozhraní; chybějící anglická kapitola se nahradí českou.
 
 ## Kapitoly
 
