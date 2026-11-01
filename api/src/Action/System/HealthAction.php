@@ -81,6 +81,13 @@ final class HealthAction
                         . '— zaregistruj jim passkey, nebo nastav session.lock_after_minutes = 0.',
                 ];
             }
+            if (!$payload['redis']) {
+                $warnings[] = [
+                    'code' => 'rate_limit_disabled',
+                    'message' => 'Redis není dostupný — omezení počtu požadavků (rate limiting) je vypnuté. '
+                        . 'Přihlášení dál hlídá limit neúspěšných pokusů v databázi.',
+                ];
+            }
             $payload['warnings'] = $warnings;
         }
 

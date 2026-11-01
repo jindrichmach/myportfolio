@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="MyPortfolio" />
     <meta name="robots" content="noindex, nofollow" />
     <title>MyPortfolio</title>
+    <!-- Po úpravě skriptu přepiš jeho sha256 v CSP (.htaccess + docker/nginx.conf); hlídá web/tests/csp-inline-script.test.mjs -->
     <script>
       // Anti-FOUC: nastav .dark a barevné schéma ještě před načtením appky, ať nic nebliká.
       // Klíče musí sedět s composables/useTheme.ts (THEME_STORAGE_KEY, SCHEME_STORAGE_KEY).

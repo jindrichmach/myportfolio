@@ -60,7 +60,7 @@ const commands = computed(() => {
     ].join('\n')
   }
   return [
-    `cd ${d.app_dir}`,
+    `# ${t('update.in_app_dir')}`,
     'git pull',
     'cd api && composer install --no-dev --optimize-autoloader && cd ..',
     `${d.php} api/bin/migrate.php`,

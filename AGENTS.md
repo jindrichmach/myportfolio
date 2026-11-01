@@ -113,8 +113,8 @@ docker compose up -d / down
 ### Izolace uživatelů
 - **Každý dotaz na uživatelská data je scopovaný na `user_id`** přihlášeného uživatele
   (repository vrstva). Cizí záznam = 404, ne 403 (neprozrazuj existenci).
-- Globální číselníky (`institutions`, `instruments`, `prices`, `fx_rates`) spravuje admin;
-  uživatel je jen čte.
+- Globální číselníky (`institutions`, `instruments`, `prices`, `fx_rates`) spravuje admin; uživatel je čte
+  a smí založit novou instituci / instrument (např. chybějící ticker při zápisu transakce), úpravy a mazání jen admin.
 - RBAC: role `admin` a `user`; `/api/admin/*` je jen pro admina (`RoleMiddleware`).
 - **Sdílení**: doménové akce čtou vlastníka dat přes `CurrentUser::owner()` (hlavička `X-Owner`,
   ověřená `ShareContextMiddleware` proti `shares`), osobní akce (nastavení, auth, sdílení, admin, číselníky) jen `CurrentUser::id()`.

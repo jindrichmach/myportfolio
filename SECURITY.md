@@ -40,7 +40,8 @@ opravy. Po vydání můžete být uvedeni v `CHANGELOG.md` (opt-in).
 
 | Verze | Status |
 |-------|--------|
-| 0.x   | ✅ Vývoj — opravy jen v nejnovější verzi |
+| 1.x   | ✅ Opravy jen v nejnovější verzi 1.x |
+| 0.x   | ❌ Nepodporováno |
 
 ## Pravidla pro nový kód
 
@@ -56,5 +57,5 @@ Please **do not open a public issue** for security problems. Report privately vi
 (preferred) or by e-mail to `jindrichmach@gmail.com` with the subject `[SECURITY] <short description>`.
 
 You can expect an acknowledgement within 5 business days and a fix prioritised by severity
-(critical issues target 7 days). Only the latest 0.x version receives fixes. Please keep details
+(critical issues target 7 days). Only the latest 1.x version receives fixes. Please keep details
 private until a fix is released; reporters can be credited in `CHANGELOG.md` on request.

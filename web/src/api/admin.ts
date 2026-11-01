@@ -50,7 +50,6 @@ export interface UpdateStatus {
   error: 'unavailable' | 'not_configured' | null
   repo: string
   install: 'docker' | 'native'
-  app_dir: string
   php: string
 }
 

@@ -1483,14 +1483,19 @@
     "copy": "Kopírovat",
     "copied": "Zkopírováno",
     "manual_only": "Aktualizace se spouští na serveru — aplikace nemá práva měnit vlastní soubory ani Docker image.",
-    "manual_link": "Podrobně v manuálu, kapitola 2.4"
+    "manual_link": "Podrobně v manuálu, kapitola 2.4",
+    "in_app_dir": "v adresáři aplikace (kde je soubor VERSION)"
   },
   "admin_settings": {
     "title": "Nastavení",
     "subtitle": "Nastavení celé instance. Každá záložka se ukládá samostatně.",
     "tabs_label": "Části nastavení",
     "tab_smtp": "E-mail (SMTP)",
-    "tab_appearance": "Vzhled"
+    "tab_appearance": "Vzhled",
+    "health_title": "Upozornění konfigurace",
+    "health": {
+      "rate_limit_disabled": "Redis není dostupný — omezení počtu požadavků (rate limiting) je vypnuté. Přihlášení dál hlídá limit neúspěšných pokusů v databázi. Doporučujeme Redis zapnout (v Dockeru je součástí)."
+    }
   },
   "appearance": {
     "scheme": "Barevné schéma",

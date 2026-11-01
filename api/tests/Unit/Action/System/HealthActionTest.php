@@ -58,10 +58,11 @@ final class HealthActionTest extends TestCase
         $body = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame([[
-            'code' => 'webauthn_configuration',
-            'message' => 'WebAuthn vyžaduje HTTPS.',
-        ]], $body['warnings']);
+        self::assertSame(
+            ['webauthn_configuration', 'rate_limit_disabled'],
+            array_column($body['warnings'], 'code'),
+        );
+        self::assertSame('WebAuthn vyžaduje HTTPS.', $body['warnings'][0]['message']);
     }
 
     public function testAnonymousHealthDoesNotResolveSensitiveWarnings(): void

@@ -1483,14 +1483,19 @@
     "copy": "Copy",
     "copied": "Copied",
     "manual_only": "Updates run on the server — the application cannot change its own files or Docker image.",
-    "manual_link": "Details in the manual, chapter 2.4"
+    "manual_link": "Details in the manual, chapter 2.4",
+    "in_app_dir": "in the application directory (where the VERSION file is)"
   },
   "admin_settings": {
     "title": "Settings",
     "subtitle": "Instance-wide settings. Each tab is saved separately.",
     "tabs_label": "Settings sections",
     "tab_smtp": "E-mail (SMTP)",
-    "tab_appearance": "Appearance"
+    "tab_appearance": "Appearance",
+    "health_title": "Configuration warnings",
+    "health": {
+      "rate_limit_disabled": "Redis is not available — request rate limiting is off. Login still enforces the failed-attempt limit in the database. We recommend enabling Redis (included in Docker)."
+    }
   },
   "appearance": {
     "scheme": "Color scheme",

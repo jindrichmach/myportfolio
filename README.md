@@ -74,7 +74,8 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 ### API
 - Tokeny s rozsahem `read` / `read_write` pro skripty a integrace; katalog endpointů s ukázkami, tlačítkem
-  Vyzkoušet a exportem **OpenAPI 3.1** (`/api/openapi.json`).
+  Vyzkoušet a exportem **OpenAPI 3.1** (`/api/openapi.json`). Katalog i OpenAPI jsou dostupné jen po přihlášení
+  (Profil → API) nebo s API tokenem — neprozrazují povrch API instance anonymně.
 
 ## Ukázky
 
@@ -202,7 +203,7 @@ available in Czech and English; the user manual and developer rules (`AGENTS.md`
 - **Stack:** PHP 8.5 + Slim 4, MariaDB 11, Vue 3 + TypeScript + Tailwind; Docker image on GHCR.
 - **Highlights:** exact decimal arithmetic (no floats), TWR / XIRR, benchmark and target allocation with
   rebalancing, CSV imports from 10 exchanges and brokers, read-only exchange APIs, household sharing, passkeys / TOTP,
-  REST API with OpenAPI 3.1.
+  REST API with OpenAPI 3.1 (available after sign-in in Profile → API, or with an API token).
 - **Install:** `cmd/install.sh` (Docker or native), then open `/setup` in the browser.
 - **Security issues:** see [SECURITY.md](SECURITY.md). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
 

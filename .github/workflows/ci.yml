@@ -63,6 +63,10 @@ jobs:
         working-directory: api
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Composer audit
+        working-directory: api
+        run: composer audit --locked
+
       # cfg.php je gitignored, CI si ho generuje. Píšeme ho jako soubor, ne přes
       # MYPORTFOLIO_* proměnné — ty by prosákly i do unit testů Configu, které
       # ověřují právě chování ENV override, a rozbily by je.

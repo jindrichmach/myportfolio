@@ -10,6 +10,7 @@ use MyPortfolio\Middleware\FirstRunLockMiddleware;
 use MyPortfolio\Service\Appearance\ColorSchemes;
 use MyPortfolio\Service\Auth\MfaPolicyService;
 use MyPortfolio\Service\Auth\PasskeyService;
+use MyPortfolio\Service\Update\VersionService;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ResponseFactory;
@@ -38,6 +39,7 @@ final class SetupStatusActionTest extends TestCase
             $passkeys,
             $policy,
             $schemes,
+            new VersionService(),
         );
 
         $response = $action(
@@ -68,6 +70,7 @@ final class SetupStatusActionTest extends TestCase
             $passkeys,
             $policy,
             $schemes,
+            new VersionService(),
         );
 
         $response = $action(
@@ -78,5 +81,30 @@ final class SetupStatusActionTest extends TestCase
 
         self::assertFalse($body['passwordless_login_enabled']);
         self::assertSame('Europe/Prague', $body['timezone']);
+    }
+
+    public function testVersionComesFromVersionFileAndDisabledCaptchaHidesKey(): void
+    {
+        $lock = $this->createStub(FirstRunLockMiddleware::class);
+        $action = new SetupStatusAction(
+            $lock,
+            new Config(['captcha' => ['provider' => 'none', 'site_key' => 'CHANGE-ME', 'script_url' => 'https://example.invalid/c.js']]),
+            $this->createStub(PasskeyService::class),
+            $this->createStub(MfaPolicyService::class),
+            $this->createStub(ColorSchemes::class),
+            new VersionService(),
+        );
+
+        $response = $action(
+            (new ServerRequestFactory())->createServerRequest('GET', '/api/auth/setup-status'),
+            (new ResponseFactory())->createResponse(),
+        );
+        $body = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame((new VersionService())->getCurrentVersion(), $body['version']);
+        self::assertNotSame('unknown', $body['version']);
+        self::assertSame('none', $body['captcha']['provider']);
+        self::assertSame('', $body['captcha']['site_key']);
+        self::assertSame('', $body['captcha']['script_url']);
     }
 }
