@@ -9,6 +9,7 @@ import { api } from '@/api/client'
 import { apiDocs, type ApiCatalog, type ApiEndpoint, type ApiParam } from '@/api/apiDocs'
 import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
+import FileInput from '@/components/ui/FileInput.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -254,7 +255,7 @@ const inputClass = 'w-full h-8 px-2 border border-field rounded-md bg-surface te
                 <div v-if="e.params.length" class="grid gap-2 sm:grid-cols-2 mb-2">
                   <label v-for="p in sortedParams(e)" :key="p.name" class="text-xs">
                     <span class="block text-neutral-600 mb-0.5"><code>{{ p.name }}</code><span v-if="p.required" class="text-danger-500"> *</span></span>
-                    <input v-if="p.type === 'file'" type="file" class="block w-full text-sm" @change="ev => (tryFiles[e.id] = (ev.target as HTMLInputElement).files?.[0] ?? null)" />
+                    <FileInput v-if="p.type === 'file'" v-model="tryFiles[e.id]" />
                     <input v-else-if="p.type === 'boolean'" v-model="tryValues[e.id][p.name]" type="checkbox" class="rounded border-field text-primary-700" />
                     <select v-else-if="p.enum" v-model="tryValues[e.id][p.name]" :class="inputClass">
                       <option value="">—</option>

@@ -6,6 +6,7 @@ import AppShell from '@/components/layout/AppShell.vue'
 import { useAuthStore } from '@/stores/auth'
 import { authApi, type SetupPayload, type SetupSmtp } from '@/api/auth'
 import { useFieldId } from '@/composables/useFieldId'
+import PasswordInput from '@/components/ui/PasswordInput.vue'
 
 /**
  * Úvodní průvodce: admin a předvolby → zabezpečení → e-mail (SMTP, volitelně)
@@ -153,12 +154,12 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
               <label :for="fid('password')" :class="labelClass">{{ t('auth.password') }}</label>
-              <input :id="fid('password')" v-model="admin.password" type="password" required autocomplete="new-password" :class="inputClass" />
+              <PasswordInput :id="fid('password')" v-model="admin.password" required autocomplete="new-password" :class="inputClass" />
               <p class="text-xs mt-1" :class="admin.password && !passwordOk ? 'text-danger-500' : 'text-neutral-500'">{{ t('auth.min_chars', { n: 12 }) }}</p>
             </div>
             <div>
               <label :for="fid('password_confirm')" :class="labelClass">{{ t('auth.new_password_confirm') }}</label>
-              <input :id="fid('password_confirm')" v-model="admin.password_confirm" type="password" required autocomplete="new-password" :class="inputClass" />
+              <PasswordInput :id="fid('password_confirm')" v-model="admin.password_confirm" required autocomplete="new-password" :class="inputClass" />
               <p v-if="admin.password_confirm && !passwordMatch" class="text-xs text-danger-500 mt-1">{{ t('auth.passwords_dont_match') }}</p>
             </div>
           </div>

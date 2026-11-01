@@ -19,6 +19,7 @@ import { formatDateTime, formatDec } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
 import ManualLink from '@/components/ui/ManualLink.vue'
+import FileInput from '@/components/ui/FileInput.vue'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -60,11 +61,7 @@ function sourceLabel(source: string): string {
 const upload = reactive({ account_id: '' as number | '', portfolio_id: '' as number | '', source: '', file: null as File | null })
 const uploading = ref(false)
 const uploadError = ref('')
-const fileInput = ref<HTMLInputElement | null>(null)
-
-function onFile(e: Event) {
-  upload.file = (e.target as HTMLInputElement).files?.[0] ?? null
-}
+const fileInput = ref<InstanceType<typeof FileInput> | null>(null)
 
 async function loadPreview() {
   if (!upload.file || !upload.account_id || !upload.portfolio_id) return
@@ -178,7 +175,7 @@ async function confirmImport() {
 function reset() {
   preview.value = null
   upload.file = null
-  if (fileInput.value) fileInput.value.value = ''
+  fileInput.value?.reset()
   if (route.query.token) router.replace({ query: {} })
 }
 
@@ -259,8 +256,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           </div>
           <div>
             <label :for="fid('field')" :class="labelClass">{{ t('import.file') }}</label>
-            <input :id="fid('field')" ref="fileInput" type="file" required accept=".csv,.txt,.xlsx,.zip" @change="onFile"
-              class="block w-full text-sm file:mr-3 file:h-9 file:px-3 file:border-0 file:rounded-md file:bg-neutral-100 file:text-sm file:cursor-pointer" />
+            <FileInput :id="fid('field')" ref="fileInput" v-model="upload.file" required accept=".csv,.txt,.xlsx,.zip" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('import.file_hint') }}</p>
           </div>
           <div class="md:col-span-2 flex flex-wrap items-center gap-3">

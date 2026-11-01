@@ -4,22 +4,26 @@ import { useI18n } from 'vue-i18n'
 import { adminApi, type ActivityLogEntry } from '@/api/admin'
 import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
-import type { GridFilter, GridDateRange, GridOption, GridQuery } from '@/components/ui/grid'
+import type { GridFilter, GridDateRange, GridQuery } from '@/components/ui/grid'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 const entries = ref<ActivityLogEntry[]>([])
 const total = ref(0)
-const actionOptions = ref<GridOption[]>([])
+const actionCounts = ref<{ action: string; cnt: number }[]>([])
 const loading = ref(true)
 
-const ENTITY_OPTIONS: GridOption[] = ['user', 'api_token', 'share', 'exchange_connection', 'smtp_settings'].map((value) => ({ value, label: value }))
+const ENTITY_TYPES = ['user', 'api_token', 'share', 'exchange_connection', 'smtp_settings']
+
+/** Lidský popisek kódu akce / typu entity; neznámý kód (nová akce bez překladu) zůstane surový. */
+const label = (group: 'actions' | 'entities', code: string) =>
+  te(`activity_log.${group}.${code}`) ? t(`activity_log.${group}.${code}`) : code
 
 /** Filtry jdou na server: hledání, akce, typ entity a období. */
 const filters = computed<GridFilter[]>(() => [
   { key: 'q', type: 'text', label: t('grid.search'), placeholder: t('activity_log.search_placeholder') },
-  { key: 'action', type: 'select', label: t('activity_log.action'), allLabel: t('activity_log.all_actions'), options: actionOptions.value },
-  { key: 'entity_type', type: 'select', label: t('activity_log.entity'), allLabel: t('activity_log.all_entities'), options: ENTITY_OPTIONS },
+  { key: 'action', type: 'select', label: t('activity_log.action'), allLabel: t('activity_log.all_actions'), options: actionCounts.value.map(a => ({ value: a.action, label: `${label('actions', a.action)} (${a.cnt})` })) },
+  { key: 'entity_type', type: 'select', label: t('activity_log.entity'), allLabel: t('activity_log.all_entities'), options: ENTITY_TYPES.map(value => ({ value, label: label('entities', value) })) },
   { key: 'period', type: 'daterange', label: t('grid.period') },
 ])
 
@@ -68,7 +72,7 @@ async function load(query: GridQuery) {
     const r = await adminApi.activityLog(params)
     entries.value = r.data
     total.value = r.total
-    actionOptions.value = r.actions.map((a) => ({ value: a.action, label: `${a.action} (${a.cnt})` }))
+    actionCounts.value = r.actions
   } finally {
     loading.value = false
   }
@@ -93,11 +97,11 @@ async function load(query: GridQuery) {
       </template>
 
       <template #cell-action="{ row }">
-        <span class="text-xs px-2 py-0.5 rounded font-medium" :class="actionBadgeClass(row.action)">{{ row.action }}</span>
+        <span class="text-xs px-2 py-0.5 rounded font-medium" :class="actionBadgeClass(row.action)" :title="row.action">{{ label('actions', row.action) }}</span>
       </template>
 
       <template #cell-entity="{ row }">
-        <span v-if="row.entity_type" class="text-xs whitespace-nowrap">{{ row.entity_type }} #{{ row.entity_id }}</span>
+        <span v-if="row.entity_type" class="text-xs whitespace-nowrap">{{ label('entities', row.entity_type) }} #{{ row.entity_id }}</span>
         <span v-else class="text-neutral-400">—</span>
       </template>
 

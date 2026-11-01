@@ -4,13 +4,95 @@
     "all_actions": "Všechny akce",
     "all_entities": "Všechny entity",
     "entity": "Entita",
-    "payload": "Payload",
+    "payload": "Detail",
     "refresh": "Obnovit",
     "subtitle": "Audit záznamů ze všech akcí (přístup pouze pro admin).",
     "time": "Čas",
-    "title": "Activity log",
+    "title": "Záznam aktivit",
     "user": "Uživatel",
-    "search_placeholder": "Hledat akci, e-mail nebo jméno"
+    "search_placeholder": "Hledat akci, e-mail nebo jméno",
+    "actions": {
+      "security": {
+        "ip_blocked": "Blokovaná IP adresa"
+      },
+      "auth": {
+        "recovery_codes_generated": "Vygenerovány záložní kódy",
+        "password_reset": "Obnova hesla dokončena",
+        "password_changed": "Změna hesla",
+        "passkey_registered": "Přidán passkey",
+        "login_failed": "Neúspěšné přihlášení",
+        "email_otp_sent": "Odeslán e-mailový kód",
+        "session_unlocked": "Relace odemčena",
+        "session_lock_preference_changed": "Změna nastavení zámku relace",
+        "totp_enabled": "Zapnuto TOTP",
+        "session_locked": "Relace zamčena",
+        "recovery_code_failed": "Neplatný záložní kód",
+        "passkey_revoked": "Odebrán passkey",
+        "logout": "Odhlášení",
+        "recovery_code_used": "Použit záložní kód",
+        "captcha_failed": "Neplatná CAPTCHA",
+        "recovery_code_login": "Přihlášení záložním kódem",
+        "totp_step_up": "Ověření TOTP",
+        "forgot_mail_failed": "Obnova hesla — e-mail se nepodařilo odeslat",
+        "login_locked": "Přihlášení zablokováno",
+        "email_otp_locked": "E-mailový kód zablokován",
+        "passkey_step_up": "Ověření passkey",
+        "passkey_counter_anomaly": "Passkey — podezřelý čítač",
+        "totp_locked": "TOTP zablokováno",
+        "login": "Přihlášení",
+        "forgot_sent": "Obnova hesla — odkaz odeslán",
+        "forgot_unknown": "Obnova hesla — neznámý e-mail",
+        "passkey_renamed": "Přejmenován passkey",
+        "session_unlock_failed": "Neúspěšné odemčení relace"
+      },
+      "setup": {
+        "demo_seeded": "Nahrána ukázková data",
+        "cfg_local_write_failed": "Instalace — zápis cfg.local.php selhal",
+        "demo_failed": "Ukázková data selhala",
+        "completed": "Instalace dokončena"
+      },
+      "api_token": {
+        "revoked": "Zrušen API token",
+        "created": "Vytvořen API token"
+      },
+      "user": {
+        "created_by_invite": "Uživatel z pozvánky",
+        "deactivated": "Deaktivován uživatel",
+        "created": "Vytvořen uživatel",
+        "updated": "Upraven uživatel"
+      },
+      "exchange": {
+        "connected": "Připojena burza",
+        "disconnected": "Odpojena burza"
+      },
+      "share": {
+        "revoked": "Sdílení zrušeno",
+        "write": "Zápis do sdílených dat",
+        "created": "Sdílení vytvořeno",
+        "accepted": "Sdílení přijato",
+        "updated": "Sdílení upraveno",
+        "left": "Sdílení opuštěno"
+      },
+      "admin": {
+        "cron": {
+          "run_now": "Ruční spuštění plánované úlohy"
+        }
+      },
+      "smtp": {
+        "updated": "Změna nastavení SMTP",
+        "tested": "Test SMTP"
+      },
+      "appearance": {
+        "updated": "Změna vzhledu instance"
+      }
+    },
+    "entities": {
+      "user": "Uživatel",
+      "api_token": "API token",
+      "smtp_settings": "Nastavení SMTP",
+      "exchange_connection": "Připojení burzy",
+      "share": "Sdílení"
+    }
   },
   "bank_notices": {
     "title": "Bankovní avíza",
@@ -212,7 +294,9 @@
     "total": "Celkem",
     "expand": "Rozbalit",
     "collapse": "Sbalit",
-    "drag_to_reorder": "Přetažením změníš pořadí"
+    "drag_to_reorder": "Přetažením změníš pořadí",
+    "choose_file": "Vybrat soubor",
+    "no_file": "Soubor nevybrán"
   },
   "cron_jobs": {
     "ago_days": "před {n} d",
@@ -307,7 +391,7 @@
   "nav": {
     "cron_jobs": "Plánované úlohy",
     "dashboard": "Přehled",
-    "log": "Log",
+    "log": "Záznam aktivit",
     "logout": "Odhlásit",
     "system": "Systém",
     "users": "Uživatelé",
@@ -512,7 +596,7 @@
     "password_min": "Min. 12 znaků.",
     "password_required": "Heslo je povinné při vytváření.",
     "role": "Role",
-    "subtitle": "Admin / Účetní / Read-only — pouze pro admin role.",
+    "subtitle": "Správa účtů a rolí — admin spravuje instanci, uživatel jen svá data.",
     "title": "Uživatelé",
     "all_roles": "Všechny role",
     "all_statuses": "Všechny stavy",
@@ -1546,5 +1630,20 @@
     "step_where": "Kde ho držíš",
     "step_buy": "V dalším kroku zapíšeš první nákup.",
     "continue": "Pokračovat na nákup"
+  },
+  "validation": {
+    "number": "Zadej číslo.",
+    "file_required": "Vyber prosím soubor.",
+    "url": "Zadej platnou adresu URL (např. https://…).",
+    "invalid": "Hodnota má neplatný formát.",
+    "max_length": "Zadej nejvýš {max} znaků.",
+    "step": "Hodnota nemá povolený počet desetinných míst.",
+    "email": "Zadej platnou e-mailovou adresu.",
+    "required": "Vyplň prosím toto pole.",
+    "select_required": "Vyber prosím jednu z možností.",
+    "max": "Hodnota může být nejvýš {max}.",
+    "min": "Hodnota musí být alespoň {min}.",
+    "pattern": "Hodnota neodpovídá požadovanému formátu.",
+    "min_length": "Zadej alespoň {min} znaků."
   }
 }

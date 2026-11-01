@@ -48,7 +48,7 @@ final class LoginSessionIssuer
 
         $this->db->pdo()->prepare(
             'UPDATE users
-                SET last_login_at = UTC_TIMESTAMP(6), last_login_ip = ?, last_login_ua = ?
+                SET last_login_at = CURRENT_TIMESTAMP, last_login_ip = ?, last_login_ua = ?
               WHERE id = ?'
         )->execute([
             @inet_pton($ip) ?: null,

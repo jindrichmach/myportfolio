@@ -6,13 +6,18 @@ import Toaster from '@/components/Toaster.vue'
 import SessionLockOverlay from '@/components/SessionLockOverlay.vue'
 import WebAuthnCeremonyPrompt from '@/components/WebAuthnCeremonyPrompt.vue'
 import { useTheme } from '@/composables/useTheme'
+import { useValidationMessages } from '@/composables/useValidationMessages'
 import { isColorScheme } from '@/theme/colorSchemes'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionSecurityStore } from '@/stores/sessionSecurity'
 
 // Inicializace barevného režimu (System/Light/Dark) a schématu — aplikuje .dark a data-scheme na <html>.
 const { colorScheme } = useTheme()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+// Jazyk dokumentu podle UI (čtečky, dělení slov, nativní ovládací prvky)
+watchEffect(() => { document.documentElement.lang = locale.value })
+// Hlášky HTML5 validace v jazyce aplikace, ne prohlížeče.
+useValidationMessages()
 const route = useRoute()
 const auth = useAuthStore()
 // Schéma: volba uživatele (null = schéma instance). Profil bez color_scheme (zamčená session) a nenačtený

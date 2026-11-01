@@ -94,12 +94,12 @@ Barvy zisku, ztráty a varování jsou ve všech schématech stejné.
 
 Ikona nainstalované aplikace (PWA) zůstává ve výchozí zelené.
 
-## 11.5 Log
+## 11.5 Záznam aktivit
 
-**Systém → Log** — auditní záznam přihlášení, změn zabezpečení a správy
-uživatelů s IP adresou.
+**Systém → Záznam aktivit** — auditní záznam přihlášení, změn zabezpečení a správy
+uživatelů s IP adresou. Akce jsou popsané slovy; technický kód akce (např. `auth.login`) ukáže tooltip.
 
-Filtry: **Hledat** (název akce, e-mail nebo jméno uživatele), **Akce**, **Entita** a **Období**
+Filtry: **Hledat** (kód akce, e-mail nebo jméno uživatele), **Akce**, **Entita** a **Období**
 (od–do, včetně celého posledního dne). Ovládání seznamu viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry).
 
 ## 11.6 Plánované úlohy

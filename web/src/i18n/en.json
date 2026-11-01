@@ -4,13 +4,95 @@
     "all_actions": "All actions",
     "all_entities": "All entities",
     "entity": "Entity",
-    "payload": "Payload",
+    "payload": "Details",
     "refresh": "Refresh",
     "subtitle": "Audit records of all actions (admin only).",
     "time": "Time",
     "title": "Activity log",
     "user": "User",
-    "search_placeholder": "Search action, email or name"
+    "search_placeholder": "Search action, email or name",
+    "actions": {
+      "security": {
+        "ip_blocked": "IP address blocked"
+      },
+      "auth": {
+        "recovery_codes_generated": "Recovery codes generated",
+        "password_reset": "Password reset completed",
+        "password_changed": "Password changed",
+        "passkey_registered": "Passkey added",
+        "login_failed": "Failed sign-in",
+        "email_otp_sent": "E-mail code sent",
+        "session_unlocked": "Session unlocked",
+        "session_lock_preference_changed": "Session lock setting changed",
+        "totp_enabled": "TOTP enabled",
+        "session_locked": "Session locked",
+        "recovery_code_failed": "Invalid recovery code",
+        "passkey_revoked": "Passkey removed",
+        "logout": "Sign-out",
+        "recovery_code_used": "Recovery code used",
+        "captcha_failed": "CAPTCHA failed",
+        "recovery_code_login": "Sign-in with recovery code",
+        "totp_step_up": "TOTP verification",
+        "forgot_mail_failed": "Password reset — e-mail failed",
+        "login_locked": "Sign-in locked",
+        "email_otp_locked": "E-mail code locked",
+        "passkey_step_up": "Passkey verification",
+        "passkey_counter_anomaly": "Passkey — suspicious counter",
+        "totp_locked": "TOTP locked",
+        "login": "Sign-in",
+        "forgot_sent": "Password reset — link sent",
+        "forgot_unknown": "Password reset — unknown e-mail",
+        "passkey_renamed": "Passkey renamed",
+        "session_unlock_failed": "Failed session unlock"
+      },
+      "setup": {
+        "demo_seeded": "Demo data loaded",
+        "cfg_local_write_failed": "Setup — writing cfg.local.php failed",
+        "demo_failed": "Demo data failed",
+        "completed": "Setup completed"
+      },
+      "api_token": {
+        "revoked": "API token revoked",
+        "created": "API token created"
+      },
+      "user": {
+        "created_by_invite": "User from invitation",
+        "deactivated": "User deactivated",
+        "created": "User created",
+        "updated": "User updated"
+      },
+      "exchange": {
+        "connected": "Exchange connected",
+        "disconnected": "Exchange disconnected"
+      },
+      "share": {
+        "revoked": "Share revoked",
+        "write": "Write to shared data",
+        "created": "Share created",
+        "accepted": "Share accepted",
+        "updated": "Share updated",
+        "left": "Share left"
+      },
+      "admin": {
+        "cron": {
+          "run_now": "Scheduled job run manually"
+        }
+      },
+      "smtp": {
+        "updated": "SMTP settings changed",
+        "tested": "SMTP test"
+      },
+      "appearance": {
+        "updated": "Instance appearance changed"
+      }
+    },
+    "entities": {
+      "user": "User",
+      "api_token": "API token",
+      "smtp_settings": "SMTP settings",
+      "exchange_connection": "Exchange connection",
+      "share": "Share"
+    }
   },
   "bank_notices": {
     "title": "Bank notices",
@@ -212,7 +294,9 @@
     "total": "Total",
     "expand": "Expand",
     "collapse": "Collapse",
-    "drag_to_reorder": "Drag to reorder"
+    "drag_to_reorder": "Drag to reorder",
+    "choose_file": "Choose file",
+    "no_file": "No file chosen"
   },
   "cron_jobs": {
     "ago_days": "{n} d ago",
@@ -512,7 +596,7 @@
     "password_min": "Min. 12 characters.",
     "password_required": "Password required when creating.",
     "role": "Role",
-    "subtitle": "Admin / Accountant / Read-only — admin role only.",
+    "subtitle": "Manage accounts and roles — admin manages the instance, user only their own data.",
     "title": "Users",
     "all_roles": "All roles",
     "all_statuses": "All statuses",
@@ -1546,5 +1630,20 @@
     "step_where": "Where you hold it",
     "step_buy": "In the next step you record the first purchase.",
     "continue": "Continue to purchase"
+  },
+  "validation": {
+    "number": "Enter a number.",
+    "file_required": "Please choose a file.",
+    "url": "Enter a valid URL (e.g. https://…).",
+    "invalid": "The value has an invalid format.",
+    "max_length": "Enter at most {max} characters.",
+    "step": "The value has too many decimal places.",
+    "email": "Enter a valid e-mail address.",
+    "required": "Please fill in this field.",
+    "select_required": "Please select one of the options.",
+    "max": "The value must be at most {max}.",
+    "min": "The value must be at least {min}.",
+    "pattern": "The value does not match the required format.",
+    "min_length": "Enter at least {min} characters."
   }
 }

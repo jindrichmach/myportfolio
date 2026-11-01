@@ -12,8 +12,11 @@ import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
 import { useFieldId } from '@/composables/useFieldId'
+import { formatDateTime } from '@/composables/useFormat'
 
 const { t } = useI18n()
+// Názvy jazyků se nepřekládají — každý v jazyce, který označuje (jako přepínač v menu).
+const LOCALE_NAMES: Record<string, string> = { cs: 'Čeština', en: 'English' }
 const fid = useFieldId()
 const auth = useAuthStore()
 const toast = useToast()
@@ -107,7 +110,7 @@ const columns = computed((): DataColumn[] => [
   { key: 'email', label: t('settings.email'), mono: true },
   { key: 'name', label: t('users.name'), primary: true },
   { key: 'role', label: t('users.role'), align: 'center' },
-  { key: 'locale', label: t('users.locale'), align: 'center', mono: true },
+  { key: 'locale', label: t('users.locale'), align: 'center' },
   { key: 'is_active', label: t('users.active'), align: 'center' },
   { key: 'last_login_at', label: t('users.last_login'), hideBelow: 'lg' },
 ])
@@ -157,8 +160,9 @@ function roleBadge(role: string): string {
         <span v-if="row.is_active" class="text-success-600"><Icon name="check" class="w-4 h-4" :label="t('users.active')" /></span>
         <span v-else class="text-neutral-400">—</span>
       </template>
+      <template #cell-locale="{ row }">{{ LOCALE_NAMES[row.locale] ?? row.locale }}</template>
       <template #cell-last_login_at="{ row }">
-        <span class="text-xs text-neutral-500">{{ row.last_login_at?.replace('T', ' ').slice(0, 19) || '—' }}</span>
+        <span class="text-xs text-neutral-500">{{ formatDateTime(row.last_login_at) }}</span>
       </template>
       <template #actions="{ row }">
         <div class="inline-flex gap-1">
@@ -192,8 +196,7 @@ function roleBadge(role: string): string {
             <div>
               <label :for="fid('locale')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
               <select :id="fid('locale')" v-model="form.locale" class="w-full h-10 px-3 border border-field rounded-md text-sm bg-surface">
-                <option value="cs">cs</option>
-                <option value="en">en</option>
+                <option v-for="(name, code) in LOCALE_NAMES" :key="code" :value="code">{{ name }}</option>
               </select>
             </div>
           </div>

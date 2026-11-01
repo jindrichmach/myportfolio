@@ -2,6 +2,7 @@
 import { ref, computed, markRaw, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import PasswordInput from '@/components/ui/PasswordInput.vue'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -342,13 +343,11 @@ async function resendCode() {
 
           <div>
             <label :for="fid('password')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('auth.password') }}</label>
-            <input :id="fid('password')"
+            <PasswordInput :id="fid('password')"
               v-model="password"
-              type="password"
               autocomplete="current-password"
               required
-              class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
-            />
+              class="w-full h-10 px-3 border border-field rounded-md focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none" />
           </div>
 
           <div v-if="totpRequired">
