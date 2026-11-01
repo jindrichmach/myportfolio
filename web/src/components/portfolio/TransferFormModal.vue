@@ -6,6 +6,7 @@
 import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { portfolioApi, type Position } from '@/api/portfolio'
 import { useFieldId } from '@/composables/useFieldId'
@@ -79,7 +80,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </div>
         <div>
           <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
-          <input :id="fid('executed_at')" v-model="form.executed_at" type="datetime-local" required :class="inputClass" />
+          <DatePicker :id="fid('executed_at')" v-model="form.executed_at" with-time required />
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3">

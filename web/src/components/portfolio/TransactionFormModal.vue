@@ -7,6 +7,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import { marketApi } from '@/api/market'
 import { apiErrorMessage } from '@/api/errors'
 import {
@@ -135,7 +136,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </div>
         <div>
           <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
-          <input :id="fid('executed_at')" v-model="form.executed_at" type="datetime-local" required :class="inputClass" />
+          <DatePicker :id="fid('executed_at')" v-model="form.executed_at" with-time required />
         </div>
       </div>
 

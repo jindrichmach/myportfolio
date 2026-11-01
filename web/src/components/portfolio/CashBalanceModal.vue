@@ -3,6 +3,7 @@
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import { portfolioApi, type Position } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDec } from '@/composables/useFormat'
@@ -44,7 +45,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label :for="fid('date')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.date') }}</label>
-          <input :id="fid('date')" v-model="form.date" type="date" required :max="today" :class="inputClass" />
+          <DatePicker :id="fid('date')" v-model="form.date" required :max="today" />
         </div>
         <div>
           <label :for="fid('balance')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('cash.balance', { currency: position.currency }) }}</label>

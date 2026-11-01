@@ -1607,6 +1607,23 @@
     "inherit_now": "default {name} — follows the instance scheme",
     "own_scheme": "Or your own scheme"
   },
+  "date_picker": {
+    "open": "Open calendar",
+    "prev_month": "Previous month",
+    "next_month": "Next month",
+    "prev_year": "Previous year",
+    "next_year": "Next year",
+    "prev_decade": "Previous decade",
+    "next_decade": "Next decade",
+    "choose_month": "Choose month",
+    "choose_year": "Choose year",
+    "today": "Today",
+    "done": "Done",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "hour_short": "h",
+    "minute_short": "min"
+  },
   "grid": {
     "pages": "Pagination",
     "page_n": "Page {n}",

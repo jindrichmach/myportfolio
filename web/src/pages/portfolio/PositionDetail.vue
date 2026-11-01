@@ -14,6 +14,7 @@ import HistoryChart from '@/components/portfolio/HistoryChart.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Badge from '@/components/ui/Badge.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import CashBalanceModal from '@/components/portfolio/CashBalanceModal.vue'
 import { portfolioApi, type Account, type Portfolio, type Position, type Transaction } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
@@ -241,7 +242,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
           </div>
           <div v-if="editForm.bank_account.trim()">
             <label :for="fid('bank_notices_from')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.notices_from') }}</label>
-            <input :id="fid('bank_notices_from')" v-model="editForm.bank_notices_from" type="date" :class="inputClass" />
+            <DatePicker :id="fid('bank_notices_from')" v-model="editForm.bank_notices_from" />
           </div>
           <p class="sm:col-span-2 text-xs text-neutral-500">{{ t('bank_notices.position_hint') }}</p>
         </div>

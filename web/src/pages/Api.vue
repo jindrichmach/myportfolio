@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { tokensApi, type ApiToken, type CreateTokenResult } from '@/api/tokens'
 import { useAuthStore } from '@/stores/auth'
@@ -12,6 +12,7 @@ import Modal from '@/components/ui/Modal.vue'
 import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
 import ApiEndpoints from '@/components/api/ApiEndpoints.vue'
 import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import { useTabQuery } from '@/composables/useTabQuery'
 
 const { t } = useI18n()
@@ -34,6 +35,7 @@ const passkeyBusy = ref(false)
 const createError = ref('')
 const passkeyStepUpToken = ref('')
 const passkeySupported = isWebAuthnAvailable()
+const expiresId = useId()
 const form = ref({
   name: '',
   // Default least-privilege — sladěno s backendem (CreateTokenAction).
@@ -291,11 +293,10 @@ const tokenKey = (tk: { id: number }) => tk.id
             </div>
           </fieldset>
 
-          <label class="block text-sm">
-            <span class="text-neutral-700 font-medium">{{ t('api_tokens.col_expires') }} <span class="text-neutral-400">{{ t('common.optional') }}</span></span>
-            <input v-model="form.expires_at" type="date"
-              class="mt-1 w-full h-10 px-3 border border-field rounded-md bg-surface" />
-          </label>
+          <div class="text-sm">
+            <label :for="expiresId" class="text-neutral-700 font-medium">{{ t('api_tokens.col_expires') }} <span class="text-neutral-400">{{ t('common.optional') }}</span></label>
+            <div class="mt-1"><DatePicker :id="expiresId" v-model="form.expires_at" /></div>
+          </div>
 
           <div v-if="hasPasskey" class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
             <p class="text-sm text-neutral-700 mb-2">{{ t('api_tokens.step_up_hint') }}</p>

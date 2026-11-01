@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router'
 import Modal from '@/components/ui/Modal.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import IconButton from '@/components/ui/IconButton.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import {
   exchangesApi,
   type ExchangeConnection, type ExchangeInput, type ExchangeProvider, type ExchangeStart, type ExchangeStatus, type ExchangeTest,
@@ -248,7 +249,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
             <input v-model="form.start" type="radio" :value="s" class="mt-0.5 border-field text-primary-700" />
             <span>{{ t(`exchanges.start_${s}`) }}<span class="block text-xs text-neutral-500">{{ t(`exchanges.start_${s}_hint`) }}</span></span>
           </label>
-          <input v-if="form.start === 'date'" v-model="form.start_date" type="date" required :class="inputClass" />
+          <DatePicker v-if="form.start === 'date'" v-model="form.start_date" required :aria-label="t('exchanges.start_date')" />
         </fieldset>
         <label class="flex items-center gap-2 text-sm">
           <input v-model="form.enabled" type="checkbox" class="rounded border-field text-primary-700" />

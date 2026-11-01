@@ -25,6 +25,7 @@ import { useChartColors } from '@/composables/useTheme'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
 import ManualLink from '@/components/ui/ManualLink.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip)
 
@@ -346,7 +347,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label :for="fid('date')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t(itemForm.kind === 'liability' ? 'net_worth.start_date' : 'net_worth.value_date') }}</label>
-              <input :id="fid('date')" v-model="itemForm.date" type="date" :required="itemForm.kind === 'liability'" :class="inputClass" />
+              <DatePicker :id="fid('date')" v-model="itemForm.date" :required="itemForm.kind === 'liability'" />
             </div>
             <div>
               <label :for="fid('value')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t(itemForm.kind === 'liability' ? 'net_worth.principal' : 'net_worth.value') }}</label>
@@ -386,7 +387,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label :for="fid('date2')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.date') }}</label>
-            <input :id="fid('date2')" v-model="entryForm.date" type="date" required :class="inputClass" />
+            <DatePicker :id="fid('date2')" v-model="entryForm.date" required />
           </div>
           <div>
             <label :for="fid('value2')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t(entriesFor.kind === 'liability' ? 'net_worth.balance' : 'net_worth.value') }} ({{ entriesFor.currency }})</label>

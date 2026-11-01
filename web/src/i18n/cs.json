@@ -1607,6 +1607,23 @@
     "inherit_now": "výchozí {name} — změní se se schématem instance",
     "own_scheme": "Nebo vlastní schéma"
   },
+  "date_picker": {
+    "open": "Otevřít kalendář",
+    "prev_month": "Předchozí měsíc",
+    "next_month": "Další měsíc",
+    "prev_year": "Předchozí rok",
+    "next_year": "Další rok",
+    "prev_decade": "Předchozí desetiletí",
+    "next_decade": "Další desetiletí",
+    "choose_month": "Vybrat měsíc",
+    "choose_year": "Vybrat rok",
+    "today": "Dnes",
+    "done": "Hotovo",
+    "hours": "Hodiny",
+    "minutes": "Minuty",
+    "hour_short": "hod",
+    "minute_short": "min"
+  },
   "grid": {
     "pages": "Stránkování",
     "page_n": "Strana {n}",

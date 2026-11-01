@@ -16,6 +16,7 @@ import KpiTile from '@/components/ui/KpiTile.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
 import Badge from '@/components/ui/Badge.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import PriceBadge from '@/components/portfolio/PriceBadge.vue'
 import { gainClass } from '@/utils/tone'
 import { useFieldId } from '@/composables/useFieldId'
@@ -197,7 +198,7 @@ const inputClass = 'w-full h-9 px-3 border border-field rounded-md bg-surface te
       <form v-if="canWrite" class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 items-end border-b border-neutral-100" @submit.prevent="saveValuation">
         <div>
           <label :for="fid('date')" class="block text-xs font-medium text-neutral-700 mb-1">{{ t('valuation.date') }}</label>
-          <input :id="fid('date')" v-model="form.date" type="date" :max="today" required :class="inputClass" />
+          <DatePicker :id="fid('date')" v-model="form.date" :max="today" required size="sm" />
         </div>
         <div>
           <label :for="fid('value')" class="block text-xs font-medium text-neutral-700 mb-1">{{ t('valuation.balance', { currency: position.currency }) }}</label>

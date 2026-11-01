@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import { marketApi } from '@/api/market'
 import { apiErrorMessage } from '@/api/errors'
 import { useFieldId } from '@/composables/useFieldId'
@@ -37,7 +38,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <p class="text-xs text-neutral-500">{{ t('prices.manual_hint') }}</p>
       <div>
         <label :for="fid('date')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
-        <input :id="fid('date')" v-model="form.date" type="date" required :class="inputClass" />
+        <DatePicker :id="fid('date')" v-model="form.date" required />
       </div>
       <div class="grid grid-cols-3 gap-3">
         <div class="col-span-2">

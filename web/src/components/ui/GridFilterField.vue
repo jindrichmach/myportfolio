@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { GridDateRange, GridFilter } from '@/components/ui/grid'
+import DatePicker from '@/components/ui/DatePicker.vue'
 
 /** Jeden filtr DataGridu s viditelným popiskem nad ovládacím prvkem. `custom` řeší rodič přes slot. */
 const props = defineProps<{ filter: Exclude<GridFilter, { type: 'custom' }>; modelValue: unknown }>()
@@ -91,11 +92,11 @@ function setRange(part: keyof GridDateRange, value: string) {
     <div v-else-if="filter.type === 'daterange'" class="flex flex-col gap-1">
       <span :id="id" :class="labelClass">{{ filter.label }}</span>
       <div class="inline-flex flex-wrap items-center gap-1.5">
-        <input type="date" :value="range.from" :aria-label="`${filter.label} – ${t('grid.from')}`" :class="inputClass"
-          @input="setRange('from', ($event.target as HTMLInputElement).value)" />
+        <div class="w-40"><DatePicker :model-value="range.from" :aria-label="`${filter.label} – ${t('grid.from')}`" size="sm"
+          @update:model-value="setRange('from', $event)" /></div>
         <span class="text-neutral-400 text-sm">–</span>
-        <input type="date" :value="range.to" :aria-label="`${filter.label} – ${t('grid.to')}`" :class="inputClass"
-          @input="setRange('to', ($event.target as HTMLInputElement).value)" />
+        <div class="w-40"><DatePicker :model-value="range.to" :aria-label="`${filter.label} – ${t('grid.to')}`" size="sm"
+          @update:model-value="setRange('to', $event)" /></div>
       </div>
     </div>
   </div>
