@@ -74,6 +74,12 @@ const pickerDate = computed(() => toCalendarDate(placeholder.value))
 const monthLabel = computed(() =>
   new Intl.DateTimeFormat(intlLocale.value, { month: 'long' }).format(placeholder.value.toDate(getLocalTimeZone())))
 
+// Zobrazení v poli jako 01.11.2026 14:00: den, měsíc a hodina na dvě číslice, „1. 11. 2026“ (cs-CZ) bez mezer za tečkou.
+function segmentText(part: string, text: string): string {
+  if (part === 'literal') return text.replace(/\.\s+/g, '.')
+  return (part === 'day' || part === 'month' || part === 'hour') && /^\d$/.test(text) ? `0${text}` : text
+}
+
 function onUpdate(v: DateValue | undefined) {
   emit('update:modelValue', v ? v.toString().slice(0, props.withTime ? 16 : 10) : '')
 }
@@ -181,19 +187,20 @@ const cellClass = 'cursor-pointer inline-flex items-center justify-center rounde
   <DatePickerRoot v-model:open="open" v-model:placeholder="placeholder" :model-value="value" :id="id" :required="required"
     :min-value="minValue" :max-value="maxValue" :locale="intlLocale" :granularity="withTime ? 'minute' : 'day'"
     :hour-cycle="24" :close-on-select="!withTime" prevent-deselect @update:model-value="onUpdate">
-    <DatePickerField v-slot="{ segments }" :aria-label="ariaLabel" :aria-invalid="invalid || undefined" :aria-describedby="invalid ? describedby : undefined" @keydown.esc="onEscape"
-      class="w-full flex items-center px-3 border border-field rounded-md bg-surface text-sm tabular-nums focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 data-invalid:border-danger-500 aria-invalid:border-danger-500 aria-invalid:focus-within:border-danger-500 aria-invalid:focus-within:ring-danger-500/20"
-      :class="size === 'sm' ? 'h-9' : 'h-10'">
-      <template v-for="item in segments" :key="item.part">
-        <DatePickerInput v-if="item.part === 'literal'" :part="item.part" class="text-neutral-400">{{ item.value }}</DatePickerInput>
-        <DatePickerInput v-else :part="item.part"
-          class="rounded-sm px-0.5 focus:outline-none focus:bg-primary-100 focus:text-primary-900 data-placeholder:text-neutral-400">{{ item.value }}</DatePickerInput>
-      </template>
-      <DatePickerTrigger :aria-label="t('date_picker.open')"
-        class="cursor-pointer ml-auto -mr-1.5 w-7 h-7 inline-flex items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40">
+    <div class="flex" @keydown.esc="onEscape">
+      <DatePickerField v-slot="{ segments }" :aria-label="ariaLabel" :aria-invalid="invalid || undefined" :aria-describedby="invalid ? describedby : undefined"
+        class="min-w-0 flex-1 flex items-center px-3 border border-field rounded-l-md bg-surface text-sm focus-within:z-10 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 data-invalid:border-danger-500 aria-invalid:border-danger-500 aria-invalid:focus-within:border-danger-500 aria-invalid:focus-within:ring-danger-500/20"
+        :class="size === 'sm' ? 'h-9' : 'h-10'">
+        <template v-for="item in segments" :key="item.part">
+          <DatePickerInput v-if="item.part === 'literal'" :part="item.part" class="whitespace-pre" :class="{ 'text-neutral-400': !value }">{{ segmentText(item.part, item.value) }}</DatePickerInput>
+          <DatePickerInput v-else :part="item.part"
+            class="rounded-sm focus:outline-none focus:bg-primary-100 focus:text-primary-900 data-placeholder:text-neutral-400">{{ segmentText(item.part, item.value) }}</DatePickerInput>
+        </template>
+      </DatePickerField>
+      <DatePickerTrigger :aria-label="t('date_picker.open')" class="input-addon" :class="size === 'sm' ? 'h-9' : 'h-10'">
         <Icon name="calendar" class="w-4 h-4" />
       </DatePickerTrigger>
-    </DatePickerField>
+    </div>
 
     <DatePickerContent :portal="{ disabled: true }" :side-offset="4" align="end"
       class="z-50 rounded-lg border border-neutral-200 bg-surface p-3 shadow-lg" @keydown.esc="onEscape">

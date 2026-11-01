@@ -199,6 +199,17 @@ html, body {
 
 @layer components {
   /*
+   * Tlačítko připojené vpravo k poli (input group): „Vše“ u množství, kalendář u data.
+   * How to apply: <div class="flex"> pole s rounded-r-none + tlačítko class="input-addon h-10".
+   */
+  .input-addon {
+    @apply cursor-pointer shrink-0 inline-flex items-center justify-center px-3 -ml-px border border-field rounded-r-md
+      bg-neutral-50 text-sm font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900
+      focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary-500/40
+      disabled:cursor-not-allowed disabled:text-neutral-400 disabled:hover:bg-neutral-50;
+  }
+
+  /*
    * Sticky první sloupec pro list-tabulky.
    * Why: na mobilu (<768px) jsou listové tabulky širší než viewport;
    * uzavíráme scroll dovnitř karty a první sloupec držíme zafixovaný,
