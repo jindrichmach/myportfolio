@@ -212,3 +212,41 @@ available in Czech and English, and so is the [user manual](manual/en/INDEX.md);
 
 MIT — viz [LICENSE](LICENSE). Aplikační skelet je převzatý z [MyInvoice](https://github.com/radekhulan/myinvoice)
 (© MyWebdesign.cz s.r.o., MIT).
+
+## Podpora autora
+
+Líbí se ti projekt? Autora můžeš podpořit darem:
+
+- **Účet:** `7560800307 / 6363` (Partners Banka)
+- **IBAN:** `CZ09 6363 0000 0075 6080 0307`
+- **BIC / SWIFT:** `PTBNCZPP`
+
+![QR kód pro dar](docs/donate/qrcode.jpg)
+
+Děkuji!
+
+## Zřeknutí se odpovědnosti
+
+> **Software je poskytován „TAK JAK JE", bez záruky jakéhokoli druhu**,
+> výslovné nebo předpokládané, včetně, ale nikoliv pouze, záruk
+> obchodovatelnosti, vhodnosti pro určitý účel a neporušení práv třetích osob.
+>
+> **Použití této aplikace je výhradně na vlastní riziko uživatele.**
+> Autoři ani přispěvatelé v žádném případě neodpovídají za jakékoli přímé,
+> nepřímé, náhodné, zvláštní, exemplární či následné škody (mimo jiné za
+> ztrátu dat, ušlý zisk, investiční ztráty nebo doměřenou daň) vzniklé
+> v souvislosti s používáním nebo nemožností použití tohoto softwaru,
+> a to ani v případě, že byli o možnosti takových škod informováni.
+>
+> Aplikace zpracovává **osobní finanční a investiční data** — uživatel je výhradně
+> odpovědný za:
+> - **správnost zadaných a importovaných transakcí** a z nich spočtených hodnot;
+> - **daňové přiznání** — daňový report je orientační podklad, ne daňové
+>   poradenství; před podáním ho ověř, případně s daňovým poradcem;
+> - **investiční rozhodnutí** — alokace, rebalancing ani výnosové metriky
+>   nejsou investičním doporučením;
+> - **zálohování databáze a souborů** v `storage/`;
+> - **zabezpečení produkčního nasazení** (HTTPS, IP allowlist, 2FA / passkeys,
+>   silná hesla, pravidelné aktualizace závislostí).
+>
+> Plné znění viz [LICENSE](LICENSE) (MIT — odstavec *„THE SOFTWARE IS PROVIDED "AS IS"…"*).
