@@ -23,7 +23,7 @@ Nepřišel-li e-mail, zkontroluj spam. Jinak požádej správce — zkontroluje 
 
 ## 3.3 Profil
 
-**Profil** v menu (sekce Účet) — nebo kliknutí na své jméno v horní liště — je jedna stránka se záložkami
+**Profil** v menu (sekce Účet) — nebo menu pod svým jménem v horní liště — je jedna stránka se záložkami
 **Účet**, **Změna hesla**, **2FA / TOTP**, **Přístupové klíče**, **Zámek aplikace**, **Reporty** a **Upozornění**.
 Vybraná záložka je v adrese stránky (`?tab=`), takže na ni jde odkázat. Na telefonu se záložka vybírá ze seznamu.
 
@@ -36,7 +36,7 @@ Na záložce **Účet** upravíš:
 | Měna zobrazení | CZK, EUR nebo USD — v této měně se budou přepočítávat hodnoty portfolia |
 | Barevné schéma | Barvy aplikace, loga, favikony a e-mailů. **Podle instance** = schéma, které nastavil administrátor (viz [11.4 Nastavení](11_Administrace.md#114-nastavení)) |
 
-Světlý / tmavý režim se přepíná zvlášť ikonami v horní liště a platí pro každé schéma.
+Světlý / tmavý režim se přepíná zvlášť ikonou motivu v horní liště a platí pro každé schéma.
 
 Záložka **Reporty** nastavuje týdenní, měsíční a roční report e-mailem — viz [8.1 Týdenní report](08_Reporty_a_upozorneni.md#81-týdenní-report-e-mailem).
 Záložka **Upozornění** nastavuje denní souhrn upozornění — viz [8.2 Upozornění e-mailem](08_Reporty_a_upozorneni.md#82-upozornění-e-mailem).
@@ -65,7 +65,7 @@ vícefaktorového ověření — vypne všechny faktory a odhlásí všechna za�
 
 ## 3.5 Zámek aplikace
 
-**Zamknout** v horní liště (zobrazí se, máš-li passkey) aplikaci okamžitě
+**Zamknout** v menu pod tvým jménem v horní liště (zobrazí se, máš-li passkey) aplikaci okamžitě
 zamkne. Na záložce Zámek aplikace nastavíš automatické zamčení po nečinnosti
 (1–1440 minut, nejvýše limit správce). Zámek platí i na serveru — zamčená
 session nepřečte ani nezmění žádná data. Odemyká se passkey (**Odemknout přístupovým

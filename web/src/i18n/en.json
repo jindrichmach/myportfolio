@@ -392,6 +392,8 @@
     "dashboard": "Dashboard",
     "log": "Activity log",
     "logout": "Sign out",
+    "github": "GitHub",
+    "user_menu": "User menu",
     "system": "System",
     "users": "Users",
     "profile": "Profile",

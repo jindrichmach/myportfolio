@@ -45,6 +45,13 @@ grouped together in the menu under **Accounts & catalog**.
 Menu groups can be collapsed by clicking their heading; this is remembered too. The **System** group (admin only) is
 collapsed initially, and the group containing the currently open page expands automatically.
 
+Top bar on the right: the GitHub icon opens the project repository in a new tab, the book icon opens this manual.
+The theme icon (monitor / sun / moon according to the current choice) offers **System**, **Light** and **Dark**,
+the globe icon with the language code switches **Čeština** / **English**. Clicking your name opens a menu with your name,
+e-mail and role, links to the profile tabs (see [3.3 Profile](03_Prihlaseni_a_zabezpeceni.md#33-profile)),
+**Lock** and **Sign out**. On a phone the bar is the same, just without the name (the circle with initials remains);
+the choice of whose data you view (sharing) is at the top of the opened menu there.
+
 With the keyboard: the first Tab press shows a **Skip to content** link that skips the top bar and the menu.
 
 A whole position row is clickable and opens the detail. Item actions (table row, card) are icon buttons. The action name is shown

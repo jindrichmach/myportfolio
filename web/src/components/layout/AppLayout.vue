@@ -4,7 +4,10 @@ import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { systemApi } from '@/api/system'
-import ThemeToggle from './ThemeToggle.vue'
+import TopbarMenu from './TopbarMenu.vue'
+import { THEME_OPTIONS } from './themeOptions'
+import { useTheme } from '@/composables/useTheme'
+import Badge from '@/components/ui/Badge.vue'
 import AppLogo from './AppLogo.vue'
 import { useSessionSecurityStore } from '@/stores/sessionSecurity'
 import { useToast } from '@/composables/useToast'
@@ -24,6 +27,9 @@ const auth = useAuthStore()
 const sessionSecurity = useSessionSecurityStore()
 const toast = useToast()
 const owner = useOwnerContext()
+const { preference: themePreference } = useTheme()
+const currentTheme = computed(() => THEME_OPTIONS.find(o => o.value === themePreference.value) ?? THEME_OPTIONS[0])
+const initials = computed(() => (auth.user?.name ?? '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]!.toUpperCase()).join(''))
 
 const mobileOpen = ref(false)
 const logoutBusy = ref(false)
@@ -100,6 +106,24 @@ const ICONS = {
   instruments: 'M3 3v18h18M7 14l4-4 4 4 5-5',
   institutions: 'M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4',
 }
+
+const GITHUB_URL = 'https://github.com/jindrichmach/myportfolio'
+const GITHUB_ICON = 'M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z'
+const GLOBE_ICON = 'M3.055 11H5a2 2 0 0 1 2 2v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v2.945M8 3.935V5.5A2.5 2.5 0 0 0 10.5 8h.5a2 2 0 0 1 2 2 2 2 0 1 0 4 0 2 2 0 0 1 2-2h1.064M15 20.488V18a2 2 0 0 1 2-2h3.064M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z'
+const LOGOUT_ICON = 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1'
+const LOCK_ICON = 'M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z'
+
+/** Uživatelské menu v horní liště = záložky Profilu (`?tab=`, viz pages/Profile.vue). */
+const profileTabs = computed(() => [
+  { tab: 'account', label: t('profile.tab_account'), icon: ICONS.profile },
+  { tab: 'password', label: t('auth.change_password_title'), icon: ICONS.api_tokens },
+  { tab: 'totp', label: t('auth.totp_tab'), icon: 'M12 18h.01M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z',
+    badge: auth.user?.mfa_methods?.includes('totp') ? t('auth.totp_badge_on') : null },
+  { tab: 'passkeys', label: t('passkeys.title'), icon: 'M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 0 0 8 11a4 4 0 1 1 8 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0 0 15.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 0 0 8 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4' },
+  { tab: 'session-lock', label: t('session_lock.preference_tab'), icon: LOCK_ICON },
+  { tab: 'reports', label: t('profile.tab_reports'), icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z' },
+  { tab: 'alerts', label: t('profile.tab_alerts'), icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9' },
+])
 
 // Sbalené menu (jen ikony) na desktopu; volba se pamatuje v prohlížeči.
 const COLLAPSED_KEY = 'myportfolio-sidebar-collapsed'
@@ -278,57 +302,119 @@ onMounted(async () => {
         <!-- Logo -->
         <RouterLink to="/" class="flex items-center gap-2.5 shrink-0" @click="mobileOpen = false">
           <AppLogo class="w-8 h-8" />
-          <span class="text-sm font-semibold leading-tight select-none">
+          <span class="hidden sm:inline text-sm font-semibold leading-tight select-none">
             My<span class="text-primary-700">Portfolio</span>
           </span>
         </RouterLink>
 
         <!-- Pravá strana topbaru -->
-        <div class="flex items-center gap-2 text-sm">
+        <div class="flex items-center gap-1 sm:gap-2 text-sm min-w-0">
           <!-- Čí data zobrazuji (sdílení pro domácnost) -->
           <select v-if="owner.received.value.length" :value="owner.ownerId.value ?? ''" :aria-label="t('sharing.context_label')"
-                  class="h-8 px-2 border border-field rounded-md bg-surface text-sm max-w-44"
+                  class="hidden sm:block h-8 px-2 border border-field rounded-md bg-surface text-sm max-w-44"
                   @change="owner.switchTo(($event.target as HTMLSelectElement).value === '' ? null : Number(($event.target as HTMLSelectElement).value))">
             <option value="">{{ t('sharing.my_data') }}</option>
             <option v-for="s in owner.received.value" :key="s.id" :value="s.owner_user_id">{{ s.owner_name }}</option>
           </select>
-          <!-- Jméno uživatele (desktop) — link na profil (heslo + 2FA v záložkách). -->
-          <RouterLink
-            to="/profile"
-            class="hidden lg:inline text-sm text-neutral-600 hover:text-primary-700 hover:underline"
-            :title="t('auth.profile_title')"
-          >{{ auth.user?.name }}</RouterLink>
+          <!-- Ikony a rozbalovací menu (i na mobilu) -->
+          <a :href="GITHUB_URL" target="_blank" rel="noopener" :title="t('nav.github')" :aria-label="t('nav.github')"
+             class="inline-flex items-center justify-center w-8 h-8 shrink-0 rounded-md text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900">
+            <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="GITHUB_ICON" /></svg>
+          </a>
+          <RouterLink to="/manual" :title="t('nav.manual')" :aria-label="t('nav.manual')"
+             class="inline-flex items-center justify-center w-8 h-8 shrink-0 rounded-md text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900">
+            <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" :d="ICONS.manual" />
+            </svg>
+          </RouterLink>
 
-          <!-- Přepínač jazyka textem (vlajka znamená zemi, ne jazyk); celý název v aria-label -->
-          <div class="hidden sm:inline-flex items-center border border-neutral-200 rounded-md overflow-hidden text-xs font-medium" role="group" :aria-label="t('common.language')">
-            <button v-for="l in LOCALES" :key="l.code" type="button" @click="setLocale(l.code)" :lang="l.code"
-              :title="l.name" :aria-label="l.name" :aria-pressed="locale === l.code"
-              class="cursor-pointer h-8 px-2.5 inline-flex items-center uppercase [&:not(:first-child)]:border-l border-neutral-200"
-              :class="locale === l.code ? 'bg-primary-50 text-primary-700' : 'text-neutral-600 hover:bg-neutral-50'">{{ l.code }}</button>
-          </div>
+          <!-- Motiv (System / Light / Dark) -->
+          <TopbarMenu class="shrink-0" :label="t('theme.label')" @open="mobileOpen = false" :title="t(currentTheme.key)">
+            <template #trigger>
+              <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" :d="currentTheme.icon" />
+              </svg>
+            </template>
+            <template #default="{ close }">
+              <button v-for="opt in THEME_OPTIONS" :key="opt.value" type="button" role="menuitemradio" tabindex="-1"
+                :aria-checked="themePreference === opt.value" @click="themePreference = opt.value; close()"
+                class="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none"
+                :class="themePreference === opt.value ? 'text-primary-700 font-medium' : 'text-neutral-700'">
+                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" :d="opt.icon" />
+                </svg>
+                {{ t(opt.key) }}
+              </button>
+            </template>
+          </TopbarMenu>
 
-          <!-- Přepínač motivu (System / Light / Dark) — na mobilu je v drawer patičce -->
-          <div class="hidden sm:inline-flex">
-            <ThemeToggle />
-          </div>
+          <!-- Jazyk textem (vlajka znamená zemi, ne jazyk); názvy jazyků v jazyce, který zapínají -->
+          <TopbarMenu class="shrink-0" :label="t('common.language')" @open="mobileOpen = false">
+            <template #trigger>
+              <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" :d="GLOBE_ICON" />
+              </svg>
+              <span class="text-xs font-semibold uppercase">{{ locale }}</span>
+            </template>
+            <template #default="{ close }">
+              <button v-for="l in LOCALES" :key="l.code" type="button" role="menuitemradio" tabindex="-1" :lang="l.code"
+                :aria-checked="locale === l.code" @click="setLocale(l.code); close()"
+                class="cursor-pointer w-full flex items-center justify-between gap-6 px-3 py-2 text-left hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none"
+                :class="locale === l.code ? 'text-primary-700 font-medium' : 'text-neutral-700'">
+                {{ l.name }}
+                <span class="text-xs uppercase text-neutral-400">{{ l.code }}</span>
+              </button>
+            </template>
+          </TopbarMenu>
 
-          <!-- Odhlásit (desktop) -->
-          <button
-            v-if="canLockSession"
-            @click="sessionSecurity.lock"
-            class="cursor-pointer hidden sm:inline-flex px-3 h-8 items-center text-sm border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50"
-          >{{ t('session_lock.lock_now') }}</button>
-          <button
-            @click="logout"
-            :disabled="logoutBusy"
-            class="cursor-pointer hidden sm:inline-flex px-3 h-8 items-center text-sm border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 disabled:opacity-60"
-          >{{ t('nav.logout') }}</button>
+          <!-- Uživatel: jméno, e-mail, role, záložky profilu, zámek, odhlášení -->
+          <TopbarMenu class="shrink-0" wide :label="t('nav.user_menu')" @open="mobileOpen = false">
+            <template #trigger>
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold" aria-hidden="true">{{ initials }}</span>
+              <span class="hidden lg:inline text-sm font-medium max-w-40 truncate">{{ auth.user?.name }}</span>
+              <svg class="hidden sm:block w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </template>
+            <template #default="{ close }">
+              <div class="px-3 pt-2 pb-3 sm:min-w-60">
+                <div class="font-semibold text-neutral-900 truncate">{{ auth.user?.name }}</div>
+                <div class="text-xs text-neutral-500 truncate">{{ auth.user?.email }}</div>
+                <Badge class="mt-1.5" :tone="auth.user?.role === 'admin' ? 'success' : 'neutral'">{{ auth.user?.role }}</Badge>
+              </div>
+              <div class="border-t border-neutral-200 my-1"></div>
+              <RouterLink v-for="item in profileTabs" :key="item.tab" role="menuitem" tabindex="-1" @click="close()"
+                :to="item.tab === 'account' ? '/profile' : { path: '/profile', query: { tab: item.tab } }"
+                class="flex items-center gap-2.5 px-3 py-2 text-neutral-700 hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none">
+                <svg class="w-4 h-4 shrink-0 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon" />
+                </svg>
+                <span class="flex-1">{{ item.label }}</span>
+                <Badge v-if="item.badge" tone="success">{{ item.badge }}</Badge>
+              </RouterLink>
+              <div class="border-t border-neutral-200 my-1"></div>
+              <button v-if="canLockSession" type="button" role="menuitem" tabindex="-1" @click="close(); sessionSecurity.lock()"
+                class="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2 text-left text-neutral-700 hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none">
+                <svg class="w-4 h-4 shrink-0 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" :d="LOCK_ICON" />
+                </svg>
+                {{ t('session_lock.lock_now') }}
+              </button>
+              <button type="button" role="menuitem" tabindex="-1" :disabled="logoutBusy" @click="close(); logout()"
+                class="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2 text-left text-danger-500 hover:bg-danger-50 focus:bg-danger-50 focus:outline-none disabled:opacity-60">
+                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" :d="LOGOUT_ICON" />
+                </svg>
+                {{ t('nav.logout') }}
+              </button>
+            </template>
+          </TopbarMenu>
 
           <!-- Hamburger (mobile, < lg) -->
           <button
             type="button" @click="mobileOpen = !mobileOpen"
             :aria-expanded="mobileOpen" aria-label="Menu"
-            class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-md text-neutral-700 hover:bg-neutral-100"
+            class="lg:hidden inline-flex items-center justify-center w-9 h-9 shrink-0 rounded-md text-neutral-700 hover:bg-neutral-100"
           >
             <svg v-if="!mobileOpen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -364,6 +450,15 @@ onMounted(async () => {
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         ]"
       >
+        <!-- Čí data zobrazuji — na telefonu se do horní lišty nevejde -->
+        <div v-if="owner.received.value.length" class="sm:hidden px-2.5 pt-3">
+          <select :value="owner.ownerId.value ?? ''" :aria-label="t('sharing.context_label')"
+                  class="w-full h-9 px-2 border border-field rounded-md bg-surface text-sm"
+                  @change="owner.switchTo(($event.target as HTMLSelectElement).value === '' ? null : Number(($event.target as HTMLSelectElement).value))">
+            <option value="">{{ t('sharing.my_data') }}</option>
+            <option v-for="s in owner.received.value" :key="s.id" :value="s.owner_user_id">{{ s.owner_name }}</option>
+          </select>
+        </div>
         <nav class="flex-1 overflow-y-auto scrollbar-slim px-2.5 py-3">
           <template v-for="(section, si) in navSections" :key="si">
             <!-- Section title — soft pill background v barvě sekce -->
@@ -421,43 +516,6 @@ onMounted(async () => {
           MyPortfolio v{{ version }}
         </div>
 
-        <!-- Mobile only: profil + ovládání relace (na dně sidebaru) -->
-        <div class="lg:hidden border-t border-neutral-200 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-neutral-50 space-y-3">
-          <div class="flex items-center justify-between">
-            <RouterLink
-              to="/profile"
-              @click="mobileOpen = false"
-              class="group min-w-0 flex-1 rounded-md -ml-2 px-2 py-1.5 text-sm hover:bg-surface"
-              :title="t('auth.profile_title')"
-            >
-              <div class="truncate font-medium text-neutral-900 group-hover:text-primary-700 group-hover:underline">
-                {{ auth.user?.name }}
-              </div>
-              <div class="truncate text-xs text-neutral-500">{{ auth.user?.email }} · {{ auth.user?.role }}</div>
-            </RouterLink>
-          </div>
-          <!-- Motiv a jazyk každý na vlastním řádku — vedle sebe se do šířky draweru nevejdou -->
-          <div class="space-y-2">
-            <ThemeToggle block />
-            <div class="flex w-full items-center border border-neutral-200 bg-surface rounded-md overflow-hidden text-sm" role="group" :aria-label="t('common.language')">
-              <button v-for="l in LOCALES" :key="l.code" type="button" @click="setLocale(l.code)" :lang="l.code" :aria-pressed="locale === l.code"
-                class="cursor-pointer h-9 px-3 flex-1 inline-flex items-center justify-center [&:not(:first-child)]:border-l border-neutral-200"
-                :class="locale === l.code ? 'bg-primary-50 text-primary-700 font-medium' : 'text-neutral-600 hover:bg-neutral-50'">{{ l.name }}</button>
-            </div>
-          </div>
-          <div class="grid gap-2" :class="canLockSession ? 'grid-cols-2' : 'grid-cols-1'">
-            <button
-              v-if="canLockSession"
-              @click="sessionSecurity.lock"
-              class="cursor-pointer w-full px-2 h-9 text-sm border border-neutral-300 rounded-md text-neutral-700 hover:bg-surface"
-            >{{ t('session_lock.lock_now') }}</button>
-            <button
-              @click="logout"
-              :disabled="logoutBusy"
-              class="cursor-pointer w-full px-2 h-9 text-sm border border-neutral-300 rounded-md text-neutral-700 hover:bg-surface disabled:opacity-60"
-            >{{ t('nav.logout') }}</button>
-          </div>
-        </div>
       </aside>
 
       <!-- ── HLAVNÍ OBSAH ── -->

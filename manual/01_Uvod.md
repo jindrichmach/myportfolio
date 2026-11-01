@@ -45,6 +45,13 @@ v menu pohromadě ve skupině **Účty a katalog**.
 Skupiny menu jdou sbalit kliknutím na jejich nadpis; i to se zapamatuje. Skupina **Systém** (jen admin) je
 na začátku sbalená, skupina s právě otevřenou stránkou se rozbalí sama.
 
+Horní lišta vpravo: ikona GitHubu otevře repozitář projektu v nové záložce, ikona knihy otevře tento manuál.
+Ikona motivu (monitor / slunce / měsíc podle aktuální volby) nabídne **Systém**, **Světlý** a **Tmavý**,
+ikona zeměkoule s kódem jazyka přepne **Čeština** / **English**. Kliknutím na své jméno otevřeš menu se jménem,
+e-mailem a rolí, odkazy na záložky profilu (viz [3.3 Profil](03_Prihlaseni_a_zabezpeceni.md#33-profil)),
+**Zamknout** a **Odhlásit**. Na telefonu je lišta stejná, jen bez jména (zůstane kolečko s iniciálami);
+výběr, čí data zobrazuješ (sdílení), je tam nahoře v rozbaleném menu.
+
 Z klávesnice: první stisk Tab ukáže odkaz **Přeskočit na obsah**, který přeskočí horní lištu a menu.
 
 Řádek pozice je celý proklikem do detailu. Akce u položek (řádek tabulky, karta) jsou ikonová tlačítka. Název akce ukáže

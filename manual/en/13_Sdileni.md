@@ -20,7 +20,7 @@ bank notices).
 
 ## 13.2 Data shared by a partner
 
-Whoever shares with you is in the **Shared with me** list, and a **My data / name** switcher appears in the app header.
+Whoever shares with you is in the **Shared with me** list, and a **My data / name** switcher appears in the app header (on a phone at the top of the opened menu).
 After switching, the whole app shows the partner's data within the scope of the share — at the top is a bar showing whose data
 you are viewing, and a **Back to my data** button. Without write permission, editing buttons are hidden; parts the
 partner does not share disappear from the menu. Amounts are in **your** display currency, and the value history chart uses your benchmark too.

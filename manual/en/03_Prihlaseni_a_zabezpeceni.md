@@ -23,7 +23,7 @@ If the email did not arrive, check your spam folder. Otherwise ask the administr
 
 ## 3.3 Profile
 
-**Profile** in the menu (Account section) — or clicking your name in the top bar — is a single page with the tabs
+**Profile** in the menu (Account section) — or the menu under your name in the top bar — is a single page with the tabs
 **Account**, **Change password**, **2FA / TOTP**, **Passkeys**, **App lock**, **Reports** and **Alerts**.
 The selected tab is part of the page address (`?tab=`), so you can link to it. On a phone, the tab is chosen from a list.
 
@@ -36,7 +36,7 @@ On the **Account** tab you can edit:
 | Display currency | CZK, EUR or USD — portfolio values are converted to this currency |
 | Color scheme | Colors of the app, logo, favicons and emails. **Instance default** = the scheme set by the administrator (see [11.4 Settings](11_Administrace.md#114-settings)) |
 
-Light / dark mode is switched separately with icons in the top bar and applies to every scheme.
+Light / dark mode is switched separately with the theme icon in the top bar and applies to every scheme.
 
 The **Reports** tab sets up the weekly, monthly and annual email report — see [8.1 Weekly report](08_Reporty_a_upozorneni.md#81-weekly-report-by-e-mail).
 The **Alerts** tab sets up the daily alert summary — see [8.2 Alerts by e-mail](08_Reporty_a_upozorneni.md#82-alerts-by-e-mail).
@@ -65,7 +65,7 @@ multi-factor authentication — it disables all factors and signs out all device
 
 ## 3.5 App lock
 
-**Lock** in the top bar (shown if you have a passkey) locks the app immediately.
+**Lock** in the menu under your name in the top bar (shown if you have a passkey) locks the app immediately.
 On the App lock tab you set automatic locking after inactivity
 (1–1440 minutes, at most the administrator's limit). The lock also applies on the server — a locked
 session can neither read nor change any data. It is unlocked with a passkey (**Unlock with a

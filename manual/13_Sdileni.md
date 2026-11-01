@@ -20,7 +20,7 @@ bankovní avíza).
 
 ## 13.2 Data, která sdílí partner
 
-Kdo s tebou sdílí, je v seznamu **Sdílí se mnou** a v záhlaví aplikace se objeví přepínač **Moje data / jméno**.
+Kdo s tebou sdílí, je v seznamu **Sdílí se mnou** a v záhlaví aplikace se objeví přepínač **Moje data / jméno** (na telefonu nahoře v rozbaleném menu).
 Po přepnutí zobrazuje celá aplikace data partnera v rozsahu sdílení — nahoře je pruh s tím, čí data
 vidíš, a tlačítko **Zpět na moje data**. Bez oprávnění k zápisu jsou tlačítka pro úpravy skrytá; části, které
 partner nesdílí, zmizí z menu. Částky jsou v **tvé** měně zobrazení, v grafu vývoje i tvůj benchmark.
