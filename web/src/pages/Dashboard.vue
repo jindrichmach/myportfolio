@@ -121,6 +121,12 @@ const groups = computed(() => {
   }
   return out
 })
+// Výpis portfolií bez prodaných pozic (držené množství 0) — součty výše je dál počítají (realizovaný výnos);
+// portfolio jen s takovými pozicemi se nevypíše. Stránka Pozice ukazuje všechny.
+const isClosed = (row: PositionValuation) => row.quantity !== null && /^0+(\.0+)?$/.test(row.quantity)
+const listedGroups = computed(() => groups.value
+  .map(g => ({ ...g, rows: g.rows.filter(r => !isClosed(r)) }))
+  .filter(g => g.rows.length > 0))
 const groupShare = (g: { value: number }) =>
   totalValue.value > 0 ? t('dashboard.share', { pct: formatPercent((g.value / totalValue.value) * 100, 1) }) : ''
 
@@ -301,7 +307,7 @@ const cryptoRows = (c: CryptoAcross) => {
       <SectionCard :title="t('dashboard.portfolios')" flush class="mb-4">
         <template #actions><RouterLink to="/positions" class="text-xs text-primary-700 hover:underline">{{ t('dashboard.all_positions') }}</RouterLink></template>
         <div class="divide-y divide-neutral-200">
-          <PositionGroup v-for="g in groups" :key="g.id" :id="`portfolio-${g.id}`"
+          <PositionGroup v-for="g in listedGroups" :key="g.id" :id="`portfolio-${g.id}`"
                          :open="openGroups.includes(g.id)" :rows="g.rows" :currency="cur"
                          :value="g.value" :gain="g.gain" :basis="g.basis"
                          @toggle="toggleGroup(g.id)" @changed="reload">
