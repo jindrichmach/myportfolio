@@ -34,6 +34,9 @@ const props = withDefaults(defineProps<{
   selectedOption?: Option | null
   /** id vnitřního inputu — pro <label for>. */
   inputId?: string
+  /** Chyba validace (červený rámeček) a id hlášky pro aria-describedby — viz useFieldErrors. */
+  invalid?: boolean
+  describedby?: string
 }>(), {
   placeholder: '',
   clearable: false,
@@ -132,7 +135,8 @@ const iconButton = 'cursor-pointer w-6 h-6 inline-flex items-center justify-cent
     class="relative" @update:model-value="onSelect">
     <ComboboxAnchor ref="anchor" class="relative" @keydown.esc="onEscape">
       <ComboboxInput :id="inputId" :display-value="() => selected?.label ?? ''" :placeholder="placeholder" autocomplete="off" spellcheck="false"
-        class="w-full pl-3 border border-field rounded-md text-sm bg-surface focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none disabled:bg-neutral-50 disabled:text-neutral-400"
+        :aria-invalid="invalid || undefined" :aria-describedby="invalid ? describedby : undefined"
+        class="w-full pl-3 border border-field rounded-md text-sm bg-surface focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none disabled:bg-neutral-50 disabled:text-neutral-400 aria-invalid:border-danger-500 aria-invalid:focus:border-danger-500 aria-invalid:focus:ring-danger-500/20"
         :class="[size === 'sm' ? 'h-9' : 'h-10', clearable ? 'pr-14' : 'pr-8']" @input="onInput" />
       <div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center">
         <button v-if="clearable && selected && !disabled" type="button" :class="iconButton" :aria-label="t('select.clear')" @click="clear">

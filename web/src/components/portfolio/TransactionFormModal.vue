@@ -9,6 +9,7 @@ import Modal from '@/components/ui/Modal.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
+import FieldError from '@/components/ui/FieldError.vue'
 import { marketApi } from '@/api/market'
 import { apiErrorMessage } from '@/api/errors'
 import {
@@ -16,6 +17,7 @@ import {
   type Position, type Transaction, type TransactionInput, type TransactionType,
 } from '@/api/portfolio'
 import { useFieldId } from '@/composables/useFieldId'
+import { isDecimal, useFieldErrors } from '@/composables/useFieldErrors'
 
 const props = defineProps<{
   /** Pevná pozice (detail pozice). */
@@ -29,6 +31,8 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved', tx: Transaction): void }>()
 const { t } = useI18n()
 const fid = useFieldId()
+const decimal = (v: string) => (isDecimal(v) ? null : t('validation.number'))
+const fe = useFieldErrors(fid, { quantity: decimal, amount: decimal, unit_price: decimal, fee: decimal, split_ratio: decimal })
 
 function nowLocal(): string {
   const d = new Date()
@@ -62,7 +66,6 @@ marketApi.fxRates().then(r => { fxCurrencies.value = r.rates.map(x => x.currency
 const currencies = computed(() => [...new Set(['CZK', ...fxCurrencies.value, form.price_currency].filter(Boolean))].sort())
 const busy = ref(false)
 const error = ref('')
-const fieldErrors = ref<Record<string, string[]>>({})
 
 const selectedPosition = computed<Position | null>(() =>
   props.position ?? props.positions?.find(p => p.id === form.position_id) ?? null)
@@ -70,6 +73,15 @@ const types = computed(() => selectedPosition.value?.valuation_mode === 'manual'
 const isTrade = computed(() => form.type === 'buy' || form.type === 'sell')
 const hasQuantity = computed(() => isTrade.value || form.type === 'reward')
 const isSplit = computed(() => form.type === 'split')
+
+// Chyby polí, která teď ve formuláři nejsou (např. částka v režimu „cena za kus“), zůstanou pod formulářem.
+const shownFields = computed(() => [
+  ...(props.position ? [] : ['position_id']), 'type', 'executed_at',
+  ...(hasQuantity.value ? ['quantity'] : []), ...(isSplit.value ? ['split_ratio'] : []),
+  ...(isSplit.value ? [] : [isTrade.value && priceMode.value === 'unit' ? 'unit_price' : 'amount', 'price_currency', 'fee', 'fee_currency']),
+  'note',
+])
+const otherErrors = computed(() => Object.entries(fe.errors).filter(([f]) => !shownFields.value.includes(f)).flatMap(([, m]) => m))
 
 watch(types, list => {
   if (!list.includes(form.type)) form.type = list[0]
@@ -86,7 +98,7 @@ async function save() {
   if (busy.value || form.position_id === null) return
   busy.value = true
   error.value = ''
-  fieldErrors.value = {}
+  fe.clear()
   const payload: TransactionInput = {
     type: form.type,
     executed_at: form.executed_at,
@@ -105,14 +117,13 @@ async function save() {
       : await portfolioApi.createTransaction({ ...payload, position_id: form.position_id })
     emit('saved', saved)
   } catch (e: any) {
-    fieldErrors.value = e?.response?.data?.error?.fields ?? {}
-    error.value = apiErrorMessage(e, t('common.error'))
+    error.value = fe.fromApi(e) ? '' : apiErrorMessage(e, t('common.error'))
   } finally {
     busy.value = false
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none'
+const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none aria-invalid:border-danger-500 aria-invalid:focus:border-danger-500 aria-invalid:focus:ring-danger-500/20'
 </script>
 
 <template>
@@ -120,29 +131,35 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
     <form id="tx-form" class="space-y-3" @submit.prevent="save">
       <div v-if="!position">
         <label :for="fid('position_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.position') }}</label>
-        <SearchableSelect :input-id="fid('position_id')" v-model="form.position_id" :disabled="!!transaction" required
+        <SearchableSelect :input-id="fid('position_id')" v-model="form.position_id" :invalid="fe.invalid('position_id')" :describedby="fe.errorId('position_id')" @update:model-value="fe.recheck('position_id')" :disabled="!!transaction" required
           :options="(positions ?? []).map(p => ({ value: p.id, label: p.display_name + (p.asset_class !== 'crypto' && p.instrument_name ? ` (${p.instrument_name})` : ''), secondary: `${p.institution_name} / ${p.account_name} · ${p.portfolio_name}` }))" />
+        <FieldError :id="fe.errorId('position_id')" :messages="fe.errors.position_id" />
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label :for="fid('type')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
-          <SearchableSelect :input-id="fid('type')" v-model="form.type" :options="types.map(tp => ({ value: tp, label: t(`tx.types.${tp}`) }))" />
+          <SearchableSelect :input-id="fid('type')" v-model="form.type" :invalid="fe.invalid('type')" :describedby="fe.errorId('type')" @update:model-value="fe.recheck('type')" :options="types.map(tp => ({ value: tp, label: t(`tx.types.${tp}`) }))" />
+          <FieldError :id="fe.errorId('type')" :messages="fe.errors.type" />
         </div>
         <div>
           <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
-          <DatePicker :id="fid('executed_at')" v-model="form.executed_at" with-time required />
+          <DatePicker :id="fid('executed_at')" v-model="form.executed_at" with-time required
+            :invalid="fe.invalid('executed_at')" :describedby="fe.errorId('executed_at')" @update:model-value="fe.recheck('executed_at')" />
+          <FieldError :id="fe.errorId('executed_at')" :messages="fe.errors.executed_at" />
         </div>
       </div>
 
       <div v-if="hasQuantity">
         <label :for="fid('quantity')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.quantity') }}</label>
-        <input :id="fid('quantity')" v-model="form.quantity" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        <input :id="fid('quantity')" v-bind="fe.attrs('quantity')" v-model="form.quantity" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        <FieldError :id="fe.errorId('quantity')" :messages="fe.errors.quantity" />
       </div>
 
       <div v-if="isSplit">
         <label :for="fid('split_ratio')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.split_ratio') }}</label>
-        <input :id="fid('split_ratio')" v-model="form.split_ratio" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        <input :id="fid('split_ratio')" v-bind="fe.attrs('split_ratio')" v-model="form.split_ratio" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+        <FieldError :id="fe.errorId('split_ratio')" :messages="fe.errors.split_ratio" />
         <p class="text-xs text-neutral-500 mt-1">{{ t('tx.split_hint') }}</p>
       </div>
 
@@ -154,17 +171,20 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <div v-if="!isSplit" class="grid grid-cols-3 gap-3">
         <div v-if="isTrade && priceMode === 'unit'" class="col-span-2">
           <label :for="fid('unit_price')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.unit_price') }}</label>
-          <input :id="fid('unit_price')" v-model="form.unit_price" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+          <input :id="fid('unit_price')" v-bind="fe.attrs('unit_price')" v-model="form.unit_price" inputmode="decimal" autocomplete="off" required :class="inputClass" />
+          <FieldError :id="fe.errorId('unit_price')" :messages="fe.errors.unit_price" />
         </div>
         <div v-else class="col-span-2">
           <label :for="fid('amount')" class="block text-sm font-medium text-neutral-700 mb-1">
             {{ form.type === 'reward' ? t('tx.reward_value') : isTrade ? t('tx.amount_total') : t('tx.amount') }}
           </label>
-          <input :id="fid('amount')" v-model="form.amount" inputmode="decimal" autocomplete="off" :required="form.type !== 'reward'" :class="inputClass" />
+          <input :id="fid('amount')" v-bind="fe.attrs('amount')" v-model="form.amount" inputmode="decimal" autocomplete="off" :required="form.type !== 'reward'" :class="inputClass" />
+          <FieldError :id="fe.errorId('amount')" :messages="fe.errors.amount" />
         </div>
         <div>
           <label :for="fid('price_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-          <SearchableSelect :input-id="fid('price_currency')" v-model="form.price_currency" :options="currencies.map(c => ({ value: c, label: c }))" />
+          <SearchableSelect :input-id="fid('price_currency')" v-model="form.price_currency" :invalid="fe.invalid('price_currency')" :describedby="fe.errorId('price_currency')" @update:model-value="fe.recheck('price_currency')" :options="currencies.map(c => ({ value: c, label: c }))" />
+          <FieldError :id="fe.errorId('price_currency')" :messages="fe.errors.price_currency" />
         </div>
       </div>
 
@@ -173,21 +193,24 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
           <label :for="fid('fee')" class="block text-sm font-medium text-neutral-700 mb-1">
             {{ t('tx.fee') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span>
           </label>
-          <input :id="fid('fee')" v-model="form.fee" inputmode="decimal" autocomplete="off" :class="inputClass" />
+          <input :id="fid('fee')" v-bind="fe.attrs('fee')" v-model="form.fee" inputmode="decimal" autocomplete="off" :class="inputClass" />
+          <FieldError :id="fe.errorId('fee')" :messages="fe.errors.fee" />
         </div>
         <div>
           <label :for="fid('fee_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.fee_currency') }}</label>
-          <input :id="fid('fee_currency')" v-model="form.fee_currency" maxlength="10" :placeholder="form.price_currency" class="uppercase" :class="inputClass" />
+          <input :id="fid('fee_currency')" v-bind="fe.attrs('fee_currency')" v-model="form.fee_currency" maxlength="10" :placeholder="form.price_currency" class="uppercase" :class="inputClass" />
+          <FieldError :id="fe.errorId('fee_currency')" :messages="fe.errors.fee_currency" />
         </div>
       </div>
 
       <div>
         <label :for="fid('note')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.note') }}</label>
-        <input :id="fid('note')" v-model="form.note" maxlength="500" :class="inputClass" />
+        <input :id="fid('note')" v-bind="fe.attrs('note')" v-model="form.note" maxlength="500" :class="inputClass" />
+        <FieldError :id="fe.errorId('note')" :messages="fe.errors.note" />
       </div>
 
-      <ul role="alert" v-if="Object.keys(fieldErrors).length" class="text-xs text-danger-500 space-y-0.5">
-        <li v-for="(msgs, field) in fieldErrors" :key="field">{{ field }}: {{ msgs.join(', ') }}</li>
+      <ul role="alert" v-if="otherErrors.length" class="text-xs text-danger-500 space-y-0.5">
+        <li v-for="msg in otherErrors" :key="msg">{{ msg }}</li>
       </ul>
       <p role="alert" v-else-if="error" class="text-sm text-danger-500">{{ error }}</p>
     </form>

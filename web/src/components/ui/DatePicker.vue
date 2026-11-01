@@ -30,6 +30,9 @@ const props = withDefaults(defineProps<{
   max?: string
   size?: 'md' | 'sm'
   ariaLabel?: string
+  /** Chyba validace (červený rámeček) a id hlášky pro aria-describedby — viz useFieldErrors. */
+  invalid?: boolean
+  describedby?: string
 }>(), {
   withTime: false,
   required: false,
@@ -178,8 +181,8 @@ const cellClass = 'cursor-pointer inline-flex items-center justify-center rounde
   <DatePickerRoot v-model:open="open" v-model:placeholder="placeholder" :model-value="value" :id="id" :required="required"
     :min-value="minValue" :max-value="maxValue" :locale="intlLocale" :granularity="withTime ? 'minute' : 'day'"
     :hour-cycle="24" :close-on-select="!withTime" prevent-deselect @update:model-value="onUpdate">
-    <DatePickerField v-slot="{ segments }" :aria-label="ariaLabel" @keydown.esc="onEscape"
-      class="w-full flex items-center px-3 border border-field rounded-md bg-surface text-sm tabular-nums focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 data-invalid:border-danger-500"
+    <DatePickerField v-slot="{ segments }" :aria-label="ariaLabel" :aria-invalid="invalid || undefined" :aria-describedby="invalid ? describedby : undefined" @keydown.esc="onEscape"
+      class="w-full flex items-center px-3 border border-field rounded-md bg-surface text-sm tabular-nums focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 data-invalid:border-danger-500 aria-invalid:border-danger-500 aria-invalid:focus-within:border-danger-500 aria-invalid:focus-within:ring-danger-500/20"
       :class="size === 'sm' ? 'h-9' : 'h-10'">
       <template v-for="item in segments" :key="item.part">
         <DatePickerInput v-if="item.part === 'literal'" :part="item.part" class="text-neutral-400">{{ item.value }}</DatePickerInput>
