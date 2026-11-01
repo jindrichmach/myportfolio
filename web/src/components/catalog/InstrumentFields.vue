@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { ASSET_CLASSES, PRICE_SOURCES } from '@/api/catalog'
 import { useFieldId } from '@/composables/useFieldId'
 import InfoTip from '@/components/ui/InfoTip.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { REF_SOURCES, type InstrumentForm } from '@/utils/instrumentForm'
 
 /** Pole instrumentu (třída, symbol, název, měna, ISIN, zdroj ceny, odkazy na zdroje) — stav drží rodič. */
@@ -19,9 +20,7 @@ const form = props.form
   <div class="grid grid-cols-2 gap-3">
     <div>
       <label :for="fid('asset_class')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.asset_class') }}</label>
-      <select :id="fid('asset_class')" v-model="form.asset_class" :class="inputClass">
-        <option v-for="c in ASSET_CLASSES" :key="c" :value="c">{{ t(`instruments.classes.${c}`) }}</option>
-      </select>
+      <SearchableSelect :input-id="fid('asset_class')" v-model="form.asset_class" :options="ASSET_CLASSES.map(c => ({ value: c, label: t(`instruments.classes.${c}`) }))" />
     </div>
     <div>
       <label :for="fid('symbol')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.symbol') }}</label>
@@ -45,9 +44,7 @@ const form = props.form
   <div class="grid grid-cols-2 gap-3">
     <div>
       <label :for="fid('price_source')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.price_source') }}</label>
-      <select :id="fid('price_source')" v-model="form.price_source" :class="inputClass">
-        <option v-for="s in PRICE_SOURCES" :key="s" :value="s">{{ t(`instruments.sources.${s}`) }}</option>
-      </select>
+      <SearchableSelect :input-id="fid('price_source')" v-model="form.price_source" :options="PRICE_SOURCES.map(s => ({ value: s, label: t(`instruments.sources.${s}`) }))" />
     </div>
     <div>
       <label :for="fid('decimals')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.decimals') }}</label>

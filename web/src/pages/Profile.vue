@@ -16,6 +16,7 @@ import SecuritySettings from '@/components/profile/SecuritySettings.vue'
 import ColorSchemePicker from '@/components/ColorSchemePicker.vue'
 import { DEFAULT_COLOR_SCHEME } from '@/theme/colorSchemes'
 import Tabs, { type TabItem } from '@/components/ui/Tabs.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { useTabQuery } from '@/composables/useTabQuery'
 import { useFieldId } from '@/composables/useFieldId'
 
@@ -97,16 +98,11 @@ async function save() {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label :for="fid('locale')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
-            <select :id="fid('locale')" v-model="form.locale" class="w-full h-10 px-3 border border-field rounded-md bg-surface">
-              <option value="cs">Čeština</option>
-              <option value="en">English</option>
-            </select>
+            <SearchableSelect :input-id="fid('locale')" v-model="form.locale" :options="[{ value: 'cs', label: 'Čeština' }, { value: 'en', label: 'English' }]" />
           </div>
           <div>
             <label :for="fid('display_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('profile.display_currency') }}</label>
-            <select :id="fid('display_currency')" v-model="form.display_currency" class="w-full h-10 px-3 border border-field rounded-md bg-surface">
-              <option v-for="c in CURRENCIES" :key="c" :value="c">{{ c }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('display_currency')" v-model="form.display_currency" :options="CURRENCIES.map(c => ({ value: c, label: c }))" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('profile.display_currency_hint') }}</p>
           </div>
         </div>

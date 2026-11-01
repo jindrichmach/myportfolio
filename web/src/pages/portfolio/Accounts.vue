@@ -17,6 +17,7 @@ import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
 import ManualLink from '@/components/ui/ManualLink.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -164,9 +165,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <form id="account-form" class="space-y-3" @submit.prevent="save">
         <div>
           <label :for="fid('institution_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('accounts.institution') }}</label>
-          <select :id="fid('institution_id')" v-model="form.institution_id" required :class="inputClass">
-            <option v-for="i in institutions" :key="i.id" :value="i.id">{{ i.name }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('institution_id')" v-model="form.institution_id" required :options="institutions.map(i => ({ value: i.id, label: i.name }))" />
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">

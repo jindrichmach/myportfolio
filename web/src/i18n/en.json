@@ -1606,6 +1606,11 @@
     "inherit_now": "default {name} — follows the instance scheme",
     "own_scheme": "Or your own scheme"
   },
+  "select": {
+    "clear": "Clear selection",
+    "open": "Open list",
+    "no_results": "No results"
+  },
   "date_picker": {
     "open": "Open calendar",
     "prev_month": "Previous month",

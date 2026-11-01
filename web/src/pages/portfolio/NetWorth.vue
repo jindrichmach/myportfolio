@@ -26,6 +26,7 @@ import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
 import ManualLink from '@/components/ui/ManualLink.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip)
 
@@ -329,9 +330,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <form id="nw-item-form" class="space-y-3" @submit.prevent="saveItem">
         <div v-if="!editItem">
           <label :for="fid('kind')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('net_worth.kind') }}</label>
-          <select :id="fid('kind')" v-model="itemForm.kind" :class="inputClass">
-            <option v-for="k in NET_WORTH_KINDS" :key="k" :value="k">{{ t(`net_worth.kinds.${k}`) }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('kind')" v-model="itemForm.kind" :options="NET_WORTH_KINDS.map(k => ({ value: k, label: t(`net_worth.kinds.${k}`) }))" />
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">

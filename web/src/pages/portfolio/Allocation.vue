@@ -17,6 +17,7 @@ import Icon from '@/components/ui/Icon.vue'
 import Badge from '@/components/ui/Badge.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import ManualLink from '@/components/ui/ManualLink.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { useChartColors } from '@/composables/useTheme'
 
 const { t } = useI18n()
@@ -315,10 +316,7 @@ const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface te
           </div>
           <div v-if="c.split" class="mt-2 ml-4 space-y-1.5">
             <div v-for="(it, k) in c.instruments" :key="k" class="grid grid-cols-[1fr_5.5rem_2rem] gap-2 items-center">
-              <select v-model="it.instrument_id" :class="inputClass">
-                <option value="" disabled>—</option>
-                <option v-for="ins in catalog[c.category] ?? []" :key="ins.id" :value="ins.id">{{ ins.symbol }} · {{ ins.name }}</option>
-              </select>
+              <SearchableSelect v-model="it.instrument_id" :options="(catalog[c.category] ?? []).map(ins => ({ value: ins.id, label: ins.symbol, secondary: ins.name }))" />
               <input v-model="it.target" inputmode="decimal" placeholder="0" :class="inputClass" />
               <button type="button" class="cursor-pointer text-neutral-400 hover:text-danger-500" :aria-label="t('common.delete')" @click="c.instruments.splice(k, 1)"><Icon name="x" class="w-4 h-4" /></button>
             </div>

@@ -10,6 +10,7 @@ import { apiDocs, type ApiCatalog, type ApiEndpoint, type ApiParam } from '@/api
 import { apiErrorMessage } from '@/api/errors'
 import { useToast } from '@/composables/useToast'
 import FileInput from '@/components/ui/FileInput.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -257,10 +258,7 @@ const inputClass = 'w-full h-8 px-2 border border-field rounded-md bg-surface te
                     <span class="block text-neutral-600 mb-0.5"><code>{{ p.name }}</code><span v-if="p.required" class="text-danger-500"> *</span></span>
                     <FileInput v-if="p.type === 'file'" v-model="tryFiles[e.id]" />
                     <input v-else-if="p.type === 'boolean'" v-model="tryValues[e.id][p.name]" type="checkbox" class="rounded border-field text-primary-700" />
-                    <select v-else-if="p.enum" v-model="tryValues[e.id][p.name]" :class="inputClass">
-                      <option value="">—</option>
-                      <option v-for="v in p.enum" :key="String(v)" :value="v">{{ v }}</option>
-                    </select>
+                    <SearchableSelect v-else-if="p.enum" v-model="tryValues[e.id][p.name] as string" size="sm" :options="[{ value: '', label: '—' }, ...p.enum.map(v => ({ value: v, label: String(v) }))]" />
                     <textarea v-else-if="p.type === 'object'" v-model="tryValues[e.id][p.name] as string" rows="2" placeholder="{ }" class="w-full px-2 py-1 border border-field rounded-md bg-surface text-sm font-mono"></textarea>
                     <input v-else v-model="tryValues[e.id][p.name]" :type="p.type === 'date' ? 'date' : 'text'" :placeholder="p.example !== null ? String(p.example) : ''" :class="inputClass" />
                   </label>

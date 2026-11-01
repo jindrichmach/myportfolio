@@ -241,22 +241,18 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label :for="fid('portfolio_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
-            <select :id="fid('portfolio_id')" v-model="form.portfolio_id" required :class="inputClass">
-              <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('portfolio_id')" v-model="form.portfolio_id" required :options="portfolios.map(p => ({ value: p.id, label: p.name }))" />
           </div>
           <div>
             <label :for="fid('account_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
-            <select :id="fid('account_id')" v-model="form.account_id" required :class="inputClass">
-              <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('account_id')" v-model="form.account_id" required :options="accounts.map(a => ({ value: a.id, label: `${a.institution_name} / ${a.name}` }))" />
           </div>
         </div>
 
         <template v-if="form.valuation_mode === 'market'">
           <div>
             <label :for="fid('instrument_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.instrument') }}</label>
-            <SearchableSelect :input-id="fid('instrument_id')" v-model="form.instrument_id" remote :loading="searching"
+            <SearchableSelect :input-id="fid('instrument_id')" v-model="form.instrument_id" remote clearable :loading="searching"
               :options="instrumentOptions.map(i => ({ value: i.id, label: `${i.symbol} (${i.quote_currency})`, secondary: i.name }))"
               :placeholder="t('instruments.search_placeholder')" @search="searchInstruments" />
             <p class="text-xs text-neutral-500 mt-1">

@@ -192,13 +192,10 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </li>
       </ul>
       <div class="grid gap-2 sm:grid-cols-[minmax(0,2fr)_auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
-        <SearchableSelect v-model="priceForm.instrument_id" remote :loading="searching"
+        <SearchableSelect v-model="priceForm.instrument_id" clearable remote :loading="searching"
           :options="instrumentOptions.map(i => ({ value: i.id, label: `${i.symbol} (${i.quote_currency})`, secondary: i.name }))"
           :placeholder="t('instruments.search_placeholder')" @search="searchInstruments" />
-        <select v-model="priceForm.direction" :class="inputClass + ' sm:w-auto'">
-          <option value="above">{{ t('alerts.above') }}</option>
-          <option value="below">{{ t('alerts.below') }}</option>
-        </select>
+        <SearchableSelect v-model="priceForm.direction" class="sm:w-36" :options="[{ value: 'above', label: t('alerts.above') }, { value: 'below', label: t('alerts.below') }]" />
         <input v-model="priceForm.price" inputmode="decimal" :placeholder="t('alerts.price_placeholder')" :class="inputClass" />
         <input v-model="priceForm.note" maxlength="255" :placeholder="t('alerts.note')" :class="inputClass" />
         <button type="button" :disabled="priceBusy || priceForm.instrument_id === null || !priceForm.price" @click="addPrice"

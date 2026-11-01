@@ -233,26 +233,19 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
         <form class="grid gap-3 md:grid-cols-2" @submit.prevent="loadPreview">
           <div>
             <label :for="fid('account_id')" :class="labelClass">{{ t('import.account') }}</label>
-            <select :id="fid('account_id')" v-model="upload.account_id" required :class="inputClass">
-              <option value="" disabled>{{ t('import.choose') }}</option>
-              <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }} ({{ a.currency }})</option>
-            </select>
+            <SearchableSelect :input-id="fid('account_id')" v-model="upload.account_id" required :placeholder="t('import.choose')"
+                :options="accounts.map(a => ({ value: a.id, label: `${a.institution_name} / ${a.name} (${a.currency})` }))" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('import.account_hint') }}</p>
           </div>
           <div>
             <label :for="fid('portfolio_id')" :class="labelClass">{{ t('import.portfolio') }}</label>
-            <select :id="fid('portfolio_id')" v-model="upload.portfolio_id" required :class="inputClass">
-              <option value="" disabled>{{ t('import.choose') }}</option>
-              <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('portfolio_id')" v-model="upload.portfolio_id" required :placeholder="t('import.choose')"
+                :options="portfolios.map(p => ({ value: p.id, label: p.name }))" />
             <p class="text-xs text-neutral-500 mt-1">{{ t('import.portfolio_hint') }}</p>
           </div>
           <div>
             <label :for="fid('source')" :class="labelClass">{{ t('import.source') }}</label>
-            <select :id="fid('source')" v-model="upload.source" :class="inputClass">
-              <option value="">{{ t('import.source_auto') }}</option>
-              <option v-for="s in sources" :key="s.key" :value="s.key">{{ s.label }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('source')" v-model="upload.source" :options="[{ value: '', label: t('import.source_auto') }, ...sources.map(s => ({ value: s.key, label: s.label }))]" />
           </div>
           <div>
             <label :for="fid('field')" :class="labelClass">{{ t('import.file') }}</label>
@@ -300,15 +293,13 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
               </div>
               <div class="space-y-2 min-w-0">
                 <SegmentControl v-model="choices[a.key].mode" :options="modeOptions" :label="a.symbol || a.isin || ''" />
-                <SearchableSelect v-if="choices[a.key].mode === 'existing'" v-model="choices[a.key].instrument_id" remote
+                <SearchableSelect v-if="choices[a.key].mode === 'existing'" v-model="choices[a.key].instrument_id" remote clearable
                   :loading="searching === a.key" :options="instrumentOptions(a)"
                   :placeholder="t('instruments.search_placeholder')" @search="q => searchInstruments(a, q)" />
                 <div v-else-if="choices[a.key].mode === 'create'" class="grid gap-2 grid-cols-2 md:grid-cols-4">
                   <input v-model="choices[a.key].create.symbol" :placeholder="t('import.create.symbol')" required maxlength="40" :class="inputClass" />
                   <input v-model="choices[a.key].create.name" :placeholder="t('import.create.name')" required maxlength="190" :class="inputClass" />
-                  <select v-model="choices[a.key].create.asset_class" :class="inputClass">
-                    <option v-for="c in ASSET_CLASSES.filter(c => c !== 'cash')" :key="c" :value="c">{{ t(`instruments.classes.${c}`) }}</option>
-                  </select>
+                  <SearchableSelect v-model="choices[a.key].create.asset_class" :options="ASSET_CLASSES.filter(c => c !== 'cash').map(c => ({ value: c, label: t(`instruments.classes.${c}`) }))" />
                   <input v-model="choices[a.key].create.quote_currency" :placeholder="t('import.create.currency')" required maxlength="3" :class="inputClass + ' uppercase'" />
                 </div>
                 <p v-else class="text-xs text-neutral-500">{{ t('import.mode_skip_hint') }}</p>
@@ -329,15 +320,11 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
                 </p>
                 <p class="text-xs text-neutral-500">{{ formatDateTime(tr.executed_at) }}<template v-if="tr.note"> · {{ tr.note }}</template></p>
               </div>
-              <select v-model="transferChoices[tr.index]" :class="inputClass + ' md:w-80'">
-                <option value="">{{ t('import.transfer_skip') }}</option>
-                <optgroup v-if="assetByKey[tr.asset_key]?.positions.length" :label="t('import.transfer_positions')">
-                  <option v-for="p in assetByKey[tr.asset_key].positions" :key="p.id" :value="`p:${p.id}`">{{ p.label }}</option>
-                </optgroup>
-                <optgroup :label="t('import.transfer_accounts')">
-                  <option v-for="a in preview.accounts" :key="a.id" :value="`a:${a.id}`">{{ a.name }}</option>
-                </optgroup>
-              </select>
+              <SearchableSelect v-model="transferChoices[tr.index]" class="md:w-80" :options="[
+                { value: '', label: t('import.transfer_skip') },
+                ...(assetByKey[tr.asset_key]?.positions ?? []).map(p => ({ value: `p:${p.id}`, label: p.label, group: t('import.transfer_positions') })),
+                ...preview.accounts.map(a => ({ value: `a:${a.id}`, label: a.name, group: t('import.transfer_accounts') })),
+              ]" />
             </div>
           </div>
         </SectionCard>

@@ -81,7 +81,6 @@ async function submit() {
   }
 }
 
-const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
 <template>
@@ -100,7 +99,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <h3 class="text-sm font-semibold">1. {{ t('invest.step_instrument') }}</h3>
         <template v-if="!creating">
           <label :for="fid('instrument')" class="block text-sm font-medium text-neutral-700">{{ t('invest.search_label') }}</label>
-          <SearchableSelect v-model="instrumentId" :input-id="fid('instrument')" :options="options" remote :loading="searching"
+          <SearchableSelect v-model="instrumentId" :input-id="fid('instrument')" :options="options" remote clearable :loading="searching"
             :placeholder="t('invest.search_placeholder')" :no-results-label="t('invest.no_results')" :loading-label="t('common.loading')" @search="search" />
           <p v-if="selected" class="text-xs text-neutral-500">{{ selected.name }}<template v-if="selected.isin"> · {{ selected.isin }}</template> · {{ selected.quote_currency }}</p>
           <button type="button" class="cursor-pointer text-sm text-primary-700 hover:underline" @click="startCreate">{{ t('invest.not_in_catalog') }}</button>
@@ -117,16 +116,11 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         <div class="grid sm:grid-cols-2 gap-3">
           <div>
             <label :for="fid('account')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
-            <select :id="fid('account')" v-model="form.account_id" required :class="inputClass">
-              <option :value="null" disabled>—</option>
-              <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} · {{ a.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('account')" v-model="form.account_id" required :options="accounts.map(a => ({ value: a.id, label: `${a.institution_name} · ${a.name}` }))" />
           </div>
           <div>
             <label :for="fid('portfolio')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
-            <select :id="fid('portfolio')" v-model="form.portfolio_id" required :class="inputClass">
-              <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('portfolio')" v-model="form.portfolio_id" required :options="portfolios.map(p => ({ value: p.id, label: p.name }))" />
           </div>
         </div>
       </section>

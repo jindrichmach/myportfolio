@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi, type SetupPayload, type SetupSmtp } from '@/api/auth'
 import { useFieldId } from '@/composables/useFieldId'
 import PasswordInput from '@/components/ui/PasswordInput.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 /**
  * Úvodní průvodce: admin a předvolby → zabezpečení → e-mail (SMTP, volitelně)
@@ -166,16 +167,11 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           <div class="grid gap-4 sm:grid-cols-2 pt-2 border-t border-neutral-200">
             <div>
               <label :for="fid('locale')" :class="labelClass">{{ t('setup.language') }}</label>
-              <select :id="fid('locale')" v-model="admin.locale" :class="inputClass">
-                <option value="cs">Čeština</option>
-                <option value="en">English</option>
-              </select>
+              <SearchableSelect :input-id="fid('locale')" v-model="admin.locale" :options="[{ value: 'cs', label: 'Čeština' }, { value: 'en', label: 'English' }]" />
             </div>
             <div>
               <label :for="fid('display_currency')" :class="labelClass">{{ t('setup.display_currency') }}</label>
-              <select :id="fid('display_currency')" v-model="admin.display_currency" :class="inputClass">
-                <option v-for="c in ['CZK', 'EUR', 'USD']" :key="c" :value="c">{{ c }}</option>
-              </select>
+              <SearchableSelect :input-id="fid('display_currency')" v-model="admin.display_currency" :options="['CZK', 'EUR', 'USD'].map(c => ({ value: c, label: c }))" />
             </div>
           </div>
           <p role="alert" v-if="error" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">{{ error }}</p>
@@ -226,11 +222,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
               </div>
               <div>
                 <label :for="fid('encryption')" :class="labelClass">{{ t('smtp.encryption') }}</label>
-                <select :id="fid('encryption')" v-model="smtp.encryption" :class="inputClass">
-                  <option value="tls">STARTTLS</option>
-                  <option value="ssl">SSL/TLS</option>
-                  <option value="none">{{ t('setup.none') }}</option>
-                </select>
+                <SearchableSelect :input-id="fid('encryption')" v-model="smtp.encryption" :options="[{ value: 'tls', label: 'STARTTLS' }, { value: 'ssl', label: 'SSL/TLS' }, { value: 'none', label: t('setup.none') }]" />
               </div>
             </div>
             <label class="flex items-center gap-2 text-sm">

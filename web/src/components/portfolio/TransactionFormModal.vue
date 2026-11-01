@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { marketApi } from '@/api/market'
 import { apiErrorMessage } from '@/api/errors'
 import {
@@ -119,20 +120,14 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
     <form id="tx-form" class="space-y-3" @submit.prevent="save">
       <div v-if="!position">
         <label :for="fid('position_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.position') }}</label>
-        <select :id="fid('position_id')" v-model="form.position_id" :disabled="!!transaction" required :class="inputClass">
-          <option :value="null" disabled>—</option>
-          <option v-for="p in positions" :key="p.id" :value="p.id">
-            {{ p.display_name }}<template v-if="p.asset_class !== 'crypto' && p.instrument_name"> ({{ p.instrument_name }})</template> · {{ p.institution_name }} / {{ p.account_name }} · {{ p.portfolio_name }}
-          </option>
-        </select>
+        <SearchableSelect :input-id="fid('position_id')" v-model="form.position_id" :disabled="!!transaction" required
+          :options="(positions ?? []).map(p => ({ value: p.id, label: p.display_name + (p.asset_class !== 'crypto' && p.instrument_name ? ` (${p.instrument_name})` : ''), secondary: `${p.institution_name} / ${p.account_name} · ${p.portfolio_name}` }))" />
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label :for="fid('type')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
-          <select :id="fid('type')" v-model="form.type" :class="inputClass">
-            <option v-for="tp in types" :key="tp" :value="tp">{{ t(`tx.types.${tp}`) }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('type')" v-model="form.type" :options="types.map(tp => ({ value: tp, label: t(`tx.types.${tp}`) }))" />
         </div>
         <div>
           <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>
@@ -169,9 +164,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </div>
         <div>
           <label :for="fid('price_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.currency') }}</label>
-          <select :id="fid('price_currency')" v-model="form.price_currency" :class="inputClass">
-            <option v-for="c in currencies" :key="c" :value="c">{{ c }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('price_currency')" v-model="form.price_currency" :options="currencies.map(c => ({ value: c, label: c }))" />
         </div>
       </div>
 

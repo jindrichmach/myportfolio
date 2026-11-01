@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { smtpApi, type SmtpForm, type SmtpSettingsResponse } from '@/api/admin'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDateTime } from '@/composables/useFormat'
@@ -100,11 +101,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
         </div>
         <div class="sm:col-span-2">
           <label :for="fid('encryption')" :class="labelClass">{{ t('smtp.encryption') }}</label>
-          <select :id="fid('encryption')" v-model="form.encryption" :class="inputClass" @change="onEncryption">
-            <option value="tls">STARTTLS</option>
-            <option value="ssl">SSL/TLS</option>
-            <option value="none">{{ t('smtp.encryption_none') }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('encryption')" v-model="form.encryption" :options="[{ value: 'tls', label: 'STARTTLS' }, { value: 'ssl', label: 'SSL/TLS' }, { value: 'none', label: t('smtp.encryption_none') }]" @update:model-value="onEncryption" />
         </div>
         <div>
           <label :for="fid('port')" :class="labelClass">{{ t('smtp.port') }}</label>

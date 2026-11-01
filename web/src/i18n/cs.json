@@ -1606,6 +1606,11 @@
     "inherit_now": "výchozí {name} — změní se se schématem instance",
     "own_scheme": "Nebo vlastní schéma"
   },
+  "select": {
+    "clear": "Zrušit výběr",
+    "open": "Otevřít seznam",
+    "no_results": "Žádné výsledky"
+  },
   "date_picker": {
     "open": "Otevřít kalendář",
     "prev_month": "Předchozí měsíc",

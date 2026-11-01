@@ -6,6 +6,7 @@ import Modal from '@/components/ui/Modal.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import {
   exchangesApi,
   type ExchangeConnection, type ExchangeInput, type ExchangeProvider, type ExchangeStart, type ExchangeStatus, type ExchangeTest,
@@ -204,25 +205,18 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <form id="exchange-form" class="space-y-3" @submit.prevent="save">
         <div>
           <label :for="fid('provider')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.provider') }}</label>
-          <select :id="fid('provider')" v-model="form.provider" :disabled="editId !== null" :class="inputClass" @change="form.credentials = {}; testResult = null">
-            <option v-for="p in providers" :key="p.provider" :value="p.provider">{{ p.label }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('provider')" v-model="form.provider" :disabled="editId !== null" :options="providers.map(p => ({ value: p.provider, label: p.label }))"
+            @update:model-value="form.credentials = {}; testResult = null" />
           <p class="text-xs text-neutral-500 mt-1">{{ t('exchanges.key_hint') }}</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label :for="fid('account_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.account') }}</label>
-            <select :id="fid('account_id')" v-model="form.account_id" required :class="inputClass">
-              <option value="" disabled>—</option>
-              <option v-for="a in activeAccounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('account_id')" v-model="form.account_id" required :options="activeAccounts.map(a => ({ value: a.id, label: `${a.institution_name} / ${a.name}` }))" />
           </div>
           <div>
             <label :for="fid('portfolio_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('exchanges.portfolio') }}</label>
-            <select :id="fid('portfolio_id')" v-model="form.portfolio_id" required :class="inputClass">
-              <option value="" disabled>—</option>
-              <option v-for="p in activePortfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('portfolio_id')" v-model="form.portfolio_id" required :options="activePortfolios.map(p => ({ value: p.id, label: p.name }))" />
           </div>
         </div>
         <div v-for="f in fields" :key="f.key">

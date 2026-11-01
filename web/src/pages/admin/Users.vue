@@ -11,6 +11,7 @@ import Modal from '@/components/ui/Modal.vue'
 import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter, GridFilterValues } from '@/components/ui/grid'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { useFieldId } from '@/composables/useFieldId'
 import { formatDateTime } from '@/composables/useFormat'
 
@@ -188,16 +189,11 @@ function roleBadge(role: string): string {
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label :for="fid('role')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('users.role') }}</label>
-              <select :id="fid('role')" v-model="form.role" class="w-full h-10 px-3 border border-field rounded-md text-sm bg-surface">
-                <option value="admin">admin</option>
-                <option value="user">user</option>
-              </select>
+              <SearchableSelect :input-id="fid('role')" v-model="form.role" :options="[{ value: 'admin', label: 'admin' }, { value: 'user', label: 'user' }]" />
             </div>
             <div>
               <label :for="fid('locale')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.language') }}</label>
-              <select :id="fid('locale')" v-model="form.locale" class="w-full h-10 px-3 border border-field rounded-md text-sm bg-surface">
-                <option v-for="(name, code) in LOCALE_NAMES" :key="code" :value="code">{{ name }}</option>
-              </select>
+              <SearchableSelect :input-id="fid('locale')" v-model="form.locale" :options="Object.entries(LOCALE_NAMES).map(([code, name]) => ({ value: code, label: name }))" />
             </div>
           </div>
           <div v-if="form.id !== null">

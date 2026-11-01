@@ -8,6 +8,7 @@ import IconButton from '@/components/ui/IconButton.vue'
 import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter } from '@/components/ui/grid'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { catalogApi, INSTITUTION_TYPES, type Institution, type InstitutionType } from '@/api/catalog'
 import { apiErrorMessage } from '@/api/errors'
 import { useAuthStore } from '@/stores/auth'
@@ -138,9 +139,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </div>
         <div>
           <label :for="fid('type')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('common.type') }}</label>
-          <select :id="fid('type')" v-model="form.type" :class="inputClass">
-            <option v-for="tp in INSTITUTION_TYPES" :key="tp" :value="tp">{{ t(`institutions.types.${tp}`) }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('type')" v-model="form.type" :options="INSTITUTION_TYPES.map(tp => ({ value: tp, label: t(`institutions.types.${tp}`) }))" />
         </div>
         <div>
           <label :for="fid('website')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('institutions.website') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span></label>

@@ -7,6 +7,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { bankNoticesApi, type BankNotice, type ImapAccount, type ImapAccountInput, type NoticeStatus } from '@/api/bankNotices'
 import { portfolioApi, type Position } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
@@ -258,11 +259,7 @@ const noticeKey = (n: BankNotice) => n.id
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label :for="fid('encryption')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.encryption') }}</label>
-            <select :id="fid('encryption')" v-model="form.encryption" :class="inputClass">
-              <option value="ssl">SSL/TLS</option>
-              <option value="tls">STARTTLS</option>
-              <option value="none">{{ t('bank_notices.encryption_none') }}</option>
-            </select>
+            <SearchableSelect :input-id="fid('encryption')" v-model="form.encryption" :options="[{ value: 'ssl', label: 'SSL/TLS' }, { value: 'tls', label: 'STARTTLS' }, { value: 'none', label: t('bank_notices.encryption_none') }]" />
           </div>
           <div>
             <label :for="fid('folder')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('bank_notices.folder') }}</label>

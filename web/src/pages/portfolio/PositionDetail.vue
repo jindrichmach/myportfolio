@@ -15,6 +15,7 @@ import EntityIcon from '@/components/ui/EntityIcon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Badge from '@/components/ui/Badge.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import CashBalanceModal from '@/components/portfolio/CashBalanceModal.vue'
 import { portfolioApi, type Account, type Portfolio, type Position, type Transaction } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
@@ -212,15 +213,11 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <form id="position-edit-form" class="space-y-3" @submit.prevent="saveEdit">
         <div>
           <label :for="fid('portfolio_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.portfolio') }}</label>
-          <select :id="fid('portfolio_id')" v-model="editForm.portfolio_id" :class="inputClass">
-            <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('portfolio_id')" v-model="editForm.portfolio_id" :options="portfolios.map(p => ({ value: p.id, label: p.name }))" />
         </div>
         <div>
           <label :for="fid('account_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('positions.account') }}</label>
-          <select :id="fid('account_id')" v-model="editForm.account_id" :class="inputClass">
-            <option v-for="a in accounts" :key="a.id" :value="a.id">{{ a.institution_name }} / {{ a.name }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('account_id')" v-model="editForm.account_id" :options="accounts.map(a => ({ value: a.id, label: `${a.institution_name} / ${a.name}` }))" />
         </div>
         <div>
           <label :for="fid('name')" class="block text-sm font-medium text-neutral-700 mb-1">

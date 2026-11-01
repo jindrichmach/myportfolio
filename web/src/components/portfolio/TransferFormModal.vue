@@ -7,6 +7,7 @@ import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { portfolioApi, type Position } from '@/api/portfolio'
 import { useFieldId } from '@/composables/useFieldId'
@@ -67,11 +68,8 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <p class="text-xs text-neutral-500">{{ t('tx.transfer_hint') }}</p>
       <div>
         <label :for="fid('to_position_id')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.transfer_to') }}</label>
-        <select :id="fid('to_position_id')" v-model="form.to_position_id" required :class="inputClass">
-          <option v-for="p in targets" :key="p.id" :value="p.id">
-            {{ p.institution_name }} / {{ p.account_name }} · {{ p.portfolio_name }}
-          </option>
-        </select>
+        <SearchableSelect :input-id="fid('to_position_id')" v-model="form.to_position_id" required
+          :options="targets.map(p => ({ value: p.id, label: `${p.institution_name} / ${p.account_name} · ${p.portfolio_name}` }))" />
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
@@ -92,9 +90,7 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
         </div>
         <div>
           <label :for="fid('fee_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.fee_currency') }}</label>
-          <select :id="fid('fee_currency')" v-model="form.fee_currency" :class="inputClass">
-            <option v-for="c in feeCurrencies" :key="c" :value="c">{{ c }}</option>
-          </select>
+          <SearchableSelect :input-id="fid('fee_currency')" v-model="form.fee_currency" :options="feeCurrencies.map(c => ({ value: c, label: c }))" />
         </div>
       </div>
       <p class="text-xs text-neutral-500 -mt-1">{{ t('tx.fee_instrument_hint') }}</p>
