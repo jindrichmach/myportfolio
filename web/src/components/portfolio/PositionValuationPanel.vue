@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 import { valuationApi, warningKey, type ManualValuation, type PositionValuationDetail } from '@/api/valuation'
 import type { Position } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
-import { formatDate, formatDateTime, formatDec, formatMoney, formatPercent, formatSigned } from '@/composables/useFormat'
+import { formatDate, formatDateTime, formatDec, formatMoney, qtyDecimals, formatPercent, formatSigned } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import IconButton from '@/components/ui/IconButton.vue'
 import KpiTile from '@/components/ui/KpiTile.vue'
@@ -48,11 +48,11 @@ defineExpose({ load })
 const cur = computed(() => v.value?.currency ?? 'CZK')
 const money = (x: string | null | undefined, dec = 2) => (x === null || x === undefined ? '—' : formatMoney(Number(x), cur.value, dec))
 const signed = (x: string | null | undefined) => formatSigned(x, cur.value, 2)
-const decimals = computed(() => props.position.instrument_decimals ?? 8)
+const decimals = computed(() => qtyDecimals(props.position.asset_class, props.position.instrument_decimals))
 const openLots = computed(() => (v.value?.lots ?? []).filter(l => Number(l.remaining_quantity) > 0))
 
 const isCrypto = computed(() => props.position.asset_class === 'crypto')
-const holdingLabel = computed(() => `${formatDec(props.position.holding, props.position.instrument_decimals ?? 8)} ${props.position.instrument_symbol ?? ''}`)
+const holdingLabel = computed(() => `${formatDec(props.position.holding, decimals.value)} ${props.position.instrument_symbol ?? ''}`)
 const totalSub = computed(() => {
   const x = v.value
   if (!x) return ''

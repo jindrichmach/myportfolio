@@ -11,6 +11,7 @@ use MyPortfolio\Repository\InstrumentRepository;
 use MyPortfolio\Repository\ManualValuationRepository;
 use MyPortfolio\Repository\PortfolioRepository;
 use MyPortfolio\Repository\PositionRepository;
+use MyPortfolio\Repository\UserPreferenceRepository;
 use MyPortfolio\Service\BankNotice\AccountNumber;
 use MyPortfolio\Service\Portfolio\CashBalanceService;
 use MyPortfolio\Service\Portfolio\DomainError;
@@ -41,6 +42,7 @@ final class PositionsAction
         private readonly ValuationService $valuation,
         private readonly ManualValuationRepository $valuations,
         private readonly CashBalanceService $cash,
+        private readonly UserPreferenceRepository $preferences,
     ) {}
 
     /**
@@ -75,9 +77,12 @@ final class PositionsAction
             array_filter($rows, static fn (array $r) => $r['instrument_id'] !== null),
         )));
         $manual = $this->valuation->manualValues($userId, $rows);
+        $display = $this->valuation->pricesInCurrency($last, $this->preferences->displayCurrency(CurrentUser::id($request)));
         foreach ($rows as &$row) {
             $row['holding'] = $this->transactions->holding($userId, $row);
             $row['last_price'] = $row['instrument_id'] !== null ? ($last[$row['instrument_id']] ?? null) : null;
+            // Poslední cena v měně zobrazení (sloupec jde porovnávat), originál burzy zůstává v `last_price`.
+            $row['price_display'] = $row['instrument_id'] !== null ? ($display[$row['instrument_id']] ?? null) : null;
             // Ruční pozice: dnešní hodnota v měně pozice (poslední ocenění + pozdější toky).
             $row['current_value'] = $manual[$row['id']] ?? null;
             $row = self::ownerOnly($request, $row);

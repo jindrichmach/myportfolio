@@ -10,7 +10,7 @@ import DataGrid from '@/components/ui/DataGrid.vue'
 import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter, GridQuery } from '@/components/ui/grid'
 import type { Transaction, TransactionType } from '@/api/portfolio'
-import { formatDec, formatDateTime } from '@/composables/useFormat'
+import { formatDec, formatDateTime, formatPrice, formatQty } from '@/composables/useFormat'
 
 /** Seznam transakcí jako serverový DataGrid: rodič načítá stránku na `change` a předá `rows` + `total`. */
 const props = defineProps<{
@@ -77,12 +77,10 @@ const mono = (tx: Transaction) => ({ 'font-mono': tx.asset_class === 'crypto' })
       <Badge :tone="TONES[tx.type as TransactionType]" class="mt-0.5">{{ t(`tx.types.${tx.type}`) }}</Badge>
     </template>
     <template #cell-quantity="{ row: tx }">
-      <span :class="mono(tx)">
-        <template v-if="tx.type === 'split'">× {{ formatDec(tx.split_ratio, 10) }}</template>
-        <template v-else>{{ formatDec(tx.quantity, 18) }}</template>
-      </span>
+      <span v-if="tx.type === 'split'" :class="mono(tx)">× {{ formatDec(tx.split_ratio, 10) }}</span>
+      <span v-else :class="mono(tx)" :title="tx.quantity ?? undefined">{{ formatQty(tx.quantity, tx.asset_class) }}</span>
     </template>
-    <template #cell-unit_price="{ row: tx }"><span :class="mono(tx)">{{ formatDec(tx.unit_price, 10) }}</span></template>
+    <template #cell-unit_price="{ row: tx }"><span :class="mono(tx)" :title="tx.unit_price ?? undefined">{{ formatPrice(tx.unit_price) }}</span></template>
     <template #cell-amount="{ row: tx }">
       {{ tx.amount ? formatDec(tx.amount, 4, tx.price_currency) : '—' }}
       <span v-if="tx.fee && Number(tx.fee) !== 0" class="block text-xs text-neutral-500">{{ t('tx.fee') }} {{ formatDec(tx.fee, 4, tx.fee_currency) }}</span>

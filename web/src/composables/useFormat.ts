@@ -3,6 +3,7 @@
  */
 
 import { i18n } from '@/i18n'
+import type { AssetClass } from '@/api/catalog'
 
 // Per-currency default decimals (ISO 4217). JPY/KRW/HUF = 0, BHD/JOD = 3, ostatní 2.
 // Volající může override přes parametr `decimals`.
@@ -85,6 +86,30 @@ export function formatDec(value: string | null | undefined, maxFractionDigits = 
     maximumFractionDigits: maxFractionDigits,
   }).format(n))
   return currency ? `${formatted} ${currency === 'CZK' ? 'Kč' : currency}` : formatted
+}
+
+/** Desetinná místa množství podle třídy aktiva (krypto 8 = satoshi). */
+const QTY_DECIMALS: Record<AssetClass, number> = { crypto: 8, etf: 4, stock: 4, fund: 4, cash: 2 }
+
+/** Kolik desetinných míst množství ukázat: podle třídy aktiva, nanejvýš `max` (desetinná místa instrumentu). */
+export function qtyDecimals(assetClass: AssetClass | null | undefined, max?: number | null): number {
+  return Math.min(assetClass ? QTY_DECIMALS[assetClass] : 8, max ?? 18)
+}
+
+/** Množství na výstup: počet míst podle třídy aktiva, koncové nuly pryč. Plnou hodnotu dej volající do `title`. */
+export function formatQty(value: string | null | undefined, assetClass: AssetClass | null | undefined, max?: number | null): string {
+  return formatDec(value, qtyDecimals(assetClass, max))
+}
+
+/** Jednotková cena na výstup: od 1 výš dvě místa, pod 1 čtyři platné číslice (drobné kryptoměny). */
+export function formatPrice(value: string | null | undefined): string {
+  if (value === null || value === undefined || value === '') return '—'
+  const n = Number(value)
+  if (Number.isNaN(n)) return value
+  const opts: Intl.NumberFormatOptions = Math.abs(n) >= 1 || n === 0
+    ? { maximumFractionDigits: 2 }
+    : { maximumSignificantDigits: 4 }
+  return typographicMinus(new Intl.NumberFormat(activeLocale(), opts).format(n))
 }
 
 /** 'YYYY-MM-DD HH:MM:SS' → lokalizované datum + čas (bez sekund, půlnoc bez času). */

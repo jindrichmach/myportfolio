@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { ASSET_CLASSES, PRICE_SOURCES } from '@/api/catalog'
 import { useFieldId } from '@/composables/useFieldId'
+import InfoTip from '@/components/ui/InfoTip.vue'
 import { REF_SOURCES, type InstrumentForm } from '@/utils/instrumentForm'
 
 /** Pole instrumentu (třída, symbol, název, měna, ISIN, zdroj ceny, odkazy na zdroje) — stav drží rodič. */
@@ -33,7 +34,7 @@ const form = props.form
   </div>
   <div class="grid grid-cols-3 gap-3">
     <div>
-      <label :for="fid('quote_currency')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.quote_currency') }}</label>
+      <label :for="fid('quote_currency')" class="flex items-center gap-1 text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.quote_currency') }}<InfoTip :text="t('instruments.quote_currency_hint')" :name="t('instruments.quote_currency')" /></label>
       <input :id="fid('quote_currency')" v-model="form.quote_currency" required maxlength="3" class="uppercase font-mono" :class="inputClass" />
     </div>
     <div class="col-span-2">

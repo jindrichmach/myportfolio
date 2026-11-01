@@ -2,6 +2,9 @@
 import { useI18n } from 'vue-i18n'
 import { useTheme, type ThemePreference } from '@/composables/useTheme'
 
+/** `block` = přes celou šířku rodiče (mobilní drawer). */
+defineProps<{ block?: boolean }>()
+
 const { t } = useI18n()
 const { preference } = useTheme()
 
@@ -27,7 +30,8 @@ const OPTIONS: { value: ThemePreference; key: string; icon: string }[] = [
 
 <template>
   <div
-    class="inline-flex items-center border border-neutral-200 rounded-md overflow-hidden"
+    class="items-center border border-neutral-200 rounded-md overflow-hidden"
+    :class="block ? 'flex w-full bg-surface' : 'inline-flex'"
     role="group"
     :aria-label="t('theme.label')"
   >
@@ -39,8 +43,9 @@ const OPTIONS: { value: ThemePreference; key: string; icon: string }[] = [
       :title="t(opt.key)"
       :aria-label="t(opt.key)"
       :aria-pressed="preference === opt.value"
-      class="cursor-pointer h-8 px-2 inline-flex items-center"
+      class="cursor-pointer px-2 inline-flex items-center"
       :class="[
+        block ? 'h-9 flex-1 justify-center' : 'h-8',
         i > 0 ? 'border-l border-neutral-200' : '',
         preference === opt.value
           ? 'bg-primary-50 text-primary-700'

@@ -190,7 +190,7 @@ const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface te
           <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <button v-if="canManage" :disabled="!data" @click="openForm" class="cursor-pointer h-9 px-3 bg-action hover:bg-action-hover disabled:bg-neutral-300 text-on-action text-sm font-medium rounded-md shrink-0">
-          {{ t('allocation.edit_targets') }}
+          {{ t(data?.has_targets ? 'allocation.edit_targets' : 'allocation.set_targets') }}
         </button>
       </div>
     </div>
@@ -295,7 +295,7 @@ const inputClass = 'w-full h-9 px-2 border border-field rounded-md bg-surface te
       </div>
     </template>
 
-    <Modal v-if="showForm" :title="t('allocation.edit_targets')" width-class="max-w-2xl" @close="showForm = false">
+    <Modal v-if="showForm" :title="t(data?.has_targets ? 'allocation.edit_targets' : 'allocation.set_targets')" width-class="max-w-2xl" @close="showForm = false">
       <form id="allocation-form" class="space-y-3" @submit.prevent="saveTargets">
         <p class="text-xs text-neutral-500">{{ t('allocation.form_hint') }}</p>
         <div class="grid grid-cols-[1fr_5.5rem_5.5rem] gap-2 text-xs text-neutral-500 font-medium">

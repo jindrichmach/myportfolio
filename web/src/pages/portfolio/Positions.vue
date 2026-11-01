@@ -14,7 +14,8 @@ import PositionActions from '@/components/portfolio/PositionActions.vue'
 import { catalogApi, type Instrument } from '@/api/catalog'
 import { portfolioApi, type Account, type Portfolio, type Position, type ValuationMode } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
-import { formatDate, formatDec } from '@/composables/useFormat'
+import { formatDate, formatDec, formatMoney, formatQty } from '@/composables/useFormat'
+import { useAuthStore } from '@/stores/auth'
 import { useFieldId } from '@/composables/useFieldId'
 
 const { t } = useI18n()
@@ -59,7 +60,6 @@ const groups = computed(() => {
 
 const columns = computed<DataColumn[]>(() => [
   { key: 'position', label: t('positions.position'), primary: true },
-  { key: 'account', label: t('accounts.institution'), hideBelow: 'lg', hideInCard: true, width: '26%' },
   { key: 'holding', label: t('positions.holding'), align: 'right', width: '17%' },
   { key: 'price', label: t('prices.last'), align: 'right', width: '17%' },
 ])
@@ -69,10 +69,12 @@ const archivedClass = (p: Position) => (p.archived_at ? 'opacity-50' : '')
 /** Tržní pozice bez vlastní ikony dostane barevné iniciály, ne ikonu instituce. */
 const positionIcon = (p: Position) => (p.valuation_mode === 'market' ? p.instrument_icon_url : (p.instrument_icon_url ?? p.institution_icon_url))
 const isCrypto = (p: Position) => p.asset_class === 'crypto'
+const auth = useAuthStore()
+const displayCurrency = computed(() => auth.user?.display_currency ?? 'CZK')
 
 function holdingLabel(p: Position): string {
   return p.valuation_mode === 'market'
-    ? formatDec(p.holding, p.instrument_decimals ?? 8)
+    ? formatQty(p.holding, p.asset_class, p.instrument_decimals)
     : formatDec(p.holding, 2, p.currency)
 }
 
@@ -192,25 +194,24 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
                   {{ p.instrument_name ?? t(`positions.modes.${p.is_cash ? 'cash' : p.valuation_mode}`) }}
                   <template v-if="p.asset_class"> · {{ t(`instruments.classes.${p.asset_class}`) }}</template>
                 </span>
-                <span class="flex lg:hidden items-center gap-1 text-xs text-neutral-500 truncate">
+                <span class="flex items-center gap-1 text-xs text-neutral-500 truncate">
                   <EntityIcon :src="p.institution_icon_url" :name="p.institution_name" :size="14" />
                   {{ p.institution_name }} / {{ p.account_name }}
                 </span>
               </div>
             </div>
           </template>
-          <template #cell-account="{ row: p }">
-            <span class="inline-flex items-center gap-1.5 text-neutral-600">
-              <EntityIcon :src="p.institution_icon_url" :name="p.institution_name" :size="18" />
-              {{ p.institution_name }} / {{ p.account_name }}
-            </span>
-          </template>
           <template #cell-holding="{ row: p }">
             <span :class="{ 'font-mono': isCrypto(p) }">{{ holdingLabel(p) }}</span>
             <span v-if="p.valuation_mode === 'market'" class="ml-1 text-xs text-neutral-500 font-mono">{{ p.instrument_symbol }}</span>
           </template>
           <template #cell-price="{ row: p }">
-            <PriceBadge v-if="p.valuation_mode === 'market'" :price="p.last_price" :mono="isCrypto(p)" />
+            <!-- V měně zobrazení (sloupec jde porovnávat), originální cena burzy menším písmem pod ní -->
+            <span v-if="p.valuation_mode === 'market' && p.price_display != null && p.last_price?.currency !== displayCurrency" class="inline-flex flex-col items-start md:items-end leading-tight">
+              <span class="tabular-nums whitespace-nowrap">{{ formatMoney(Number(p.price_display), displayCurrency, Number(p.price_display) < 1 ? 6 : 2) }}</span>
+              <PriceBadge :price="p.last_price" :mono="isCrypto(p)" class="text-xs text-neutral-500" />
+            </span>
+            <PriceBadge v-else-if="p.valuation_mode === 'market'" :price="p.last_price" :mono="isCrypto(p)" />
             <template v-else-if="p.current_value">
               <span class="whitespace-nowrap">{{ p.current_value.value !== null ? formatDec(p.current_value.value, 2, p.currency) : '—' }}</span>
               <span class="block text-xs text-neutral-500 whitespace-nowrap">

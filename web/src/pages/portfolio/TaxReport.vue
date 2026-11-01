@@ -81,6 +81,12 @@ function printPage() {
   window.print()
 }
 
+const lastYear = new Date().getFullYear() - 1
+const currentYear = lastYear + 1
+/** Loňský rok bez prodejů i příjmů, letos už data jsou → nabídni letošek průběžně. */
+const offerCurrentYear = computed(() => !!report.value && year.value === lastYear && years.value.includes(currentYear)
+  && !report.value.securities.rows.length && !report.value.crypto.rows.length && !hasIncome.value)
+
 const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
 </script>
 
@@ -90,10 +96,11 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
       <div>
         <h1 class="text-2xl font-semibold">{{ t('tax.title', { year }) }}</h1>
         <p class="text-sm text-neutral-500 mt-0.5">{{ t('tax.subtitle') }}</p>
+        <p class="text-sm text-neutral-500">{{ t('tax.not_filed') }}</p>
         <ManualLink class="mt-1" to="12_Danovy_report" />
       </div>
       <div class="flex flex-wrap items-center gap-2 print:hidden">
-        <select v-model="year" :class="selectClass" :aria-label="t('tax.year')">
+        <select v-model="year" :class="selectClass" :aria-label="t('tax.year')" aria-describedby="tax-year-hint">
           <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
         <select v-model="rate" :class="selectClass" :aria-label="t('tax.rate')">
@@ -106,6 +113,11 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
         </button>
       </div>
     </div>
+
+    <p v-if="year === lastYear" id="tax-year-hint" class="text-xs text-neutral-500 mb-2 print:hidden">
+      {{ t('tax.year_hint') }}
+      <button v-if="offerCurrentYear" type="button" class="cursor-pointer ml-1 text-primary-700 hover:underline" @click="year = currentYear">{{ t('tax.current_year_link') }}</button>
+    </p>
 
     <p class="text-xs text-neutral-500 bg-surface border border-neutral-200 rounded-lg shadow-sm px-4 py-2.5 mb-4">
       {{ t('tax.disclaimer') }}

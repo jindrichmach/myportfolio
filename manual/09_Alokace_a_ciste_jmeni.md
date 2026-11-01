@@ -17,7 +17,7 @@ Počítá se vše včetně ručních pozic (Portu, spořicí účty) a hotovosti
 Třídy mají barvy podle rizikovosti — od nejvolatilnějšího krypta (červená) přes akcie (oranžová), ETF (žlutá)
 a fondy (tyrkysová) po konzervativní hotovost (modrá). Stejné barvy má donut alokace na Přehledu.
 
-**Nastavit cíle** — ke každé třídě cílový podíl (součet 100 %) a toleranci v procentních bodech
+**Nastavit cíle** (s uloženými cíli **Upravit cíle**) — ke každé třídě cílový podíl (součet 100 %) a toleranci v procentních bodech
 (prázdné = 5). U krypta, ETF a akcií můžeš zaškrtnout **rozepsat po instrumentech** a zadat podíly
 instrumentů uvnitř třídy (také součet 100 %); držený instrument bez cíle má cíl 0 %. Bez cílů formulář
 předvyplní dnešní rozložení. **Smazat cíle** odstraní celou sadu pro vybraný rozsah.

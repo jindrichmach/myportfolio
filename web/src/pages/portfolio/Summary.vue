@@ -50,6 +50,10 @@ watch(() => [filter.portfolio_id, filter.account_id], load)
 const cur = computed(() => data.value?.currency ?? 'CZK')
 const rows = computed<PeriodRow[]>(() => [...(mode.value === 'months' ? data.value?.months ?? [] : data.value?.years ?? [])].reverse())
 const chartRows = computed(() => [...rows.value].slice(0, mode.value === 'months' ? 24 : 50).reverse())
+/** Měsíční tabulka: výchozí posledních 12 měsíců, zbytek na „Zobrazit vše". */
+const MONTHS_SHOWN = 12
+const showAll = ref(false)
+const tableRows = computed(() => (mode.value === 'months' && !showAll.value ? rows.value.slice(0, MONTHS_SHOWN) : rows.value))
 
 function label(period: string): string {
   if (period.length === 4) return period
@@ -129,7 +133,7 @@ const selectClass = 'w-full min-w-0 h-9 px-3 border border-field rounded-md bg-s
       </SectionCard>
 
       <SectionCard :title="t(`summary.${mode}`)" flush>
-        <DataTable :columns="columns" :rows="rows" :row-key="periodKey">
+        <DataTable :columns="columns" :rows="tableRows" :row-key="periodKey">
           <template #cell-period="{ row: r }">
             <span class="whitespace-nowrap font-medium">{{ label(r.period) }}</span>
             <Badge v-if="r.partial" class="ml-1.5">{{ t('summary.partial') }}</Badge>
@@ -153,6 +157,9 @@ const selectClass = 'w-full min-w-0 h-9 px-3 border border-field rounded-md bg-s
           <template #cell-fees="{ row: r }">{{ money(r.fees) }}</template>
         </DataTable>
         <template #footer>
+          <button v-if="tableRows.length < rows.length" type="button" class="cursor-pointer mb-2 text-sm text-primary-700 hover:underline" @click="showAll = true">
+            {{ t('summary.show_all', { n: rows.length }) }}
+          </button>
           <p class="text-xs text-neutral-500">
             {{ t('summary.note') }}
             <template v-if="data?.missing_fx.length"> {{ t('summary.missing_fx', { list: data.missing_fx.slice(0, 5).join(', ') }) }}</template>

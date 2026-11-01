@@ -42,6 +42,10 @@ okamžik držela.
 Na počítači jde levé menu sbalit jen na ikony tlačítkem **Sbalit menu** dole v menu (název položky pak ukáže
 popisek po najetí myší); volba se zapamatuje. Účty, portfolia a sdílený katalog instrumentů a institucí jsou
 v menu pohromadě ve skupině **Účty a katalog**.
+Skupiny menu jdou sbalit kliknutím na jejich nadpis; i to se zapamatuje. Skupina **Systém** (jen admin) je
+na začátku sbalená, skupina s právě otevřenou stránkou se rozbalí sama.
+
+Z klávesnice: první stisk Tab ukáže odkaz **Přeskočit na obsah**, který přeskočí horní lištu a menu.
 
 Řádek pozice je celý proklikem do detailu. Akce u položek (řádek tabulky, karta) jsou ikonová tlačítka. Název akce ukáže
 popisek po najetí myší nebo při přechodu klávesou Tab. Vzácné a nevratné akce (Převést, Vrátit import,

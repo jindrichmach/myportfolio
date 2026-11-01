@@ -121,6 +121,18 @@ final class ValuationService
     }
 
     /**
+     * Poslední ceny (seznam pozic) dnešním kurzem v měně zobrazení; bez kurzu null.
+     *
+     * @param array<int,array<string,mixed>|null> $prices instrument_id → poslední cena z PriceService::lastPrices
+     * @return array<int,?string>
+     */
+    public function pricesInCurrency(array $prices, string $currency): array
+    {
+        $today = $this->fx->today()->format('Y-m-d');
+        return array_map(fn (?array $p) => $p === null ? null : $this->priceDisplay(BigDecimal::of($p['close']), (string) $p['currency'], $currency, $today), $prices);
+    }
+
+    /**
      * Přehled: souhrn, alokace, krypto napříč účty a upozornění.
      *
      * @return array<string,mixed>

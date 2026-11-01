@@ -54,6 +54,8 @@ export interface Position {
   archived_at: string | null
   holding: Dec
   last_price: LastPrice | null
+  /** Seznam pozic: poslední cena dnešním kurzem v měně zobrazení (null = chybí cena nebo kurz). */
+  price_display?: Dec | null
   /** Jen ruční pozice: dnešní hodnota v měně pozice (null hodnota = chybí kurz). */
   current_value?: { value: Dec | null; valuation_date: string | null } | null
 }

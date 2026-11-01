@@ -221,7 +221,7 @@ final class ApiCatalog
                 self::p('portfolio_id', 'query', 'integer', false, 'Jen portfolio', 'Only portfolio'),
                 self::p('account_id', 'query', 'integer', false, 'Jen účet', 'Only account'),
                 self::p('archived', 'query', 'string', false, '„1" = i archivované', '"1" = include archived', ['enum' => ['1']]),
-            ], $ok('Pole pozic s drženým množstvím a poslední cenou.', 'Array of positions with holding and last price.', [['id' => 7, 'portfolio_id' => 1, 'account_id' => 2, 'instrument_id' => 5, 'instrument_symbol' => 'BTC', 'valuation_mode' => 'market', 'currency' => 'EUR', 'holding' => '0.12', 'last_price' => null]])),
+            ], $ok('Pole pozic s drženým množstvím a poslední cenou (`price_display` = v měně zobrazení dnešním kurzem).', 'Array of positions with holding and last price (`price_display` = in display currency at today\'s rate).', [['id' => 7, 'portfolio_id' => 1, 'account_id' => 2, 'instrument_id' => 5, 'instrument_symbol' => 'BTC', 'valuation_mode' => 'market', 'currency' => 'EUR', 'holding' => '0.12', 'last_price' => null, 'price_display' => null]])),
             $e('positions_create', 'positions', 'POST', '/api/positions', $W, 'Založit pozici', 'Create position', [
                 self::p('valuation_mode', 'body', 'string', true, 'market = instrument s cenou; manual = ruční ocenění (Portu, spořicí účet)', 'market = instrument with price; manual = manual valuation (robo-advisor, savings)', ['enum' => ['market', 'manual']]),
                 self::p('portfolio_id', 'body', 'integer', true, 'Portfolio', 'Portfolio'),

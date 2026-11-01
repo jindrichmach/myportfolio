@@ -5,10 +5,11 @@ rok: prodeje cenných papírů a kryptoaktiv, zahraniční dividendy a přehled 
 
 > ⚠️ Pozor: Report je orientační podklad, ne daňové poradenství. Počítá z transakcí v aplikaci —
 > chybějící nebo špatně zadaný nákup změní výsledek. Před podáním přiznání ho ověř.
+> Nic se neodesílá finančnímu úřadu — čísla přeneseš do přiznání sám, nebo je dáš poradci.
 
 | Volba | Význam |
 |---|---|
-| Rok | Zdaňovací období (kalendářní rok) |
+| Rok | Zdaňovací období (kalendářní rok). Výchozí je loňský rok — za ten se podává přiznání. Když loni nic nebylo a letos už ano, nabídne report odkaz **Letošní rok průběžně** |
 | Kurz | **Denní kurz ČNB** ke dni každého obchodu, nebo **jednotný kurz** za rok (průměr kurzů ČNB k poslednímu dni měsíců — stejné hodnoty, jaké vyhlašuje GFŘ). Nákup se přepočte jednotným kurzem roku nákupu. V jednom roce použij pro všechno jen jeden způsob |
 | CSV | Detail prodejů po lotech a dividend pro Excel |
 | Tisk | Tisková verze bez menu |

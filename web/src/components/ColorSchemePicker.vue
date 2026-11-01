@@ -14,9 +14,10 @@ const { t } = useI18n()
 
 <template>
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2" role="radiogroup" :aria-label="t('appearance.scheme')">
+    <!-- Podle instance je jiný druh volby (dědí, nefixuje barvu) — vlastní řádek s čárkovaným rámečkem, pod ním pevná schémata -->
     <label v-if="inherit"
-      class="cursor-pointer flex items-center gap-3 p-2.5 border rounded-lg has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary-500"
-      :class="model === null ? 'border-primary-500 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'">
+      class="col-span-full cursor-pointer flex items-center gap-3 p-2.5 border border-dashed rounded-lg has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary-500"
+      :class="model === null ? 'border-primary-500 bg-primary-50' : 'border-neutral-300 hover:bg-neutral-50'">
       <input v-model="model" type="radio" :name="name" :value="null" class="sr-only" />
       <AppLogo :colors="COLOR_SCHEMES[inherit]" class="w-8 h-8 shrink-0" />
       <span class="min-w-0 text-sm leading-tight">
@@ -24,6 +25,7 @@ const { t } = useI18n()
         <span class="block text-xs text-neutral-500">{{ t('appearance.inherit_now', { name: t(`appearance.names.${inherit}`) }) }}</span>
       </span>
     </label>
+    <p v-if="inherit" class="col-span-full mt-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">{{ t('appearance.own_scheme') }}</p>
     <label v-for="key in COLOR_SCHEME_KEYS" :key="key"
       class="cursor-pointer flex items-center gap-3 p-2.5 border rounded-lg has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary-500"
       :class="model === key ? 'border-primary-500 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'">

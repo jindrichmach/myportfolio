@@ -76,6 +76,7 @@ znovu aktivuje.
 
 **Portfolio → Souhrny** — tabulka a graf výnosu po měsících nebo letech (přepínač **Měsíce / Roky**),
 volitelně jen pro jedno portfolio nebo účet. Vše v měně zobrazení z denní historie hodnoty (§ 7.5).
+Měsíční tabulka ukáže posledních 12 měsíců, starší odkryje **Zobrazit vše**.
 
 | Sloupec | Význam |
 |---|---|

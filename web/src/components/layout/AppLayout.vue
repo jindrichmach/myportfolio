@@ -53,6 +53,8 @@ interface NavItem {
   icon: string
 }
 interface NavSection {
+  /** Klíč sbalitelné skupiny (stav v localStorage); bez klíče je sekce vždy rozbalená */
+  key?: NavGroupKey
   /** Hlavička sekce; pokud chybí, položky jsou bez visual grouping */
   title?: string
   /** Color accent pro vertikální pruh + text. Tailwind utility class group. */
@@ -107,10 +109,33 @@ function toggleCollapsed() {
   try { localStorage.setItem(COLLAPSED_KEY, collapsed.value ? '1' : '0') } catch { /* jen do obnovení stránky */ }
 }
 
+// Sbalitelné skupiny menu — stav per skupina v prohlížeči; Systém (jen admin) je výchozí sbalený.
+type NavGroupKey = 'portfolio' | 'setup' | 'account' | 'system'
+const NAV_GROUP_KEY = 'myportfolio-nav-'
+function readGroup(key: NavGroupKey, fallback: boolean): boolean {
+  try {
+    const v = localStorage.getItem(NAV_GROUP_KEY + key)
+    return v === null ? fallback : v === '1'
+  } catch { return fallback }
+}
+const groupOpen = ref<Record<NavGroupKey, boolean>>({
+  portfolio: readGroup('portfolio', true),
+  setup: readGroup('setup', true),
+  account: readGroup('account', true),
+  system: readGroup('system', false),
+})
+function toggleGroup(key: NavGroupKey) {
+  groupOpen.value[key] = !groupOpen.value[key]
+  try { localStorage.setItem(NAV_GROUP_KEY + key, groupOpen.value[key] ? '1' : '0') } catch { /* jen do obnovení stránky */ }
+}
+/** V úzkém menu (jen ikony) se skupiny nesbalují — nadpisy tam nejsou vidět. */
+const sectionOpen = (section: NavSection) => !section.key || collapsed.value || groupOpen.value[section.key]
+
 const navSections = computed<NavSection[]>(() => {
   const sections: NavSection[] = [
     { items: [{ to: '/', label: t('nav.dashboard'), icon: ICONS.dashboard }] },
     {
+      key: 'portfolio',
       title: t('nav.section_portfolio'),
       accent: 'success',
       items: [
@@ -127,6 +152,7 @@ const navSections = computed<NavSection[]>(() => {
     },
     {
       // Kde a v čem držíš: účty, portfolia a sdílený katalog — pro nováčka na jednom místě
+      key: 'setup',
       title: t('nav.section_setup'),
       accent: 'warning',
       items: [
@@ -137,6 +163,7 @@ const navSections = computed<NavSection[]>(() => {
       ],
     },
     {
+      key: 'account',
       title: t('nav.section_account'),
       accent: 'primary',
       items: [
@@ -163,6 +190,7 @@ const navSections = computed<NavSection[]>(() => {
 
   if (auth.user?.role === 'admin') {
     sections.push({
+      key: 'system',
       title: t('nav.system'),
       accent: 'neutral',
       items: [
@@ -216,8 +244,19 @@ function isActive(item: NavItem): boolean {
   return true
 }
 
-// Zavři mobile drawer po navigaci
-watch(() => route.path, () => { mobileOpen.value = false })
+// Zavři mobile drawer po navigaci; skupinu s aktivní stránkou rozbal (bez uložení), ať je vidět, kde jsem.
+watch(() => route.fullPath, () => {
+  mobileOpen.value = false
+  for (const section of navSections.value) {
+    if (section.key && section.items.some(isActive)) groupOpen.value[section.key] = true
+  }
+}, { immediate: true })
+
+/** Přeskočit na obsah: fokus na <main> (odkaz s #main by v historii routeru přidal hash). */
+const mainEl = ref<HTMLElement | null>(null)
+function skipToMain() {
+  mainEl.value?.focus()
+}
 
 const version = ref<string | null>(null)
 onMounted(loadReceivedShares)
@@ -228,6 +267,10 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen flex flex-col bg-neutral-50">
+    <a href="#main" @click.prevent="skipToMain"
+       class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-md focus:bg-surface focus:text-primary-700 focus:shadow-md focus:ring-2 focus:ring-primary-500 text-sm font-medium">
+      {{ t('nav.skip_to_content') }}
+    </a>
 
     <!-- ═════════════════════ TOPBAR ═════════════════════ -->
     <header class="sticky top-0 z-30 bg-surface border-b border-neutral-200 print:hidden">
@@ -313,7 +356,7 @@ onMounted(async () => {
       <aside
         :class="[
           'fixed lg:sticky top-14 z-30 lg:z-auto',
-          'h-[calc(100vh-3.5rem)] w-60 shrink-0',
+          'h-[calc(100dvh-3.5rem)] w-60 shrink-0',
           collapsed ? 'lg:w-14' : '',
           'bg-surface border-r border-neutral-200',
           'flex flex-col print:hidden',
@@ -326,12 +369,24 @@ onMounted(async () => {
             <!-- Section title — soft pill background v barvě sekce -->
             <div v-if="section.title && collapsed" class="hidden lg:block mx-1 my-2 border-t border-neutral-200" aria-hidden="true"></div>
             <div v-if="section.title" :class="[si === 0 ? 'pt-1 pb-1.5' : 'pt-4 pb-1.5', collapsed ? 'lg:hidden' : '']">
-              <div
+              <button v-if="section.key" type="button" class="cursor-pointer group w-full flex items-center justify-between gap-2 rounded-md"
+                      :aria-expanded="groupOpen[section.key]" :aria-controls="`nav-group-${section.key}`" @click="toggleGroup(section.key)">
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider"
+                  :class="section.accent ? ACCENT_CLASSES[section.accent] : 'bg-neutral-100 text-neutral-600'"
+                >{{ section.title }}</span>
+                <svg class="w-3.5 h-3.5 mr-1.5 shrink-0 text-neutral-400 group-hover:text-neutral-700 transition-transform" :class="{ '-rotate-90': !groupOpen[section.key] }"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div v-else
                 class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider"
                 :class="section.accent ? ACCENT_CLASSES[section.accent] : 'bg-neutral-100 text-neutral-600'"
               >{{ section.title }}</div>
             </div>
 
+            <div v-show="sectionOpen(section)" :id="section.key ? `nav-group-${section.key}` : undefined">
             <RouterLink
               v-for="item in section.items" :key="item.to"
               :to="item.to"
@@ -348,6 +403,7 @@ onMounted(async () => {
               </svg>
               <span :class="collapsed ? 'lg:sr-only' : ''">{{ item.label }}</span>
             </RouterLink>
+            </div>
           </template>
         </nav>
 
@@ -366,7 +422,7 @@ onMounted(async () => {
         </div>
 
         <!-- Mobile only: profil + ovládání relace (na dně sidebaru) -->
-        <div class="lg:hidden border-t border-neutral-200 px-4 py-3 bg-neutral-50 space-y-3">
+        <div class="lg:hidden border-t border-neutral-200 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-neutral-50 space-y-3">
           <div class="flex items-center justify-between">
             <RouterLink
               to="/profile"
@@ -380,12 +436,12 @@ onMounted(async () => {
               <div class="truncate text-xs text-neutral-500">{{ auth.user?.email }} · {{ auth.user?.role }}</div>
             </RouterLink>
           </div>
-          <div class="flex items-center justify-between gap-2">
-            <!-- Přepínač motivu (System / Light / Dark) — mobilní varianta -->
-            <ThemeToggle />
-            <div class="inline-flex items-center border border-neutral-200 bg-surface rounded-md overflow-hidden text-sm" role="group" :aria-label="t('common.language')">
+          <!-- Motiv a jazyk každý na vlastním řádku — vedle sebe se do šířky draweru nevejdou -->
+          <div class="space-y-2">
+            <ThemeToggle block />
+            <div class="flex w-full items-center border border-neutral-200 bg-surface rounded-md overflow-hidden text-sm" role="group" :aria-label="t('common.language')">
               <button v-for="l in LOCALES" :key="l.code" type="button" @click="setLocale(l.code)" :lang="l.code" :aria-pressed="locale === l.code"
-                class="cursor-pointer h-9 px-3 inline-flex items-center [&:not(:first-child)]:border-l border-neutral-200"
+                class="cursor-pointer h-9 px-3 flex-1 inline-flex items-center justify-center [&:not(:first-child)]:border-l border-neutral-200"
                 :class="locale === l.code ? 'bg-primary-50 text-primary-700 font-medium' : 'text-neutral-600 hover:bg-neutral-50'">{{ l.name }}</button>
             </div>
           </div>
@@ -406,7 +462,7 @@ onMounted(async () => {
 
       <!-- ── HLAVNÍ OBSAH ── -->
       <div class="flex-1 min-w-0 flex flex-col">
-        <main class="flex-1 px-5 sm:px-8 py-6 w-full">
+        <main id="main" ref="mainEl" tabindex="-1" class="flex-1 px-5 sm:px-8 py-6 w-full outline-none">
           <div v-if="owner.share.value" class="mb-4 rounded-md bg-primary-50 border border-primary-500/30 px-3 py-2 text-sm text-primary-700 flex flex-wrap items-center justify-between gap-2">
             <span>{{ t('sharing.viewing', { name: owner.share.value.owner_name }) }} · {{ t(`sharing.permissions.${owner.share.value.permission}`) }}<template v-if="owner.share.value.scope === 'portfolios'"> · {{ owner.share.value.portfolios.map(p => p.name).join(', ') }}</template></span>
             <button type="button" class="cursor-pointer text-xs font-medium hover:underline" @click="owner.switchTo(null)">{{ t('sharing.back_to_mine') }}</button>

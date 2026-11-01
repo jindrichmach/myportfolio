@@ -6,7 +6,7 @@ import AllocationDonut from '@/components/portfolio/AllocationDonut.vue'
 import HistoryChart from '@/components/portfolio/HistoryChart.vue'
 import EntityIcon from '@/components/ui/EntityIcon.vue'
 import Icon from '@/components/ui/Icon.vue'
-import PositionActions from '@/components/portfolio/PositionActions.vue'
+import PositionGroup from '@/components/portfolio/PositionGroup.vue'
 import NewInvestmentModal from '@/components/portfolio/NewInvestmentModal.vue'
 import TransactionFormModal from '@/components/portfolio/TransactionFormModal.vue'
 import RowActionsMenu, { type RowAction } from '@/components/ui/RowActionsMenu.vue'
@@ -14,7 +14,6 @@ import { portfolioApi, type Position } from '@/api/portfolio'
 import { useOwnerContext } from '@/composables/useOwnerContext'
 import KpiTile from '@/components/ui/KpiTile.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
-import DataTable, { type DataColumn } from '@/components/ui/DataTable.vue'
 import AllocationBar from '@/components/ui/AllocationBar.vue'
 import Badge from '@/components/ui/Badge.vue'
 import type { HistoryScope } from '@/api/history'
@@ -22,7 +21,7 @@ import { allocationApi, type Allocation } from '@/api/allocation'
 import { netWorthApi, type NetWorthOverview } from '@/api/netWorth'
 import { valuationApi, warningKey, type CryptoAcross, type Dashboard, type PositionValuation } from '@/api/valuation'
 import { apiErrorMessage } from '@/api/errors'
-import { formatDate, formatDec, formatMoney, formatPercent, formatSigned } from '@/composables/useFormat'
+import { formatDate, formatMoney, formatPercent, formatSigned } from '@/composables/useFormat'
 import { useToast } from '@/composables/useToast'
 import { gainClass } from '@/utils/tone'
 import { useChartColors } from '@/composables/useTheme'
@@ -125,16 +124,21 @@ const groups = computed(() => {
 const groupShare = (g: { value: number }) =>
   totalValue.value > 0 ? t('dashboard.share', { pct: formatPercent((g.value / totalValue.value) * 100, 1) }) : ''
 
-// Rozbalená portfolia (výchozí sbalené); pamatuje se v prohlížeči.
+// Rozbalená portfolia a krypto (výchozí sbalené); pamatuje se v prohlížeči.
 const OPEN_KEY = 'myportfolio-dashboard-open'
-function readOpen(): number[] {
-  try { return JSON.parse(localStorage.getItem(OPEN_KEY) ?? '[]') } catch { return [] }
+const CRYPTO_OPEN_KEY = 'myportfolio-dashboard-open-crypto'
+function readOpen(key: string): number[] {
+  try { return JSON.parse(localStorage.getItem(key) ?? '[]') } catch { return [] }
 }
-const openGroups = ref<number[]>(readOpen())
-function toggleGroup(id: number) {
-  openGroups.value = openGroups.value.includes(id) ? openGroups.value.filter(x => x !== id) : [...openGroups.value, id]
-  try { localStorage.setItem(OPEN_KEY, JSON.stringify(openGroups.value)) } catch { /* bez úložiště jen do obnovení stránky */ }
+function toggled(list: number[], id: number, key: string): number[] {
+  const next = list.includes(id) ? list.filter(x => x !== id) : [...list, id]
+  try { localStorage.setItem(key, JSON.stringify(next)) } catch { /* bez úložiště jen do obnovení stránky */ }
+  return next
 }
+const openGroups = ref<number[]>(readOpen(OPEN_KEY))
+const openCrypto = ref<number[]>(readOpen(CRYPTO_OPEN_KEY))
+const toggleGroup = (id: number) => { openGroups.value = toggled(openGroups.value, id, OPEN_KEY) }
+const toggleCrypto = (id: number) => { openCrypto.value = toggled(openCrypto.value, id, CRYPTO_OPEN_KEY) }
 
 const categoryLabel = (l: string) => t(`instruments.classes.${l}`)
 const chartColors = useChartColors()
@@ -160,27 +164,11 @@ const secondary = computed(() => {
 
 const targetClasses = computed(() => (allocation.value?.classes ?? []).filter(c => c.target_pct !== null))
 
-// Tabulky
-const cryptoColumns = computed<DataColumn[]>(() => [
-  { key: 'symbol', label: t('instruments.symbol'), primary: true },
-  { key: 'quantity', label: t('positions.holding'), align: 'right', mono: true },
-  { key: 'value', label: t('valuation.value'), align: 'right' },
-  { key: 'total_return', label: t('valuation.total_return'), align: 'right' },
-])
-const positionColumns = computed<DataColumn[]>(() => [
-  { key: 'position', label: t('positions.position'), primary: true },
-  { key: 'quantity', label: t('positions.holding'), align: 'right', width: '15%' },
-  { key: 'value', label: t('valuation.value'), align: 'right', width: '15%' },
-  { key: 'invested', label: t('valuation.invested'), align: 'right', hideBelow: 'lg', width: '15%' },
-  { key: 'total_return', label: t('valuation.total_return'), align: 'right', width: '16%' },
-])
-/** Tržní pozice bez vlastní ikony dostane barevné iniciály, ne ikonu instituce (všechna ETF u jednoho brokera by vypadala stejně). */
-const positionIcon = (r: PositionValuation) => (r.valuation_mode === 'market' ? r.instrument_icon_url : (r.instrument_icon_url ?? r.institution_icon_url))
-const cryptoKey = (c: CryptoAcross) => c.instrument_id
-// Krypto na jednom účtu vede rovnou do detailu pozice; na více účtech se řádek rozbalí.
-const cryptoTo = (c: CryptoAcross) => (c.accounts.length === 1 ? `/positions/${c.accounts[0].position_id}` : null)
-const positionKey = (r: PositionValuation) => r.position_id
-const positionTo = (r: PositionValuation) => `/positions/${r.position_id}`
+// Krypto napříč účty: rozbalená skupina ukáže pozice daného coinu na všech účtech
+const cryptoRows = (c: CryptoAcross) => {
+  const ids = new Set(c.accounts.map(a => a.position_id))
+  return (data.value?.positions ?? []).filter(p => ids.has(p.position_id))
+}
 </script>
 
 <template>
@@ -286,7 +274,7 @@ const positionTo = (r: PositionValuation) => `/positions/${r.position_id}`
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-500">{{ t('dashboard.targets') }}</h3>
               <span class="flex items-center gap-2">
                 <Badge v-if="allocation.out_of_band" tone="warning">{{ t('dashboard.out_of_band', { n: allocation.out_of_band }) }}</Badge>
-                <RouterLink to="/allocation" class="text-xs text-primary-700 hover:underline">{{ t('dashboard.targets_link') }}</RouterLink>
+                <RouterLink to="/allocation" class="text-xs text-primary-700 hover:underline">{{ t('allocation.edit_targets') }}</RouterLink>
               </span>
             </div>
             <AllocationBar v-for="c in targetClasses" :key="c.category" :label="t(`allocation.categories.${c.category}`)" :color="chartColors.risk[c.category]"
@@ -298,78 +286,28 @@ const positionTo = (r: PositionValuation) => `/positions/${r.position_id}`
 
         <SectionCard :title="t('dashboard.crypto_across')" flush class="mb-4">
           <p v-if="!data.crypto.length" class="p-4 text-sm text-neutral-500">{{ t('dashboard.crypto_empty') }}</p>
-          <DataTable v-else :columns="cryptoColumns" :rows="data.crypto" :row-key="cryptoKey" :expandable="c => c.accounts.length > 1" :row-to="cryptoTo">
-            <template #cell-symbol="{ row: c }">
-              <span class="flex items-center gap-2 min-w-0">
-                <EntityIcon :src="c.icon_url" :name="c.symbol" :size="28" />
-                <span class="min-w-0">
-                  <span class="font-mono font-medium">{{ c.symbol }}</span> <span class="text-xs text-neutral-500">{{ c.name }}</span>
-                  <span class="block text-xs text-neutral-500 truncate">
-                    <RouterLink v-if="c.accounts.length === 1" :to="`/positions/${c.accounts[0].position_id}`" class="hover:text-primary-700">{{ c.accounts[0].account }}</RouterLink>
-                    <template v-else>{{ t('dashboard.accounts_n', { n: c.accounts.length }) }}</template>
-                  </span>
-                </span>
-              </span>
-            </template>
-            <template #cell-quantity="{ row: c }">{{ formatDec(c.quantity, 8) }}</template>
-            <template #cell-value="{ row: c }">{{ money(c.value) }}</template>
-            <template #cell-total_return="{ row: c }">
-              <span :class="gainClass(c.total_return)">{{ signed(c.total_return) }}<span class="block text-xs">{{ pct(c.return_pct) }}</span></span>
-            </template>
-            <template #expanded="{ row: c }">
-              <ul class="space-y-1">
-                <li v-for="a in c.accounts" :key="a.position_id" class="flex flex-wrap justify-between gap-x-4">
-                  <RouterLink :to="`/positions/${a.position_id}`" class="text-primary-700 hover:underline">{{ a.account }}</RouterLink>
-                  <span class="tabular-nums"><span class="font-mono">{{ formatDec(a.quantity, 8) }}</span> · {{ money(a.value) }}</span>
-                </li>
-              </ul>
-            </template>
-          </DataTable>
+          <div v-else class="divide-y divide-neutral-200">
+            <PositionGroup v-for="c in data.crypto" :key="c.instrument_id" :id="`crypto-${c.instrument_id}`"
+                           :open="openCrypto.includes(c.instrument_id)" :rows="cryptoRows(c)" :currency="cur"
+                           :value="Number(c.value ?? 0)" :gain="Number(c.total_return ?? 0)" :basis="Number(c.cost_basis)" :return-pct="c.return_pct"
+                           @toggle="toggleCrypto(c.instrument_id)" @changed="reload">
+              <template #icon><EntityIcon :src="c.icon_url" :name="c.symbol" :size="28" /></template>
+              <template #title><span class="font-mono font-medium">{{ c.symbol }}</span> <span class="text-xs text-neutral-500">{{ c.name }}</span></template>
+              <template #subtitle>{{ c.accounts.length === 1 ? c.accounts[0].account : t('dashboard.accounts_n', { n: c.accounts.length }) }}</template>
+            </PositionGroup>
+          </div>
         </SectionCard>
 
       <SectionCard :title="t('dashboard.portfolios')" flush class="mb-4">
         <template #actions><RouterLink to="/positions" class="text-xs text-primary-700 hover:underline">{{ t('dashboard.all_positions') }}</RouterLink></template>
         <div class="divide-y divide-neutral-200">
-          <div v-for="g in groups" :key="g.id">
-            <button type="button" class="cursor-pointer w-full flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left hover:bg-neutral-50"
-                    :aria-expanded="openGroups.includes(g.id)" :aria-controls="`portfolio-${g.id}`" @click="toggleGroup(g.id)">
-              <Icon name="chevron-down" class="w-4 h-4 shrink-0 text-neutral-500 transition-transform" :class="{ '-rotate-90': !openGroups.includes(g.id) }" />
-              <span class="min-w-0 flex-1">
-                <span class="font-medium">{{ g.name }}</span>
-                <span class="block text-xs text-neutral-500">{{ t('dashboard.positions_n', { n: g.rows.length }) }}<template v-if="groupShare(g)"> · {{ groupShare(g) }}</template></span>
-              </span>
-              <span class="text-right tabular-nums">
-                <span class="block font-semibold">{{ formatMoney(g.value, cur, 0) }}</span>
-                <span class="block text-xs" :class="gainClass(String(g.gain))">{{ formatSigned(String(g.gain), cur, 0) }}<template v-if="g.basis > 0"> · {{ formatPercent((g.gain / g.basis) * 100, 2, true) }}</template></span>
-              </span>
-            </button>
-            <div v-if="openGroups.includes(g.id)" :id="`portfolio-${g.id}`" class="border-t border-neutral-200">
-              <DataTable :columns="positionColumns" :rows="g.rows" :row-key="positionKey" :row-to="positionTo" sticky-first fixed>
-                <template #cell-position="{ row: r }">
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <EntityIcon :src="positionIcon(r)" :name="r.display_name" :size="28" />
-                    <div class="min-w-0">
-                      <RouterLink :to="`/positions/${r.position_id}`" class="font-medium hover:text-primary-700" :class="{ 'font-mono': r.valuation_mode === 'market' }">{{ r.display_name }}</RouterLink>
-                      <span v-if="r.warnings.length" class="ml-1 text-warning-600" :title="r.warnings.map(w => t(warningKey(w).key, warningKey(w).params)).join('\n')"><Icon name="warning" class="w-4 h-4 align-[-3px]" /></span>
-                      <!-- U ETF a akcií i název: stejný ticker může být jiný fond podle správce, burzy a měny -->
-                      <span v-if="r.category !== 'crypto' && r.instrument_name" class="block text-xs text-neutral-600 truncate">{{ r.instrument_name }}</span>
-                      <span class="flex items-center gap-1 text-xs text-neutral-500 truncate">
-                        <EntityIcon :src="r.institution_icon_url" :name="r.institution_name" :size="14" />
-                        {{ r.institution_name }} / {{ r.account_name }}
-                      </span>
-                    </div>
-                  </div>
-                </template>
-                <template #cell-quantity="{ row: r }"><span :class="{ 'font-mono': r.category === 'crypto' }">{{ r.quantity !== null ? formatDec(r.quantity, 8) : '—' }}</span></template>
-                <template #cell-value="{ row: r }">{{ money(r.value) }}</template>
-                <template #cell-invested="{ row: r }"><span class="text-neutral-600">{{ money(r.invested) }}</span></template>
-                <template #cell-total_return="{ row: r }">
-                  <span :class="gainClass(r.total_return)">{{ signed(r.total_return) }}<span class="block text-xs">{{ pct(r.return_pct) }}</span></span>
-                </template>
-                <template #actions="{ row: r }"><PositionActions :position-id="r.position_id" :name="r.display_name" :market="r.valuation_mode === 'market'" :cash="r.is_cash" @changed="reload" /></template>
-              </DataTable>
-            </div>
-          </div>
+          <PositionGroup v-for="g in groups" :key="g.id" :id="`portfolio-${g.id}`"
+                         :open="openGroups.includes(g.id)" :rows="g.rows" :currency="cur"
+                         :value="g.value" :gain="g.gain" :basis="g.basis"
+                         @toggle="toggleGroup(g.id)" @changed="reload">
+            <template #title><span class="font-medium">{{ g.name }}</span></template>
+            <template #subtitle>{{ t('dashboard.positions_n', { n: g.rows.length }) }}<template v-if="groupShare(g)"> · {{ groupShare(g) }}</template></template>
+          </PositionGroup>
         </div>
       </SectionCard>
     </template>

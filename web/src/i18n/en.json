@@ -12,86 +12,86 @@
     "user": "User",
     "search_placeholder": "Search action, email or name",
     "actions": {
-      "security": {
-        "ip_blocked": "IP address blocked"
-      },
-      "auth": {
-        "recovery_codes_generated": "Recovery codes generated",
-        "password_reset": "Password reset completed",
-        "password_changed": "Password changed",
-        "passkey_registered": "Passkey added",
-        "login_failed": "Failed sign-in",
-        "email_otp_sent": "E-mail code sent",
-        "session_unlocked": "Session unlocked",
-        "session_lock_preference_changed": "Session lock setting changed",
-        "totp_enabled": "TOTP enabled",
-        "session_locked": "Session locked",
-        "recovery_code_failed": "Invalid recovery code",
-        "passkey_revoked": "Passkey removed",
-        "logout": "Sign-out",
-        "recovery_code_used": "Recovery code used",
-        "captcha_failed": "CAPTCHA failed",
-        "recovery_code_login": "Sign-in with recovery code",
-        "totp_step_up": "TOTP verification",
-        "forgot_mail_failed": "Password reset — e-mail failed",
-        "login_locked": "Sign-in locked",
-        "email_otp_locked": "E-mail code locked",
-        "passkey_step_up": "Passkey verification",
-        "passkey_counter_anomaly": "Passkey — suspicious counter",
-        "totp_locked": "TOTP locked",
-        "login": "Sign-in",
-        "forgot_sent": "Password reset — link sent",
-        "forgot_unknown": "Password reset — unknown e-mail",
-        "passkey_renamed": "Passkey renamed",
-        "session_unlock_failed": "Failed session unlock"
-      },
-      "setup": {
-        "demo_seeded": "Demo data loaded",
-        "cfg_local_write_failed": "Setup — writing cfg.local.php failed",
-        "demo_failed": "Demo data failed",
-        "completed": "Setup completed"
-      },
-      "api_token": {
-        "revoked": "API token revoked",
-        "created": "API token created"
-      },
-      "user": {
-        "created_by_invite": "User from invitation",
-        "deactivated": "User deactivated",
-        "created": "User created",
-        "updated": "User updated"
-      },
-      "exchange": {
-        "connected": "Exchange connected",
-        "disconnected": "Exchange disconnected"
-      },
-      "share": {
-        "revoked": "Share revoked",
-        "write": "Write to shared data",
-        "created": "Share created",
-        "accepted": "Share accepted",
-        "updated": "Share updated",
-        "left": "Share left"
-      },
       "admin": {
         "cron": {
           "run_now": "Scheduled job run manually"
         }
       },
-      "smtp": {
-        "updated": "SMTP settings changed",
-        "tested": "SMTP test"
+      "api_token": {
+        "created": "API token created",
+        "revoked": "API token revoked"
       },
       "appearance": {
         "updated": "Instance appearance changed"
+      },
+      "auth": {
+        "captcha_failed": "CAPTCHA failed",
+        "email_otp_locked": "E-mail code locked",
+        "email_otp_sent": "E-mail code sent",
+        "forgot_mail_failed": "Password reset — e-mail failed",
+        "forgot_sent": "Password reset — link sent",
+        "forgot_unknown": "Password reset — unknown e-mail",
+        "login": "Sign-in",
+        "login_failed": "Failed sign-in",
+        "login_locked": "Sign-in locked",
+        "logout": "Sign-out",
+        "passkey_counter_anomaly": "Passkey — suspicious counter",
+        "passkey_registered": "Passkey added",
+        "passkey_renamed": "Passkey renamed",
+        "passkey_revoked": "Passkey removed",
+        "passkey_step_up": "Passkey verification",
+        "password_changed": "Password changed",
+        "password_reset": "Password reset completed",
+        "recovery_code_failed": "Invalid recovery code",
+        "recovery_code_login": "Sign-in with recovery code",
+        "recovery_code_used": "Recovery code used",
+        "recovery_codes_generated": "Recovery codes generated",
+        "session_lock_preference_changed": "Session lock setting changed",
+        "session_locked": "Session locked",
+        "session_unlock_failed": "Failed session unlock",
+        "session_unlocked": "Session unlocked",
+        "totp_enabled": "TOTP enabled",
+        "totp_locked": "TOTP locked",
+        "totp_step_up": "TOTP verification"
+      },
+      "exchange": {
+        "connected": "Exchange connected",
+        "disconnected": "Exchange disconnected"
+      },
+      "security": {
+        "ip_blocked": "IP address blocked"
+      },
+      "setup": {
+        "cfg_local_write_failed": "Setup — writing cfg.local.php failed",
+        "completed": "Setup completed",
+        "demo_failed": "Demo data failed",
+        "demo_seeded": "Demo data loaded"
+      },
+      "share": {
+        "accepted": "Share accepted",
+        "created": "Share created",
+        "left": "Share left",
+        "revoked": "Share revoked",
+        "updated": "Share updated",
+        "write": "Write to shared data"
+      },
+      "smtp": {
+        "tested": "SMTP test",
+        "updated": "SMTP settings changed"
+      },
+      "user": {
+        "created": "User created",
+        "created_by_invite": "User from invitation",
+        "deactivated": "User deactivated",
+        "updated": "User updated"
       }
     },
     "entities": {
       "user": "User",
       "api_token": "API token",
-      "smtp_settings": "SMTP settings",
+      "share": "Share",
       "exchange_connection": "Exchange connection",
-      "share": "Share"
+      "smtp_settings": "SMTP settings"
     }
   },
   "bank_notices": {
@@ -349,7 +349,6 @@
     "share": "{pct} of portfolio",
     "vs_target": "{amount} vs target",
     "targets": "Actual vs target",
-    "targets_link": "Edit targets",
     "accounts_n": "Accounts: {n}",
     "net_worth_hint": "Investments + other assets − liabilities. Pension savings and DIP count as investments.",
     "portfolios": "Portfolios",
@@ -421,7 +420,8 @@
     "settings": "Settings",
     "section_setup": "Accounts & catalog",
     "collapse_menu": "Collapse menu",
-    "expand_menu": "Expand menu"
+    "expand_menu": "Expand menu",
+    "skip_to_content": "Skip to content"
   },
   "passkeys": {
     "add": "Add passkey",
@@ -669,7 +669,7 @@
     "search_placeholder": "Search symbol, name or ISIN…",
     "symbol": "Symbol",
     "asset_class": "Asset class",
-    "quote_currency": "Quote",
+    "quote_currency": "Price currency",
     "decimals": "Decimals",
     "price_source": "Price source",
     "source_refs": "Price source identifiers",
@@ -691,7 +691,8 @@
       "xtb": "e.g. CSPX.UK",
       "yahoo": "e.g. CSPX.L"
     },
-    "all_classes": "All asset classes"
+    "all_classes": "All asset classes",
+    "quote_currency_hint": "The currency the market quotes the instrument in, e.g. EUR for BTC on a European exchange."
   },
   "accounts": {
     "title": "Accounts",
@@ -1103,7 +1104,10 @@
     "empty_year": "No sales, dividends or interest in {year}.",
     "unified_used": "Unified rates used",
     "fee_lot": "units spent on the sale fee — acquisition cost is an expense",
-    "fee_skipped": "fee in {currency} is not in expenses (no CNB rate)"
+    "fee_skipped": "fee in {currency} is not in expenses (no CNB rate)",
+    "not_filed": "Reference only — nothing is sent to the tax office. Copy the figures into your return or give them to your adviser.",
+    "year_hint": "Last year is the default — that is the year you file the return for.",
+    "current_year_link": "This year so far →"
   },
   "alerts": {
     "title": "E-mail alerts",
@@ -1154,7 +1158,8 @@
     "inflation": "Inflation",
     "inflation_hint": "Czech inflation (HICP) for the period and real return = (1 + return) / (1 + inflation) − 1.",
     "inflation_to": "to {month}",
-    "real": "real {pct}"
+    "real": "real {pct}",
+    "show_all": "Show all ({n})"
   },
   "income": {
     "title": "Dividends and interest",
@@ -1278,7 +1283,7 @@
     "title": "Allocation",
     "subtitle": "Target asset mix, deviation and where to put your next deposit.",
     "scope_total": "All holdings",
-    "edit_targets": "Set targets",
+    "edit_targets": "Edit targets",
     "no_targets": "No targets yet — use Set targets to enter target shares of classes (and optionally instruments). Below is today's mix.",
     "incomplete": "Not valued (missing price or rate), excluded from allocation:",
     "current_title": "Actual and target",
@@ -1315,7 +1320,8 @@
       "stock": "Stocks",
       "fund": "Funds and manual positions",
       "cash": "Cash"
-    }
+    },
+    "set_targets": "Set targets"
   },
   "net_worth": {
     "title": "Net worth",
@@ -1564,22 +1570,22 @@
     "step_run": "Run on the server:",
     "docker_hint": "In docker-compose.production.yml set the image to version {version} (development versions have no latest tag). Migrations run when the container starts.",
     "native_hint": "Run the commands as the user that owns the application files. Migrations are idempotent; new scheduled jobs are added by cmd/install.sh (Cron step).",
+    "in_app_dir": "in the application directory (where the VERSION file is)",
     "copy": "Copy",
     "copied": "Copied",
     "manual_only": "Updates run on the server — the application cannot change its own files or Docker image.",
-    "manual_link": "Details in the manual, chapter 2.4",
-    "in_app_dir": "in the application directory (where the VERSION file is)"
+    "manual_link": "Details in the manual, chapter 2.4"
   },
   "admin_settings": {
     "title": "Settings",
     "subtitle": "Instance-wide settings. Each tab is saved separately.",
     "tabs_label": "Settings sections",
-    "tab_smtp": "E-mail (SMTP)",
-    "tab_appearance": "Appearance",
     "health_title": "Configuration warnings",
     "health": {
       "rate_limit_disabled": "Redis is not available — request rate limiting is off. Login still enforces the failed-attempt limit in the database. We recommend enabling Redis (included in Docker)."
-    }
+    },
+    "tab_smtp": "E-mail (SMTP)",
+    "tab_appearance": "Appearance"
   },
   "appearance": {
     "scheme": "Color scheme",
@@ -1598,7 +1604,8 @@
       "orchid": "Orchid",
       "graphite": "Graphite"
     },
-    "inherit_now": "currently {name}"
+    "inherit_now": "default {name} — follows the instance scheme",
+    "own_scheme": "Or your own scheme"
   },
   "grid": {
     "pages": "Pagination",
@@ -1632,18 +1639,18 @@
     "continue": "Continue to purchase"
   },
   "validation": {
-    "number": "Enter a number.",
-    "file_required": "Please choose a file.",
-    "url": "Enter a valid URL (e.g. https://…).",
-    "invalid": "The value has an invalid format.",
-    "max_length": "Enter at most {max} characters.",
-    "step": "The value has too many decimal places.",
-    "email": "Enter a valid e-mail address.",
     "required": "Please fill in this field.",
     "select_required": "Please select one of the options.",
-    "max": "The value must be at most {max}.",
+    "file_required": "Please choose a file.",
+    "email": "Enter a valid e-mail address.",
+    "url": "Enter a valid URL (e.g. https://…).",
+    "number": "Enter a number.",
+    "invalid": "The value has an invalid format.",
     "min": "The value must be at least {min}.",
-    "pattern": "The value does not match the required format.",
-    "min_length": "Enter at least {min} characters."
+    "max": "The value must be at most {max}.",
+    "step": "The value has too many decimal places.",
+    "min_length": "Enter at least {min} characters.",
+    "max_length": "Enter at most {max} characters.",
+    "pattern": "The value does not match the required format."
   }
 }

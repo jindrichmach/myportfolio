@@ -12,86 +12,86 @@
     "user": "Uživatel",
     "search_placeholder": "Hledat akci, e-mail nebo jméno",
     "actions": {
-      "security": {
-        "ip_blocked": "Blokovaná IP adresa"
-      },
-      "auth": {
-        "recovery_codes_generated": "Vygenerovány záložní kódy",
-        "password_reset": "Obnova hesla dokončena",
-        "password_changed": "Změna hesla",
-        "passkey_registered": "Přidán passkey",
-        "login_failed": "Neúspěšné přihlášení",
-        "email_otp_sent": "Odeslán e-mailový kód",
-        "session_unlocked": "Relace odemčena",
-        "session_lock_preference_changed": "Změna nastavení zámku relace",
-        "totp_enabled": "Zapnuto TOTP",
-        "session_locked": "Relace zamčena",
-        "recovery_code_failed": "Neplatný záložní kód",
-        "passkey_revoked": "Odebrán passkey",
-        "logout": "Odhlášení",
-        "recovery_code_used": "Použit záložní kód",
-        "captcha_failed": "Neplatná CAPTCHA",
-        "recovery_code_login": "Přihlášení záložním kódem",
-        "totp_step_up": "Ověření TOTP",
-        "forgot_mail_failed": "Obnova hesla — e-mail se nepodařilo odeslat",
-        "login_locked": "Přihlášení zablokováno",
-        "email_otp_locked": "E-mailový kód zablokován",
-        "passkey_step_up": "Ověření passkey",
-        "passkey_counter_anomaly": "Passkey — podezřelý čítač",
-        "totp_locked": "TOTP zablokováno",
-        "login": "Přihlášení",
-        "forgot_sent": "Obnova hesla — odkaz odeslán",
-        "forgot_unknown": "Obnova hesla — neznámý e-mail",
-        "passkey_renamed": "Přejmenován passkey",
-        "session_unlock_failed": "Neúspěšné odemčení relace"
-      },
-      "setup": {
-        "demo_seeded": "Nahrána ukázková data",
-        "cfg_local_write_failed": "Instalace — zápis cfg.local.php selhal",
-        "demo_failed": "Ukázková data selhala",
-        "completed": "Instalace dokončena"
-      },
-      "api_token": {
-        "revoked": "Zrušen API token",
-        "created": "Vytvořen API token"
-      },
-      "user": {
-        "created_by_invite": "Uživatel z pozvánky",
-        "deactivated": "Deaktivován uživatel",
-        "created": "Vytvořen uživatel",
-        "updated": "Upraven uživatel"
-      },
-      "exchange": {
-        "connected": "Připojena burza",
-        "disconnected": "Odpojena burza"
-      },
-      "share": {
-        "revoked": "Sdílení zrušeno",
-        "write": "Zápis do sdílených dat",
-        "created": "Sdílení vytvořeno",
-        "accepted": "Sdílení přijato",
-        "updated": "Sdílení upraveno",
-        "left": "Sdílení opuštěno"
-      },
       "admin": {
         "cron": {
           "run_now": "Ruční spuštění plánované úlohy"
         }
       },
-      "smtp": {
-        "updated": "Změna nastavení SMTP",
-        "tested": "Test SMTP"
+      "api_token": {
+        "created": "Vytvořen API token",
+        "revoked": "Zrušen API token"
       },
       "appearance": {
         "updated": "Změna vzhledu instance"
+      },
+      "auth": {
+        "captcha_failed": "Neplatná CAPTCHA",
+        "email_otp_locked": "E-mailový kód zablokován",
+        "email_otp_sent": "Odeslán e-mailový kód",
+        "forgot_mail_failed": "Obnova hesla — e-mail se nepodařilo odeslat",
+        "forgot_sent": "Obnova hesla — odkaz odeslán",
+        "forgot_unknown": "Obnova hesla — neznámý e-mail",
+        "login": "Přihlášení",
+        "login_failed": "Neúspěšné přihlášení",
+        "login_locked": "Přihlášení zablokováno",
+        "logout": "Odhlášení",
+        "passkey_counter_anomaly": "Passkey — podezřelý čítač",
+        "passkey_registered": "Přidán passkey",
+        "passkey_renamed": "Přejmenován passkey",
+        "passkey_revoked": "Odebrán passkey",
+        "passkey_step_up": "Ověření passkey",
+        "password_changed": "Změna hesla",
+        "password_reset": "Obnova hesla dokončena",
+        "recovery_code_failed": "Neplatný záložní kód",
+        "recovery_code_login": "Přihlášení záložním kódem",
+        "recovery_code_used": "Použit záložní kód",
+        "recovery_codes_generated": "Vygenerovány záložní kódy",
+        "session_lock_preference_changed": "Změna nastavení zámku relace",
+        "session_locked": "Relace zamčena",
+        "session_unlock_failed": "Neúspěšné odemčení relace",
+        "session_unlocked": "Relace odemčena",
+        "totp_enabled": "Zapnuto TOTP",
+        "totp_locked": "TOTP zablokováno",
+        "totp_step_up": "Ověření TOTP"
+      },
+      "exchange": {
+        "connected": "Připojena burza",
+        "disconnected": "Odpojena burza"
+      },
+      "security": {
+        "ip_blocked": "Blokovaná IP adresa"
+      },
+      "setup": {
+        "cfg_local_write_failed": "Instalace — zápis cfg.local.php selhal",
+        "completed": "Instalace dokončena",
+        "demo_failed": "Ukázková data selhala",
+        "demo_seeded": "Nahrána ukázková data"
+      },
+      "share": {
+        "accepted": "Sdílení přijato",
+        "created": "Sdílení vytvořeno",
+        "left": "Sdílení opuštěno",
+        "revoked": "Sdílení zrušeno",
+        "updated": "Sdílení upraveno",
+        "write": "Zápis do sdílených dat"
+      },
+      "smtp": {
+        "tested": "Test SMTP",
+        "updated": "Změna nastavení SMTP"
+      },
+      "user": {
+        "created": "Vytvořen uživatel",
+        "created_by_invite": "Uživatel z pozvánky",
+        "deactivated": "Deaktivován uživatel",
+        "updated": "Upraven uživatel"
       }
     },
     "entities": {
       "user": "Uživatel",
       "api_token": "API token",
-      "smtp_settings": "Nastavení SMTP",
+      "share": "Sdílení",
       "exchange_connection": "Připojení burzy",
-      "share": "Sdílení"
+      "smtp_settings": "Nastavení SMTP"
     }
   },
   "bank_notices": {
@@ -349,7 +349,6 @@
     "share": "{pct} portfolia",
     "vs_target": "{amount} oproti cíli",
     "targets": "Skutečnost a cíl",
-    "targets_link": "Upravit cíle",
     "accounts_n": "Účty: {n}",
     "net_worth_hint": "Investice + další majetek − závazky. Penzijní spoření a DIP jsou mezi investicemi.",
     "portfolios": "Portfolia",
@@ -421,7 +420,8 @@
     "settings": "Nastavení",
     "section_setup": "Účty a katalog",
     "collapse_menu": "Sbalit menu",
-    "expand_menu": "Rozbalit menu"
+    "expand_menu": "Rozbalit menu",
+    "skip_to_content": "Přeskočit na obsah"
   },
   "passkeys": {
     "add": "Přidat přístupový klíč",
@@ -669,7 +669,7 @@
     "search_placeholder": "Hledat symbol, název nebo ISIN…",
     "symbol": "Symbol",
     "asset_class": "Třída aktiv",
-    "quote_currency": "Kotace",
+    "quote_currency": "Měna ceny",
     "decimals": "Desetinná místa",
     "price_source": "Zdroj ceny",
     "source_refs": "Identifikátory u zdrojů cen",
@@ -691,7 +691,8 @@
       "xtb": "např. CSPX.UK",
       "yahoo": "např. CSPX.L"
     },
-    "all_classes": "Všechny třídy aktiv"
+    "all_classes": "Všechny třídy aktiv",
+    "quote_currency_hint": "V jaké měně trh instrument kotuje, např. EUR u BTC na evropské burze."
   },
   "accounts": {
     "title": "Účty",
@@ -1103,7 +1104,10 @@
     "empty_year": "V roce {year} nejsou žádné prodeje, dividendy ani úroky.",
     "unified_used": "Použité jednotné kurzy",
     "fee_lot": "kusy na poplatek prodeje — nabývací cena je výdaj",
-    "fee_skipped": "poplatek v {currency} není ve výdajích (kurz ČNB ho neocení)"
+    "fee_skipped": "poplatek v {currency} není ve výdajích (kurz ČNB ho neocení)",
+    "not_filed": "Jen podklad — nic se neodesílá finančnímu úřadu. Čísla přenes do přiznání nebo je dej poradci.",
+    "year_hint": "Výchozí je loňský rok — za ten se podává přiznání.",
+    "current_year_link": "Letošní rok průběžně →"
   },
   "alerts": {
     "title": "Upozornění e-mailem",
@@ -1154,7 +1158,8 @@
     "inflation": "Inflace",
     "inflation_hint": "Inflace ČR (HICP) za období a reálný výnos = (1 + výnos) / (1 + inflace) − 1.",
     "inflation_to": "do {month}",
-    "real": "reálně {pct}"
+    "real": "reálně {pct}",
+    "show_all": "Zobrazit vše ({n})"
   },
   "income": {
     "title": "Dividendy a úroky",
@@ -1278,7 +1283,7 @@
     "title": "Alokace",
     "subtitle": "Cílové rozložení majetku, odchylka a návrh, kam dát další vklad.",
     "scope_total": "Celý majetek",
-    "edit_targets": "Nastavit cíle",
+    "edit_targets": "Upravit cíle",
     "no_targets": "Zatím nemáš nastavené cíle — tlačítkem Nastavit cíle zadáš cílové podíly tříd (a případně instrumentů). Níž je dnešní rozložení.",
     "incomplete": "Bez ocenění (chybí cena nebo kurz), do alokace se nepočítá:",
     "current_title": "Skutečnost a cíl",
@@ -1315,7 +1320,8 @@
       "stock": "Akcie",
       "fund": "Fondy a ruční pozice",
       "cash": "Hotovost"
-    }
+    },
+    "set_targets": "Nastavit cíle"
   },
   "net_worth": {
     "title": "Čisté jmění",
@@ -1564,22 +1570,22 @@
     "step_run": "Na serveru spusť:",
     "docker_hint": "V docker-compose.production.yml nastav image na verzi {version} (vývojové verze nemají značku latest). Migrace proběhnou při startu kontejneru.",
     "native_hint": "Příkazy spusť jako uživatel, který vlastní soubory aplikace. Migrace jsou idempotentní; nové plánované úlohy doplní cmd/install.sh (krok Cron).",
+    "in_app_dir": "v adresáři aplikace (kde je soubor VERSION)",
     "copy": "Kopírovat",
     "copied": "Zkopírováno",
     "manual_only": "Aktualizace se spouští na serveru — aplikace nemá práva měnit vlastní soubory ani Docker image.",
-    "manual_link": "Podrobně v manuálu, kapitola 2.4",
-    "in_app_dir": "v adresáři aplikace (kde je soubor VERSION)"
+    "manual_link": "Podrobně v manuálu, kapitola 2.4"
   },
   "admin_settings": {
     "title": "Nastavení",
     "subtitle": "Nastavení celé instance. Každá záložka se ukládá samostatně.",
     "tabs_label": "Části nastavení",
-    "tab_smtp": "E-mail (SMTP)",
-    "tab_appearance": "Vzhled",
     "health_title": "Upozornění konfigurace",
     "health": {
       "rate_limit_disabled": "Redis není dostupný — omezení počtu požadavků (rate limiting) je vypnuté. Přihlášení dál hlídá limit neúspěšných pokusů v databázi. Doporučujeme Redis zapnout (v Dockeru je součástí)."
-    }
+    },
+    "tab_smtp": "E-mail (SMTP)",
+    "tab_appearance": "Vzhled"
   },
   "appearance": {
     "scheme": "Barevné schéma",
@@ -1598,7 +1604,8 @@
       "orchid": "Orchidej",
       "graphite": "Grafit"
     },
-    "inherit_now": "teď {name}"
+    "inherit_now": "výchozí {name} — změní se se schématem instance",
+    "own_scheme": "Nebo vlastní schéma"
   },
   "grid": {
     "pages": "Stránkování",
@@ -1632,18 +1639,18 @@
     "continue": "Pokračovat na nákup"
   },
   "validation": {
-    "number": "Zadej číslo.",
-    "file_required": "Vyber prosím soubor.",
-    "url": "Zadej platnou adresu URL (např. https://…).",
-    "invalid": "Hodnota má neplatný formát.",
-    "max_length": "Zadej nejvýš {max} znaků.",
-    "step": "Hodnota nemá povolený počet desetinných míst.",
-    "email": "Zadej platnou e-mailovou adresu.",
     "required": "Vyplň prosím toto pole.",
     "select_required": "Vyber prosím jednu z možností.",
-    "max": "Hodnota může být nejvýš {max}.",
+    "file_required": "Vyber prosím soubor.",
+    "email": "Zadej platnou e-mailovou adresu.",
+    "url": "Zadej platnou adresu URL (např. https://…).",
+    "number": "Zadej číslo.",
+    "invalid": "Hodnota má neplatný formát.",
     "min": "Hodnota musí být alespoň {min}.",
-    "pattern": "Hodnota neodpovídá požadovanému formátu.",
-    "min_length": "Zadej alespoň {min} znaků."
+    "max": "Hodnota může být nejvýš {max}.",
+    "step": "Hodnota nemá povolený počet desetinných míst.",
+    "min_length": "Zadej alespoň {min} znaků.",
+    "max_length": "Zadej nejvýš {max} znaků.",
+    "pattern": "Hodnota neodpovídá požadovanému formátu."
   }
 }

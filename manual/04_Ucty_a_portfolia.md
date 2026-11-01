@@ -28,7 +28,7 @@ Vyhledávat lze podle symbolu, názvu nebo ISIN a filtrovat podle třídy aktiv 
 | Třída aktiv | Krypto / ETF / Akcie / Fond / Hotovost |
 | Symbol | Např. `BTC`, `CSPX` (převede se na velká písmena) |
 | Název | Plný název |
-| Kotace | Měna, ve které se instrument obchoduje (`EUR`, `USD`) |
+| Měna ceny | Měna, ve které trh instrument kotuje (`EUR`, `USD`) |
 | ISIN | Volitelně; kontroluje se formát |
 | Zdroj ceny | CoinGecko / XTB / Yahoo Finance / Ručně — viz [6. Ceny a kurzy](06_Ceny_a_kurzy.md) |
 | Desetinná místa | Kolik míst množství zobrazovat |
@@ -102,7 +102,9 @@ Kliknutím na název portfolia se otevřou jeho pozice.
 ## 4.5 Pozice
 
 **Portfolio → Pozice** — přehled seskupený po portfoliích s drženým množstvím
-a poslední cenou. U ruční pozice (Portu, spořicí účet) je místo ceny dnešní
+a poslední cenou. Pod názvem pozice je vždy instituce a účet, takže se stejný instrument
+na dvou účtech nesplete. Poslední cena je v měně zobrazení (dnešním kurzem), původní cena
+z trhu je menším písmem pod ní. U ruční pozice (Portu, spořicí účet) je místo ceny dnešní
 hodnota a datum posledního ručního ocenění; držené množství jsou čisté vklady.
 Novou pozici založíš tlačítkem **Nová pozice**:
 

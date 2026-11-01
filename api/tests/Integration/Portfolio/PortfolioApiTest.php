@@ -94,6 +94,26 @@ final class PortfolioApiTest extends ApiTestCase
         self::assertArrayHasKey('quantity', $r['body']['error']['fields']);
     }
 
+    public function testPositionListHasLastPriceInDisplayCurrency(): void
+    {
+        $ids = $this->setupMarketPosition($this->userId, 'SYNTHPX');
+        $pdo = $this->db->pdo();
+        $pdo->exec("UPDATE users SET display_currency = 'CZK' WHERE id = {$this->userId}");
+        // XTS = ISO kód měny pro testy — kurz nekoliduje s reálnými daty ČNB
+        $pdo->exec("INSERT INTO fx_rates (date, currency, amount, rate) VALUES (CURDATE(), 'XTS', 10, 25) ON DUPLICATE KEY UPDATE amount = 10, rate = 25");
+        $pdo->prepare("INSERT INTO prices (instrument_id, date, close, currency, source) VALUES (?, CURDATE(), '100', 'XTS', 'manual')")
+            ->execute([$ids['instrument']]);
+        try {
+            $rows = $this->call($this->userId, 'GET', '/api/positions')['body'];
+            $row = array_values(array_filter($rows, static fn (array $r) => $r['id'] === $ids['position']))[0];
+            self::assertSame('XTS', $row['last_price']['currency']);
+            self::assertSame('250.0000000000', $row['price_display']);
+        } finally {
+            $pdo->exec("DELETE FROM fx_rates WHERE currency = 'XTS'");
+            $pdo->prepare('DELETE FROM prices WHERE instrument_id = ?')->execute([$ids['instrument']]);
+        }
+    }
+
     public function testOtherUserCannotSeeOrUseForeignData(): void
     {
         $ids = $this->setupMarketPosition($this->userId);
