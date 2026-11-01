@@ -781,6 +781,8 @@
     "transfer_to": "To position",
     "transfer_submit": "Transfer",
     "transfer_hint": "A transfer between accounts is not a sale — cost basis and acquisition date carry over.",
+    "transfer_all": "All",
+    "transfer_all_hint": "Whole holding: {qty} (after a fee in the transferred currency)",
     "transfer_no_target": "To transfer you need another position of the same instrument on a different account.",
     "types": {
       "buy": "Buy",

@@ -54,7 +54,7 @@ In the detail of a market position, click **Transfer**:
 | Field | Meaning |
 |---|---|
 | To position | A position of the **same instrument** in another account (create it beforehand) |
-| Quantity | How much is being moved |
+| Quantity | How much is being moved; the **All** button fills in the whole holding (minus a fee in the transferred currency) |
 | Fee + currency | Optional; enter the network fee in the transferred currency (e.g. `0.00005 BTC`) |
 
 Two linked transactions are created: **Transfer out** and **Transfer in**.

@@ -781,6 +781,8 @@
     "transfer_to": "Na pozici",
     "transfer_submit": "Převést",
     "transfer_hint": "Převod mezi účty není prodej — nákupní cena i datum nabytí se přenesou.",
+    "transfer_all": "Vše",
+    "transfer_all_hint": "Celé držené množství: {qty} (po odečtení poplatku v převáděné měně)",
     "transfer_no_target": "Pro převod potřebuješ další pozici stejného instrumentu na jiném účtu.",
     "types": {
       "buy": "Nákup",

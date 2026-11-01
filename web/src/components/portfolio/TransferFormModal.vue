@@ -3,7 +3,7 @@
  * Převod množství z tržní pozice na jinou pozici téhož instrumentu (např. burza → peněženka).
  * Backend založí pár transfer_out + transfer_in; loty si ponesou původní datum nabytí.
  */
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
@@ -11,6 +11,7 @@ import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { portfolioApi, type Position } from '@/api/portfolio'
 import { useFieldId } from '@/composables/useFieldId'
+import { decimalMinus } from '@/utils/decimal'
 
 const props = defineProps<{ from: Position; positions: Position[] }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
@@ -35,6 +36,21 @@ const feeCurrencies = computed(() =>
   [...new Set([props.from.instrument_symbol, props.from.quote_currency ?? props.from.currency].filter((c): c is string => !!c))])
 const busy = ref(false)
 const error = ref('')
+
+// „Vše“: celé držené množství; poplatek v převáděné měně backend strhne navíc (množství + poplatek), proto se odečte.
+// Po kliknutí se množství přepočítá i při pozdější změně poplatku — dokud ho uživatel nepřepíše ručně.
+const allQuantity = computed(() => {
+  const feeInKind = form.fee_currency === props.from.instrument_symbol ? form.fee.trim() : ''
+  const rest = decimalMinus(props.from.holding, feeInKind) ?? decimalMinus(props.from.holding, '')
+  return rest !== null && !rest.startsWith('-') && rest !== '0' ? rest : null
+})
+const useAll = ref(false)
+function fillAll() {
+  if (allQuantity.value === null) return
+  form.quantity = allQuantity.value
+  useAll.value = true
+}
+watch(allQuantity, q => { if (useAll.value && q !== null) form.quantity = q })
 
 async function save() {
   if (busy.value || form.to_position_id === null) return
@@ -74,7 +90,13 @@ const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface t
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label :for="fid('quantity')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.quantity') }}</label>
-          <input :id="fid('quantity')" v-model="form.quantity" inputmode="decimal" required autocomplete="off" :class="inputClass" />
+          <div class="flex">
+            <input :id="fid('quantity')" v-model="form.quantity" inputmode="decimal" required autocomplete="off"
+              :class="inputClass" class="min-w-0 rounded-r-none focus:z-10" @input="useAll = false" />
+            <button type="button" :disabled="allQuantity === null" :title="t('tx.transfer_all_hint', { qty: `${allQuantity ?? '0'} ${from.instrument_symbol ?? ''}`.trim() })"
+              class="input-addon h-10"
+              @click="fillAll">{{ t('tx.transfer_all') }}</button>
+          </div>
         </div>
         <div>
           <label :for="fid('executed_at')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('tx.executed_at') }}</label>

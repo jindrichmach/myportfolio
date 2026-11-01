@@ -54,7 +54,7 @@ V detailu tržní pozice klikni **Převést**:
 | Pole | Význam |
 |---|---|
 | Na pozici | Pozice **stejného instrumentu** na jiném účtu (založ ji předem) |
-| Množství | Kolik se přesouvá |
+| Množství | Kolik se přesouvá; tlačítko **Vše** vyplní celé držené množství (poplatek v převáděné měně odečte) |
 | Poplatek + měna | Volitelně; síťový poplatek zadej v převáděné měně (např. `0.00005 BTC`) |
 
 Vzniknou dvě spojené transakce: **Převod — odchod** a **Převod — příjem**.
