@@ -686,6 +686,7 @@
       "yahoo": "Yahoo Finance",
       "manual": "Manual"
     },
+    "ref_fallback": "fallback",
     "ref_placeholders": {
       "coingecko": "e.g. bitcoin",
       "xtb": "e.g. CSPX.UK",

@@ -2,6 +2,13 @@ import { PRICE_SOURCES, type AssetClass, type InstrumentInput, type PriceSource 
 
 /** Stav formuláře instrumentu (Katalog → Instrumenty i průvodce Nová investice). */
 export const REF_SOURCES: PriceSource[] = PRICE_SOURCES.filter(s => s !== 'manual')
+/** Řetězec zdrojů podle zdroje ceny — stejný jako `PriceService::CHAINS` v API (první = hlavní, další = záloha). */
+export const PRICE_CHAINS: Record<PriceSource, PriceSource[]> = {
+  coingecko: ['coingecko', 'yahoo'],
+  xtb: ['xtb', 'yahoo'],
+  yahoo: ['yahoo'],
+  manual: [],
+}
 export const emptyInstrumentForm = () => ({
   id: null as number | null,
   asset_class: 'crypto' as AssetClass,

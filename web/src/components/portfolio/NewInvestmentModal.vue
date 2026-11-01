@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
@@ -8,6 +8,7 @@ import { catalogApi, type Instrument } from '@/api/catalog'
 import { portfolioApi, type Account, type Portfolio, type Position } from '@/api/portfolio'
 import { apiErrorMessage } from '@/api/errors'
 import { useFieldId } from '@/composables/useFieldId'
+import { qtyDecimals } from '@/composables/useFormat'
 import { emptyInstrumentForm, instrumentPayload } from '@/utils/instrumentForm'
 
 /**
@@ -37,11 +38,17 @@ onMounted(async () => {
 const results = ref<Instrument[]>([])
 const searching = ref(false)
 const lastQuery = ref('')
+// Prázdný / jednoznakový dotaz = celý katalog (backend vrátí první stránku); starší odpověď nepřepíše novější dotaz.
 async function search(q: string) {
   lastQuery.value = q
-  if (q.trim().length < 2) { results.value = []; return }
+  const query = q.trim().length < 2 ? '' : q.trim()
   searching.value = true
-  try { results.value = await catalogApi.instruments({ q }) } finally { searching.value = false }
+  try {
+    const found = await catalogApi.instruments({ q: query })
+    if (lastQuery.value === q) results.value = found
+  } finally {
+    if (lastQuery.value === q) searching.value = false
+  }
 }
 const options = computed(() => results.value.map(i => ({
   value: i.id, label: `${i.symbol} · ${i.name}`, secondary: [i.isin, i.quote_currency, t(`instruments.classes.${i.asset_class}`)].filter(Boolean).join(' · '),
@@ -50,6 +57,8 @@ const instrumentId = ref<number | null>(null)
 const selected = computed(() => results.value.find(i => i.id === instrumentId.value) ?? null)
 const creating = ref(false)
 const instrument = reactive(emptyInstrumentForm())
+// Desetinná místa podle třídy aktiva (krypto 8, ETF / akcie / fond 4); ručně jdou přepsat.
+watch(() => instrument.asset_class, (c) => { instrument.decimals = qtyDecimals(c) })
 function startCreate() {
   const q = lastQuery.value.trim().toUpperCase()
   Object.assign(instrument, emptyInstrumentForm(), /^[A-Z]{2}[A-Z0-9]{9}\d$/.test(q) ? { isin: q, asset_class: 'etf', decimals: 4, price_source: 'yahoo' } : { symbol: q })
@@ -106,7 +115,7 @@ async function submit() {
         </template>
         <template v-else>
           <p class="text-xs text-neutral-500">{{ t('invest.create_hint') }}</p>
-          <InstrumentFields :form="instrument" />
+          <InstrumentFields :form="instrument" chain-refs />
           <button type="button" class="cursor-pointer text-sm text-primary-700 hover:underline" @click="creating = false">{{ t('invest.back_to_search') }}</button>
         </template>
       </section>

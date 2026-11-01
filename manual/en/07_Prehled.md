@@ -45,7 +45,9 @@ the top. You can fill in the price in [Prices & rates](06_Ceny_a_kurzy.md) or ma
 | Portfolios | Each portfolio as one row: number of positions, share of the whole, value and total return in CZK and %. Clicking expands a table of positions (quantity, value, invested, total return; for ETFs and stocks the fund or company name is shown under the ticker — the same ticker can mean a different fund on another exchange); the browser remembers expanded portfolios. **All positions** leads to the Positions page |
 
 The **Add** button in the header offers **New investment** (a wizard: instrument by ticker, ISIN or name —
-or creating a new one —, then account and portfolio; it uses an existing position, otherwise creates one and
+or creating a new one, where decimal places are prefilled by asset class (crypto 8, ETF, stock and fund 4)
+and identifiers are offered only for the selected price source and its fallback, see [6. Prices & rates](06_Ceny_a_kurzy.md) —,
+then account and portfolio; it uses an existing position, otherwise creates one and
 immediately opens the entry of the first purchase), **New transaction** and **Import**. The **Allocation**
 heading leads to the Allocation page.
 

@@ -45,7 +45,9 @@ doplníš v [Ceny a kurzy](06_Ceny_a_kurzy.md) nebo ručně u instrumentu.
 | Portfolia | Každé portfolio jako jeden řádek: počet pozic, podíl na celku, hodnota a celkový výnos v Kč i %. Kliknutím se rozbalí tabulka pozic (množství, hodnota, investováno, celkový výnos; u ETF a akcií je pod tickerem i název fondu či firmy — stejný ticker může na jiné burze znamenat jiný fond); rozbalená portfolia si prohlížeč pamatuje. **Všechny pozice** vede na stránku Pozice |
 
 Tlačítko **Přidat** v záhlaví nabídne **Novou investici** (průvodce: instrument podle tickeru, ISINu nebo názvu —
-případně založení nového —, pak účet a portfolio; existující pozici použije, jinak ji založí a hned otevře zápis
+případně založení nového, kde se desetinná místa předvyplní podle třídy aktiv (krypto 8, ETF, akcie a fond 4)
+a identifikátory se nabízejí jen pro vybraný zdroj ceny a jeho zálohu, viz [6. Ceny a kurzy](06_Ceny_a_kurzy.md) —,
+pak účet a portfolio; existující pozici použije, jinak ji založí a hned otevře zápis
 prvního nákupu), **Novou transakci** a **Import**. Nadpis **Alokace** vede na stránku Alokace.
 
 Dokud nemáš žádné pozice, ukazuje Přehled místo čísel checklist prvních kroků (účet, portfolio, import nebo ruční

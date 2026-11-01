@@ -1,18 +1,23 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ASSET_CLASSES, PRICE_SOURCES } from '@/api/catalog'
 import { useFieldId } from '@/composables/useFieldId'
 import InfoTip from '@/components/ui/InfoTip.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
-import { REF_SOURCES, type InstrumentForm } from '@/utils/instrumentForm'
+import { PRICE_CHAINS, REF_SOURCES, type InstrumentForm } from '@/utils/instrumentForm'
 
-/** Pole instrumentu (třída, symbol, název, měna, ISIN, zdroj ceny, odkazy na zdroje) — stav drží rodič. */
-const props = defineProps<{ form: InstrumentForm }>()
+/**
+ * Pole instrumentu (třída, symbol, název, měna, ISIN, zdroj ceny, odkazy na zdroje) — stav drží rodič.
+ * `chainRefs`: identifikátory jen pro zdroje z řetězce vybraného zdroje ceny (hlavní + záloha), u ručních cen žádné.
+ */
+const props = defineProps<{ form: InstrumentForm; chainRefs?: boolean }>()
 const { t } = useI18n()
 const fid = useFieldId()
 const inputClass = 'w-full h-10 px-3 border border-field rounded-md bg-surface text-sm'
 // Formulář je reaktivní objekt rodiče — pole ho mění přímo.
 const form = props.form
+const refSources = computed(() => (props.chainRefs ? PRICE_CHAINS[form.price_source] : REF_SOURCES))
 </script>
 
 <template>
@@ -51,10 +56,10 @@ const form = props.form
       <input :id="fid('decimals')" v-model.number="form.decimals" type="number" min="0" max="18" :class="inputClass" />
     </div>
   </div>
-  <fieldset class="border border-neutral-200 rounded-md p-3 space-y-2">
+  <fieldset v-if="refSources.length" class="border border-neutral-200 rounded-md p-3 space-y-2">
     <legend class="text-xs font-medium text-neutral-600 px-1">{{ t('instruments.source_refs') }}</legend>
-    <div v-for="s in REF_SOURCES" :key="s" class="flex items-center gap-2">
-      <span class="w-24 text-xs text-neutral-600">{{ t(`instruments.sources.${s}`) }}</span>
+    <div v-for="(s, i) in refSources" :key="s" class="flex items-center gap-2">
+      <span class="w-24 text-xs text-neutral-600">{{ t(`instruments.sources.${s}`) }}<span v-if="chainRefs && i > 0" class="block text-neutral-400">{{ t('instruments.ref_fallback') }}</span></span>
       <input v-model="form.refs[s]" maxlength="64" :aria-label="`${t('instruments.source_refs')}: ${t(`instruments.sources.${s}`)}`" :placeholder="t(`instruments.ref_placeholders.${s}`)" class="flex-1 h-9 px-3 border border-field rounded-md bg-surface text-sm font-mono" />
     </div>
   </fieldset>

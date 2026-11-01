@@ -686,6 +686,7 @@
       "yahoo": "Yahoo Finance",
       "manual": "Ručně"
     },
+    "ref_fallback": "záloha",
     "ref_placeholders": {
       "coingecko": "např. bitcoin",
       "xtb": "např. CSPX.UK",
