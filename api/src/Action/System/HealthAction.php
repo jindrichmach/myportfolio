@@ -83,9 +83,9 @@ final class HealthAction
             }
             if (!$payload['redis']) {
                 $warnings[] = [
-                    'code' => 'rate_limit_disabled',
-                    'message' => 'Redis není dostupný — omezení počtu požadavků (rate limiting) je vypnuté. '
-                        . 'Přihlášení dál hlídá limit neúspěšných pokusů v databázi.',
+                    'code' => 'redis_unavailable',
+                    'message' => 'Redis není dostupný — omezení počtu požadavků a ochrana přihlášení běží v databázi '
+                        . '(každý požadavek do ní zapisuje).',
                 ];
             }
             $payload['warnings'] = $warnings;

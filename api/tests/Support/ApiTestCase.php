@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MyPortfolio\Tests\Support;
 
 use MyPortfolio\Bootstrap;
-use MyPortfolio\Infrastructure\Cache\RedisFactory;
+use MyPortfolio\Infrastructure\Cache\RateCounter;
 use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Infrastructure\Database\Connection;
 use MyPortfolio\Service\Auth\SessionAuthContext;
@@ -130,11 +130,12 @@ abstract class ApiTestCase extends TestCase
         $pdo->exec("DELETE FROM sessions WHERE user_id IN ($ids)");
         $this->sessions = [];
 
-        // Per-uživatelské rate limity (jen s Redisem, např. v CI) — testy jedou za sebou pod stejnými fixture
-        // uživateli a jinak by se během minuty vyčerpal limit mutací / čtení a další testy by dostaly 429.
-        $redis = $this->container->get(RedisFactory::class)->client();
+        // Per-uživatelské rate limity — testy jedou za sebou pod stejnými fixture uživateli
+        // a jinak by se během minuty vyčerpal limit mutací / čtení a další testy by dostaly 429.
+        $keys = [];
         foreach ([$this->adminId, $this->userId] as $id) {
-            $redis?->del(["rl:mut:user:$id", "rl:read:user:$id"]);
+            array_push($keys, "rl:mut:user:$id", "rl:read:user:$id");
         }
+        $this->container->get(RateCounter::class)->reset($keys);
     }
 }

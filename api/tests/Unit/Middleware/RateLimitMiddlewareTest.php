@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MyPortfolio\Tests\Unit\Middleware;
 
+use MyPortfolio\Infrastructure\Cache\RateCounter;
 use MyPortfolio\Infrastructure\Cache\RedisFactory;
 use MyPortfolio\Infrastructure\Config\Config;
+use MyPortfolio\Infrastructure\Database\Connection;
 use MyPortfolio\Middleware\AuthMiddleware;
 use MyPortfolio\Middleware\RateLimitMiddleware;
 use MyPortfolio\Service\IpMatcher;
@@ -57,7 +59,7 @@ final class RateLimitMiddlewareTest extends TestCase
         $config = new Config([]);
         $middleware = new RateLimitMiddleware(
             $config,
-            new RedisFactory($config),
+            new RateCounter(new RedisFactory($config), new Connection($config)),
             new ResponseFactory(),
             new IpMatcher($config),
         );

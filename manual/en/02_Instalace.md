@@ -38,7 +38,7 @@ reports and alerts.
 ## 2.2 Native installation (Apache / nginx + PHP-FPM)
 
 Requirements: PHP 8.5 (extensions pdo_mysql, mbstring, openssl, zip, gd, simplexml, curl;
-bcmath recommended), MariaDB 11, Composer, Node.js 22.12+ and pnpm. Redis is optional — without it, request rate limiting on the API is disabled; sign-in is still protected by a limit on failed attempts stored in the database. The admin sees this as a warning in System → Settings.
+bcmath recommended), MariaDB 11, Composer, Node.js 22.12+ and pnpm. Redis is optional — without it, request rate limiting and the failed sign-in limit are counted in the database, which puts more load on it. The admin sees this as a warning in System → Settings.
 
 The wizard goes through these steps:
 

@@ -1593,7 +1593,7 @@
     "tabs_label": "Settings sections",
     "health_title": "Configuration warnings",
     "health": {
-      "rate_limit_disabled": "Redis is not available — request rate limiting is off. Login still enforces the failed-attempt limit in the database. We recommend enabling Redis (included in Docker)."
+      "redis_unavailable": "Redis is not available — request rate limiting and login protection run in the database, and every request writes to it. We recommend enabling Redis (included in Docker)."
     },
     "tab_smtp": "E-mail (SMTP)",
     "tab_appearance": "Appearance"

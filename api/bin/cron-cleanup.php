@@ -31,6 +31,10 @@ $report = [];
 $n = $pdo->exec("DELETE FROM login_attempts WHERE created_at < NOW() - INTERVAL 24 HOUR");
 $report['login_attempts'] = (int) $n;
 
+// 1a) rate_limits — počítadla s uplynulým oknem (jen bez Redisu)
+$n = $pdo->exec('DELETE FROM rate_limits WHERE expires_at < NOW()');
+$report['rate_limits'] = (int) $n;
+
 // 1b) import_previews — nepotvrzené náhledy importu starší 24 hodin
 $n = $pdo->exec('DELETE FROM import_previews WHERE created_at < NOW() - INTERVAL 24 HOUR');
 $report['import_previews'] = (int) $n;

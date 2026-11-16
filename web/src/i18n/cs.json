@@ -1593,7 +1593,7 @@
     "tabs_label": "Části nastavení",
     "health_title": "Upozornění konfigurace",
     "health": {
-      "rate_limit_disabled": "Redis není dostupný — omezení počtu požadavků (rate limiting) je vypnuté. Přihlášení dál hlídá limit neúspěšných pokusů v databázi. Doporučujeme Redis zapnout (v Dockeru je součástí)."
+      "redis_unavailable": "Redis není dostupný — omezení počtu požadavků (rate limiting) a ochrana přihlášení běží v databázi, každý požadavek do ní zapisuje. Doporučujeme Redis zapnout (v Dockeru je součástí)."
     },
     "tab_smtp": "E-mail (SMTP)",
     "tab_appearance": "Vzhled"

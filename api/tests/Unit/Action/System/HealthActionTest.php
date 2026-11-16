@@ -59,7 +59,7 @@ final class HealthActionTest extends TestCase
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame(
-            ['webauthn_configuration', 'rate_limit_disabled'],
+            ['webauthn_configuration', 'redis_unavailable'],
             array_column($body['warnings'], 'code'),
         );
         self::assertSame('WebAuthn vyžaduje HTTPS.', $body['warnings'][0]['message']);

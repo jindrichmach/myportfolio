@@ -40,7 +40,7 @@ return [
         'backup_skip_routines' => false,             // true = vynechat stored procedures/functions ze zálohy (DB user bez privilege)
     ],
     'redis' => [
-        'enabled' => false,                          // rate limiting a brute-force ochrana (bez Redis fallback na MariaDB)
+        'enabled' => false,                          // rate limiting a brute-force ochrana (bez Redisu v MariaDB)
         'host'    => '127.0.0.1',
         'port'    => 6379,
         'auth'    => null,                           // heslo nebo null

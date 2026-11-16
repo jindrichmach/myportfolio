@@ -110,8 +110,8 @@ Screenshoty jsou z ukázkových dat (`api/bin/seed-demo.php`), žádná skutečn
 
 ## Bezpečnost
 
-- Hesla bcrypt s pepperem, ochrana proti hádání hesel (Redis nebo MariaDB), volitelně Cloudflare Turnstile;
-  rate limiting API jen s Redisem (doporučený).
+- Hesla bcrypt s pepperem, ochrana proti hádání hesel a rate limiting (Redis, bez něj MariaDB), volitelně
+  Cloudflare Turnstile.
 - Dvoufázové ověření: **passkeys (WebAuthn)** a TOTP se záložními kódy, volitelně e-mailový kód s důvěryhodným
   zařízením; step-up pro citlivé operace; volitelně přihlášení jen passkey (bez hesla, vyžaduje HTTPS).
 - Session cookie `__Host-`, CSRF token, zámek aplikace při nečinnosti, IP allowlist; CSP bez `unsafe-inline` pro skripty.

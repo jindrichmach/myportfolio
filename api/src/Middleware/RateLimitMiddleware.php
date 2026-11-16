@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MyPortfolio\Middleware;
 
 use MyPortfolio\Http\Json;
-use MyPortfolio\Infrastructure\Cache\RedisFactory;
+use MyPortfolio\Infrastructure\Cache\RateCounter;
 use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Service\IpMatcher;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -15,7 +15,7 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Slim\Psr7\Factory\ResponseFactory;
 
 /**
- * Sliding-window rate limiter dle cfg.rate_limits.
+ * Rate limiter s pevným oknem dle cfg.rate_limits.
  *
  *   login_per_min_per_ip      → 60s window, key = "rl:login:ip:{ip/24}"
  *   forgot_per_hour_per_email → 3600s window, key = "rl:forgot:email:{sha1}"
@@ -25,24 +25,19 @@ use Slim\Psr7\Factory\ResponseFactory;
  *
  * Při překročení vrátí 429 Too Many Requests s Retry-After.
  *
- * Vyžaduje Redis. Bez Redis je rate limit no-op (BruteForceGuard pokrývá login).
+ * Počítá v Redisu, bez něj v MariaDB (RateCounter).
  */
 final class RateLimitMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly Config $config,
-        private readonly RedisFactory $redis,
+        private readonly RateCounter $counter,
         private readonly ResponseFactory $responseFactory,
         private readonly IpMatcher $ipMatcher,
     ) {}
 
     public function process(Request $request, Handler $handler): Response
     {
-        $r = $this->redis->client();
-        if ($r === null) {
-            return $handler->handle($request); // bez Redis no-op
-        }
-
         $path = $request->getUri()->getPath();
         $method = strtoupper($request->getMethod());
         $ip = $this->ipMatcher->clientIp(
@@ -63,9 +58,7 @@ final class RateLimitMiddleware implements MiddlewareInterface
         }
 
         [$key, $limit, $window] = $rule;
-        $count = (int) ($r->get($key) ?? 0);
-        $ttl = (int) $r->ttl($key);
-        if ($ttl < 0) $ttl = $window;  // -1/-2 = neexistuje nebo bez TTL
+        [$count, $ttl] = $this->counter->hit($key, $window);
 
         // Headers se posílají u všech bearer-authed requestů (rfc draft-rate-limit
         // používá X-RateLimit-*). U session/IP requestů nemá smysl — klient
@@ -73,7 +66,7 @@ final class RateLimitMiddleware implements MiddlewareInterface
         $sendHeaders = $tokenId > 0;
         $remaining = max(0, $limit - $count);
 
-        if ($count >= $limit) {
+        if ($count > $limit) {
             $response = $this->responseFactory->createResponse(429);
             $response = $response->withHeader('Retry-After', (string) max(1, $ttl));
             if ($sendHeaders) {
@@ -85,22 +78,18 @@ final class RateLimitMiddleware implements MiddlewareInterface
             return Json::error($response, 'rate_limited', 'Příliš mnoho pokusů. Zkus to později.', 429);
         }
 
-        // Increment + set expiry (idempotentně)
-        $r->incr($key);
-        $r->expire($key, $window);
-
         $response = $handler->handle($request);
         if ($sendHeaders) {
             $response = $response
                 ->withHeader('X-RateLimit-Limit',     (string) $limit)
-                ->withHeader('X-RateLimit-Remaining', (string) max(0, $remaining - 1))
+                ->withHeader('X-RateLimit-Remaining', (string) $remaining)
                 ->withHeader('X-RateLimit-Reset',     (string) max(1, $ttl));
         }
         return $response;
     }
 
     /**
-     * @return array{0:string,1:int,2:int}|null  [redisKey, limit, windowSeconds]
+     * @return array{0:string,1:int,2:int}|null  [key, limit, windowSeconds]
      */
     private function ruleFor(string $path, string $method, string $ip, int $userId, int $tokenId, Request $request): ?array
     {
@@ -146,8 +135,9 @@ final class RateLimitMiddleware implements MiddlewareInterface
 
         // Forgot — per email
         if ($path === '/api/auth/forgot' && $method === 'POST') {
-            $body = (array) ($request->getParsedBody() ?? []);
-            $email = strtolower(trim((string) ($body['email'] ?? '')));
+            // Běží před BodyParsingMiddleware — tělo se čte samo (__toString streamu přetáčí na začátek)
+            $body = $request->getParsedBody() ?? json_decode((string) $request->getBody(), true);
+            $email = is_array($body) ? strtolower(trim((string) ($body['email'] ?? ''))) : '';
             if ($email !== '') {
                 return ['rl:forgot:email:' . sha1($email), (int) ($rl['forgot_per_hour_per_email'] ?? 3), 3600];
             }
