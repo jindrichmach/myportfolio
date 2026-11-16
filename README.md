@@ -114,7 +114,8 @@ Screenshoty jsou z ukázkových dat (`api/bin/seed-demo.php`), žádná skutečn
   Cloudflare Turnstile.
 - Dvoufázové ověření: **passkeys (WebAuthn)** a TOTP se záložními kódy, volitelně e-mailový kód s důvěryhodným
   zařízením; step-up pro citlivé operace; volitelně přihlášení jen passkey (bez hesla, vyžaduje HTTPS).
-- Session cookie `__Host-`, CSRF token, zámek aplikace při nečinnosti, IP allowlist; CSP bez `unsafe-inline` pro skripty.
+- Session cookie `__Host-` (v databázi jen SHA-256 tokenu, stejně jako API tokeny), CSRF token, zámek aplikace
+  při nečinnosti, IP allowlist; CSP bez `unsafe-inline` pro skripty.
 - Přísná izolace uživatelů — cizí záznam je 404, ne 403; sdílení jen přes výslovné oprávnění.
 - API klíče burz, IMAP hesla a TOTP secrety šifrovaně (AES-256-GCM), ověření DKIM / Authentication-Results
   u bankovních avíz; CI kontroluje známé zranitelnosti závislostí (`composer audit`).

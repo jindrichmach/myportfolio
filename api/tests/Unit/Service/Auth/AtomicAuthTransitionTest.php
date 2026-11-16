@@ -675,7 +675,7 @@ final class AtomicAuthTransitionTest extends TestCase
               )
               ORDER BY generation'
         );
-        $generations->execute([$session['token']]);
+        $generations->execute([SessionManager::storageId($session['token'])]);
         $rows = $generations->fetchAll(\PDO::FETCH_ASSOC);
         self::assertCount(2, $rows);
         self::assertSame(1, (int) $rows[0]['generation']);

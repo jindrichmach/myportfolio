@@ -197,7 +197,7 @@ final class MfaProtectedOperationService
                 AND revoked_at IS NULL
               FOR UPDATE'
         );
-        $stmt->execute([$sessionToken, $userId, $cutoff->epochSeconds]);
+        $stmt->execute([SessionManager::storageId($sessionToken), $userId, $cutoff->epochSeconds]);
         $family = $stmt->fetchColumn();
         if (!is_string($family) || $family === '') {
             throw new \DomainException('Session už není dostupná.');

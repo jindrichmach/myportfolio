@@ -447,7 +447,7 @@ final class PasskeySessionTransitionService
             . ($mustBeLocked ? ' AND locked_at IS NOT NULL' : ' AND locked_at IS NULL')
             . ' FOR UPDATE'
         );
-        $stmt->execute([$sessionToken, $userId, $cutoff->epochSeconds]);
+        $stmt->execute([SessionManager::storageId($sessionToken), $userId, $cutoff->epochSeconds]);
         if ($stmt->fetchColumn() === false) {
             throw new \DomainException('Session už není dostupná.');
         }

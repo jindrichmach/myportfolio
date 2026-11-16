@@ -11,6 +11,7 @@ use MyPortfolio\Service\Auth\SessionLockPolicy;
 use MyPortfolio\Service\Auth\SessionLockService;
 use MyPortfolio\Service\Auth\WebAuthnCeremonyStore;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use MyPortfolio\Service\Auth\SessionManager;
 use PHPUnit\Framework\TestCase;
 
 #[AllowMockObjectsWithoutExpectations]
@@ -20,7 +21,7 @@ final class SessionLockDisabledPolicyTest extends TestCase
     {
         $token = str_repeat('a', 64);
         $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects(self::once())->method('execute')->with([$token])->willReturn(true);
+        $statement->expects(self::once())->method('execute')->with([SessionManager::storageId($token)])->willReturn(true);
         $statement->expects(self::once())->method('fetch')->with(\PDO::FETCH_ASSOC)->willReturn([
             'last_user_activity_at' => '2026-07-24 12:00:00.000000',
             'locked_at' => null,

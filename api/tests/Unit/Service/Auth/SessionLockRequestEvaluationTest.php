@@ -14,6 +14,7 @@ use MyPortfolio\Service\Auth\WebAuthnCeremonyStore;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use MyPortfolio\Service\Auth\SessionManager;
 use PHPUnit\Framework\TestCase;
 
 #[AllowMockObjectsWithoutExpectations]
@@ -62,7 +63,7 @@ final class SessionLockRequestEvaluationTest extends TestCase
         $select = $this->createMock(PDOStatement::class);
         $select->expects(self::once())
             ->method('execute')
-            ->with([$token, $cutoff->epochSeconds])
+            ->with([SessionManager::storageId($token), $cutoff->epochSeconds])
             ->willReturn(true);
         $select->expects(self::once())
             ->method('fetch')
@@ -77,7 +78,7 @@ final class SessionLockRequestEvaluationTest extends TestCase
         $update = $this->createMock(PDOStatement::class);
         $update->expects(self::once())
             ->method('execute')
-            ->with([$cutoff->utcSql, 'idle', $token])
+            ->with([$cutoff->utcSql, 'idle', SessionManager::storageId($token)])
             ->willReturn(true);
         $update->expects(self::once())->method('rowCount')->willReturn(1);
 

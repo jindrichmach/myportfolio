@@ -20,7 +20,7 @@ final class SessionManagerHotPathTest extends TestCase
     {
         $token = str_repeat('a', 64);
         $statement = $this->createMock(PDOStatement::class);
-        $statement->expects(self::once())->method('execute')->with([$token])->willReturn(true);
+        $statement->expects(self::once())->method('execute')->with([SessionManager::storageId($token)])->willReturn(true);
         $statement->expects(self::once())->method('fetch')->with(PDO::FETCH_ASSOC)->willReturn([
             'id' => $token,
             'user_id' => '17',
@@ -95,7 +95,7 @@ final class SessionManagerHotPathTest extends TestCase
     {
         $token = str_repeat('a', 64);
         $statement = $this->createMock(PDOStatement::class);
-        $statement->expects(self::once())->method('execute')->with([$token])->willReturn(true);
+        $statement->expects(self::once())->method('execute')->with([SessionManager::storageId($token)])->willReturn(true);
         $pdo = $this->createMock(PDO::class);
         $pdo->expects(self::once())
             ->method('prepare')

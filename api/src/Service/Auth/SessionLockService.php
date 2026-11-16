@@ -120,7 +120,7 @@ final class SessionLockService
                     AND s.revoked_at IS NULL
                   FOR UPDATE'
             );
-            $stmt->execute([$token, $cutoff->epochSeconds]);
+            $stmt->execute([SessionManager::storageId($token), $cutoff->epochSeconds]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($row === false) {
                 $pdo->commit();
@@ -159,7 +159,7 @@ final class SessionLockService
                         SET locked_at = ?, lock_reason = ?
                       WHERE id = ? AND locked_at IS NULL AND replaced_at IS NULL AND revoked_at IS NULL'
                 );
-                $update->execute([$cutoff->utcSql, $reason, $token]);
+                $update->execute([$cutoff->utcSql, $reason, SessionManager::storageId($token)]);
                 if ($update->rowCount() !== 1) {
                     throw new \RuntimeException('Session lock transition se nepodařil.');
                 }
@@ -174,7 +174,7 @@ final class SessionLockService
                         SET last_user_activity_at = ?
                       WHERE id = ? AND locked_at IS NULL AND replaced_at IS NULL AND revoked_at IS NULL'
                 );
-                $update->execute([$cutoff->utcSql, $token]);
+                $update->execute([$cutoff->utcSql, SessionManager::storageId($token)]);
                 if ($update->rowCount() !== 1) {
                     throw new \RuntimeException('Aktivitu session se nepodařilo uložit.');
                 }
@@ -213,7 +213,7 @@ final class SessionLockService
                 AND s.revoked_at IS NULL
               LIMIT 1'
         );
-        $stmt->execute([$token]);
+        $stmt->execute([SessionManager::storageId($token)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return [SessionLockResult::missing(), 0];

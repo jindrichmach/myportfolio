@@ -94,7 +94,7 @@ final class SessionManager
                      ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
-            $token,
+            self::storageId($token),
             $userId,
             $csrf,
             $packedIp,
@@ -168,7 +168,7 @@ final class SessionManager
                 AND s.revoked_at IS NULL
               LIMIT 1'
         );
-        $stmt->execute([$token]);
+        $stmt->execute([self::storageId($token)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
@@ -223,7 +223,7 @@ final class SessionManager
                 AND (replaced_at IS NOT NULL OR revoked_at IS NOT NULL)
               LIMIT 1'
         );
-        $stmt->execute([$token]);
+        $stmt->execute([self::storageId($token)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? self::hydrate($row) : null;
     }
@@ -242,7 +242,7 @@ final class SessionManager
               WHERE id = ? AND expires_at > CURRENT_TIMESTAMP(6)
                 AND replaced_at IS NULL AND revoked_at IS NULL'
         );
-        $stmt->execute([$token]);
+        $stmt->execute([self::storageId($token)]);
     }
 
     /**
@@ -265,7 +265,7 @@ final class SessionManager
                 AND revoked_at IS NULL
                 AND last_seen <= DATE_SUB(CURRENT_TIMESTAMP(6), INTERVAL 5 MINUTE)'
         );
-        $stmt->execute([$token]);
+        $stmt->execute([self::storageId($token)]);
     }
 
     /**
@@ -282,7 +282,7 @@ final class SessionManager
         try {
             $cutoff = $this->securityClock->capture($pdo);
             $family = $pdo->prepare('SELECT session_family_id FROM sessions WHERE id = ? FOR UPDATE');
-            $family->execute([$token]);
+            $family->execute([self::storageId($token)]);
             $familyId = $family->fetchColumn();
             if (!is_string($familyId) || $familyId === '') {
                 $pdo->commit();
@@ -326,7 +326,7 @@ final class SessionManager
                 $stmt = $pdo->prepare(
                     'SELECT session_family_id FROM sessions WHERE id = ? AND user_id = ? LIMIT 1'
                 );
-                $stmt->execute([$exceptToken, $userId]);
+                $stmt->execute([self::storageId($exceptToken), $userId]);
                 $value = $stmt->fetchColumn();
                 $exceptFamily = is_string($value) && $value !== '' ? $value : null;
             }
@@ -407,7 +407,7 @@ final class SessionManager
                     AND revoked_at IS NULL
                   FOR UPDATE'
             );
-            $current->execute([$setupToken, $userId, 'setup', $cutoff->epochSeconds]);
+            $current->execute([self::storageId($setupToken), $userId, 'setup', $cutoff->epochSeconds]);
             if ($current->fetchColumn() === false) {
                 throw new \DomainException('Setup session už není dostupná.');
             }
@@ -428,7 +428,7 @@ final class SessionManager
                          ?, ?, ?, ?, ?, ?, 1)'
             );
             $insert->execute([
-                $token,
+                self::storageId($token),
                 $userId,
                 $csrf,
                 $packedIp,
@@ -483,7 +483,7 @@ final class SessionManager
 
         $pdo = $this->db->pdo();
         $owner = $pdo->prepare('SELECT user_id FROM sessions WHERE id = ? LIMIT 1');
-        $owner->execute([$token]);
+        $owner->execute([self::storageId($token)]);
         $userId = $owner->fetchColumn();
         if ($userId === false) {
             throw new \DomainException('Zamčená session už není dostupná.');
@@ -547,7 +547,7 @@ final class SessionManager
                 AND revoked_at IS NULL
               FOR UPDATE'
         );
-        $select->execute([$token, $userId, $cutoff->epochSeconds]);
+        $select->execute([self::storageId($token), $userId, $cutoff->epochSeconds]);
         $row = $select->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             throw new \DomainException('Zamčená session už není dostupná.');
@@ -580,13 +580,13 @@ final class SessionManager
                 AND locked_at IS NOT NULL AND replaced_at IS NULL AND revoked_at IS NULL'
         );
         $insert->execute([
-            $newToken,
+            self::storageId($newToken),
             $newCsrf,
             $cutoff->epochSeconds,
             $cutoff->utcSql,
             $cutoff->utcSql,
             $unlockMethod,
-            $token,
+            self::storageId($token),
             $userId,
         ]);
         if ($insert->rowCount() !== 1) {
@@ -599,7 +599,7 @@ final class SessionManager
               WHERE id = ? AND user_id = ?
                 AND locked_at IS NOT NULL AND replaced_at IS NULL AND revoked_at IS NULL'
         );
-        $replace->execute([$cutoff->utcSql, $token, $userId]);
+        $replace->execute([$cutoff->utcSql, self::storageId($token), $userId]);
         if ($replace->rowCount() !== 1) {
             throw new \RuntimeException('Původní generaci session se nepodařilo nahradit.');
         }
@@ -635,6 +635,15 @@ final class SessionManager
         $row['session_family_id'] = strtolower((string) $row['session_family_id']);
         unset($row['id']);
         return $row;
+    }
+
+    /**
+     * `sessions.id` drží SHA-256 tokenu z cookie, ne token samotný — únik DB ani zálohy
+     * nedá do ruky platné session (stejně jako u API tokenů).
+     */
+    public static function storageId(string $token): string
+    {
+        return hash('sha256', $token);
     }
 
     private static function isTokenShapeValid(string $token): bool
