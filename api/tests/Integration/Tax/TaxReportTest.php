@@ -185,6 +185,35 @@ final class TaxReportTest extends ApiTestCase
         self::assertStringContainsString('poplatek v BNB není ve výdajích', $csv);
     }
 
+    public function testIncompleteCostIsFlagged(): void
+    {
+        $synw = $this->position($this->account('Wallet'), 'crypto', 'SYNW');
+        // Příchozí převod bez odchozí strany (jako z importu) a odměna bez částky (instrument nemá cenu)
+        // → loty s nulovou nabývací cenou; přepočet lotů spustí až zápis odměny
+        $this->db->pdo()->prepare("INSERT INTO transactions (user_id, position_id, type, executed_at, quantity) VALUES (?, ?, 'transfer_in', '2025-03-01 10:00', 1)")
+            ->execute([$this->userId, $synw]);
+        $reward = $this->call($this->userId, 'POST', '/api/transactions', ['position_id' => $synw, 'type' => 'reward',
+            'executed_at' => '2025-03-02 10:00', 'quantity' => '1']);
+        self::assertSame(201, $reward['status'], $reward['raw']);
+        $this->tx($synw, ['type' => 'sell', 'executed_at' => '2025-06-01 10:00', 'quantity' => '2', 'amount' => '200000']);
+
+        $c = $this->call($this->userId, 'GET', '/api/tax-report?year=2025&rate=daily')['body']['crypto'];
+        self::assertSame([['0.00', 'transfer_without_pair'], ['0.00', 'reward_without_value']],
+            array_map(static fn (array $x) => [$x['expense'], $x['cost_warning']], $c['rows']));
+        $g = $this->call($this->userId, 'GET', '/api/tax-report/filing?year=2025&rate=daily')['body'];
+        self::assertContains('incomplete_cost', $g['warnings']);
+        $csv = $this->call($this->userId, 'GET', '/api/tax-report/export.csv?year=2025&rate=daily')['raw'];
+        self::assertStringContainsString('převod bez odchozí strany — výdaj 0', $csv);
+
+        // Doplněná hodnota odměny: přepočet lotů varování smaže
+        $fixed = $this->call($this->userId, 'PUT', "/api/transactions/{$reward['body']['id']}", ['position_id' => $synw, 'type' => 'reward',
+            'executed_at' => '2025-03-02 10:00', 'quantity' => '1', 'amount' => '90000', 'price_currency' => 'CZK']);
+        self::assertSame(200, $fixed['status'], $fixed['raw']);
+        $c = $this->call($this->userId, 'GET', '/api/tax-report?year=2025&rate=daily')['body']['crypto'];
+        self::assertSame([['0.00', 'transfer_without_pair'], ['90000.00', null]],
+            array_map(static fn (array $x) => [$x['expense'], $x['cost_warning']], $c['rows']));
+    }
+
     public function testFilingCreditNeverExceedsTaxOnRoundedBase(): void
     {
         // 109,90 XTS × 10 = 1 099 Kč hrubě, sraženo 16,50 XTS = 165 Kč: ř. 409 = 1 000 → ř. 410 = 150, 15 % z ř. 411 = 164

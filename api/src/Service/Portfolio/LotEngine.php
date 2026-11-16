@@ -59,11 +59,12 @@ final class LotEngine
 
         foreach ($transactions as $tx) {
             $feeQty = $this->instrumentFee($tx, $this->symbol);
+            $pair = $byGroup[$tx['transfer_group_id'] ?? ''] ?? [];
             match ($tx['type']) {
                 'buy', 'reward' => $this->acquire($tx, $feeQty, $convert, $rewardValue),
                 'sell'          => $this->sell($tx, $feeQty, $convert),
-                'transfer_out'  => $this->transfer($tx, $byGroup[$tx['transfer_group_id']]['transfer_in'] ?? null, $feeQty),
-                'transfer_in'   => isset($byGroup[$tx['transfer_group_id']]['transfer_out'])
+                'transfer_out'  => $this->transfer($tx, $pair['transfer_in'] ?? null, $feeQty),
+                'transfer_in'   => isset($pair['transfer_out'])
                     ? null // zpracováno společně s odchodem
                     : $this->orphanTransferIn($tx),
                 'split'         => $this->split($tx),

@@ -1048,6 +1048,7 @@
     "print": "Print",
     "disclaimer": "The report is an indicative basis, not tax advice. It uses the transactions in the app (FIFO) and the Czech Income Tax Act rules; verify it before filing. Manually valued positions (Portu, savings accounts) are not included in sales.",
     "cap_exceeded": "Income exempt under the holding test exceeded the CZK 40,000,000 cap — the exemption is reduced proportionally.",
+    "incomplete_cost": "Sales with incomplete acquisition cost: {n} — their expense is missing or zero, so the tax comes out higher. The reason is shown on the row in the sales detail; fix or complete the transactions.",
     "sections": {
       "securities": "Securities (stocks, ETFs, funds)",
       "crypto": "Crypto-assets"
@@ -1110,6 +1111,11 @@
     "unified_used": "Unified rates used",
     "fee_lot": "units spent on the sale fee — acquisition cost is an expense",
     "fee_skipped": "fee in {currency} is not in expenses (no CNB rate)",
+    "cost_warnings": {
+      "reward_without_value": "reward without a price — acquisition cost 0 (enter the reward amount)",
+      "transfer_without_pair": "transfer without the outgoing side — acquisition cost 0 (record the transfer from the original account)",
+      "fee_not_converted": "purchase fee missing from the acquisition cost (no CNB rate)"
+    },
     "not_filed": "Reference only — nothing is sent to the tax office. Copy the figures into your return or give them to your adviser.",
     "year_hint": "Last year is the default — that is the year you file the return for.",
     "current_year_link": "This year so far →"
@@ -1519,7 +1525,8 @@
       "crypto_code": "The attachment 2 instructions do not list a code for crypto assets; C — sale of movable things is commonly used. Check with an advisor or the current instructions.",
       "dividend_country_unknown": "Some dividend has no country (instrument without ISIN) — add the ISIN, otherwise the country is “??”.",
       "interest": "Interest from foreign accounts (e.g. at a broker) is also § 8 income and belongs with dividends (row 401a / row 38) — the report cannot tell domestic (withheld) and foreign interest apart, check the Interest section.",
-      "cap_exceeded": "Exempt income exceeded CZK 40 million — part is taxable; the guide accounts for it, but verify it with an advisor."
+      "cap_exceeded": "Exempt income exceeded CZK 40 million — part is taxable; the guide accounts for it, but verify it with an advisor.",
+      "incomplete_cost": "Some sales have an incomplete acquisition cost (purchase missing, reward without a price, transfer without the outgoing side) — the expenses here are lower than they should be. Fix the transactions or adjust the expense manually."
     },
     "advisor_intro": "An advisor needs the summary below and the per-lot sales detail (CSV) to verify acquisition costs and the holding test.",
     "advisor": {

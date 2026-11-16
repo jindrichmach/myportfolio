@@ -1048,6 +1048,7 @@
     "print": "Tisk",
     "disclaimer": "Report je orientační podklad, ne daňové poradenství. Vychází z transakcí v aplikaci (FIFO) a pravidel zákona o daních z příjmů; před podáním přiznání ho ověř. Pozice s ručním oceněním (Portu, spořicí účty) v prodejích nejsou.",
     "cap_exceeded": "Příjmy osvobozené časovým testem přesáhly strop 40 000 000 Kč — osvobození se poměrně krátí.",
+    "incomplete_cost": "Prodeje s neúplnou nabývací cenou: {n} — výdaj u nich chybí nebo je nulový, takže daň vychází vyšší. Důvod je u řádku v detailu prodejů; oprav nebo doplň transakce.",
     "sections": {
       "securities": "Cenné papíry (akcie, ETF, fondy)",
       "crypto": "Kryptoaktiva"
@@ -1110,6 +1111,11 @@
     "unified_used": "Použité jednotné kurzy",
     "fee_lot": "kusy na poplatek prodeje — nabývací cena je výdaj",
     "fee_skipped": "poplatek v {currency} není ve výdajích (kurz ČNB ho neocení)",
+    "cost_warnings": {
+      "reward_without_value": "odměna bez ceny — nabývací cena 0 (doplň částku odměny)",
+      "transfer_without_pair": "převod bez odchozí strany — nabývací cena 0 (zapiš převod z původního účtu)",
+      "fee_not_converted": "poplatek nákupu chybí v nabývací ceně (kurz ČNB ho neocení)"
+    },
     "not_filed": "Jen podklad — nic se neodesílá finančnímu úřadu. Čísla přenes do přiznání nebo je dej poradci.",
     "year_hint": "Výchozí je loňský rok — za ten se podává přiznání.",
     "current_year_link": "Letošní rok průběžně →"
@@ -1519,7 +1525,8 @@
       "crypto_code": "Pokyny k příloze č. 2 kód pro kryptoaktiva neuvádějí; běžně se používá C — prodej movitých věcí. Ověř u poradce nebo v aktuálních pokynech.",
       "dividend_country_unknown": "U některé dividendy chybí stát (instrument bez ISIN) — doplň ISIN, jinak je stát „??“.",
       "interest": "Úroky z účtů v zahraničí (např. u brokera) jsou také příjem podle § 8 a patří k dividendám (ř. 401a / ř. 38) — report tuzemské (zdaněné srážkou) a zahraniční úroky nerozliší, zkontroluj sekci Úroky.",
-      "cap_exceeded": "Osvobozené příjmy přesáhly 40 mil. Kč — část je zdanitelná; podklad s tím počítá, ale ověř ho s poradcem."
+      "cap_exceeded": "Osvobozené příjmy přesáhly 40 mil. Kč — část je zdanitelná; podklad s tím počítá, ale ověř ho s poradcem.",
+      "incomplete_cost": "Některé prodeje mají neúplnou nabývací cenu (chybí nákup, odměna bez ceny, převod bez odchozí strany) — výdaje v podkladu jsou nižší, než by měly být. Oprav transakce, nebo výdaj uprav ručně."
     },
     "advisor_intro": "Pro poradce stačí souhrn níž a detail prodejů po lotech (CSV) — z něj ověří nabývací ceny i časový test.",
     "advisor": {

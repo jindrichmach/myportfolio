@@ -45,6 +45,18 @@ Pravidla osvobození:
 Prodeje kryptoaktiv do 14. 2. 2025 a v dřívějších letech jsou zdanitelné. Směna kryptoměny za
 stablecoin je prodej. Odměny ze stakingu vstupují do lotů hodnotou při připsání.
 
+**Neúplná nabývací cena.** Když aplikace u lotu nezná celou nákupní cenu, je výdaj nulový nebo nižší a daň vychází
+vyšší. Nad reportem se pak ukáže počet takových prodejů a u řádku v detailu důvod:
+
+| Upozornění u řádku | Příčina | Oprava |
+|---|---|---|
+| chybí nákup | Prodej víc kusů, než pozice v tu chvíli podle transakcí držela | Doplň starší nákupy nebo převod z jiného účtu |
+| odměna bez ceny | Odměna bez částky a instrument nemá cenu ke dni připsání | Doplň u odměny částku |
+| převod bez odchozí strany | Příchozí převod (typicky z importu) bez odpovídajícího odchodu | Zapiš převod z původního účtu přes Převést |
+| poplatek nákupu chybí v nabývací ceně | Poplatek nákupu v jiném kryptu (např. BNB), kurz ČNB ho neocení | Uplatni ho ručně v hodnotě v Kč |
+
+Upozornění se přenáší i do CSV exportu a do podkladu pro přiznání.
+
 Dílčí základ daně patří do přílohy č. 2 přiznání (ostatní příjmy podle § 10).
 
 > 🛈 Poznámka: Pozice s ručním oceněním (Portu, spořicí účty) nemají loty, v prodejích nejsou.

@@ -23,6 +23,21 @@ final class LotRepository
             ->execute([$userId, $instrumentId]);
     }
 
+    /**
+     * Přepíše upozornění enginu pro instrument uživatele.
+     *
+     * @param list<array{code:string,transaction_id:int}> $warnings
+     */
+    public function replaceWarnings(int $userId, int $instrumentId, array $warnings): void
+    {
+        $pdo = $this->db->pdo();
+        $pdo->prepare('DELETE FROM lot_warnings WHERE user_id = ? AND instrument_id = ?')->execute([$userId, $instrumentId]);
+        $insert = $pdo->prepare('INSERT IGNORE INTO lot_warnings (user_id, instrument_id, transaction_id, code) VALUES (?, ?, ?, ?)');
+        foreach ($warnings as $w) {
+            $insert->execute([$userId, $instrumentId, $w['transaction_id'], $w['code']]);
+        }
+    }
+
     /** @param array<string,?string|int> $lot */
     public function insertLot(int $userId, int $instrumentId, array $lot): int
     {

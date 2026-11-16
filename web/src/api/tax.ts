@@ -22,6 +22,8 @@ export interface TaxLotRow {
   fee_lot: boolean
   /** Poplatek v jiném kryptu (BNB…) — kurz ČNB ho neocení, ve výdajích není */
   fee_skipped: string | null
+  /** Lot vznikl transakcí s neúplnou nabývací cenou (odměna bez ceny, převod bez páru, poplatek nákupu bez kurzu) */
+  cost_warning: 'reward_without_value' | 'transfer_without_pair' | 'fee_not_converted' | null
 }
 
 export interface TaxSection {
@@ -60,7 +62,7 @@ export interface TaxReport {
 }
 
 export type DividendMethod = '16a' | '38'
-export type FilingWarning = 'unverified_year' | 'crypto_code' | 'dividend_country_unknown' | 'interest' | 'cap_exceeded'
+export type FilingWarning = 'unverified_year' | 'crypto_code' | 'dividend_country_unknown' | 'interest' | 'cap_exceeded' | 'incomplete_cost'
 
 /** Podklad k přepisu do přiznání — částky v celých Kč jako stringy */
 export interface FilingGuide {

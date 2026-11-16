@@ -45,6 +45,19 @@ Exemption rules:
 Sales of crypto assets until 14 Feb 2025 and in earlier years are taxable. Exchanging a cryptocurrency for a
 stablecoin is a sale. Staking rewards enter the lots at their value when credited.
 
+**Incomplete acquisition cost.** When the app does not know the full purchase price of a lot, the expense is zero or
+lower and the tax comes out higher. The report then shows the number of such sales above it, and the reason on the
+row in the detail:
+
+| Note on the row | Cause | Fix |
+|---|---|---|
+| purchase missing | The sale is for more units than the position held at the time according to the transactions | Add the older purchases or a transfer from another account |
+| reward without a price | A reward without an amount, and the instrument has no price on the day it was credited | Enter the amount on the reward |
+| transfer without the outgoing side | An incoming transfer (typically from an import) without a matching outgoing one | Record the transfer from the original account with Transfer |
+| purchase fee missing from the acquisition cost | The purchase fee is in a different crypto (e.g. BNB), which cannot be valued at the CNB rate | Claim it manually at its CZK value |
+
+The note also carries over to the CSV export and the filing guide.
+
 The partial tax base belongs in Příloha č. 2 (Attachment 2) of the tax return (other income under § 10).
 
 > 🛈 Note: Positions with manual valuation (Portu, savings accounts) have no lots and are not among the sales.

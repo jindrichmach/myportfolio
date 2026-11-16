@@ -28,19 +28,27 @@ final class TaxRepository
      */
     public function sales(int $userId, int $year): array
     {
+        // cost_warning: lot vznikl transakcí, u které engine nabývací cenu nezjistil celou (nulová cena, chybí poplatek)
         $stmt = $this->db->pdo()->prepare(
-            'SELECT t.id AS transaction_id, t.executed_at, t.quantity AS sold_quantity, t.amount, t.price_currency, t.fee, t.fee_currency,
+            'WITH w AS (
+                SELECT transaction_id, MIN(code) AS code
+                  FROM lot_warnings
+                 WHERE user_id = ? AND code IN (\'reward_without_value\', \'transfer_without_pair\', \'fee_not_converted\')
+                 GROUP BY transaction_id
+             )
+             SELECT t.id AS transaction_id, t.executed_at, t.quantity AS sold_quantity, t.amount, t.price_currency, t.fee, t.fee_currency,
                     ins.id AS instrument_id, ins.asset_class, ins.symbol, ins.name AS instrument_name, ins.isin,
                     inst.name AS institution_name, acc.name AS account_name,
-                    d.kind, d.quantity, d.cost_amount, d.cost_currency, l.acquired_at
+                    d.kind, d.quantity, d.cost_amount, d.cost_currency, l.acquired_at, w.code AS cost_warning
                FROM transactions t
                ' . self::POSITION . '
                JOIN lot_disposals d ON d.transaction_id = t.id AND d.user_id = t.user_id AND d.kind IN (\'sell\', \'fee\')
                JOIN tax_lots l ON l.id = d.lot_id AND l.user_id = t.user_id
+          LEFT JOIN w ON w.transaction_id = l.source_transaction_id
               WHERE t.user_id = ? AND t.type = \'sell\' AND t.executed_at >= ? AND t.executed_at < ?
               ORDER BY t.executed_at, t.id, l.acquired_at, d.id'
         );
-        $stmt->execute([$userId, "$year-01-01", ($year + 1) . '-01-01']);
+        $stmt->execute([$userId, $userId, "$year-01-01", ($year + 1) . '-01-01']);
         return array_map(static function (array $r): array {
             foreach (['transaction_id', 'instrument_id'] as $k) {
                 $r[$k] = (int) $r[$k];

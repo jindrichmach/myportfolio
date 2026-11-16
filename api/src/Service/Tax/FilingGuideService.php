@@ -64,6 +64,12 @@ final class FilingGuideService
         if ($report['crypto']['taxable_income'] !== '0.00') {
             $warnings[] = 'crypto_code';
         }
+        foreach ([CzTaxRules::SECURITIES, CzTaxRules::CRYPTO] as $class) {
+            if (array_filter($report[$class]['rows'], static fn (array $r) => $r['acquired_at'] === null || $r['cost_warning'] !== null) !== []) {
+                $warnings[] = 'incomplete_cost';
+                break;
+            }
+        }
 
         // Dividendy ze zahraničí
         $countries = $report['dividends']['countries'];

@@ -27,6 +27,11 @@ final class TaxReportAction
         'time_test_capped' => 'časový test — kráceno stropem 40 mil. Kč', 'before_crypto_exemption' => 'zdanitelné — prodej před 15. 2. 2025',
         'none' => 'zdanitelné',
     ];
+    private const COST_WARNINGS = [
+        'reward_without_value'  => 'odměna bez ceny — výdaj 0',
+        'transfer_without_pair' => 'převod bez odchozí strany — výdaj 0',
+        'fee_not_converted'     => 'poplatek nákupu není ve výdaji',
+    ];
 
     public function __construct(
         private readonly TaxReportService $reports,
@@ -66,7 +71,9 @@ final class TaxReportAction
                     $r['acquired_at'] !== null ? substr($r['acquired_at'], 0, 10) : '', self::dec($r['income']), self::dec($r['expense']),
                     self::dec($r['gain']), trim((self::EXEMPTIONS[$r['exemption']] ?? $r['exemption'])
                         . ($r['fee_lot'] ? ' · kusy na poplatek prodeje' : '')
-                        . ($r['fee_skipped'] !== null ? " · poplatek v {$r['fee_skipped']} není ve výdajích" : ''))], ';', '"', '');
+                        . ($r['fee_skipped'] !== null ? " · poplatek v {$r['fee_skipped']} není ve výdajích" : '')
+                        . ($r['acquired_at'] === null ? ' · chybí nákup — výdaj 0' : '')
+                        . ($r['cost_warning'] !== null ? ' · ' . self::COST_WARNINGS[$r['cost_warning']] : ''))], ';', '"', '');
             }
         }
         fputcsv($out, [], ';', '"', '');

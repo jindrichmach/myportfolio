@@ -110,16 +110,18 @@ final class TaxReportService
                     $rows[] = ['class' => $class, 'transaction_id' => $tx['transaction_id'], 'disposed_at' => $tx['executed_at'], 'acquired_at' => $p['acquired_at'],
                         'symbol' => $tx['symbol'], 'name' => $tx['instrument_name'], 'isin' => $tx['isin'],
                         'account' => $tx['institution_name'] . ' · ' . $tx['account_name'], 'currency' => $tx['price_currency'],
-                        'quantity' => $qty, 'income' => BigDecimal::zero(), 'expense' => $cost, 'fee_lot' => true, 'fee_skipped' => null];
+                        'quantity' => $qty, 'income' => BigDecimal::zero(), 'expense' => $cost, 'fee_lot' => true, 'fee_skipped' => null, 'cost_warning' => $p['cost_warning']];
                     continue;
                 }
                 $matched = $matched->plus($qty);
-                $rows[] = $this->lotRow($tx, $class, $qty, $sold, $gross, $fee, $p['acquired_at'], $cost) + ['fee_lot' => false, 'fee_skipped' => $feeSkipped];
+                $rows[] = $this->lotRow($tx, $class, $qty, $sold, $gross, $fee, $p['acquired_at'], $cost)
+                    + ['fee_lot' => false, 'fee_skipped' => $feeSkipped, 'cost_warning' => $p['cost_warning']];
             }
             // Část prodeje bez nákupu (chybějící historie) — zdanitelná s nulovým výdajem
             $missing = $sold->minus($matched);
             if ($missing->isPositive()) {
-                $rows[] = $this->lotRow($tx, $class, $missing, $sold, $gross, $fee, null, BigDecimal::zero()) + ['fee_lot' => false, 'fee_skipped' => $feeSkipped];
+                $rows[] = $this->lotRow($tx, $class, $missing, $sold, $gross, $fee, null, BigDecimal::zero())
+                    + ['fee_lot' => false, 'fee_skipped' => $feeSkipped, 'cost_warning' => null];
             }
         }
         return $rows;
@@ -233,7 +235,7 @@ final class TaxReportService
                 'quantity' => (string) $r['quantity']->strippedOfTrailingZeros(),
                 'income' => self::money($r['income']), 'expense' => self::money($r['expense']),
                 'gain' => self::money($r['income']->minus($r['expense'])), 'exemption' => $r['exemption'],
-                'fee_lot' => $r['fee_lot'], 'fee_skipped' => $r['fee_skipped'],
+                'fee_lot' => $r['fee_lot'], 'fee_skipped' => $r['fee_skipped'], 'cost_warning' => $r['cost_warning'],
             ];
         }
         $result = $sum['taxable_income']->minus($sum['taxable_expense']);

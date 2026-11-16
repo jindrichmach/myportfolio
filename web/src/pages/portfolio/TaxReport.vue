@@ -49,6 +49,8 @@ const czk = (v: string) => formatDec(v, 2, 'CZK')
 const sections = computed(() => report.value
   ? ([['securities', report.value.securities], ['crypto', report.value.crypto]] as [string, TaxSection][])
   : [])
+const incompleteCost = computed(() => sections.value
+  .reduce((n, [, s]) => n + s.rows.filter(r => r.acquired_at === null || r.cost_warning !== null).length, 0))
 
 const EXEMPTION_TONES: Record<Exemption, BadgeTone> = {
   limit: 'success',
@@ -128,6 +130,7 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
     <div v-else-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-4 py-3 text-sm text-danger-500">{{ error }}</div>
     <template v-else-if="report">
       <p v-if="report.cap_exceeded" class="rounded-md bg-warning-50 border border-warning-500/40 text-warning-600 px-4 py-3 text-sm mb-4">{{ t('tax.cap_exceeded') }}</p>
+      <p v-if="incompleteCost" class="rounded-md bg-warning-50 border border-warning-500/40 text-warning-600 px-4 py-3 text-sm mb-4">{{ t('tax.incomplete_cost', { n: incompleteCost }) }}</p>
 
       <!-- Prodeje: cenné papíry a kryptoaktiva -->
       <div class="grid gap-4 lg:grid-cols-2 mb-4">
@@ -173,6 +176,7 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
               <span class="block mt-0.5"><Badge :tone="EXEMPTION_TONES[r.exemption]">{{ t(`tax.exemptions.${r.exemption}`) }}</Badge></span>
               <span v-if="r.fee_lot" class="block mt-0.5 text-xs text-neutral-500">{{ t('tax.fee_lot') }}</span>
               <span v-if="r.fee_skipped" class="block mt-0.5 text-xs text-warning-600">{{ t('tax.fee_skipped', { currency: r.fee_skipped }) }}</span>
+              <span v-if="r.cost_warning" class="block mt-0.5 text-xs text-warning-600">{{ t(`tax.cost_warnings.${r.cost_warning}`) }}</span>
             </template>
             <template #cell-income="{ row: r }">{{ czk(r.income) }}</template>
             <template #cell-expense="{ row: r }">{{ czk(r.expense) }}</template>

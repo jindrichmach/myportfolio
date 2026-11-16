@@ -16,7 +16,7 @@ use MyPortfolio\Support\Decimal;
 
 /**
  * Přepočítá FIFO loty jednoho instrumentu uživatele z transakcí (všech jeho pozic)
- * a přepíše `tax_lots` / `lot_disposals`. Volá se v DB transakci TransactionService.
+ * a přepíše `tax_lots` / `lot_disposals` / `lot_warnings`. Volá se v DB transakci TransactionService.
  */
 final class LotRebuilder
 {
@@ -67,6 +67,10 @@ final class LotRebuilder
                 'proceeds_currency' => $d['proceeds_currency'],
             ]);
         }
+        $this->lots->replaceWarnings($userId, $instrumentId, array_map(static function (string $w): array {
+            [$code, $transactionId] = explode(':', $w, 2);
+            return ['code' => $code, 'transaction_id' => (int) $transactionId];
+        }, $result['warnings']));
         return $result['warnings'];
     }
 
