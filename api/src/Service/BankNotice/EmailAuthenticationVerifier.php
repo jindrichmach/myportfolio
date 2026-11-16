@@ -30,9 +30,7 @@ final class EmailAuthenticationVerifier
         $line = $authResults[0];
         $trustedAuthServId = $trustedAuthServId !== null ? strtolower(trim($trustedAuthServId)) : '';
         if ($trustedAuthServId !== '') {
-            // authserv-id = první token před „;" (za ním smí být verze: „mx.example.com 1")
-            $servId = strtolower((string) (preg_split('/\s+/', trim(explode(';', $line, 2)[0]))[0] ?? ''));
-            if ($servId !== $trustedAuthServId) {
+            if ($this->authServId($authResults) !== $trustedAuthServId) {
                 return ['checked' => true, 'pass' => false, 'detail' => 'authserv_id_mismatch'];
             }
         }
@@ -59,6 +57,18 @@ final class EmailAuthenticationVerifier
         }
 
         return ['checked' => true, 'pass' => false, 'detail' => 'auth_failed'];
+    }
+
+    /**
+     * authserv-id nejvyšší (naším serverem přidané) hlavičky A-R = první token před „;"
+     * (za ním smí být verze: „mx.example.com 1").
+     *
+     * @param list<string> $authResults
+     */
+    public function authServId(array $authResults): ?string
+    {
+        $id = strtolower((string) (preg_split('/\s+/', trim(explode(';', $authResults[0] ?? '', 2)[0]))[0] ?? ''));
+        return $id !== '' ? $id : null;
     }
 
     /**

@@ -14,7 +14,7 @@ use PDO;
 final class ImapAccountRepository
 {
     private const COLUMNS = 'id, name, enabled, host, port, encryption, validate_cert, username, folder,
-                             max_messages_per_run, require_email_auth, auth_serv_id,
+                             max_messages_per_run, require_email_auth, auth_serv_id, detected_auth_serv_id,
                              last_scan_at, last_scan_status, last_scan_message, created_at';
 
     public function __construct(private readonly Connection $db) {}
@@ -89,6 +89,24 @@ final class ImapAccountRepository
     public function delete(int $userId, int $id): void
     {
         $this->db->pdo()->prepare('DELETE FROM imap_accounts WHERE user_id = ? AND id = ?')->execute([$userId, $id]);
+    }
+
+    public function setDetectedAuthServId(int $userId, int $id, string $authServId): void
+    {
+        $this->db->pdo()->prepare('UPDATE imap_accounts SET detected_auth_serv_id = ? WHERE user_id = ? AND id = ?')
+            ->execute([mb_substr($authServId, 0, 190), $userId, $id]);
+    }
+
+    /**
+     * Po změně důvěryhodného authserv-id: zapomene zamítnutá avíza schránky (další čtení je zpracuje znovu)
+     * a zjištěný authserv-id.
+     */
+    public function resetAuthRejections(int $userId, int $id): void
+    {
+        $pdo = $this->db->pdo();
+        $pdo->prepare("DELETE FROM bank_notice_messages WHERE user_id = ? AND imap_account_id = ? AND status = 'security_rejected'")
+            ->execute([$userId, $id]);
+        $pdo->prepare('UPDATE imap_accounts SET detected_auth_serv_id = NULL WHERE user_id = ? AND id = ?')->execute([$userId, $id]);
     }
 
     public function updateScanStatus(int $userId, int $id, string $status, ?string $message): void

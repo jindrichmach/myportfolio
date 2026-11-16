@@ -70,7 +70,7 @@ function openCreate() {
   showForm.value = true
 }
 function openEdit(a: ImapAccount) {
-  const { id, last_scan_at, last_scan_status, last_scan_message, ...rest } = a
+  const { id, detected_auth_serv_id, last_scan_at, last_scan_status, last_scan_message, ...rest } = a
   Object.assign(form, { ...rest, password: '' })
   editId.value = id
   formError.value = ''
@@ -90,6 +90,18 @@ async function save() {
     formError.value = apiErrorMessage(e, t('common.error'))
   } finally {
     formBusy.value = false
+  }
+}
+
+/** Potvrdí authserv-id zjištěný z hlavičky avíza — zamítnutá avíza schránky se při dalším čtení zpracují znovu */
+async function confirmAuthServ(a: ImapAccount) {
+  if (!a.detected_auth_serv_id) return
+  const { id, detected_auth_serv_id, last_scan_at, last_scan_status, last_scan_message, ...rest } = a
+  try {
+    await bankNoticesApi.update(id, { ...rest, password: '', auth_serv_id: detected_auth_serv_id })
+    await load()
+  } catch (e) {
+    toast.error(apiErrorMessage(e, t('common.error')))
   }
 }
 
@@ -183,6 +195,13 @@ const noticeKey = (n: BankNotice) => n.id
               <IconButton icon="edit" :label="t('common.edit')" @click="openEdit(a)" />
               <IconButton icon="trash" variant="danger" :label="t('common.delete')" @click="remove(a)" />
             </div>
+          </div>
+          <div v-if="a.require_email_auth && !a.auth_serv_id" class="mt-3 text-sm rounded-md px-3 py-2 bg-warning-50 border border-warning-500/40 text-warning-600">
+            <template v-if="a.detected_auth_serv_id">
+              {{ t('bank_notices.auth_serv_detected', { id: a.detected_auth_serv_id }) }}
+              <button type="button" class="cursor-pointer ml-1 font-medium underline" @click="confirmAuthServ(a)">{{ t('bank_notices.auth_serv_confirm') }}</button>
+            </template>
+            <template v-else>{{ t('bank_notices.auth_serv_missing') }}</template>
           </div>
           <div v-if="testResult[a.id]" class="mt-3 text-sm rounded-md px-3 py-2" :class="testResult[a.id].ok ? 'bg-success-50 text-success-600' : 'bg-danger-50 text-danger-500'">
             {{ testResult[a.id].message }}

@@ -143,6 +143,9 @@
     "advanced": "Advanced",
     "max_messages": "Messages per run",
     "auth_serv_id": "Trusted authserv-id",
+    "auth_serv_detected": "Notices are waiting for you to confirm your mail server. The check in the last notice was added by the server \"{id}\" — is it your receiving server (e.g. Gmail mx.google.com)?",
+    "auth_serv_confirm": "Yes, confirm",
+    "auth_serv_missing": "Fill in the trusted authserv-id (Edit → Advanced) — without it notices are not recorded. The app offers it after the first received notice.",
     "position_account": "Account number for bank notices",
     "notices_from": "Notices from",
     "position_hint": "Notices for this account are recorded in this position. Without a date they continue from the last manual valuation."

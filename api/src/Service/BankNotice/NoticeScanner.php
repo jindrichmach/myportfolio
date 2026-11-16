@@ -158,7 +158,17 @@ final class NoticeScanner
         ];
 
         if ($settings['require_email_auth']) {
-            $verdict = $this->auth->verify($message->authResults, $parser->senderDomain(), $settings['auth_serv_id'] ?: null);
+            if (($settings['auth_serv_id'] ?? '') === '') {
+                // Hlavičku A-R může vložit i odesílatel — bez potvrzeného serveru se nezapisuje nic;
+                // zjištěný authserv-id si uživatel potvrdí v nastavení schránky a avízo se načte znovu
+                $detected = $this->auth->authServId($message->authResults);
+                if ($detected !== null) {
+                    $this->accounts->setDetectedAuthServId($userId, (int) $settings['id'], $detected);
+                }
+                return $this->fail($userId, $base, 'security_rejected', 'Není potvrzený důvěryhodný authserv-id schránky'
+                    . ($detected !== null ? " (v hlavičce: {$detected})" : '') . ' — potvrď ho v nastavení schránky.');
+            }
+            $verdict = $this->auth->verify($message->authResults, $parser->senderDomain(), (string) $settings['auth_serv_id']);
             if (!$verdict['pass']) {
                 return $this->fail($userId, $base, 'security_rejected', 'E-mail neprošel ověřením DKIM/DMARC: ' . $verdict['detail']);
             }

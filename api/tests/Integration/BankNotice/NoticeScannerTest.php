@@ -28,7 +28,7 @@ final class NoticeScannerTest extends ApiTestCase
     }
 
     /** @return array{position:int,settings:array<string,mixed>} */
-    private function linkedPosition(): array
+    private function linkedPosition(?string $authServId = 'mx.example.invalid'): array
     {
         $bank = $this->call($this->userId, 'POST', '/api/institutions', ['name' => 'Synthetic Notice Bank', 'type' => 'bank']);
         $account = $this->call($this->userId, 'POST', '/api/accounts', ['institution_id' => $bank['body']['id'], 'name' => 'Savings']);
@@ -44,7 +44,7 @@ final class NoticeScannerTest extends ApiTestCase
         $imapId = $imap->create($this->userId, [
             'name' => 'Test', 'enabled' => true, 'host' => 'imap.example.invalid', 'port' => 993, 'encryption' => 'ssl',
             'validate_cert' => true, 'username' => 'notices@example.invalid', 'password_enc' => 'unused', 'folder' => 'INBOX',
-            'max_messages_per_run' => 50, 'require_email_auth' => true, 'auth_serv_id' => null,
+            'max_messages_per_run' => 50, 'require_email_auth' => true, 'auth_serv_id' => $authServId,
         ]);
         return ['position' => $id, 'settings' => $imap->withSecret($this->userId, $imapId) ?? []];
     }
@@ -105,5 +105,29 @@ final class NoticeScannerTest extends ApiTestCase
         self::assertSame(['fetched' => 8, 'imported' => 0, 'known' => 7, 'ignored' => 1, 'failed' => 0], $second);
         self::assertCount(4, $this->call($this->userId, 'GET', "/api/transactions?position_id=$pid")['body']['data']);
         self::assertSame([], $this->container->get(BankNoticeRepository::class)->list($this->adminId));
+    }
+
+    public function testNoticesWaitForConfirmedAuthServId(): void
+    {
+        ['position' => $pid, 'settings' => $settings] = $this->linkedPosition(null);
+        $messages = [self::fio('01.09.2026', 'zvýšil', '1 000,00', '1 000,00', '7654320005/0800', 'Příchozí platba')];
+        $scanner = $this->container->get(NoticeScanner::class);
+
+        // Bez potvrzeného serveru se nic nezapíše — hlavičku A-R mohl vložit odesílatel
+        self::assertSame(0, $scanner->process($this->userId, $settings, $messages)['imported']);
+        self::assertSame('security_rejected', $this->container->get(BankNoticeRepository::class)->list($this->userId)[0]['status']);
+        $imapId = (int) $settings['id'];
+        $account = $this->call($this->userId, 'GET', '/api/settings/imap-accounts')['body'][0];
+        self::assertSame('mx.example.invalid', $account['detected_auth_serv_id']);
+
+        // Potvrzení v nastavení: zamítnuté avízo se zapomene a další čtení ho zapíše
+        $put = $this->call($this->userId, 'PUT', "/api/settings/imap-accounts/$imapId", ['name' => 'Test', 'host' => '203.0.113.10',
+            'port' => 993, 'encryption' => 'ssl', 'username' => 'notices@example.invalid', 'folder' => 'INBOX',
+            'require_email_auth' => true, 'auth_serv_id' => 'mx.example.invalid']);
+        self::assertSame(200, $put['status'], json_encode($put['body']) ?: '');
+        self::assertNull($put['body']['detected_auth_serv_id']);
+        $settings = $this->container->get(ImapAccountRepository::class)->withSecret($this->userId, $imapId) ?? [];
+        self::assertSame(1, $scanner->process($this->userId, $settings, $messages)['imported']);
+        self::assertCount(1, $this->call($this->userId, 'GET', "/api/transactions?position_id=$pid")['body']['data']);
     }
 }

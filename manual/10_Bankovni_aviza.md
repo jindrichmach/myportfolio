@@ -44,6 +44,7 @@ Když přijde víc avíz za jeden den, platí zůstatek z posledního.
 | Uživatel, heslo | Přihlášení do schránky; heslo se ukládá šifrovaně a už se nezobrazí. Při úpravě prázdné heslo = beze změny |
 | Složka | Kde avíza leží (výchozí `INBOX`) |
 | Ověřovat pravost e-mailu | Avízo se zapíše, jen když ho poštovní server ověřil (DKIM/DMARC) jako odeslané bankou — ochrana proti podvrženým e-mailům |
+| Důvěryhodný authserv-id (Pokročilé) | Název tvého přijímacího serveru v hlavičce ověření (např. `mx.google.com`). Bez něj se avíza nezapisují — výsledek ověření může do e-mailu vložit i odesílatel. Po prvním avízu aplikace server nabídne u schránky tlačítkem **Ano, potvrdit**; dosud odmítnutá avíza se pak zpracují znovu, pokud jsou ještě mezi načítanými zprávami |
 | Načítat automaticky | Schránka se čte každých 15 minut |
 
 Tlačítko **Test připojení** ověří přihlášení a vypíše složky schránky, **Načíst teď**
@@ -77,7 +78,7 @@ Pod schránkami je přehled napojených účtů a seznam posledních zpracovaný
 | před napojením | Avízo je starší než datum **Avíza od** |
 | nenapojený účet | Číslo účtu z avíza nemá žádná ruční pozice (nebo maska odpovídá víc pozicím) — doplň ho a avízo se zpracuje při dalším běhu, pokud je ještě mezi načítanými zprávami |
 | nečitelné | E-mail od banky, ale v nečekaném formátu |
-| neověřený odesílatel | E-mail neprošel ověřením DKIM/DMARC |
+| neověřený odesílatel | E-mail neprošel ověřením DKIM/DMARC, nebo schránka ještě nemá potvrzený authserv-id |
 | chyba zápisu | Např. výběr by převýšil vklady pozice |
 
 E-maily, které nejsou avízem žádné z podporovaných bank, se ignorují a v seznamu nejsou.

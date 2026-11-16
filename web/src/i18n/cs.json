@@ -143,6 +143,9 @@
     "advanced": "Pokročilé",
     "max_messages": "Zpráv na jeden běh",
     "auth_serv_id": "Důvěryhodný authserv-id",
+    "auth_serv_detected": "Avíza čekají na potvrzení tvého poštovního serveru. Ověření v posledním avízu přidal server „{id}“ — je to tvůj přijímací server (např. Gmail mx.google.com)?",
+    "auth_serv_confirm": "Ano, potvrdit",
+    "auth_serv_missing": "Doplň důvěryhodný authserv-id (Upravit → Pokročilé) — bez něj se avíza nezapíšou. Aplikace ho nabídne po prvním přijatém avízu.",
     "position_account": "Číslo účtu pro bankovní avíza",
     "notices_from": "Avíza od",
     "position_hint": "Avíza z tohoto účtu se zapíší do pozice. Bez data navážou na poslední ruční ocenění."

@@ -58,7 +58,12 @@ final class BankNoticesAction
         try {
             $userId = CurrentUser::id($request);
             $id = $this->owned($userId, $args);
-            $this->accounts->update($userId, $id, $this->input($userId, (array) ($request->getParsedBody() ?? []), false));
+            $before = $this->accounts->find($userId, $id);
+            $data = $this->input($userId, (array) ($request->getParsedBody() ?? []), false);
+            $this->accounts->update($userId, $id, $data);
+            if ($data['auth_serv_id'] !== null && $data['auth_serv_id'] !== ($before['auth_serv_id'] ?? null)) {
+                $this->accounts->resetAuthRejections($userId, $id);
+            }
             return Json::ok($response, $this->accounts->find($userId, $id));
         } catch (DomainError $e) {
             return Json::domainError($response, $e);

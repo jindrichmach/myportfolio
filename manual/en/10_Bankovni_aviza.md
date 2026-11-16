@@ -44,6 +44,7 @@ When several notices arrive for one day, the balance from the last one applies.
 | Username, password | Login to the mailbox; the password is stored encrypted and is never shown again. When editing, an empty password = unchanged |
 | Folder | Where the notices are (default `INBOX`) |
 | Verify e-mail authenticity | A notice is recorded only when the mail server verified it (DKIM/DMARC) as sent by the bank — protection against forged e-mails |
+| Trusted authserv-id (Advanced) | The name of your receiving server in the verification header (e.g. `mx.google.com`). Without it notices are not recorded — the verification result can also be inserted into the e-mail by the sender. After the first notice the app offers the server at the mailbox with the **Yes, confirm** button; notices rejected so far are then processed again if they are still among the messages being read |
 | Read automatically | The mailbox is read every 15 minutes |
 
 The **Test connection** button verifies the login and lists the mailbox folders, **Read now**
@@ -77,7 +78,7 @@ Below the mailboxes is an overview of linked accounts and a list of the most rec
 | before link | The notice is older than the **Notices from** date |
 | unlinked account | No manual position has the account number from the notice (or the mask matches several positions) — fill it in and the notice is processed on the next run, if it is still among the fetched messages |
 | unreadable | An e-mail from the bank, but in an unexpected format |
-| unverified sender | The e-mail failed DKIM/DMARC verification |
+| unverified sender | The e-mail failed DKIM/DMARC verification, or the mailbox does not have a confirmed authserv-id yet |
 | write error | E.g. a withdrawal would exceed the position's deposits |
 
 E-mails that are not a notice from any of the supported banks are ignored and do not appear in the list.

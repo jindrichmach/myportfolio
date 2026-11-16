@@ -15,13 +15,15 @@ export interface ImapAccount {
   max_messages_per_run: number
   require_email_auth: boolean
   auth_serv_id: string | null
+  /** authserv-id z hlavičky posledního avíza, dokud uživatel důvěryhodný server nepotvrdí */
+  detected_auth_serv_id: string | null
   last_scan_at: string | null
   last_scan_status: 'ok' | 'error' | null
   last_scan_message: string | null
 }
 
 /** Heslo jen při zápisu; prázdné při úpravě = beze změny. */
-export type ImapAccountInput = Omit<ImapAccount, 'id' | 'last_scan_at' | 'last_scan_status' | 'last_scan_message'> & { password: string }
+export type ImapAccountInput = Omit<ImapAccount, 'id' | 'detected_auth_serv_id' | 'last_scan_at' | 'last_scan_status' | 'last_scan_message'> & { password: string }
 
 export type NoticeStatus = 'imported' | 'skipped_old' | 'unmapped' | 'parse_failed' | 'security_rejected' | 'import_failed'
 
