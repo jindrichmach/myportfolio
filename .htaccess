@@ -41,18 +41,14 @@ Options -Indexes -MultiViews
     RewriteRule ^manifest\.webmanifest$ web/dist/manifest.webmanifest [E=NOCACHE:1,L]
     RewriteRule ^pwa/(.*)$ web/dist/pwa/$1 [L]
 
-    # 3) /api/* → api/public/index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^api/(.*)$ api/public/index.php [L,QSA]
+    # 3) /api/* → vždy api/public/index.php (soubory z api/ se neservírují)
+    RewriteCond %{REQUEST_URI} !^/api/public/index\.php$
+    RewriteRule ^api/ api/public/index.php [L,QSA]
 
-    # 4) SPA fallback (vše co není reálný soubor a není /api/* → web/dist/index.html).
-    # `!-d` schválně NEPOUŽÍVÁME, jinak by `/` (= docroot dir) tímhle pravidlem neprošlo
-    # a Apache by hodil 403 (Options -Indexes + chybějící DirectoryIndex). Statické
-    # cesty mají `!-f`, takže je rewrite vynechá.
-    RewriteCond %{REQUEST_URI} !^/api/
-    RewriteCond %{REQUEST_URI} !^/web/
-    RewriteCond %{REQUEST_FILENAME} !-f
+    # 4) Deny by default + SPA fallback: soubory jen z web/dist (build) a styles/, vše ostatní
+    # → web/dist/index.html. Zdrojáky repozitáře (web/src, Dockerfile, …) ani jiné .php se nevydají.
+    RewriteCond %{REQUEST_URI} !^/(web/dist|styles)/
+    RewriteCond %{REQUEST_URI} !^/api/public/index\.php$
     RewriteRule ^ web/dist/index.html [L]
 </IfModule>
 
