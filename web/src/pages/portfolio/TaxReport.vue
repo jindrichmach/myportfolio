@@ -9,6 +9,7 @@ import Badge, { type BadgeTone } from '@/components/ui/Badge.vue'
 import { taxApi, type Exemption, type RateMethod, type TaxReport, type TaxSection } from '@/api/tax'
 import { apiErrorMessage } from '@/api/errors'
 import { formatDate, formatDec } from '@/composables/useFormat'
+import Icon from '@/components/ui/Icon.vue'
 import ManualLink from '@/components/ui/ManualLink.vue'
 
 const { t } = useI18n()
@@ -121,10 +122,17 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
       <button v-if="offerCurrentYear" type="button" class="cursor-pointer ml-1 text-primary-700 hover:underline" @click="year = currentYear">{{ t('tax.current_year_link') }}</button>
     </p>
 
-    <p class="text-xs text-neutral-500 bg-surface border border-neutral-200 rounded-lg shadow-sm px-4 py-2.5 mb-4">
-      {{ t('tax.disclaimer') }}
-      <span class="hidden print:inline"> {{ t(`tax.rates.${rate}`) }}.</span>
-    </p>
+    <div role="note" class="flex gap-3 rounded-lg border border-warning-500/40 bg-warning-50 px-4 py-3 mb-4 text-sm text-warning-600">
+      <Icon name="warning" class="w-5 h-5 shrink-0 mt-0.5" />
+      <div class="space-y-1">
+        <p class="font-semibold">{{ t('tax.disclaimer_title') }}</p>
+        <p>{{ t('tax.disclaimer') }}<span class="hidden print:inline"> {{ t(`tax.rates.${rate}`) }}.</span></p>
+        <p v-if="report" class="text-xs">
+          {{ t('tax.rules_verified', { date: formatDate(report.rules.verified_at) }) }}
+          <a :href="report.rules.source_url" target="_blank" rel="noopener" class="underline">{{ t('tax.rules_source') }}</a>
+        </p>
+      </div>
+    </div>
 
     <div v-if="loading" class="text-center text-neutral-500 py-12 text-sm">{{ t('common.loading') }}</div>
     <div v-else-if="error" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-4 py-3 text-sm text-danger-500">{{ error }}</div>

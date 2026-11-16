@@ -6,10 +6,15 @@ namespace MyPortfolio\Service\Tax;
 
 /**
  * Pravidla osvobození příjmů z prodeje CP a kryptoaktiv (§ 4 ZDP) — čisté funkce bez DB.
- * Ověřeno 2026-10-09.
+ * Při změně zákona pravidla znovu ověř a posuň VERIFIED_AT (report ho ukazuje uživateli).
  */
 final class CzTaxRules
 {
+    /** Kdy byla pravidla naposledy ověřena proti znění zákona. */
+    public const VERIFIED_AT = '2026-10-09';
+    /** Zákon č. 586/1992 Sb., o daních z příjmů — aktuální znění. */
+    public const SOURCE_URL = 'https://www.zakonyprolidi.cz/cs/1992-586';
+
     public const SECURITIES = 'securities';
     public const CRYPTO = 'crypto';
 

@@ -1055,7 +1055,10 @@
       "unified": "Jednotný kurz"
     },
     "print": "Tisk",
-    "disclaimer": "Report je orientační podklad, ne daňové poradenství. Vychází z transakcí v aplikaci (FIFO) a pravidel zákona o daních z příjmů; před podáním přiznání ho ověř. Pozice s ručním oceněním (Portu, spořicí účty) v prodejích nejsou.",
+    "disclaimer_title": "Není to daňové poradenství",
+    "disclaimer": "Report je orientační podklad z transakcí v aplikaci (FIFO) a pravidel zákona o daních z příjmů. Za správnost přiznání odpovídáš ty — před podáním hodnoty ověř, v nejasných případech s daňovým poradcem. Pozice s ručním oceněním (Portu, spořicí účty) v prodejích nejsou.",
+    "rules_verified": "Pravidla (limit 100 000 Kč, časový test, strop 40 mil. Kč, krypto od 15. 2. 2025) ověřena k {date} —",
+    "rules_source": "znění zákona č. 586/1992 Sb.",
     "cap_exceeded": "Příjmy osvobozené časovým testem přesáhly strop 40 000 000 Kč — osvobození se poměrně krátí.",
     "incomplete_cost": "Prodeje s neúplnou nabývací cenou: {n} — výdaj u nich chybí nebo je nulový, takže daň vychází vyšší. Důvod je u řádku v detailu prodejů; oprav nebo doplň transakce.",
     "sections": {

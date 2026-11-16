@@ -1055,7 +1055,10 @@
       "unified": "Unified annual rate"
     },
     "print": "Print",
-    "disclaimer": "The report is an indicative basis, not tax advice. It uses the transactions in the app (FIFO) and the Czech Income Tax Act rules; verify it before filing. Manually valued positions (Portu, savings accounts) are not included in sales.",
+    "disclaimer_title": "This is not tax advice",
+    "disclaimer": "The report is an indicative basis computed from the transactions in the app (FIFO) and the rules of the Czech Income Tax Act. You are responsible for your tax return — check the values before filing and consult a tax advisor when in doubt. Positions with manual valuation (Portu, savings accounts) are not among the sales.",
+    "rules_verified": "Rules (CZK 100,000 limit, holding-period test, CZK 40M cap, crypto from 15 Feb 2025) verified as of {date} —",
+    "rules_source": "text of Act No. 586/1992 Coll.",
     "cap_exceeded": "Income exempt under the holding test exceeded the CZK 40,000,000 cap — the exemption is reduced proportionally.",
     "incomplete_cost": "Sales with incomplete acquisition cost: {n} — their expense is missing or zero, so the tax comes out higher. The reason is shown on the row in the sales detail; fix or complete the transactions.",
     "sections": {

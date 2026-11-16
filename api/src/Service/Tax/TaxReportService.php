@@ -60,7 +60,8 @@ final class TaxReportService
                 : $e->getMessage() . ' Doplň kurzy ČNB (Administrace → Ceny a kurzy).', 422, ['currency' => $e->currency, 'date' => $e->date]);
         }
 
-        $out = ['year' => $year, 'rate' => $rateMethod, 'cap_exceeded' => $capped];
+        $out = ['year' => $year, 'rate' => $rateMethod, 'cap_exceeded' => $capped,
+            'rules' => ['verified_at' => CzTaxRules::VERIFIED_AT, 'source_url' => CzTaxRules::SOURCE_URL]];
         foreach ($sections as $class => $s) {
             $out[$class] = self::presentSection($s);
         }

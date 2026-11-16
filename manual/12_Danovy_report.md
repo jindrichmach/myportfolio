@@ -6,6 +6,8 @@ rok: prodeje cenných papírů a kryptoaktiv, zahraniční dividendy a přehled 
 > ⚠️ Pozor: Report je orientační podklad, ne daňové poradenství. Počítá z transakcí v aplikaci —
 > chybějící nebo špatně zadaný nákup změní výsledek. Před podáním přiznání ho ověř.
 > Nic se neodesílá finančnímu úřadu — čísla přeneseš do přiznání sám, nebo je dáš poradci.
+> Nahoře v reportu je datum, ke kterému byla pravidla (limit, časový test, strop, krypto) naposledy ověřena
+> proti znění zákona, s odkazem na něj — po pozdější změně zákona report nemusí odpovídat.
 
 | Volba | Význam |
 |---|---|

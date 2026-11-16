@@ -52,6 +52,8 @@ export interface TaxReport {
   year: number
   rate: RateMethod
   cap_exceeded: boolean
+  /** Kdy byla daňová pravidla naposledy ověřena proti zákonu a odkaz na jeho znění */
+  rules: { verified_at: string; source_url: string }
   securities: TaxSection
   crypto: TaxSection
   dividends: {

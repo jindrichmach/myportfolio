@@ -6,6 +6,8 @@ year: sales of securities and crypto assets, foreign dividends and an overview o
 > ⚠️ Warning: The report is indicative supporting data, not tax advice. It is computed from the transactions in the app —
 > a missing or wrongly entered purchase changes the result. Verify it before filing your tax return.
 > Nothing is sent to the tax office — you copy the numbers into the tax return yourself, or hand them to an advisor.
+> At the top of the report is the date as of which the rules (limit, holding-period test, cap, crypto) were last verified
+> against the text of the Act, with a link to it — after a later change of the law the report may not match.
 
 | Option | Meaning |
 |---|---|
