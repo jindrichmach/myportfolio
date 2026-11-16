@@ -158,8 +158,10 @@ zašifrovaný a v aplikaci už ho nikdo neuvidí (v seznamu je jen začátek ve�
 | Odkud stahovat | **Navázat na poslední import** (od poslední transakce na účtu, např. po dřívějším importu CSV), **Od data**, nebo **Celá historie** |
 | Synchronizovat automaticky | Vypnuté napojení stáhne data jen tlačítkem **Synchronizovat teď** |
 
-Tlačítkem **Ověřit klíč** zkontroluješ klíč před uložením; když má klíč zbytečně silná práva
-(obchodování, výběry), uvidíš varování.
+Tlačítkem **Ověřit klíč** zkontroluješ klíč před uložením. Klíč s právem obchodovat nebo vybírat
+(Binance, Kraken, Coinbase to umí zjistit) aplikace neuloží — vytvoř na burze klíč jen pro čtení. Správce to
+může výjimečně povolit v `cfg.php` (`exchanges.allow_dangerous_keys`); pak uvidíš jen varování. Coinmate práva
+ověřit neumí, proto u něj varování uvidíš vždy.
 
 ### 5.6.1 Jak synchronizace probíhá
 

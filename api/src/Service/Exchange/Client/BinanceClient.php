@@ -60,8 +60,7 @@ final class BinanceClient extends AbstractExchangeClient
             return ['ok' => false, 'message' => 'Klíč nemá oprávnění „Enable Reading".', 'warnings' => []];
         }
         $extra = array_values(array_intersect_key(self::DANGEROUS, array_filter($r, static fn ($v) => $v === true)));
-        return ['ok' => true, 'message' => 'Klíč funguje — historie jde číst.',
-            'warnings' => $extra !== [] ? ['Klíč má povolené i ' . implode(', ', $extra) . ' — pro synchronizaci stačí jen čtení, vytvoř raději klíč jen pro čtení.'] : []];
+        return ['ok' => true, 'message' => 'Klíč funguje — historie jde číst.', 'warnings' => [], 'dangerous' => $extra];
     }
 
     public function fetch(array $credentials, ?\DateTimeImmutable $from, \DateTimeImmutable $to, array $knownAssets = []): array

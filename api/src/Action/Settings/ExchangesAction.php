@@ -6,6 +6,7 @@ namespace MyPortfolio\Action\Settings;
 
 use MyPortfolio\Http\CurrentUser;
 use MyPortfolio\Http\Json;
+use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Middleware\AuthMiddleware;
 use MyPortfolio\Repository\AccountRepository;
 use MyPortfolio\Repository\ExchangeConnectionRepository;
@@ -42,6 +43,7 @@ final class ExchangesAction
         private readonly PortfolioRepository $portfolios,
         private readonly TransactionRepository $transactions,
         private readonly ActivityLogger $activity,
+        private readonly Config $config,
     ) {}
 
     public function list(Request $request, Response $response): Response
@@ -218,10 +220,23 @@ final class ExchangesAction
     private function check(ExchangeClient $client, array $credentials): array
     {
         try {
-            return $client->test($credentials);
+            $result = $client->test($credentials);
         } catch (ExchangeException $e) {
             return ['ok' => false, 'message' => $e->getMessage(), 'warnings' => []];
         }
+        $dangerous = $result['dangerous'] ?? [];
+        unset($result['dangerous']);
+        if ($dangerous === []) {
+            return $result;
+        }
+        // Klíč s výběrem / obchodováním = při úniku DB i šifrovacího klíče skutečné peníze
+        $list = implode(', ', $dangerous);
+        if (!(bool) $this->config->get('exchanges.allow_dangerous_keys', false)) {
+            return ['ok' => false, 'warnings' => [],
+                'message' => "Klíč má povolené i {$list} — pro synchronizaci stačí čtení. Vytvoř na burze klíč jen pro čtení."];
+        }
+        $result['warnings'][] = "Klíč má povolené i {$list} — správce to povolil (exchanges.allow_dangerous_keys), bezpečnější je klíč jen pro čtení.";
+        return $result;
     }
 
     /** Začátek veřejné části klíče pro rozpoznání v seznamu. @param array<string,string> $credentials */

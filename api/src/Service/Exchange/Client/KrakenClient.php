@@ -49,8 +49,7 @@ final class KrakenClient extends AbstractExchangeClient
             return ['ok' => false, 'message' => 'Klíči chybí oprávnění „Query Ledger Entries".', 'warnings' => []];
         }
         $extra = array_values(array_intersect($permissions, self::DANGEROUS));
-        return ['ok' => true, 'message' => 'Klíč funguje — ledger jde číst.',
-            'warnings' => $extra !== [] ? ['Klíč má i oprávnění ' . implode(', ', $extra) . ' — pro synchronizaci stačí jen čtení, vytvoř raději klíč jen pro čtení.'] : []];
+        return ['ok' => true, 'message' => 'Klíč funguje — ledger jde číst.', 'warnings' => [], 'dangerous' => $extra];
     }
 
     public function fetch(array $credentials, ?\DateTimeImmutable $from, \DateTimeImmutable $to, array $knownAssets = []): array

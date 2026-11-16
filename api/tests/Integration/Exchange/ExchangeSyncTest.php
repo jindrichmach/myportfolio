@@ -132,4 +132,19 @@ final class ExchangeSyncTest extends ApiTestCase
         self::assertSame(204, $this->call($this->userId, 'DELETE', "/api/settings/exchanges/$id")['status']);
         self::assertSame(2, $this->rowCount("SELECT COUNT(*) FROM transactions WHERE user_id = ? AND source = 'api:coinmate'", [$this->userId]));
     }
+
+    public function testKeyWithWithdrawalRightsIsRefused(): void
+    {
+        $inst = $this->call($this->userId, 'POST', '/api/institutions', ['name' => 'Synthetic Kraken', 'type' => 'exchange'])['body']['id'];
+        $acc = $this->call($this->userId, 'POST', '/api/accounts', ['institution_id' => $inst, 'name' => 'Spot', 'currency' => 'EUR'])['body']['id'];
+        $pf = $this->call($this->userId, 'POST', '/api/portfolios', ['name' => 'Krypto'])['body']['id'];
+        $this->http->on('#/0/private/GetApiKeyInfo#', '{"error":[],"result":{"permissions":["query-ledger","withdraw-funds"]}}');
+
+        $r = $this->call($this->userId, 'POST', '/api/settings/exchanges', ['provider' => 'kraken', 'account_id' => $acc, 'portfolio_id' => $pf,
+            'credentials' => ['api_key' => 'SYNTHETICKEY', 'api_secret' => base64_encode('synthetic-secret')]]);
+
+        self::assertSame(400, $r['status'], $r['raw']);
+        self::assertStringContainsString('withdraw-funds', $r['body']['error']['fields']['credentials'][0]);
+        self::assertSame(0, $this->rowCount('SELECT COUNT(*) FROM exchange_connections WHERE user_id = ?', [$this->userId]));
+    }
 }

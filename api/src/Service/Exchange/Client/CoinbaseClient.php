@@ -53,8 +53,7 @@ final class CoinbaseClient extends AbstractExchangeClient
             return ['ok' => false, 'message' => 'Klíč nemá oprávnění View.', 'warnings' => []];
         }
         $extra = array_keys(array_filter(['Trade' => $p['can_trade'] ?? false, 'Transfer' => $p['can_transfer'] ?? false], static fn ($v) => $v === true));
-        return ['ok' => true, 'message' => 'Klíč funguje — historie jde číst.',
-            'warnings' => $extra !== [] ? ['Klíč má i oprávnění ' . implode(', ', $extra) . ' — pro synchronizaci stačí jen View, vytvoř raději klíč jen pro čtení.'] : []];
+        return ['ok' => true, 'message' => 'Klíč funguje — historie jde číst.', 'warnings' => [], 'dangerous' => $extra];
     }
 
     public function fetch(array $credentials, ?\DateTimeImmutable $from, \DateTimeImmutable $to, array $knownAssets = []): array

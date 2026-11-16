@@ -25,10 +25,11 @@ interface ExchangeClient
     public function credentialFields(): array;
 
     /**
-     * Ověří klíč (jen čtecí volání). Varuje, když má klíč víc oprávnění než čtení (obchod, výběr).
+     * Ověří klíč (jen čtecí volání). `dangerous` = zjištěná oprávnění nad rámec čtení (obchod, výběr) —
+     * takový klíč aplikace bez exchanges.allow_dangerous_keys neuloží.
      *
      * @param array<string,string> $credentials
-     * @return array{ok:bool,message:string,warnings:list<string>}
+     * @return array{ok:bool,message:string,warnings:list<string>,dangerous?:list<string>}
      */
     public function test(array $credentials): array;
 

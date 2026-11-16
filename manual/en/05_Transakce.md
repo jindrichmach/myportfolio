@@ -158,8 +158,10 @@ encrypted and nobody can see it in the app again (the list shows only the beginn
 | Download from | **Continue from the last import** (from the last transaction in the account, e.g. after an earlier CSV import), **From date**, or **Full history** |
 | Sync automatically | A disabled connection downloads data only with the **Sync now** button |
 
-The **Verify key** button checks the key before saving; if the key has unnecessarily broad permissions
-(trading, withdrawals), you will see a warning.
+The **Verify key** button checks the key before saving. The app does not save a key with permission to trade or
+withdraw (Binance, Kraken and Coinbase can detect it) — create a read-only key on the exchange. The administrator can
+allow it in exceptional cases in `cfg.php` (`exchanges.allow_dangerous_keys`); then you only see a warning. Coinmate
+cannot verify permissions, so you always see the warning for it.
 
 ### 5.6.1 How synchronization works
 

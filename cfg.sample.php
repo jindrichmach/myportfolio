@@ -168,6 +168,9 @@ return [
     'bank_notices' => [
         'allow_private_imap' => false,
     ],
+    'exchanges' => [
+        'allow_dangerous_keys' => false,             // true = uložit i API klíč burzy s právem obchodovat / vybírat (jen s varováním)
+    ],
 
     // Kontrola nové verze (Systém → Aktualizace) přes GitHub releases; pro fork změň repozitář.
     // 'update' => [

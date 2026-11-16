@@ -64,7 +64,7 @@ final class ExchangeClientsTest extends TestCase
 
         $test = $client->test($creds);
         self::assertTrue($test['ok']);
-        self::assertStringContainsString('withdraw-funds', $test['warnings'][0]);
+        self::assertSame(['withdraw-funds'], $test['dangerous']);
     }
 
     public function testCoinmateHistoryAndErrors(): void
@@ -205,7 +205,7 @@ final class ExchangeClientsTest extends TestCase
         $client = new CoinbaseClient($http);
         $test = $client->test($creds);
         self::assertTrue($test['ok']);
-        self::assertStringContainsString('Transfer', $test['warnings'][0]);
+        self::assertSame(['Transfer'], $test['dangerous']);
 
         $d = $client->fetch($creds, new \DateTimeImmutable('2026-02-01'), new \DateTimeImmutable('2026-04-01'));
         self::assertSame([
