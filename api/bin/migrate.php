@@ -108,6 +108,21 @@ foreach ($pending as $file) {
 
 echo "Hotovo.\n";
 
+// Tajemství ve starším formátu (enc:v1, nešifrovaný text) převeď na aktuální klíč a formát s AAD
+$rotation = (new \MyPortfolio\Service\Auth\SecretRotator(
+    new Connection($config),
+    new \MyPortfolio\Service\Auth\SecretEncryption($config),
+))->rotate();
+foreach ($rotation as $column => $r) {
+    if ($r['rotated'] > 0) {
+        echo "Tajemství {$column}: převedeno {$r['rotated']}\n";
+    }
+    if ($r['failed'] !== []) {
+        fwrite(STDERR, "VAROVÁNÍ: {$column} — nejde převést (id " . implode(', ', $r['failed']) . '); '
+            . "zkontroluj app.secret_encryption_key / previous_keys a spusť api/bin/rotate-secret-key.php\n");
+    }
+}
+
 // Čerstvá instalace: instalační kód pro průvodce /setup (bez něj správce nejde založit)
 if ((int) $db->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'users'")->fetchColumn() > 0
     && (int) $db->query('SELECT COUNT(*) FROM users WHERE is_active = 1')->fetchColumn() === 0

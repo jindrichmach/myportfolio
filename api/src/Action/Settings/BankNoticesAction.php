@@ -45,7 +45,7 @@ final class BankNoticesAction
     {
         try {
             $userId = CurrentUser::id($request);
-            $id = $this->accounts->create($userId, $this->input((array) ($request->getParsedBody() ?? []), true));
+            $id = $this->accounts->create($userId, $this->input($userId, (array) ($request->getParsedBody() ?? []), true));
             return Json::ok($response, $this->accounts->find($userId, $id), 201);
         } catch (DomainError $e) {
             return Json::domainError($response, $e);
@@ -58,7 +58,7 @@ final class BankNoticesAction
         try {
             $userId = CurrentUser::id($request);
             $id = $this->owned($userId, $args);
-            $this->accounts->update($userId, $id, $this->input((array) ($request->getParsedBody() ?? []), false));
+            $this->accounts->update($userId, $id, $this->input($userId, (array) ($request->getParsedBody() ?? []), false));
             return Json::ok($response, $this->accounts->find($userId, $id));
         } catch (DomainError $e) {
             return Json::domainError($response, $e);
@@ -83,7 +83,7 @@ final class BankNoticesAction
         try {
             $userId = CurrentUser::id($request);
             $settings = $this->accounts->withSecret($userId, $this->owned($userId, $args)) ?? throw DomainError::notFound();
-            $settings['password'] = $this->secrets->decrypt((string) $settings['password_enc']);
+            $settings['password'] = $this->secrets->decrypt((string) $settings['password_enc'], SecretEncryption::context('imap_accounts.password_enc', $userId));
             return Json::ok($response, $this->imap->test($settings));
         } catch (DomainError $e) {
             return Json::domainError($response, $e);
@@ -122,7 +122,7 @@ final class BankNoticesAction
      * @param array<string,mixed> $body
      * @return array<string,mixed>
      */
-    private function input(array $body, bool $creating): array
+    private function input(int $userId, array $body, bool $creating): array
     {
         $errors = [];
         $data = [
@@ -152,7 +152,7 @@ final class BankNoticesAction
             $errors['password'][] = 'Povinné pole.';
         }
         Input::assertValid($errors);
-        $data['password_enc'] = $password !== '' ? $this->secrets->encrypt($password) : null;
+        $data['password_enc'] = $password !== '' ? $this->secrets->encrypt($password, SecretEncryption::context('imap_accounts.password_enc', $userId)) : null;
         return $data;
     }
 }

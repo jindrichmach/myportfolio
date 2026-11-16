@@ -166,3 +166,10 @@ tak může být i ze starší verze aplikace. Při obnově se ztratí všechno, 
 | `php8.5 api/bin/backfill-snapshots.php [--user=<id>] [--from=RRRR-MM-DD]` | Přepočet denní historie hodnoty (po importu nebo doplnění cen; běžně proběhne sám) |
 | `php8.5 api/bin/seed-demo.php --user=<email> [--backfill] [--reset] [--no-partner]` | Ukázková data do uživatele bez účtů včetně demo partnera se sdílením ([2.3](02_Instalace.md#23-ukázková-data)); `--reset` jen pro `app.env` = development |
 | `php8.5 api/bin/restore-backup.php <zip> [--yes] [--db=…]` | Obnova ze zálohy ([11.8](#118-zálohy-a-obnova)) |
+| `php8.5 api/bin/rotate-secret-key.php [--dry-run]` | Přešifrování uložených tajemství (klíče burz, hesla IMAP a SMTP, TOTP) aktuálním šifrovacím klíčem — viz níže |
+
+**Výměna šifrovacího klíče** (`app.secret_encryption_key`, např. při podezření na únik): dosavadní klíč přesuň
+do `app.secret_encryption_previous_keys` (seznam; v Dockeru ENV `MYPORTFOLIO_SECRET_PREVIOUS_KEYS`, oddělené čárkou), jako nový klíč dej výstup `openssl rand -base64 32`, spusť
+`rotate-secret-key.php` a po úspěchu starý klíč ze seznamu odeber. Bez starého klíče v seznamu uložená tajemství
+nepřečteš — uživatelé by museli znovu zadat hesla a klíče a nastavit TOTP. V produkci musí být klíč nastavený;
+bez něj aplikace tajemství neuloží (upozornění v Systém → Nastavení).

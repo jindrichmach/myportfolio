@@ -34,7 +34,7 @@ final class SmtpSettings
                 'verify_peer'    => (bool) $db['verify_peer'],
                 'auth_enabled'   => (bool) $db['auth_enabled'],
                 'username'       => (string) ($db['username'] ?? ''),
-                'password'       => $db['password_enc'] !== null ? $this->secrets->decrypt((string) $db['password_enc']) : '',
+                'password'       => $db['password_enc'] !== null ? $this->secrets->decrypt((string) $db['password_enc'], SecretEncryption::context('smtp_settings.password_enc')) : '',
                 'from_email'     => (string) $db['from_email'],
                 'from_name'      => (string) $db['from_name'],
                 'reply_to_email' => (string) ($db['reply_to_email'] ?? ''),

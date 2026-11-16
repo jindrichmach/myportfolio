@@ -141,7 +141,7 @@ final class CreateTokenAction
                 );
             }
             try {
-                $secret = $this->crypto->decrypt((string) $u['totp_secret']);
+                $secret = $this->crypto->decrypt((string) $u['totp_secret'], SecretEncryption::context('users.totp_secret', $userId));
             } catch (\RuntimeException) {
                 return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
             }

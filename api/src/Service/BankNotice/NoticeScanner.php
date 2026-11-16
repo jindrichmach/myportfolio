@@ -111,7 +111,7 @@ final class NoticeScanner
     {
         $summary = ['imap_account_id' => $settings['id'], 'name' => $settings['name']];
         try {
-            $settings['password'] = $this->secrets->decrypt((string) $settings['password_enc']);
+            $settings['password'] = $this->secrets->decrypt((string) $settings['password_enc'], SecretEncryption::context('imap_accounts.password_enc', $userId));
             $messages = $this->imap->latest($settings, (int) $settings['max_messages_per_run']);
             $summary += $this->process($userId, $settings, $messages);
             $this->accounts->updateScanStatus($userId, $settings['id'], 'ok', sprintf(

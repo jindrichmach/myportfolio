@@ -70,7 +70,8 @@ final class SmtpSettingsTest extends ApiTestCase
         $form = self::FORM;
         unset($form['password']);
         $this->container->get(SmtpSettingsRepository::class)->save($form + ['reply_to_email' => null, 'reply_to_name' => null,
-            'password_enc' => $this->container->get(SecretEncryption::class)->encrypt('synthetic-smtp-secret')], $this->adminId);
+            'password_enc' => $this->container->get(SecretEncryption::class)->encrypt('synthetic-smtp-secret',
+                SecretEncryption::context('smtp_settings.password_enc'))], $this->adminId);
         $calls = [];
         $mailer = $this->createStub(Mailer::class);
         $mailer->method('sendTest')->willReturnCallback(function (array $settings, string $to) use (&$calls): string {

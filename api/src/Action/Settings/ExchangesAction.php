@@ -94,7 +94,7 @@ final class ExchangesAction
             };
             $id = $this->connections->create($userId, [
                 'provider' => $client->provider(), 'account_id' => $accountId, 'portfolio_id' => $portfolioId,
-                'credentials_enc' => $this->secrets->encrypt(json_encode($credentials, JSON_THROW_ON_ERROR)),
+                'credentials_enc' => $this->secrets->encrypt(json_encode($credentials, JSON_THROW_ON_ERROR), SecretEncryption::context('exchange_connections.credentials_enc', $userId)),
                 'key_hint' => self::hint($credentials), 'enabled' => Input::bool($body, 'enabled', true), 'sync_from' => $syncFrom,
             ]);
             $this->activity->log('exchange.connected', $userId, 'exchange_connection', $id, ['provider' => $client->provider(), 'start' => $start, 'sync_from' => $syncFrom]);
@@ -125,7 +125,7 @@ final class ExchangesAction
             }
             $this->connections->update($userId, $id, [
                 'account_id' => $accountId, 'portfolio_id' => $portfolioId, 'enabled' => Input::bool($body, 'enabled', true),
-                'credentials_enc' => $credentials !== null ? $this->secrets->encrypt(json_encode($credentials, JSON_THROW_ON_ERROR)) : null,
+                'credentials_enc' => $credentials !== null ? $this->secrets->encrypt(json_encode($credentials, JSON_THROW_ON_ERROR), SecretEncryption::context('exchange_connections.credentials_enc', $userId)) : null,
                 'key_hint' => $credentials !== null ? self::hint($credentials) : null,
             ]);
             return Json::ok($response, ['connection' => $this->connections->find($userId, $id), 'warnings' => $warnings]);

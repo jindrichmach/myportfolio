@@ -28,7 +28,8 @@ final class BankNoticeApiTest extends ApiTestCase
 
         $stored = $this->container->get(ImapAccountRepository::class)->withSecret($this->userId, $id)['password_enc'] ?? '';
         self::assertStringNotContainsString('synthetic-secret', $stored);
-        self::assertSame('synthetic-secret', $this->container->get(SecretEncryption::class)->decrypt($stored));
+        self::assertSame('synthetic-secret', $this->container->get(SecretEncryption::class)->decrypt($stored,
+            SecretEncryption::context('imap_accounts.password_enc', $this->userId)));
 
         // Úprava bez hesla heslo zachová.
         $updated = $this->call($this->userId, 'PUT', "/api/settings/imap-accounts/$id", array_merge(self::ACCOUNT, ['password' => '', 'folder' => 'Banka', 'enabled' => false]));

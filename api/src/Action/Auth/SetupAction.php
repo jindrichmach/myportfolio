@@ -109,7 +109,7 @@ final class SetupAction
                 if ($smtp['auth_enabled'] && $smtpPassword === '') {
                     $errors['smtp.password'][] = 'Zadej heslo k SMTP serveru.';
                 }
-                $smtp['password_enc'] = $smtpPassword !== '' ? $this->secrets->encrypt($smtpPassword) : null;
+                $smtp['password_enc'] = $smtpPassword !== '' ? $this->secrets->encrypt($smtpPassword, SecretEncryption::context('smtp_settings.password_enc')) : null;
             } catch (DomainError $e) {
                 foreach ((array) ($e->extra['fields'] ?? []) as $field => $messages) {
                     $errors['smtp.' . $field] = $messages;

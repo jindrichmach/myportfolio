@@ -240,6 +240,7 @@ final class Config
             'MYPORTFOLIO_APP_URL'     => ['app.url', 'string'],
             'MYPORTFOLIO_PEPPER'      => ['app.pepper', 'string'],
             'MYPORTFOLIO_SECRET_KEY'  => ['app.secret_encryption_key', 'string'],
+            'MYPORTFOLIO_SECRET_PREVIOUS_KEYS' => ['app.secret_encryption_previous_keys', 'csv'],
             'MYPORTFOLIO_TIMEZONE'    => ['app.timezone', 'string'],
             'MYPORTFOLIO_LOCALE'      => ['app.locale_default', 'string'],
 

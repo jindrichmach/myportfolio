@@ -53,7 +53,7 @@ final class SmtpAction
             if ($data['auth_enabled'] && $password === '' && ($this->repo->get()['password_enc'] ?? null) === null) {
                 throw DomainError::validation(['password' => ['Zadej heslo k SMTP serveru.']]);
             }
-            $this->repo->save($data + ['password_enc' => $password !== '' ? $this->secrets->encrypt($password) : null], CurrentUser::id($request));
+            $this->repo->save($data + ['password_enc' => $password !== '' ? $this->secrets->encrypt($password, SecretEncryption::context('smtp_settings.password_enc')) : null], CurrentUser::id($request));
             $this->activity->log('smtp.updated', CurrentUser::id($request), 'smtp_settings', 1,
                 ['host' => $data['host'], 'port' => $data['port'], 'enabled' => $data['enabled'], 'password_changed' => $password !== '']);
             return $this->get($request, $response);
@@ -74,7 +74,7 @@ final class SmtpAction
             $password = (string) ($body['password'] ?? '');
             if ($password === '') {
                 $stored = $this->repo->get()['password_enc'] ?? null;
-                $password = $stored !== null ? $this->secrets->decrypt((string) $stored) : (string) $this->smtp->fromConfig()['password'];
+                $password = $stored !== null ? $this->secrets->decrypt((string) $stored, SecretEncryption::context('smtp_settings.password_enc')) : (string) $this->smtp->fromConfig()['password'];
             }
             $settings = SmtpSettingsInput::forTest($data, $password);
         } catch (DomainError $e) {

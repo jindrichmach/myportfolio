@@ -107,7 +107,7 @@ final class ExchangeSyncService
             $from = $from === null || $overlap > $from ? $overlap : $from;
         }
         try {
-            $credentials = (array) json_decode($this->secrets->decrypt((string) $c['credentials_enc']), true, flags: JSON_THROW_ON_ERROR);
+            $credentials = (array) json_decode($this->secrets->decrypt((string) $c['credentials_enc'], SecretEncryption::context('exchange_connections.credentials_enc', $userId)), true, flags: JSON_THROW_ON_ERROR);
             $drafts = $client->fetch($credentials, $from, $to, $this->knownAssets($userId, $c['account_id']));
         } catch (ExchangeException | \JsonException $e) {
             $message = $e instanceof ExchangeException ? $e->getMessage() : 'Uložené přihlašovací údaje nejde přečíst — zadej klíč znovu.';

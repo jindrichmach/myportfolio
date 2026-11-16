@@ -24,7 +24,8 @@ return [
         'debug'  => false,                           // false v produkci — skryje stack trace v API odpovědích
         'url'    => 'https://dev.example.com',       // veřejná URL aplikace, používá se v emailech (reset hesla) a pro WebAuthn origin
         'pepper' => 'CHANGE-ME',                     // doplňková sůl k password_hash, 32B base64: openssl rand -base64 32
-        'secret_encryption_key' => '',               // 32B base64 pro AES-256-GCM (TOTP secrets); openssl rand -base64 32. Pokud prázdné, fallback HKDF z pepperu.
+        'secret_encryption_key' => '',               // 32B base64 pro AES-256-GCM (TOTP, klíče burz, hesla IMAP/SMTP); openssl rand -base64 32. V produkci povinný.
+        'secret_encryption_previous_keys' => [],     // dřívější klíče jen pro čtení — při výměně klíče, pak api/bin/rotate-secret-key.php
         'timezone' => 'Europe/Prague',
         'locale_default' => 'cs',                    // jazyk UI při prvním načtení (před přihlášením)
     ],

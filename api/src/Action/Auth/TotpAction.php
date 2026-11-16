@@ -74,7 +74,7 @@ final class TotpAction
 
         $secret = TotpService::generateSecret();
         try {
-            $encrypted = $this->crypto->encrypt($secret);
+            $encrypted = $this->crypto->encrypt($secret, SecretEncryption::context('users.totp_secret', (int) $user['id']));
         } catch (\RuntimeException) {
             return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
         }
@@ -120,7 +120,7 @@ final class TotpAction
             return Json::error($response, 'no_secret', 'Nejdřív zavolej /setup pro vygenerování secretu.', 400);
         }
         try {
-            $secret = $this->crypto->decrypt((string) $user['totp_secret']);
+            $secret = $this->crypto->decrypt((string) $user['totp_secret'], SecretEncryption::context('users.totp_secret', (int) $user['id']));
         } catch (\RuntimeException) {
             return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
         }

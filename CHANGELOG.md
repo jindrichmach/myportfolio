@@ -10,6 +10,12 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
   (jinak se upozornění objeví až po změně transakcí daného instrumentu):
   - Docker: `docker compose -f docker-compose.production.yml exec app php /var/www/html/api/bin/rebuild-lots.php`
   - nativně: `php8.5 api/bin/rebuild-lots.php`
+- Uložená tajemství (klíče burz, hesla IMAP a SMTP, TOTP) převede na nový formát sama migrace. Pokud v konfiguraci
+  chybí `app.secret_encryption_key` (Systém → Nastavení to hlásí), v produkci je nutné ho doplnit
+  (`openssl rand -base64 32`, v Dockeru ENV `MYPORTFOLIO_SECRET_KEY`) a spustit migraci znovu — jinak aplikace
+  tajemství neuloží:
+  - Docker: `docker compose -f docker-compose.production.yml exec app php /var/www/html/api/bin/migrate.php`
+  - nativně: `php8.5 api/bin/migrate.php`
 
 ## [1.0.0] — 2026-10-30
 

@@ -167,3 +167,10 @@ can even be from an older version of the app. Everything created after the backu
 | `php8.5 api/bin/backfill-snapshots.php [--user=<id>] [--from=YYYY-MM-DD]` | Recalculating the daily value history (after an import or backfilling prices; normally runs by itself) |
 | `php8.5 api/bin/seed-demo.php --user=<email> [--backfill] [--reset] [--no-partner]` | Demo data for a user without accounts, including a demo partner with sharing ([2.3](02_Instalace.md#23-demo-data)); `--reset` only for `app.env` = development |
 | `php8.5 api/bin/restore-backup.php <zip> [--yes] [--db=…]` | Restoring from a backup ([11.8](#118-backups-and-restore)) |
+| `php8.5 api/bin/rotate-secret-key.php [--dry-run]` | Re-encrypting stored secrets (exchange keys, IMAP and SMTP passwords, TOTP) with the current encryption key — see below |
+
+**Changing the encryption key** (`app.secret_encryption_key`, e.g. when a leak is suspected): move the current key to
+`app.secret_encryption_previous_keys` (a list; in Docker the ENV `MYPORTFOLIO_SECRET_PREVIOUS_KEYS`, comma-separated), set the output of `openssl rand -base64 32` as the new key, run
+`rotate-secret-key.php` and, once it succeeds, remove the old key from the list. Without the old key in the list the stored
+secrets cannot be read — users would have to enter passwords and keys again and set up TOTP. In production the key must
+be set; without it the app does not store secrets (a warning in System → Settings).
