@@ -7,8 +7,10 @@ namespace MyPortfolio\Action\Tax;
 use MyPortfolio\Http\CurrentUser;
 use MyPortfolio\Http\Json;
 use MyPortfolio\Service\Portfolio\DomainError;
+use MyPortfolio\Service\Tax\EpoXmlExporter;
 use MyPortfolio\Service\Tax\FilingGuideService;
 use MyPortfolio\Service\Tax\TaxReportService;
+use MyPortfolio\Service\Update\VersionService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -36,6 +38,8 @@ final class TaxReportAction
     public function __construct(
         private readonly TaxReportService $reports,
         private readonly FilingGuideService $filing,
+        private readonly EpoXmlExporter $epo,
+        private readonly VersionService $version,
     ) {}
 
     public function years(Request $request, Response $response): Response
@@ -120,6 +124,20 @@ final class TaxReportAction
         return $response
             ->withHeader('Content-Type', 'text/csv; charset=utf-8')
             ->withHeader('Content-Disposition', sprintf('attachment; filename="podklad-priznani-%d.csv"', $guide['year']));
+    }
+
+    public function filingXml(Request $request, Response $response): Response
+    {
+        try {
+            $guide = $this->guide($request);
+            $xml = $this->epo->export($guide, (int) ($request->getQueryParams()['ufo'] ?? 0), $this->version->getCurrentVersion());
+        } catch (DomainError $e) {
+            return Json::domainError($response, $e);
+        }
+        $response->getBody()->write($xml);
+        return $response
+            ->withHeader('Content-Type', 'application/xml; charset=utf-8')
+            ->withHeader('Content-Disposition', sprintf('attachment; filename="dpfo-%d-epo.xml"', $guide['year']));
     }
 
     /** @return array<string,mixed> */

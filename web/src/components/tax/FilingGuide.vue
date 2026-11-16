@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * Podklad pro daňové přiznání: zeptá se, jak uživatel přiznání podává (pamatuje si to), a podle toho nabídne
- * řádky k přepisu do EPO / Moje daně, souhrn pro poradce, nebo CSV pro jiný program. Hodnoty počítá backend.
+ * řádky k přepisu do EPO / Moje daně (i XML k načtení), souhrn pro poradce, nebo CSV pro jiný program.
+ * Hodnoty počítá backend.
  */
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,6 +13,11 @@ import { formatMoney } from '@/composables/useFormat'
 type FilingMode = 'epo' | 'advisor' | 'software'
 const MODE_KEY = 'myportfolio-tax-filing'
 const DIVIDENDS_KEY = 'myportfolio-tax-dividends'
+const UFO_KEY = 'myportfolio-tax-ufo'
+/** Roky, pro které existuje struktura XML (DPFDP7) — EpoXmlExporter::YEARS */
+const XML_YEARS = [2024, 2025]
+/** Oficiální číselník finančních úřadů (kód FÚ pro přiznání) */
+const UFO_LIST_URL = 'https://mojedane.gov.cz/pmd/dokumentace/ciselniky/ukazka/ufo'
 
 const props = defineProps<{ year: number; rate: RateMethod; hasDividends: boolean }>()
 const { t } = useI18n()
@@ -53,6 +59,12 @@ async function load() {
 watch(() => [props.year, props.rate, dividends.value, mode.value], load, { immediate: true })
 watch(mode, m => m && write(MODE_KEY, m))
 watch(dividends, d => write(DIVIDENDS_KEY, d))
+
+// Číslo finančního úřadu do XML — aplikace ho nezná, uživatel ho vyplní jednou (zapamatuje se v prohlížeči)
+const ufo = ref((() => { try { return localStorage.getItem(UFO_KEY) ?? '' } catch { return '' } })())
+watch(ufo, v => write(UFO_KEY, v.trim()))
+const ufoValid = computed(() => /^\d{1,4}$/.test(ufo.value.trim()))
+const xmlUrl = computed(() => taxApi.filingXmlUrl(props.year, props.rate, dividends.value, ufo.value.trim()))
 
 const kc = (v: string) => formatMoney(Number(v), 'CZK', 0)
 const csvUrl = computed(() => taxApi.filingCsvUrl(props.year, props.rate, dividends.value))
@@ -105,6 +117,22 @@ const td = 'px-3 py-1.5 tabular-nums'
 
         <!-- EPO / Moje daně: řádky k přepisu -->
         <template v-if="mode === 'epo'">
+          <div v-if="XML_YEARS.includes(year)" class="rounded-md border border-neutral-200 px-3 py-3 space-y-2 print:hidden">
+            <h3 class="text-sm font-semibold">{{ t('filing.xml_title') }}</h3>
+            <p class="text-xs text-neutral-500">{{ t('filing.xml_intro') }}</p>
+            <div class="flex flex-wrap items-end gap-2">
+              <label class="text-sm">
+                <span class="block text-xs font-medium text-neutral-700 mb-1">{{ t('filing.ufo') }}</span>
+                <input v-model="ufo" inputmode="numeric" maxlength="4" placeholder="451" class="h-9 w-24 px-3 border border-field rounded-md bg-surface font-mono" />
+              </label>
+              <a :href="ufoValid ? xmlUrl : undefined" :aria-disabled="!ufoValid"
+                 class="h-9 px-3 inline-flex items-center rounded-md text-sm font-medium"
+                 :class="ufoValid ? 'bg-action hover:bg-action-hover text-on-action' : 'bg-neutral-200 text-neutral-500 pointer-events-none'">{{ t('filing.download_xml') }}</a>
+            </div>
+            <p class="text-xs text-neutral-500">
+              {{ t('filing.ufo_hint') }} <a :href="UFO_LIST_URL" target="_blank" rel="noopener" class="text-primary-700 hover:underline">{{ t('filing.ufo_list') }}</a>
+            </p>
+          </div>
           <div>
             <h3 class="text-sm font-semibold mb-1">{{ t('filing.attachment2') }}</h3>
             <p v-if="!hasAttachment2" class="text-sm text-neutral-500">{{ t('filing.no_attachment2') }}</p>

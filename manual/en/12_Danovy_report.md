@@ -93,7 +93,7 @@ the choice and offers the output accordingly:
 
 | Option | What you get |
 |---|---|
-| Myself in EPO / Moje daně | Values to copy into the rows of the DPFO form, in whole CZK |
+| Myself in EPO / Moje daně | Values to copy into the rows of the DPFO form, in whole CZK, and for the years 2024 and 2025 also an XML to load — see below |
 | Through a tax advisor | A summary (taxable and exempt income, dividends, interest) and files to hand over: per-lot sales detail and the guide in CSV |
 | With other software | CSV with form rows (section; row; description; CZK) and the sales detail |
 
@@ -110,6 +110,13 @@ Sales go into Příloha č. 2: each type on a separate row of the table — **D*
 row 208 (expenses, for each type at most up to the income) and row 209 → row 40 of the main part. Exempt sales (holding-period
 test, CZK 100,000 limit) are not reported in the tax return.
 
+**XML for EPO.** In the *Myself in EPO / Moje daně* mode, for the years 2024 and 2025 you can download a file in the
+Financial Administration structure (DPFDP7). It contains only the computed rows — attachment 2 (rows 207–209 and the table
+by type), dividends in attachment 4 or 3 (by the chosen method) and rows 38 / 40 / 74a. Enter the **financial office
+number** by your permanent residence (the field links to the list; the app remembers it), download the XML and open it in
+EPO / Moje daně with *Načíst ze souboru* (load from file). Fill in personal details, employment, tax credits and other
+attachments there.
+
 > ⚠️ Warning: Row numbers are verified against the forms for the years 2023–2025; for another year the guide warns you. The guide
-> does not fill in the rest of the tax return (employment, tax credits, personal details) and EPO cannot load CSV — copy the values over and check them
-> before filing. Interest from foreign accounts (at a broker) also belongs under § 8 — the report does not distinguish it from domestic interest.
+> does not fill in the rest of the tax return (employment, tax credits, personal details) and EPO cannot load CSV — copy the values over or load the XML
+> and check them before filing. Interest from foreign accounts (at a broker) also belongs under § 8 — the report does not distinguish it from domestic interest.

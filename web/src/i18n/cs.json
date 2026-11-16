@@ -1552,9 +1552,15 @@
     },
     "advisor_note": "Tisk celé stránky (tlačítko Tisk nahoře) slouží jako přehled k předání.",
     "software_intro": "CSV s řádky formuláře (oddíl; řádek; popis; Kč) a detail prodejů po lotech pro kontrolu.",
-    "software_note": "Soubor je v UTF-8 se středníkem. Do EPO ho nejde načíst přímo — EPO přijímá jen XML; podklad slouží k přepisu nebo pro program, který CSV umí.",
+    "software_note": "Soubor je v UTF-8 se středníkem — k přepisu nebo pro program, který CSV umí. Pro EPO / Moje daně je XML k načtení v režimu „Sám v EPO / Moje daně“ (roky 2024 a 2025).",
     "download_guide": "Stáhnout podklad (CSV)",
     "download_detail": "Detail prodejů a dividend (CSV)",
+    "xml_title": "Načíst do EPO ze souboru",
+    "xml_intro": "XML se spočítanými řádky (příloha č. 2, dividendy, ř. 38 / 40 / 74a) ve struktuře Finanční správy. V EPO / Moje daně zvol „Načíst ze souboru“ a doplň osobní údaje a zbytek přiznání (zaměstnání, slevy). Před odesláním vše zkontroluj.",
+    "ufo": "Číslo finančního úřadu",
+    "ufo_hint": "Finanční úřad podle místa trvalého pobytu; číslo najdeš v",
+    "ufo_list": "číselníku finančních úřadů",
+    "download_xml": "Stáhnout XML pro EPO",
     "disclaimer": "Orientační podklad podle tiskopisů {forms}, ne daňové poradenství. Před podáním hodnoty zkontroluj."
   },
   "manual": {

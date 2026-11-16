@@ -41,7 +41,8 @@ final class ApiTokenAccessTest extends ApiTestCase
         $ids = ['/api/accounts/{id}' => $acc, '/api/portfolios/{id}' => $pf, '/api/positions/{id}' => $pos,
             '/api/positions/{id}/valuation' => $pos, '/api/positions/{id}/valuations' => $pos];
         $query = ['/api/prices' => "?instrument_id=$ins", '/api/tax-report' => '?year=2025', '/api/tax-report/export.csv' => '?year=2025',
-            '/api/tax-report/filing' => '?year=2025', '/api/tax-report/filing.csv' => '?year=2025&dividends=38'];
+            '/api/tax-report/filing' => '?year=2025', '/api/tax-report/filing.csv' => '?year=2025&dividends=38',
+            '/api/tax-report/filing.xml' => '?year=2025&ufo=451'];
 
         foreach (ApiCatalog::endpoints() as $e) {
             if ($e['method'] !== 'GET' || (str_contains($e['path'], '{') && !isset($ids[$e['path']]))) {

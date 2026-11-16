@@ -100,7 +100,7 @@ abstract class ApiTestCase extends TestCase
         $response = $this->app->handle($request);
         $raw = (string) $response->getBody();
         $type = $response->getHeaderLine('Content-Type');
-        $json = $raw !== '' && !str_starts_with($type, 'image/') && !str_starts_with($type, 'text/html') && !str_starts_with($type, 'text/csv');
+        $json = $raw !== '' && !str_starts_with($type, 'image/') && !str_starts_with($type, 'text/html') && !str_starts_with($type, 'text/csv') && !str_starts_with($type, 'application/xml');
         return [
             'status'  => $response->getStatusCode(),
             'body'    => $json ? json_decode($raw, true, flags: JSON_THROW_ON_ERROR) : null,

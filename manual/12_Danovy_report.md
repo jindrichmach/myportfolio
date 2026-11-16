@@ -92,7 +92,7 @@ pamatuje a podle ní nabídne výstup:
 
 | Volba | Co dostaneš |
 |---|---|
-| Sám v EPO / Moje daně | Hodnoty k přepsání do řádků tiskopisu DPFO v celých Kč |
+| Sám v EPO / Moje daně | Hodnoty k přepsání do řádků tiskopisu DPFO v celých Kč a pro roky 2024 a 2025 i XML k načtení — viz níže |
 | Přes daňového poradce | Souhrn (zdanitelné a osvobozené příjmy, dividendy, úroky) a soubory k předání: detail prodejů po lotech a podklad v CSV |
 | Jiným programem | CSV s řádky formuláře (oddíl; řádek; popis; Kč) a detail prodejů |
 
@@ -109,7 +109,13 @@ Prodeje jdou do přílohy č. 2: každý druh na samostatný řádek tabulky —
 ř. 208 (výdaje, u každého druhu nejvýš do výše příjmů) a ř. 209 → ř. 40 základní části. Osvobozené prodeje (časový
 test, limit 100 000 Kč) se do přiznání neuvádějí.
 
+**XML pro EPO.** V režimu *Sám v EPO / Moje daně* jde pro roky 2024 a 2025 stáhnout soubor ve struktuře Finanční
+správy (DPFDP7). Obsahuje jen spočítané řádky — přílohu č. 2 (ř. 207–209 a tabulku po druzích), dividendy v příloze
+č. 4 nebo č. 3 (podle zvolené metody) a ř. 38 / 40 / 74a. Zadej **číslo finančního úřadu** podle trvalého pobytu
+(odkaz na číselník je u pole; aplikace si ho zapamatuje), stáhni XML a v EPO / Moje daně ho otevři přes
+*Načíst ze souboru*. Osobní údaje, zaměstnání, slevy a ostatní přílohy doplň tam.
+
 > ⚠️ Pozor: Čísla řádků jsou ověřená na tiskopisech za roky 2023–2025; pro jiný rok podklad upozorní. Podklad
-> nevyplní zbytek přiznání (zaměstnání, slevy, osobní údaje) a EPO neumí načíst CSV — hodnoty přepiš a před podáním
-> zkontroluj. Úroky ze zahraničních účtů (u brokera) patří také k § 8 — report je od tuzemských úroků nerozliší.
+> nevyplní zbytek přiznání (zaměstnání, slevy, osobní údaje) a EPO neumí načíst CSV — hodnoty přepiš nebo načti XML
+> a před podáním zkontroluj. Úroky ze zahraničních účtů (u brokera) patří také k § 8 — report je od tuzemských úroků nerozliší.
 

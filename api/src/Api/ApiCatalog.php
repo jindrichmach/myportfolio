@@ -339,6 +339,11 @@ final class ApiCatalog
                 ...$taxQuery,
                 self::p('dividends', 'query', 'string', false, 'Způsob zdanění zahraničních dividend', 'Foreign dividend method', ['enum' => ['16a', '38'], 'default' => '16a']),
             ], $ok('CSV: oddíl; řádek; popis; Kč.', 'CSV: section; row; description; CZK.'), 'text/csv'),
+            $e('tax_filing_xml', 'tax', 'GET', '/api/tax-report/filing.xml', $R, 'Podklad pro EPO — XML', 'Filing guide — XML for EPO', [
+                ...$taxQuery,
+                self::p('dividends', 'query', 'string', false, 'Způsob zdanění zahraničních dividend', 'Foreign dividend method', ['enum' => ['16a', '38'], 'default' => '16a']),
+                self::p('ufo', 'query', 'integer', true, 'Číslo finančního úřadu (číselník FÚ, povinná položka přiznání)', 'Financial office number (FÚ code list, required by the return)', ['example' => 451]),
+            ], $ok('Rozpracované přiznání ve struktuře DPFDP7 (roky 2024 a 2025) k načtení v EPO / Moje daně.', 'Draft return in the DPFDP7 structure (years 2024 and 2025) to load in EPO / Moje daně.'), 'application/xml'),
             $e('tax_report_csv', 'tax', 'GET', '/api/tax-report/export.csv', $R, 'Daňový report — CSV', 'Tax report — CSV', $taxQuery, $ok('CSV pro Excel (UTF-8 s BOM, středník, desetinná čárka).', 'CSV for Excel (UTF-8 with BOM, semicolon, decimal comma).'), 'text/csv'),
 
             // ── Importy ────────────────────────────────────────────────────

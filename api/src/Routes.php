@@ -220,6 +220,7 @@ final class Routes
         $app->get ('/api/tax-report/years',      [TaxReportAction::class, 'years']);
         $app->get ('/api/tax-report/filing',     [TaxReportAction::class, 'filing']);
         $app->get ('/api/tax-report/filing.csv', [TaxReportAction::class, 'filingCsv']);
+        $app->get ('/api/tax-report/filing.xml', [TaxReportAction::class, 'filingXml']);
         $app->get ('/api/tax-report',            [TaxReportAction::class, 'report']);
         $app->get ('/api/tax-report/export.csv', [TaxReportAction::class, 'csv']);
 

@@ -43,7 +43,7 @@ final class ShareAccess
         ['POST',   '#^/api/imports/preview/[0-9a-f]{32}/confirm$#', null, true],
         ['POST',   '#^/api/imports/[0-9]+/revert$#', null, true],
         ['GET',    '#^/api/net-worth(/history|/items/[0-9]+/entries)?$#', 'net_worth', false],
-        ['GET',    '#^/api/tax-report(/years|/export\.csv|/filing(\.csv)?)?$#', 'tax', false],
+        ['GET',    '#^/api/tax-report(/years|/export\.csv|/filing(\.csv|\.xml)?)?$#', 'tax', false],
         ['GET',    '#^/api/income$#', 'income', false],
     ];
 

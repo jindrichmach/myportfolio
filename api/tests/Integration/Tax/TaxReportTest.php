@@ -233,6 +233,43 @@ final class TaxReportTest extends ApiTestCase
             'quote_currency' => 'XTS', 'price_source' => 'manual', 'tax_country' => 'TWN'])['status']);
     }
 
+    public function testEpoXmlMatchesOfficialSchema(): void
+    {
+        $pos = $this->position($this->account('EPO'), 'stock', 'SYNE', 'CZK', 'US0000000004');
+        $this->tx($pos, ['type' => 'buy', 'executed_at' => '2024-01-05 10:00', 'quantity' => '10', 'amount' => '100000']);
+        $this->tx($pos, ['type' => 'sell', 'executed_at' => '2025-03-01 10:00', 'quantity' => '10', 'amount' => '150000']);
+        $this->tx($pos, ['type' => 'dividend', 'executed_at' => '2025-04-01 10:00', 'amount' => '1000', 'fee' => '150', 'fee_currency' => 'CZK']);
+        $xsd = dirname(__DIR__, 2) . '/Fixtures/epo/dpfdp7_epo2.xsd';
+
+        $values = [];
+        foreach (['16a', '38'] as $method) {
+            $r = $this->call($this->userId, 'GET', "/api/tax-report/filing.xml?year=2025&rate=daily&dividends=$method&ufo=451");
+            self::assertSame(200, $r['status'], $r['raw']);
+            $doc = new \DOMDocument();
+            $doc->loadXML($r['raw']);
+            libxml_use_internal_errors(true);
+            self::assertTrue($doc->schemaValidate($xsd), implode("\n", array_map(static fn ($e) => trim($e->message), libxml_get_errors())));
+            libxml_clear_errors();
+            $x = new \DOMXPath($doc);
+            $values[$method] = static fn (string $q) => $x->evaluate("string($q)");
+        }
+
+        $sep = $values['16a'];
+        self::assertSame(['2025', '451', 'DP7', 'B'], [$sep('//VetaD/@rok'), $sep('//VetaD/@c_ufo_cil'), $sep('//VetaD/@dokument'), $sep('//VetaD/@dap_typ')]);
+        // Příloha 2: prodej CP 150 000 − 100 000 → ř. 207–209 a ř. 40
+        self::assertSame(['150000', '100000', '50000', '50000', 'D'], [$sep('//VetaV/@kc_prij10'), $sep('//VetaV/@kc_vyd10'),
+            $sep('//VetaV/@kc_zd10p'), $sep('//VetaO/@kc_zd10'), $sep('//VetaJ/@kod_dr_prij10')]);
+        // § 16a: dividenda 1 000, sraženo 150 → příloha 4 a ř. 74a
+        self::assertSame(['1000', '1000', '150', '150', '0', '0'], [$sep('//VetaZ/@kc_prij48'), $sep('//VetaZ/@kc_uhrndzd'),
+            $sep('//VetaZ/@kc_dan415'), $sep('//VetaZ/@kc_uznzap415'), $sep('//VetaZ/@da_samzakl4'), $sep('count(//VetaD/@da_samzakl)')]);
+        $gen = $values['38'];
+        self::assertSame(['1000', 'US', '1000', '150', '0'], [$gen('//VetaO/@kc_zakldan8'), $gen('//VetaL/@kod_statu'),
+            $gen('//VetaL/@kc_prijzap'), $gen('//VetaL/@da_zahr'), $gen('count(//VetaZ)')]);
+
+        self::assertSame(400, $this->call($this->userId, 'GET', '/api/tax-report/filing.xml?year=2023&ufo=451')['status'], 'DPFDP7 jen 2024–2025');
+        self::assertSame(400, $this->call($this->userId, 'GET', '/api/tax-report/filing.xml?year=2025')['status'], 'bez finančního úřadu');
+    }
+
     public function testFilingCreditNeverExceedsTaxOnRoundedBase(): void
     {
         // 109,90 XTS × 10 = 1 099 Kč hrubě, sraženo 16,50 XTS = 165 Kč: ř. 409 = 1 000 → ř. 410 = 150, 15 % z ř. 411 = 164

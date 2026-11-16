@@ -93,6 +93,8 @@ export interface FilingGuide {
 export const taxApi = {
   filing: (year: number, rate: RateMethod, dividends: DividendMethod) =>
     api.get<FilingGuide>('/tax-report/filing', { params: { year, rate, dividends } }).then(r => r.data),
+  filingXmlUrl: (year: number, rate: RateMethod, dividends: DividendMethod, ufo: string) =>
+    `/api/tax-report/filing.xml?year=${year}&rate=${rate}&dividends=${dividends}&ufo=${encodeURIComponent(ufo)}`,
   filingCsvUrl: (year: number, rate: RateMethod, dividends: DividendMethod) =>
     `/api/tax-report/filing.csv?year=${year}&rate=${rate}&dividends=${dividends}`,
   years: () => api.get<number[]>('/tax-report/years').then(r => r.data),

@@ -1552,9 +1552,15 @@
     },
     "advisor_note": "Printing the whole page (Print button above) works as an overview to hand over.",
     "software_intro": "CSV with form rows (section; row; description; CZK) and the per-lot sales detail for checking.",
-    "software_note": "UTF-8 with semicolons. EPO cannot load it directly — EPO accepts only XML; the guide is for copying or software that reads CSV.",
+    "software_note": "The file is UTF-8 with semicolons — for copying or for a program that reads CSV. For EPO / Moje daně, an XML to load is in the \"Myself in EPO / Moje daně\" mode (years 2024 and 2025).",
     "download_guide": "Download guide (CSV)",
     "download_detail": "Sales and dividend detail (CSV)",
+    "xml_title": "Load into EPO from a file",
+    "xml_intro": "XML with the computed rows (attachment 2, dividends, rows 38 / 40 / 74a) in the Financial Administration structure. In EPO / Moje daně choose \"Načíst ze souboru\" (load from file) and fill in your personal details and the rest of the return (employment, tax credits). Check everything before submitting.",
+    "ufo": "Financial office number",
+    "ufo_hint": "The financial office by your permanent residence; find the number in the",
+    "ufo_list": "list of financial offices",
+    "download_xml": "Download XML for EPO",
     "disclaimer": "Indicative guide based on forms {forms}, not tax advice. Check the values before filing."
   },
   "manual": {
