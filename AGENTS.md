@@ -182,5 +182,7 @@ docker compose up -d / down
 - Identifikátory: namespace `MyPortfolio\`, ENV `MYPORTFOLIO_*`, cookie `__Host-myportfolio_*`,
   localStorage `myportfolio-*`.
 - Commit messages česky, conventional-commits styl: `feat(scope): …`, `fix(scope): …`, `release: X.Y.Z — …`.
-- Změny v `CHANGELOG.md` a `VERSION` se dělají při release.
+- Změny v `CHANGELOG.md` a `VERSION` se dělají při release. Výjimka: kroky, které musí správce spustit po aktualizaci
+  (jednorázový přepočet apod.), zapiš do `## [Unreleased]` pod `### Po aktualizaci` hned s funkcí (příkaz pro Docker
+  i nativně) — stránka Systém → Aktualizace tuto sekci z popisu vydání zvýrazní jako samostatný krok.
 - Necommituj vygenerované artefakty (`web/dist/`, `manual/generated/`) ani lokální konfiguraci (`cfg.php`, `cfg.local.php`, `.env`).

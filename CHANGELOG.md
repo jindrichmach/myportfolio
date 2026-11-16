@@ -5,6 +5,12 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+### Po aktualizaci
+- Jednorázově přepočítej FIFO loty, aby daňový report označil prodeje s neúplnou nabývací cenou i u stávajících dat
+  (jinak se upozornění objeví až po změně transakcí daného instrumentu):
+  - Docker: `docker compose -f docker-compose.production.yml exec app php /var/www/html/api/bin/rebuild-lots.php`
+  - nativně: `php8.5 api/bin/rebuild-lots.php`
+
 ## [1.0.0] — 2026-10-30
 
 První stabilní verze: Přehled jako rozcestník, průvodce Nová investice, knihovna ikon, přístupnost (WCAG 2.2 AA)

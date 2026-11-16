@@ -45,6 +45,8 @@ export interface ReleaseInfo {
 export interface UpdateStatus {
   current: string
   latest: ReleaseInfo | null
+  /** Vydání novější než nainstalovaná verze, nejnovější první */
+  releases: ReleaseInfo[]
   update_available: boolean
   checked_at: string | null
   error: 'unavailable' | 'not_configured' | null

@@ -46,7 +46,30 @@ const status = computed(() => {
     ? { tone: 'warning' as const, text: t('update.available', { version: d.latest.version }) }
     : { tone: 'success' as const, text: t('update.up_to_date') }
 })
-const notesHtml = computed(() => (data.value?.latest?.notes ? renderManual(data.value.latest.notes) : ''))
+const notesHtml = (notes: string) => renderManual(notes)
+
+/** Sekce „### Po aktualizaci“ z poznámek k vydání — kroky, které je potřeba spustit po aktualizaci */
+const POST_UPDATE = /^#{2,4}\s+(Po aktualizaci|After updating)\s*$/i
+function postUpdate(notes: string): string {
+  let out: string[] | null = null
+  let level = 0
+  for (const line of notes.split(/\r?\n/)) {
+    const heading = /^(#{1,6})\s/.exec(line)
+    if (out) {
+      if (heading && heading[1].length <= level) break
+      out.push(line)
+    } else if (heading && POST_UPDATE.test(line)) {
+      out = []
+      level = heading[1].length
+    }
+  }
+  return out ? out.join('\n').trim() : ''
+}
+// od nejstarší verze — v pořadí, v jakém změny přišly
+const postSteps = computed(() => [...(data.value?.releases ?? [])].reverse()
+  .map(r => ({ version: r.version, markdown: postUpdate(r.notes) }))
+  .filter(s => s.markdown !== '')
+  .map(s => ({ version: s.version, html: renderManual(s.markdown) })))
 const installOptions = computed(() => (['docker', 'native'] as const).map(v => ({ value: v, label: t(`update.install_${v}`) })))
 
 const commands = computed(() => {
@@ -116,14 +139,20 @@ async function copy() {
         </p>
       </SectionCard>
 
-      <SectionCard v-if="data.latest && data.update_available" :title="t('update.notes_title', { version: data.latest.version })" class="mb-4">
-        <template #actions>
-          <Badge v-if="data.latest.prerelease">{{ t('update.prerelease') }}</Badge>
-          <a v-if="data.latest.url" :href="data.latest.url" target="_blank" rel="noopener" class="text-xs text-primary-700 hover:underline">{{ t('update.open_github') }}</a>
-        </template>
-        <!-- markdown-it s html: false — HTML v popisu vydání se escapuje -->
-        <div v-if="notesHtml" class="manual-prose max-h-[28rem] overflow-y-auto [&>:first-child]:mt-0" v-html="notesHtml" />
-        <p v-else class="text-sm text-neutral-500">{{ t('update.no_notes') }}</p>
+      <SectionCard v-if="data.update_available && data.releases.length" :title="t('update.notes_title')" class="mb-4">
+        <div class="max-h-[36rem] overflow-y-auto divide-y divide-neutral-200 -my-4">
+          <section v-for="r in data.releases" :key="r.version" class="py-4">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+              <h3 class="font-semibold">{{ r.name }}</h3>
+              <span v-if="r.published_at" class="text-xs text-neutral-500 tabular-nums">{{ formatDate(r.published_at) }}</span>
+              <Badge v-if="r.prerelease">{{ t('update.prerelease') }}</Badge>
+              <a v-if="r.url" :href="r.url" target="_blank" rel="noopener" class="ml-auto text-xs text-primary-700 hover:underline">{{ t('update.open_github') }}</a>
+            </div>
+            <!-- markdown-it s html: false — HTML v popisu vydání se escapuje -->
+            <div v-if="r.notes" class="manual-prose [&>:first-child]:mt-0" v-html="notesHtml(r.notes)" />
+            <p v-else class="text-sm text-neutral-500">{{ t('update.no_notes') }}</p>
+          </section>
+        </div>
       </SectionCard>
 
       <SectionCard :title="t('update.howto_title')">
@@ -152,6 +181,16 @@ async function copy() {
                 </button>
               </div>
               <p class="text-xs text-neutral-500">{{ install === 'docker' ? t('update.docker_hint', { version: target }) : t('update.native_hint') }}</p>
+            </div>
+          </li>
+          <li v-if="postSteps.length" class="flex gap-3">
+            <span class="w-6 h-6 shrink-0 rounded-full bg-warning-50 text-warning-600 text-xs font-semibold inline-flex items-center justify-center">3</span>
+            <div class="min-w-0 flex-1 space-y-2">
+              <p class="pt-0.5">{{ t('update.step_after') }}</p>
+              <div v-for="s in postSteps" :key="s.version" class="rounded-md bg-warning-50 border border-warning-500/40 px-3 py-2">
+                <div class="text-xs font-mono font-semibold text-warning-600 mb-1">{{ s.version }}</div>
+                <div class="manual-prose text-sm [&>:first-child]:mt-0 [&>:last-child]:mb-0" v-html="s.html" />
+              </div>
             </div>
           </li>
         </ol>

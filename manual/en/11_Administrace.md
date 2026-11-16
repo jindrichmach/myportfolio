@@ -111,7 +111,9 @@ run for a long time or is failing is marked. Use **Run now** to start it manuall
 ## 11.7 Updates
 
 **System → Updates** shows the installed version and the latest released version from GitHub (repository
-releases, including `-dev` development versions) and, for a new version, its description. The check result is kept for
+releases, including `-dev` development versions). When a newer version is available, the **What the update changes**
+section lists the description of every version between the installed and the latest one — so when you skip several
+versions you see all the changes. The check result is kept for
 6 hours; the **Check again** button asks right away. The check works only for a public repository;
 a different repository (e.g. a fork) is set in `cfg.php` with the `update.github_repo` key or the ENV
 `MYPORTFOLIO_UPDATE_GITHUB_REPO`.
@@ -120,6 +122,10 @@ Below that is the update procedure for **Docker** and **Native install** — the
 installation and fills in the path to the app and to PHP; the commands can be copied. You run the update on the server
 yourself; the app has no rights to change its own files or the Docker image. The procedure is the same as
 in [2.4 Updates](02_Instalace.md#24-updates).
+
+When one of the versions needs an extra step (e.g. a one-off recalculation of data), the page adds the item
+**3. After updating, also run** with the highlighted commands from that version's description. Run them only after
+the update has finished.
 
 ## 11.8 Backups and restore
 

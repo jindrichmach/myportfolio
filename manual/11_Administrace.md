@@ -111,7 +111,9 @@ neproběhla nebo selhává, je označená. Tlačítkem **Spustit nyní** ji spus
 ## 11.7 Aktualizace
 
 **Systém → Aktualizace** ukáže nainstalovanou verzi a nejnovější vydanou verzi z GitHubu (vydání
-repozitáře, včetně vývojových verzí `-dev`) a u nové verze i její popis. Výsledek kontroly se drží
+repozitáře, včetně vývojových verzí `-dev`). Je-li k dispozici novější verze, sekce **Co se aktualizací změní**
+vypíše popis každé verze mezi nainstalovanou a nejnovější — při přeskočení několika verzí tak vidíš všechny
+změny. Výsledek kontroly se drží
 6 hodin, tlačítko **Zkontrolovat znovu** se zeptá hned. Kontrola funguje jen pro veřejný repozitář;
 jiný repozitář (např. fork) nastavíš v `cfg.php` klíčem `update.github_repo` nebo ENV
 `MYPORTFOLIO_UPDATE_GITHUB_REPO`.
@@ -120,6 +122,9 @@ Pod tím je postup aktualizace pro **Docker** i **nativní instalaci** — strá
 instalace a doplní cestu k aplikaci a k PHP, příkazy jdou zkopírovat. Aktualizaci spouštíš na serveru
 sám; aplikace nemá práva měnit vlastní soubory ani Docker image. Postup je stejný jako
 v [2.4 Aktualizace](02_Instalace.md#24-aktualizace).
+
+Když některá z verzí vyžaduje krok navíc (např. jednorázový přepočet dat), přidá stránka bod
+**3. Po aktualizaci ještě spusť** se zvýrazněnými příkazy z popisu té verze. Spusť je až po dokončení aktualizace.
 
 ## 11.8 Zálohy a obnova
 

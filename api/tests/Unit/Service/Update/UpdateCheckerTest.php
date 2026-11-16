@@ -35,9 +35,11 @@ final class UpdateCheckerTest extends TestCase
 
     public function testPicksHighestPublishedReleaseIncludingPrerelease(): void
     {
-        $latest = UpdateChecker::pickLatest(self::RELEASES);
+        $releases = UpdateChecker::pickReleases(self::RELEASES);
+        $latest = $releases[0] ?? null;
 
         self::assertNotNull($latest);
+        self::assertSame(['0.4.0-dev', '0.3.0-dev'], array_column($releases, 'version'));
         self::assertSame('0.4.0-dev', $latest['version']);
         self::assertSame('0.4.0-dev — novinky', $latest['name']);
         self::assertTrue($latest['prerelease']);
@@ -46,15 +48,15 @@ final class UpdateCheckerTest extends TestCase
 
     public function testStableReleaseIsNewerThanItsDevVersion(): void
     {
-        $latest = UpdateChecker::pickLatest('[{"tag_name":"v0.4.0-dev"},{"tag_name":"v0.4.0"}]');
+        $releases = UpdateChecker::pickReleases('[{"tag_name":"v0.4.0-dev"},{"tag_name":"v0.4.0"}]');
 
-        self::assertSame('0.4.0', $latest['version'] ?? null);
+        self::assertSame('0.4.0', $releases[0]['version'] ?? null);
     }
 
     public function testInvalidResponseThrows(): void
     {
         $this->expectException(MarketDataException::class);
-        UpdateChecker::pickLatest('{"message":"Not Found"}');
+        UpdateChecker::pickReleases('{"message":"Not Found"}');
     }
 
     public function testReportsAvailableUpdateAndCachesResult(): void
@@ -80,6 +82,28 @@ final class UpdateCheckerTest extends TestCase
         $result = $this->checker(new FakeHttpFetcher(['releases' => self::RELEASES]), '0.4.0-dev')->check();
 
         self::assertFalse($result['update_available']);
+        self::assertSame([], $result['releases']);
+    }
+
+    public function testListsEveryReleaseNewerThanCurrent(): void
+    {
+        $result = $this->checker(new FakeHttpFetcher(['releases' => self::RELEASES]), '0.2.0-dev')->check();
+
+        self::assertSame(['0.4.0-dev', '0.3.0-dev'], array_column($result['releases'], 'version'));
+        // z cache se seznam filtruje podle aktuální verze (po aktualizaci ubude)
+        $after = $this->checker(new FakeHttpFetcher([]), '0.3.0-dev')->check();
+        self::assertSame(['0.4.0-dev'], array_column($after['releases'], 'version'));
+    }
+
+    public function testCacheWithoutReleaseListIsRefetched(): void
+    {
+        file_put_contents($this->cache, json_encode(['repo' => 'example/repo', 'checked_at' => date(\DateTimeInterface::ATOM),
+            'latest' => ['version' => '0.4.0-dev']]));
+        $http = new FakeHttpFetcher(['releases' => self::RELEASES]);
+
+        $this->checker($http, '0.3.0-dev')->check();
+
+        self::assertCount(1, $http->requested);
     }
 
     public function testUnavailableSourceKeepsLastKnownResult(): void
