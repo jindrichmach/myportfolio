@@ -78,7 +78,8 @@ final class WebklexImapClient implements ImapClientInterface
     private function client(array $settings): Client
     {
         // Těsně před připojením znovu (DNS se mohl od uložení změnit)
-        $denied = $this->guard->check((string) ($settings['host'] ?? ''));
+        $denied = $this->guard->check((string) ($settings['host'] ?? ''))
+            ?? $this->guard->checkPort((int) ($settings['port'] ?? 993));
         if ($denied !== null) {
             throw new \RuntimeException($denied);
         }

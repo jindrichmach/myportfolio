@@ -146,8 +146,8 @@ final class BankNoticesAction
         if ($data['host'] !== null && ($denied = $this->hostGuard->check($data['host'])) !== null) {
             $errors['host'][] = $denied;
         }
-        if ($data['port'] < 1 || $data['port'] > 65535) {
-            $errors['port'][] = 'Port musí být 1–65535.';
+        if (($denied = $this->hostGuard->checkPort($data['port'])) !== null) {
+            $errors['port'][] = $denied;
         }
         if ($data['max_messages_per_run'] < 1 || $data['max_messages_per_run'] > 500) {
             $errors['max_messages_per_run'][] = 'Počet zpráv musí být 1–500.';

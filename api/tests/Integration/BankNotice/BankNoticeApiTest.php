@@ -49,6 +49,10 @@ final class BankNoticeApiTest extends ApiTestCase
         self::assertSame(400, $bad['status']);
         self::assertArrayHasKey('password', $bad['body']['error']['fields']);
         self::assertArrayHasKey('port', $bad['body']['error']['fields']);
+        // Jen porty IMAP — jiný port by šel použít ke zkoumání služeb na veřejných serverech
+        $ssh = $this->call($this->userId, 'POST', '/api/settings/imap-accounts', array_merge(self::ACCOUNT, ['port' => 22]));
+        self::assertSame(400, $ssh['status']);
+        self::assertArrayHasKey('port', $ssh['body']['error']['fields']);
         self::assertSame([], $this->call($this->adminId, 'GET', '/api/settings/imap-accounts')['body']);
         self::assertSame(404, $this->call($this->adminId, 'PUT', "/api/settings/imap-accounts/$id", self::ACCOUNT)['status']);
         self::assertSame(404, $this->call($this->adminId, 'POST', "/api/settings/imap-accounts/$id/test")['status']);

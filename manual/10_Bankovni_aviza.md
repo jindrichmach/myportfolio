@@ -40,7 +40,7 @@ Když přijde víc avíz za jeden den, platí zůstatek z posledního.
 | Pole | Význam |
 |---|---|
 | Název | Pro tvou orientaci |
-| IMAP server, port, šifrování | Např. `imap.seznam.cz`, 993, SSL/TLS. Server musí mít veřejnou adresu — místní a vnitřní síť správce povolí v `cfg.php` (`bank_notices.allow_private_imap`) |
+| IMAP server, port, šifrování | Např. `imap.seznam.cz`, 993, SSL/TLS. Server musí mít veřejnou adresu — místní a vnitřní síť správce povolí v `cfg.php` (`bank_notices.allow_private_imap`). Port jen 993 (SSL/TLS) nebo 143; jiný povolí správce (`bank_notices.allowed_ports`) |
 | Uživatel, heslo | Přihlášení do schránky; heslo se ukládá šifrovaně a už se nezobrazí. Při úpravě prázdné heslo = beze změny |
 | Složka | Kde avíza leží (výchozí `INBOX`) |
 | Ověřovat pravost e-mailu | Avízo se zapíše, jen když ho poštovní server ověřil (DKIM/DMARC) jako odeslané bankou — ochrana proti podvrženým e-mailům |

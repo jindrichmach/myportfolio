@@ -17,6 +17,16 @@ final class ImapHostGuard
 {
     public function __construct(private readonly Config $config) {}
 
+    /**
+     * Port jen ze seznamu (výchozí IMAP 143 a IMAPS 993) — libovolný port by šel použít ke zkoumání
+     * služeb na veřejných serverech. Jiný port správce povolí v `bank_notices.allowed_ports`.
+     */
+    public function checkPort(int $port): ?string
+    {
+        $allowed = array_map('intval', (array) $this->config->get('bank_notices.allowed_ports', [143, 993]));
+        return in_array($port, $allowed, true) ? null : 'Port musí být ' . implode(' nebo ', $allowed) . ' (IMAP).';
+    }
+
     /** Chybová hláška, nebo null když je host povolený. */
     public function check(string $host): ?string
     {

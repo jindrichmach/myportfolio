@@ -167,6 +167,7 @@ return [
     // true = povolit i místní / privátní adresy (vlastní poštovní server v LAN).
     'bank_notices' => [
         'allow_private_imap' => false,
+        'allowed_ports'      => [143, 993],          // porty IMAP schránek, které uživatelé smějí zadat
     ],
     'exchanges' => [
         'allow_dangerous_keys' => false,             // true = uložit i API klíč burzy s právem obchodovat / vybírat (jen s varováním)

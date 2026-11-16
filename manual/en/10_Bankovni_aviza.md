@@ -40,7 +40,7 @@ When several notices arrive for one day, the balance from the last one applies.
 | Field | Meaning |
 |---|---|
 | Name | For your own orientation |
-| IMAP server, port, encryption | E.g. `imap.seznam.cz`, 993, SSL/TLS. The server must have a public address — the administrator can allow local and internal networks in `cfg.php` (`bank_notices.allow_private_imap`) |
+| IMAP server, port, encryption | E.g. `imap.seznam.cz`, 993, SSL/TLS. The server must have a public address — the administrator can allow local and internal networks in `cfg.php` (`bank_notices.allow_private_imap`). Port only 993 (SSL/TLS) or 143; the administrator can allow another one (`bank_notices.allowed_ports`) |
 | Username, password | Login to the mailbox; the password is stored encrypted and is never shown again. When editing, an empty password = unchanged |
 | Folder | Where the notices are (default `INBOX`) |
 | Verify e-mail authenticity | A notice is recorded only when the mail server verified it (DKIM/DMARC) as sent by the bank — protection against forged e-mails |
