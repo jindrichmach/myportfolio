@@ -10,6 +10,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test:pwa": "node --test \"tests/*.test.mjs\"",
+    "test:unit": "vitest run",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
@@ -36,6 +37,7 @@
     "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
     "vite": "^8.3.8",
+    "vitest": "^5.1.0",
     "vue-tsc": "^3.3.14"
   }
 }

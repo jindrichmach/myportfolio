@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
@@ -38,6 +39,11 @@ export default defineConfig(({ mode }) => {
         // Chromium prostředí je nevyhodnotí, proto nesting vždy rozbalíme.
         include: Features.Nesting,
       },
+    },
+    // Unit testy čistých funkcí (formátování, manuál) — `pnpm test:unit`; testy v tests/*.test.mjs jsou node:test
+    test: {
+      include: ['src/**/*.test.ts'],
+      setupFiles: ['tests/vitest.setup.ts'],
     },
     server: {
       host: 'dev.myportfolio.cz',

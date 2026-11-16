@@ -35,13 +35,14 @@ Skelet (auth, MFA, session, middleware, migrace, Docker, CI) je převzatý z MyI
 # Frontend — build (NUTNÉ po každé změně web/src; web/dist/ se necommituje)
 cd web && pnpm build            # = vue-tsc --noEmit && vite build
 cd web && pnpm type-check       # jen typová kontrola
-cd web && pnpm test:pwa         # node:test testy frontendu
+cd web && pnpm test:pwa         # node:test testy frontendu (tests/*.test.mjs)
+cd web && pnpm test:unit        # Vitest — unit testy čistých funkcí (src/**/*.test.ts: formátování, manuál)
 
 # PHP testy (PHPUnit 13)
 cd api && php8.5 vendor/bin/phpunit                  # vše
 cd api && php8.5 vendor/bin/phpunit --filter Xyz     # podmnožina
 cd api && php8.5 vendor/bin/phpstan analyse          # statická analýza (úroveň 5, phpstan.neon; běží i v CI)
-cmd/test.sh                                          # PHPUnit + pnpm build
+cmd/test.sh                                          # PHPUnit + pnpm build + testy frontendu
 
 # Migrace — VŽDY přes migrate.php, NIKDY mysql klientem přímo
 php8.5 api/bin/migrate.php

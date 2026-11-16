@@ -161,6 +161,10 @@ jobs:
         working-directory: web
         run: pnpm test:pwa
 
+      - name: Unit tests (Vitest)
+        working-directory: web
+        run: pnpm test:unit
+
       - name: Production build
         working-directory: web
         run: pnpm build
