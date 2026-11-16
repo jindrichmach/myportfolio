@@ -128,6 +128,7 @@ return [
         'captcha_after'   => 5,                      // selhání / 5 min  → vyžadovat CAPTCHA
         'lockout_15m_at'  => 10,                     // selhání / 15 min → lockout 15 min
         'lockout_24h_at'  => 30,                     // selhání / 60 min → lockout 24h
+        'account_lockout_15m_at' => 50,              // selhání účtu z libovolných IP / 15 min → lockout 15 min (0 = vypnuto)
         'window_seconds'  => [300, 900, 3600],
     ],
     'captcha' => [

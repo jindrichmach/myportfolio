@@ -9,11 +9,12 @@ use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Infrastructure\Database\Connection;
 
 /**
- * Sliding-window počítadla selhání login pokusů per (email, IP).
- * Tři okna (5 min / 15 min / 60 min) → 3 prahové hodnoty:
+ * Počítadla selhání login pokusů per (email, síť IP). Tři okna (5 min / 15 min / 60 min) → 3 prahové hodnoty:
  *   - >= captcha_after / 5 min  → CAPTCHA required
  *   - >= lockout_15m_at / 15 min → 15min lockout
- *   - >= lockout_24h_at / 60 min → 24h lockout
+ *   - >= lockout_24h_at / 60 min → lockout na 24 h (značka s vlastní platností, ne jen okno počítadla)
+ * Navíc per účet napříč IP: >= account_lockout_15m_at / 15 min → 15min lockout (útočník střídající IP).
+ * S Redisem okno počítadla běží od posledního selhání (expire se obnovuje), v DB je klouzavé.
  */
 final class BruteForceGuard
 {
@@ -48,6 +49,9 @@ final class BruteForceGuard
                 $r->incr($key);
                 $r->expire($key, $window);
             }
+            $accountKey = $this->accountKey($email);
+            $r->incr($accountKey);
+            $r->expire($accountKey, $this->windows()[1]);
             return;
         }
 
@@ -59,7 +63,7 @@ final class BruteForceGuard
         $stmt = $this->db->pdo()->prepare(
             'INSERT INTO login_attempts (bucket_key, email, ip_packed, success) VALUES (?, ?, ?, 0)'
         );
-        $stmt->execute([$bucket, $email, $packed]);
+        $stmt->execute([$bucket, strtolower($email), $packed]);
     }
 
     public function recordSuccess(string $email, string $ip): void
@@ -84,25 +88,60 @@ final class BruteForceGuard
         $captchaAfter = (int) $this->config->get('brute_force.captcha_after', 5);
         $lockout15m   = (int) $this->config->get('brute_force.lockout_15m_at', 10);
         $lockout24h   = (int) $this->config->get('brute_force.lockout_24h_at', 30);
+        $accountLockout = (int) $this->config->get('brute_force.account_lockout_15m_at', 50);
         [$wShort, $wMid, $wLong] = $this->windows();
+        $lockKey = 'lock24h:' . sha1($bucket);
 
         if (($r = $this->redis->client()) !== null) {
+            if ((int) $r->exists("bf:{$lockKey}") > 0) {
+                return self::STATE_LOCKED_24H;
+            }
             $countShort = (int) ($r->get("bf:{$bucket}:{$wShort}") ?? 0);
             $countMid   = (int) ($r->get("bf:{$bucket}:{$wMid}")   ?? 0);
             $countLong  = (int) ($r->get("bf:{$bucket}:{$wLong}")  ?? 0);
+            $countAccount = (int) ($r->get($this->accountKey($email)) ?? 0);
         } else {
             $pdo = $this->db->pdo();
+            $lock = $pdo->prepare('SELECT COUNT(*) FROM login_attempts WHERE bucket_key = ? AND created_at >= NOW() - INTERVAL 24 HOUR');
+            $lock->execute([$lockKey]);
+            if ((int) $lock->fetchColumn() > 0) {
+                return self::STATE_LOCKED_24H;
+            }
             $sql = 'SELECT COUNT(*) FROM login_attempts WHERE bucket_key = ? AND success = 0 AND created_at >= NOW() - INTERVAL ? SECOND';
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$bucket, $wShort]); $countShort = (int) $stmt->fetchColumn();
             $stmt->execute([$bucket, $wMid]);   $countMid   = (int) $stmt->fetchColumn();
             $stmt->execute([$bucket, $wLong]);  $countLong  = (int) $stmt->fetchColumn();
+            $account = $pdo->prepare('SELECT COUNT(*) FROM login_attempts WHERE email = ? AND success = 0 AND created_at >= NOW() - INTERVAL ? SECOND');
+            $account->execute([strtolower($email), $wMid]);
+            $countAccount = (int) $account->fetchColumn();
         }
 
-        if ($countLong >= $lockout24h) return self::STATE_LOCKED_24H;
-        if ($countMid  >= $lockout15m) return self::STATE_LOCKED_15M;
+        if ($countLong >= $lockout24h) {
+            $this->lock24h($lockKey);
+            return self::STATE_LOCKED_24H;
+        }
+        if ($countMid >= $lockout15m || ($accountLockout > 0 && $countAccount >= $accountLockout)) return self::STATE_LOCKED_15M;
         if ($countShort >= $captchaAfter) return self::STATE_CAPTCHA;
         return self::STATE_OK;
+    }
+
+    /** Zámek na 24 h od dosažení prahu — počítadla v hodinovém okně by ho po hodině zrušila. */
+    private function lock24h(string $lockKey): void
+    {
+        if (($r = $this->redis->client()) !== null) {
+            $r->set("bf:{$lockKey}", '1', 'EX', 86400);
+            return;
+        }
+        $this->db->pdo()->prepare(
+            "INSERT INTO login_attempts (bucket_key, email, ip_packed, success) VALUES (?, '', '', 0)"
+        )->execute([$lockKey]);
+    }
+
+    /** Selhání účtu napříč IP — e-mail bez sítě (Redis; v DB se počítá podle sloupce email). */
+    private function accountKey(string $email): string
+    {
+        return 'bf:acct:' . sha1(strtolower($email));
     }
 
     /**

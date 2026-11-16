@@ -13,7 +13,9 @@ If the administrator has enabled passwordless sign-in, you can use
 
 **Protection against password guessing:** after 5 failed attempts within 5 minutes a
 CAPTCHA appears (if configured), after 10 attempts within 15 minutes sign-in is
-blocked for 15 minutes, and after 30 attempts within an hour for 24 hours.
+blocked for 15 minutes, and after 30 attempts within an hour for 24 hours. These limits apply to attempts from
+the same network; the account is also protected by a shared limit of 50 failed attempts within 15 minutes from any
+address — then sign-in to the account is blocked for 15 minutes for everyone (passkey sign-in still works).
 
 ## 3.2 Forgotten password
 

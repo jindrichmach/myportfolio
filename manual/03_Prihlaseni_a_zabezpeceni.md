@@ -13,7 +13,9 @@ Pokud správce povolil přihlášení bez hesla, můžeš použít rovnou
 
 **Ochrana proti hádání hesla:** po 5 neúspěšných pokusech za 5 minut se objeví
 CAPTCHA (je-li nastavená), po 10 pokusech za 15 minut se přihlášení na 15 minut
-zablokuje, po 30 pokusech za hodinu na 24 hodin.
+zablokuje, po 30 pokusech za hodinu na 24 hodin. Tyto limity platí pro pokusy ze stejné sítě;
+účet navíc chrání společný limit 50 neúspěšných pokusů za 15 minut z libovolných adres —
+pak se přihlášení k účtu zablokuje na 15 minut pro všechny (přihlášení passkey zůstává).
 
 ## 3.2 Zapomenuté heslo
 
