@@ -33,19 +33,23 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 ### Přehled a výkonnost
 - **Přehled** v měně zobrazení (CZK / EUR / USD) — hodnota portfolia s celkovým výnosem, investováno,
-  realizovaný a nerealizovaný zisk, příjmy, čisté jmění a krypto sečtené napříč účty.
+  realizovaný a nerealizovaný zisk, příjmy, poplatky, čisté jmění, alokace a krypto sečtené napříč účty;
+  prázdný přehled ukáže první kroky.
 - **Vývoj hodnoty** v čase (1M až Vše) pro celek, portfolio, třídu aktiv i jednu pozici: plocha zisku a ztráty
   proti investovaným penězům, **TWR**, **XIRR**, výnos za období, inflace ČR a reálný výnos.
 - **Benchmark** — „kdyby stejné vklady ve stejné dny šly do BTC / indexu / libovolného instrumentu".
-- **Alokace** podle třídy aktiv, portfolia nebo instituce a **cílová alokace** s tolerancí, návrhem rozdělení
-  vkladu a plným rebalancingem včetně odhadu zdanitelných kusů.
+- **Alokace** (na Přehledu podle třídy aktiv, portfolia nebo instituce) a **cílová alokace** po třídách (volitelně i po instrumentech),
+  pro celý majetek nebo jedno portfolio — s tolerancí, návrhem rozdělení vkladu a plným rebalancingem včetně
+  odhadu zdanitelných kusů.
 - **Měsíční a roční souhrny** a **dividendy a úroky** po pozicích, letech a platbách.
 
 ### Transakce a pozice
+- **Nová investice** — průvodce: instrument z katalogu podle tickeru, ISINu nebo názvu, účet, portfolio a první nákup.
 - Tržní pozice (krypto, ETF, akcie) i **ručně oceňované** (Portu, spořicí účet, penzijko, DIP).
 - Nákup, prodej, odměna / staking, split, vklad, výběr, dividenda, úrok, poplatek a **převody mezi účty**,
   které zachovávají datum nabytí.
 - **FIFO loty** s realizovaným a nerealizovaným ziskem; aplikace nedovolí prodat víc, než pozice v danou chvíli držela.
+  Detail pozice ukáže otevřené loty, prodeje a vývoj hodnoty.
 - **Hotovost na účtu** se zadávaným zůstatkem — rozdíl se zapíše jako vklad nebo výběr.
 
 ### Importy a napojení
@@ -55,28 +59,39 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
   synchronizace, navázání na poslední import.
 - **Bankovní e-mailová avíza přes IMAP** — Fio, Air Bank, MONETA, Raiffeisenbank, ČSOB, Česká spořitelna,
   CREDITAS, UniCredit: vklady, výběry, úroky a zůstatek spořicího účtu bez ručního přepisování.
-- **Ceny a kurzy** — kurzy ČNB, CoinGecko a Yahoo Finance pro krypto, XTB → Yahoo pro ETF, ruční ceny.
+- **Ceny a kurzy** — kurzy ČNB; ceny z CoinGecko → Yahoo Finance (krypto), XTB → Yahoo (ETF), Yahoo (akcie)
+  nebo ručně; inflace ČR z Eurostatu (HICP).
+- **Sdílený katalog** institucí a instrumentů s knihovnou ikon — loga správců ETF, kryptoměn, českých institucí,
+  vlastní obrázek nebo logo stažené z webu instituce.
 
 ### Daně
 - **Daňový report** za rok podle českých pravidel: prodeje cenných papírů a kryptoaktiv po FIFO lotech, limit
-  100 000 Kč, časový test 3 roky, zahraniční dividendy po zemích se zápočtem daně, úroky; CSV a tisk.
+  100 000 Kč, časový test 3 roky se stropem 40 mil. Kč (u krypta osvobození pro prodeje od 15. 2. 2025),
+  zahraniční dividendy po zemích se zápočtem daně, úroky; denní nebo jednotný kurz ČNB; CSV a tisk.
 - **Podklad pro přiznání** podle toho, jak ho podáváš — řádky DPFO k přepsání do EPO, souhrn pro daňového
   poradce, nebo CSV pro jiný program.
 
 ### Majetek a domácnost
 - **Čisté jmění** — investice + nemovitosti a ostatní majetek − závazky; úvěr jako anuita s mimořádnými splátkami,
   refixací a odhadem doplacení.
-- **Sdílení pro domácnost** — celý účet nebo vybraná portfolia, jen pro čtení nebo i pro zápis, pozvánka e-mailem,
-  log změn partnera a společná stránka **Domácnost**.
+- **Sdílení pro domácnost** — celý účet (volitelně i čisté jmění, daňový report a příjmy) nebo vybraná portfolia,
+  jen pro čtení nebo i pro zápis, pozvánka e-mailem, log změn partnera a společná stránka **Domácnost**.
 
 ### Upozornění a e-maily
-- Týdenní report, měsíční a roční souhrn a denní souhrn upozornění (cenové hranice, velký pohyb, blížící se
-  časový test, alokace mimo toleranci, problémy s daty).
+- Týdenní report, měsíční a roční souhrn a denní souhrn upozornění (vlastní cenové hranice instrumentů,
+  velký pohyb, blížící se časový test, alokace mimo toleranci, problémy s daty).
 
 ### API
 - Tokeny s rozsahem `read` / `read_write` pro skripty a integrace; katalog endpointů s ukázkami, tlačítkem
-  Vyzkoušet a exportem **OpenAPI 3.1** (`/api/openapi.json`). Katalog i OpenAPI jsou dostupné jen po přihlášení
-  (Profil → API) nebo s API tokenem — neprozrazují povrch API instance anonymně.
+  Vyzkoušet a exportem **OpenAPI 3.1** (`/api/openapi.json`). Katalog je jen po přihlášení (Profil → API),
+  OpenAPI po přihlášení nebo s API tokenem — povrch API instance anonymně neprozrazují.
+
+### Rozhraní a správa
+- Čeština a angličtina v aplikaci i v **manuálu** přímo v aplikaci (hledání, odkazy „Jak se to počítá?").
+- Světlý i tmavý motiv, 10 barevných schémat (výchozí volí správce, uživatel si může vybrat své), mobilní
+  zobrazení a instalace jako aplikace (PWA).
+- Správa pro admina: uživatelé, ceny a kurzy, plánované úlohy s ručním spuštěním, záznam aktivit, kontrola
+  aktualizací; denní záloha databáze s obnovou přes `api/bin/restore-backup.php`.
 
 ## Ukázky
 
@@ -95,11 +110,14 @@ Screenshoty jsou z ukázkových dat (`api/bin/seed-demo.php`), žádná skutečn
 
 ## Bezpečnost
 
-- Hesla bcrypt s pepperem, ochrana proti hádání hesel (Redis nebo MariaDB), volitelně Cloudflare Turnstile.
-- Dvoufázové ověření: **passkeys (WebAuthn)**, TOTP, e-mailový kód, záložní kódy; step-up pro citlivé operace.
-- Session cookie `__Host-`, CSRF token, zámek session při nečinnosti, IP allowlist.
+- Hesla bcrypt s pepperem, ochrana proti hádání hesel (Redis nebo MariaDB), volitelně Cloudflare Turnstile;
+  rate limiting API jen s Redisem (doporučený).
+- Dvoufázové ověření: **passkeys (WebAuthn)** a TOTP se záložními kódy, volitelně e-mailový kód s důvěryhodným
+  zařízením; step-up pro citlivé operace; volitelně přihlášení jen passkey (bez hesla, vyžaduje HTTPS).
+- Session cookie `__Host-`, CSRF token, zámek aplikace při nečinnosti, IP allowlist; CSP bez `unsafe-inline` pro skripty.
 - Přísná izolace uživatelů — cizí záznam je 404, ne 403; sdílení jen přes výslovné oprávnění.
-- API klíče burz a IMAP hesla šifrovaně, ověření DKIM / Authentication-Results u bankovních avíz.
+- API klíče burz, IMAP hesla a TOTP secrety šifrovaně (AES-256-GCM), ověření DKIM / Authentication-Results
+  u bankovních avíz; CI kontroluje známé zranitelnosti závislostí (`composer audit`).
 
 Zranitelnosti hlas podle [SECURITY.md](SECURITY.md).
 
@@ -115,7 +133,8 @@ cmd/install.sh                 # nebo: cmd/install.sh --docker | --native [--yes
 Pak otevři `<adresa>/setup` — webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně
 nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
 
-Hotový Docker image je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.0.0`, stabilní verze i `latest`), produkční compose v
+Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.0.0`, u stabilních verzí
+i `1.0` a `latest`), produkční compose v
 [`docker-compose.production.yml`](docker-compose.production.yml). Vývojové verze (`-dev`) nedostávají značku
 `latest` — v compose uveď konkrétní verzi.
 
@@ -135,9 +154,11 @@ Hotový Docker image je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.0.0`, stabil
 | `cron-backup`, `cron-cleanup` | denně 2:00 a 3:00 | záloha databáze a úklid |
 
 Hotový crontab je v [`cmd/crontab`](cmd/crontab), v Dockeru se generuje sám. Přehled posledních běhů je v aplikaci
-v **Systém → Plánované úlohy**.
+v **Systém → Plánované úlohy** (jen správce).
 
 ## Lokální vývoj
+
+Potřebuješ PHP 8.5, Composer, MariaDB 11, Node.js 22.12+ a pnpm.
 
 ```bash
 cp cfg.sample.php cfg.php                        # vyplň db.*, app.pepper, app.url
@@ -161,8 +182,9 @@ Testy:
 MYPORTFOLIO_DB_NAME=myportfolio_test php8.5 api/bin/migrate.php
 MYPORTFOLIO_DB_NAME=myportfolio_test php8.5 api/bin/ci-seed.php
 
-cd api && php8.5 vendor/bin/phpunit              # PHPUnit; HTTP testy potřebují běžící server (MYPORTFOLIO_TEST_URL)
-cd web && pnpm build && pnpm test:pwa            # typová kontrola, build a testy frontendu
+cd api && php8.5 vendor/bin/phpunit && cd ..     # PHPUnit; HTTP testy potřebují běžící server (MYPORTFOLIO_TEST_URL)
+cd web && pnpm build && pnpm test:pwa && cd ..   # typová kontrola, build a testy frontendu
+cmd/test.sh                                      # obojí najednou (PHPUnit + build)
 ```
 
 ## Stack
@@ -171,7 +193,7 @@ cd web && pnpm build && pnpm test:pwa            # typová kontrola, build a tes
 |---|---|
 | Backend | PHP 8.5, Slim 4, PHP-DI 7, Twig 3, Monolog 3, brick/math |
 | Databáze | MariaDB 11.x, Redis 7 volitelně |
-| Frontend | Vue 3.5, TypeScript, Vite 8, Tailwind CSS 4, Pinia, vue-i18n (čeština a angličtina), Chart.js |
+| Frontend | Vue 3.5, TypeScript, Vite 8, Tailwind CSS 4, Reka UI, Pinia, vue-router, vue-i18n (čeština a angličtina), Chart.js |
 | Testy | PHPUnit 13, vue-tsc, node:test |
 | Nasazení | Docker (nginx + php-fpm, Alpine), GitHub Actions → GHCR |
 
@@ -187,7 +209,8 @@ db/migrations/   číslované idempotentní SQL migrace
 docker/          nginx, php-fpm, entrypoint, cron wrapper
 cmd/             shell skripty (instalace, testy, Docker, cron)
 manual/          uživatelský manuál v Markdownu, anglicky v manual/en/ (je i přímo v aplikaci)
-docs/            screenshoty pro README
+tools/           pomocné skripty (generování crontabu pro Docker)
+docs/            screenshoty a QR platba pro README
 styles/          statika z rootu (logo)
 ```
 
@@ -203,8 +226,9 @@ available in Czech and English, and so is the [user manual](manual/en/INDEX.md);
 
 - **Stack:** PHP 8.5 + Slim 4, MariaDB 11, Vue 3 + TypeScript + Tailwind; Docker image on GHCR.
 - **Highlights:** exact decimal arithmetic (no floats), TWR / XIRR, benchmark and target allocation with
-  rebalancing, CSV imports from 10 exchanges and brokers, read-only exchange APIs, household sharing, passkeys / TOTP,
-  REST API with OpenAPI 3.1 (available after sign-in in Profile → API, or with an API token).
+  rebalancing, CSV / XLSX imports from 10 exchanges and brokers, read-only exchange APIs, bank e-mail notices via IMAP,
+  household sharing, passkeys / TOTP, light and dark mode with 10 colour schemes, installable PWA,
+  REST API with OpenAPI 3.1 (after sign-in in Profile → API, or with an API token).
 - **Install:** `cmd/install.sh` (Docker or native), then open `/setup` in the browser.
 - **Security issues:** see [SECURITY.md](SECURITY.md). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
 
