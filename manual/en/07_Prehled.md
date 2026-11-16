@@ -132,7 +132,7 @@ a click outside or Escape closes it):
 | Gain in period | ending value − starting value − net deposits |
 | Return | gain / (starting value + deposits in the period) |
 | TWR | time-weighted return — how the investments themselves performed regardless of when and how much you put in; comparable with an index. For a period longer than a year, also annualized |
-| XIRR | annual rate of return on your money — takes the timing of deposits and withdrawals into account |
+| XIRR | annual rate of return on your money — takes the timing of deposits and withdrawals into account. Only for periods of 1 year or more; for a shorter one an ordinary swing would come out as misleading hundreds of percent a year |
 | Net deposits | purchases and deposits minus sales, withdrawals and paid-out dividends / interest |
 | Czech inflation | price growth over the period (HICP index) and below it the **real TWR** — return after deducting inflation |
 | Benchmark (symbol) | TWR of the selected instrument over the period and the gain if your money had gone into it |

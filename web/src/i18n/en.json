@@ -895,6 +895,7 @@
     "simple_hint": "Gain / (start value + deposits).",
     "twr_hint": "Time-weighted return — independent of deposit timing; comparable with an index.",
     "xirr_hint": "Annual rate of return on your money — accounts for when you deposited and withdrew.",
+    "xirr_short": "only for periods of 1 year or more",
     "net_flow": "Net deposits",
     "net_flow_hint": "Purchases and deposits minus sales, withdrawals and paid-out income in the period.",
     "per_year": "{pct} per year",

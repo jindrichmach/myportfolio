@@ -131,7 +131,7 @@ zavře ho další klepnutí, klik mimo nebo Escape):
 | Zisk za období | konečná hodnota − počáteční hodnota − čisté vklady |
 | Výnos | zisk / (počáteční hodnota + vklady v období) |
 | TWR | časově vážený výnos — jak si vedly samotné investice bez ohledu na to, kdy a kolik jsi vložil; dá se srovnat s indexem. U období delšího než rok i přepočet na rok |
-| XIRR | roční míra výnosu tvých peněz — zohledňuje načasování vkladů a výběrů |
+| XIRR | roční míra výnosu tvých peněz — zohledňuje načasování vkladů a výběrů. Jen pro období od 1 roku; za kratší by z běžného výkyvu vyšly zavádějící stovky procent ročně |
 | Čisté vklady | nákupy a vklady minus prodeje, výběry a vyplacené dividendy / úroky |
 | Inflace ČR | růst cen za období (index HICP) a pod ním **reálné TWR** — výnos po odečtení inflace |
 | Benchmark (symbol) | TWR zvoleného instrumentu za období a zisk, kdyby šly do něj tvoje peníze |

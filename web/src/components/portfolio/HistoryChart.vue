@@ -177,7 +177,7 @@ const metricGroups = computed<{ key: string; title: string; items: Metric[] }[]>
     { key: 'performance', title: t('history.group_performance'), items: [
       { key: 'twr', label: 'TWR', text: pct(m.twr_pct), cls: gainClass(m.twr_pct), hint: t('history.twr_hint'),
         sub: m.twr_annual_pct !== null ? t('history.per_year', { pct: pct(m.twr_annual_pct) }) : '' },
-      { key: 'xirr', label: 'XIRR', text: pct(m.xirr_pct), cls: gainClass(m.xirr_pct), hint: t('history.xirr_hint'), sub: m.xirr_pct !== null ? t('history.annual') : '' },
+      { key: 'xirr', label: 'XIRR', text: pct(m.xirr_pct), cls: gainClass(m.xirr_pct), hint: t('history.xirr_hint'), sub: m.xirr_pct !== null ? t('history.annual') : (m.twr_pct !== null ? t('history.xirr_short') : '') },
       { key: 'inflation', label: t('history.inflation'), text: pct(m.inflation_pct), cls: '',
         hint: m.inflation_from ? t('history.inflation_hint', { from: m.inflation_from, to: m.inflation_to }) : t('history.inflation_missing'),
         sub: m.twr_real_pct !== null ? t('history.real_twr', { pct: pct(m.twr_real_pct) }) : '' },

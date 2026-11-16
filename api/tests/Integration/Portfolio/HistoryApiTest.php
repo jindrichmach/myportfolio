@@ -83,7 +83,7 @@ final class HistoryApiTest extends ApiTestCase
         self::assertSame('400.00', $m['gain']);
         self::assertSame('25.00', $m['simple_pct']);
         self::assertSame('25.00', $m['twr_pct']);
-        self::assertNotNull($m['xirr_pct']);
+        self::assertNull($m['xirr_pct']);   // období kratší než rok — roční míra by byla zavádějící
 
         // Po úpravě transakce se snapshoty přepočítají (fronta snapshot_dirty).
         $txId = $r['body']['id'];

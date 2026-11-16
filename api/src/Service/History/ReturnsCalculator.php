@@ -70,7 +70,8 @@ final class ReturnsCalculator
         return [
             'twr'            => $twr,
             'twr_annualized' => $days >= 365 && $growth > 0 ? $growth ** (365 / $days) - 1 : null,
-            'xirr'           => $this->xirr($cashflows),
+            // XIRR je roční míra — za kratší období by z pár procent vyšly stovky % ročně (stejně jako TWR p.a.)
+            'xirr'           => $days >= 365 ? $this->xirr($cashflows) : null,
             'simple'         => $base > 0 ? $gain / $base : null,
             'gain'           => $gain,
             'net_flow'       => $netFlow,

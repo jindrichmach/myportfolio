@@ -68,4 +68,18 @@ final class ReturnsCalculatorTest extends TestCase
         self::assertNull($m['twr']);
         self::assertNull($m['xirr']);
     }
+
+    public function testXirrOnlyForAtLeastOneYear(): void
+    {
+        $short = (new ReturnsCalculator())->metrics(['date' => '2024-01-01', 'value' => '100'], [
+            ['date' => '2024-01-08', 'value' => '103', 'flow' => '0'],
+        ]);
+        self::assertNull($short['xirr'], '+3 % za týden není roční výnos v řádu stovek %');
+        self::assertEqualsWithDelta(0.03, $short['twr'], 1e-9);
+
+        $year = (new ReturnsCalculator())->metrics(['date' => '2024-01-01', 'value' => '100'], [
+            ['date' => '2025-01-01', 'value' => '110', 'flow' => '0'],
+        ]);
+        self::assertEqualsWithDelta(0.0997, (float) $year['xirr'], 1e-3);
+    }
 }

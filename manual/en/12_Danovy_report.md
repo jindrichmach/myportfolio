@@ -66,7 +66,7 @@ The partial tax base belongs in Příloha č. 2 (Attachment 2) of the tax return
 ## 12.2 Foreign dividends
 
 Dividends by country — the country comes from the instrument's ISIN (first two letters), or from the **withholding country**
-set on the instrument (it differs for ADRs, see [4. Accounts and portfolios](04_Ucty_a_portfolia.md)); the report marks such a country "set on the instrument". For each country:
+set on the instrument (it differs for ADRs, see [4. Accounts, portfolios and positions](04_Ucty_a_portfolia.md)); the report marks such a country "set on the instrument". For each country:
 
 | Column | Meaning |
 |---|---|

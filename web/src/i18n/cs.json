@@ -895,6 +895,7 @@
     "simple_hint": "Zisk / (počáteční hodnota + vklady).",
     "twr_hint": "Časově vážený výnos — nezávisí na načasování vkladů; srovnatelný s indexem.",
     "xirr_hint": "Roční míra výnosu tvých peněz — zohledňuje, kdy přišly vklady a výběry.",
+    "xirr_short": "jen pro období od 1 roku",
     "net_flow": "Čisté vklady",
     "net_flow_hint": "Nákupy a vklady minus prodeje, výběry a vyplacené příjmy za období.",
     "per_year": "{pct} ročně",
