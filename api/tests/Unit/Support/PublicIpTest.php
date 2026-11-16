@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace MyPortfolio\Tests\Unit\Service\BankNotice;
+namespace MyPortfolio\Tests\Unit\Support;
 
-use MyPortfolio\Service\BankNotice\ImapHostGuard;
+use MyPortfolio\Support\PublicIp;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class ImapHostGuardTest extends TestCase
+final class PublicIpTest extends TestCase
 {
     /** @return array<string,array{0:string,1:bool}> */
     public static function addresses(): array
@@ -32,6 +32,6 @@ final class ImapHostGuardTest extends TestCase
     #[DataProvider('addresses')]
     public function testIsPublic(string $ip, bool $public): void
     {
-        self::assertSame($public, ImapHostGuard::isPublic($ip));
+        self::assertSame($public, PublicIp::isPublic($ip));
     }
 }

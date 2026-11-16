@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace MyPortfolio\Service\Catalog;
 
 use MyPortfolio\Service\Portfolio\DomainError;
+use MyPortfolio\Support\PublicIp;
 
 /**
  * Povolí jen `https` adresy, jejichž host se překládá výhradně na veřejné IP — server tak na pokyn uživatele
- * nestahuje z interní sítě (SSRF). Kontroluje se úvodní adresa i každé přesměrování.
+ * nestahuje z interní sítě (SSRF; společná kontrola PublicIp vč. CGNAT a link-local). Kontroluje se úvodní adresa
+ * i každé přesměrování.
  */
 final class PublicUrlGuard
 {
@@ -17,6 +19,17 @@ final class PublicUrlGuard
 
     /** @return string normalizovaná URL (https://host/cesta) */
     public function assert(string $url): string
+    {
+        return $this->resolve($url)['url'];
+    }
+
+    /**
+     * Ověří adresu a vrátí i IP, na které se host přeložil — stahování se na ně připne
+     * (druhý DNS dotaz by mohl vrátit jinou, vnitřní adresu: DNS rebinding).
+     *
+     * @return array{url:string,host:string,ips:non-empty-list<string>}
+     */
+    public function resolve(string $url): array
     {
         $parts = parse_url(trim($url));
         $host = strtolower((string) ($parts['host'] ?? ''));
@@ -28,11 +41,15 @@ final class PublicUrlGuard
             throw DomainError::validation(['website' => ['Adresu webu se nepodařilo najít.']]);
         }
         foreach ($ips as $ip) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            if (!PublicIp::isPublic($ip)) {
                 throw DomainError::validation(['website' => ['Web instituce musí být veřejná adresa.']]);
             }
         }
-        return "https://$host" . ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+        return [
+            'url'  => "https://$host" . ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : ''),
+            'host' => $host,
+            'ips'  => array_values($ips),
+        ];
     }
 
     /** @return list<string> */
