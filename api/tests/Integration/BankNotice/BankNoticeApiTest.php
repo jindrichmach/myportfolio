@@ -69,6 +69,11 @@ final class BankNoticeApiTest extends ApiTestCase
         self::assertSame(400, $bad['status']);
         self::assertArrayHasKey('bank_account', $bad['body']['error']['fields']);
 
+        // Nesmyslné datum je chyba validace, ne 500
+        $badDate = $this->call($this->userId, 'PUT', "/api/positions/$pid", $base + ['bank_account' => '1234560005/2010', 'bank_notices_from' => 'zítra']);
+        self::assertSame(400, $badDate['status'], $badDate['raw']);
+        self::assertArrayHasKey('bank_notices_from', $badDate['body']['error']['fields']);
+
         $ok = $this->call($this->userId, 'PUT', "/api/positions/$pid", $base + ['bank_account' => ' 1234560005/2010', 'bank_notices_from' => '2026-09-19']);
         self::assertSame(200, $ok['status'], json_encode($ok['body']) ?: '');
         self::assertSame(['1234560005/2010', '2026-09-19'], [$ok['body']['bank_account'], $ok['body']['bank_notices_from']]);

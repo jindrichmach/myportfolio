@@ -23,7 +23,7 @@ $run = CronRun::start($c->get(Connection::class)->pdo(), 'cron-prices');
 try {
     $prices = $c->get(PriceService::class);
     $latest = $prices->updateLatest();
-    $backfill = in_array('--no-backfill', $argv, true) ? [] : $prices->backfillUsed();
+    $backfill = in_array('--no-backfill', $_SERVER['argv'], true) ? [] : $prices->backfillUsed();
 
     $failed = array_values(array_filter($latest, static fn (array $r) => $r['status'] === 'failed'));
     $report = [

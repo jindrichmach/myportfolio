@@ -38,7 +38,7 @@ final class LotRepository
         }
     }
 
-    /** @param array<string,?string|int> $lot */
+    /** @param array<string,string|int|null> $lot */
     public function insertLot(int $userId, int $instrumentId, array $lot): int
     {
         $this->db->pdo()->prepare(
@@ -52,7 +52,7 @@ final class LotRepository
         return (int) $this->db->pdo()->lastInsertId();
     }
 
-    /** @param array<string,?string|int> $d */
+    /** @param array<string,string|int|null> $d */
     public function insertDisposal(int $userId, array $d): void
     {
         $this->db->pdo()->prepare(

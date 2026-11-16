@@ -63,7 +63,7 @@ final class WebAuthnConfig
         if ($host === '' || filter_var($host, FILTER_VALIDATE_IP) !== false || !self::isValidAsciiHostname($host)) {
             throw new \InvalidArgumentException('WebAuthn vyžaduje platný ASCII DNS hostname, nikoli IP adresu.');
         }
-        if ($port !== null && ($port < 1 || $port > 65535)) {
+        if ($port !== null && $port < 1) {
             throw new \InvalidArgumentException('Canonical app.url obsahuje neplatný port.');
         }
 

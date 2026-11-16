@@ -23,7 +23,7 @@ final class PhpCliLocator
     {
         $candidates = [];
         $b = PHP_BINARY;
-        if ($b !== '') {
+        if (@is_file($b)) { // pod některými SAPI je PHP_BINARY prázdný
             $candidates[] = $b;
             $dir = dirname($b);
             $candidates[] = $dir . DIRECTORY_SEPARATOR . (PHP_OS_FAMILY === 'Windows' ? 'php.exe' : 'php');

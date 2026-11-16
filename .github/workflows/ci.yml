@@ -67,6 +67,10 @@ jobs:
         working-directory: api
         run: composer audit --locked
 
+      - name: PHPStan
+        working-directory: api
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
       # cfg.php je gitignored, CI si ho generuje. Píšeme ho jako soubor, ne přes
       # MYPORTFOLIO_* proměnné — ty by prosákly i do unit testů Configu, které
       # ověřují právě chování ENV override, a rozbily by je.
@@ -144,6 +148,10 @@ jobs:
       - name: Install dependencies
         working-directory: web
         run: pnpm install --frozen-lockfile
+
+      - name: Dependency audit
+        working-directory: web
+        run: pnpm audit --prod
 
       - name: TypeScript check
         working-directory: web

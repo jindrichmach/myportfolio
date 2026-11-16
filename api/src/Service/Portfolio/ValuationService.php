@@ -182,8 +182,7 @@ final class ValuationService
             if ($r['asset_class'] !== 'crypto' || $r['quantity'] === null || BigDecimal::of($r['quantity'])->isZero()) {
                 continue;
             }
-            $c = &$crypto[$r['instrument_id']];
-            $c ??= ['instrument_id' => $r['instrument_id'], 'symbol' => $r['display_name'], 'name' => $r['instrument_name'],
+            $c = $crypto[$r['instrument_id']] ?? ['instrument_id' => $r['instrument_id'], 'symbol' => $r['display_name'], 'name' => $r['instrument_name'],
                 'icon_url' => $r['instrument_icon_url'],
                 'quantity' => BigDecimal::zero(), 'value' => BigDecimal::zero(), 'invested' => BigDecimal::zero(),
                 'total_return' => BigDecimal::zero(), 'cost_basis' => BigDecimal::zero(),
@@ -199,7 +198,7 @@ final class ValuationService
             }
             $c['accounts'][] = ['position_id' => $r['position_id'], 'account' => $r['institution_name'] . ' · ' . $r['account_name'],
                 'quantity' => $r['quantity'], 'value' => $r['value']];
-            unset($c);
+            $crypto[$r['instrument_id']] = $c;
         }
         // Celkový výnos (vč. prodejů, příjmů a poplatků) — stejný pojem jako v tabulkách pozic.
         $crypto = array_values(array_map(static fn (array $c) => [

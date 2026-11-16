@@ -256,7 +256,7 @@ final class PositionsAction
         if ($from === '') {
             $last = $this->valuations->list($userId, (int) $position['id'])[0]['date'] ?? null;
             $from = $last !== null ? (new \DateTimeImmutable($last))->modify('+1 day')->format('Y-m-d') : date('Y-m-d');
-        } elseif (\DateTimeImmutable::createFromFormat('!Y-m-d', $from)?->format('Y-m-d') !== $from) {
+        } elseif (($parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $from)) === false || $parsed->format('Y-m-d') !== $from) {
             $errors['bank_notices_from'][] = 'Neplatné datum.';
             return null;
         }

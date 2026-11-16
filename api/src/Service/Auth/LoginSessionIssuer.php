@@ -85,10 +85,7 @@ final class LoginSessionIssuer
     ): Response {
         $userId = (int) ($user['id'] ?? 0);
         $email = (string) ($user['email'] ?? '');
-        if ($userId < 1
-            || $email === ''
-            || !isset($session['token'], $session['csrf_token'], $session['expires_at'])
-        ) {
+        if ($userId < 1 || $email === '') {
             throw new \InvalidArgumentException('Login issuer vyžaduje platného uživatele a session.');
         }
 

@@ -25,7 +25,7 @@ use MyPortfolio\Service\Cron\BackupEncryption;
 // Ruční parsování — getopt() končí na prvním poziční argumentu, takže `<zip> --yes` by nepřečetl.
 $opts = [];
 $zipPath = '';
-foreach (array_slice($argv, 1) as $arg) {
+foreach (array_slice($_SERVER['argv'], 1) as $arg) {
     if (preg_match('/^--(yes|no-safety-backup)$/', $arg, $m) === 1) {
         $opts[$m[1]] = true;
     } elseif (preg_match('/^--db=(.+)$/', $arg, $m) === 1) {

@@ -41,7 +41,7 @@ $applied = array_flip($applied);
 $files = glob($migrationsDir . '/*.sql');
 sort($files, SORT_STRING);
 
-$statusOnly = in_array('--status', $argv, true);
+$statusOnly = in_array('--status', $_SERVER['argv'], true);
 
 if ($statusOnly) {
     echo "Migration status:\n";
@@ -233,7 +233,7 @@ function splitSqlStatements(string $sql): array
 
         // Match aktuální delimiter (může být multi-char, např. `//`)
         $dlen = strlen($delim);
-        if ($dlen > 0 && substr_compare($sql, $delim, $i, $dlen) === 0) {
+        if (substr_compare($sql, $delim, $i, $dlen) === 0) {
             if (trim($current) !== '') $stmts[] = $current;
             $current = '';
             $i += $dlen - 1;

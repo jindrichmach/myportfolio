@@ -1,0 +1,7 @@
+parameters:
+    level: 5
+    paths:
+        - src
+        - bin
+    # PDO::inTransaction() a podobné metody vracejí pokaždé aktuální stav — výsledek se nesmí pamatovat
+    rememberPossiblyImpureFunctionValues: false

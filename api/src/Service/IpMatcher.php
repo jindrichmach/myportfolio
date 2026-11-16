@@ -164,7 +164,7 @@ final class IpMatcher
 
         // X-Forwarded-For může mít více IP oddělených čárkou; první je původní client
         $parts = array_map('trim', explode(',', $forwarded));
-        $first = $parts[0] ?? '';
+        $first = $parts[0];
         if ($first === '') {
             return $this->normalize($remote) ?? $remote;
         }

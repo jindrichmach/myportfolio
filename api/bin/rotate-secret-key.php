@@ -24,7 +24,7 @@ use MyPortfolio\Bootstrap;
 use MyPortfolio\Service\Auth\SecretEncryption;
 use MyPortfolio\Service\Auth\SecretRotator;
 
-$dryRun = in_array('--dry-run', $argv, true);
+$dryRun = in_array('--dry-run', $_SERVER['argv'], true);
 $c = Bootstrap::buildApp()->getContainer();
 if (($problem = $c->get(SecretEncryption::class)->validateKey()) !== null) {
     fwrite(STDERR, "Konfigurace klíče: {$problem}\n");

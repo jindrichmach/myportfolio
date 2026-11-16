@@ -24,6 +24,7 @@ final class BackgroundProcess
     /**
      * @param list<string|int> $args argumenty skriptu (např. ['--job-id=3'])
      * @param string|null      $diag krátký diagnostický popis (out-param, pro log)
+     * @param-out string        $diag
      */
     public static function spawnPhp(
         string $scriptPath,
@@ -32,7 +33,6 @@ final class BackgroundProcess
         ?string $cwd = null,
         ?string &$diag = null,
     ): bool {
-        $diag = null;
         $php = PhpCliLocator::resolve();
         if ($php === null) {
             $diag = 'php cli not found (PHP_BINARY=' . PHP_BINARY . ')';

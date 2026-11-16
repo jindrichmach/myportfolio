@@ -18,7 +18,7 @@ if (PHP_SAPI !== 'cli') exit("CLI only.\n");
 $root = dirname(__DIR__, 2);
 $out = null;
 $set = [];
-$args = array_slice($argv, 1);
+$args = array_slice($_SERVER['argv'], 1);
 for ($i = 0; $i < count($args); $i++) {
     $arg = $args[$i];
     if (str_starts_with($arg, '--out=')) {

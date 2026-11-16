@@ -57,15 +57,14 @@ final class WeeklyReportBuilder
             $row = ['name' => (string) $p['display_name'], 'detail' => $p['instrument_name'] ?? null, 'transactions' => $txCount[$id] ?? 0]
                 + self::metrics($valueFrom, $valueTo, $flow);
 
-            $pf = &$portfolios[(int) $p['portfolio_id']];
-            $pf ??= ['name' => (string) $p['portfolio_name'], 'accounts' => [], 'sum' => self::emptyTotals()];
-            $acc = &$pf['accounts'][(int) $p['account_id']];
-            $acc ??= ['name' => $p['institution_name'] . ' · ' . $p['account_name'], 'positions' => [], 'sum' => self::emptyTotals()];
-            $acc['positions'][] = $row;
-            foreach ([&$acc['sum'], &$pf['sum'], &$total] as &$sum) {
-                self::add($sum, $valueFrom, $valueTo, $flow);
-            }
-            unset($sum, $acc, $pf);
+            $pfId = (int) $p['portfolio_id'];
+            $accId = (int) $p['account_id'];
+            $portfolios[$pfId] ??= ['name' => (string) $p['portfolio_name'], 'accounts' => [], 'sum' => self::emptyTotals()];
+            $portfolios[$pfId]['accounts'][$accId] ??= ['name' => $p['institution_name'] . ' · ' . $p['account_name'], 'positions' => [], 'sum' => self::emptyTotals()];
+            $portfolios[$pfId]['accounts'][$accId]['positions'][] = $row;
+            self::add($portfolios[$pfId]['accounts'][$accId]['sum'], $valueFrom, $valueTo, $flow);
+            self::add($portfolios[$pfId]['sum'], $valueFrom, $valueTo, $flow);
+            self::add($total, $valueFrom, $valueTo, $flow);
         }
 
         $out = [];
@@ -108,10 +107,10 @@ final class WeeklyReportBuilder
             'value_from' => self::money($from),
             'value_to'   => self::money($to),
             'change'     => self::money($change),
-            'change_pct' => $change !== null && $from !== null && $from->isPositive() ? self::pct($change, $from) : null,
+            'change_pct' => $change !== null && $from->isPositive() ? self::pct($change, $from) : null,
             'flow'       => self::money($flow),
             'gain'       => self::money($gain),
-            'gain_pct'   => $gain !== null && $base !== null && $base->isPositive() ? self::pct($gain, $base) : null,
+            'gain_pct'   => $gain !== null && $base->isPositive() ? self::pct($gain, $base) : null,
         ];
     }
 

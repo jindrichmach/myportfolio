@@ -20,7 +20,7 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-[$_, $email, $password] = array_pad($argv, 3, null);
+[$_, $email, $password] = array_pad($_SERVER['argv'], 3, null);
 if (!$email) {
     fwrite(STDERR, "Použití: php api/bin/set-password.php <email> [<heslo>]\n");
     fwrite(STDERR, "  bez druhého argumentu načte heslo ze STDIN bez echo (doporučeno).\n");

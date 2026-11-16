@@ -40,6 +40,7 @@ cd web && pnpm test:pwa         # node:test testy frontendu
 # PHP testy (PHPUnit 13)
 cd api && php8.5 vendor/bin/phpunit                  # vše
 cd api && php8.5 vendor/bin/phpunit --filter Xyz     # podmnožina
+cd api && php8.5 vendor/bin/phpstan analyse          # statická analýza (úroveň 5, phpstan.neon; běží i v CI)
 cmd/test.sh                                          # PHPUnit + pnpm build
 
 # Migrace — VŽDY přes migrate.php, NIKDY mysql klientem přímo

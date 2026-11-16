@@ -148,12 +148,13 @@ final class ShareService
         if ($password !== (string) ($body['password_confirm'] ?? '')) {
             $errors['password_confirm'][] = 'Hesla se neshodují.';
         }
+        $hash = null;
         try {
             $hash = $this->hasher->hash($password);
         } catch (\InvalidArgumentException $e) {
             $errors['password'][] = $e->getMessage();
         }
-        if ($errors !== []) {
+        if ($errors !== [] || $hash === null) {
             throw DomainError::validation($errors);
         }
         $owner = $this->user((int) $share['owner_user_id']);

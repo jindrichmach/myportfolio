@@ -86,7 +86,7 @@ final class CronJobsAction
             $countStmt->execute([$script]);
             $counts = $countStmt->fetch(\PDO::FETCH_ASSOC) ?: ['ok_24h' => 0, 'err_24h' => 0, 'total_24h' => 0];
 
-            $lastOkAt = $last !== false && $last !== null ? ($last['last_ok_started_at'] ?? null) : null;
+            $lastOkAt = $last !== null ? ($last['last_ok_started_at'] ?? null) : null;
             $maxAgeSec = (int) $job['max_age_hours'] * 3600;
             $health = 'never_ran';
             $ageSec = null;

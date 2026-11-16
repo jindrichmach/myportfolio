@@ -40,6 +40,7 @@ final class PasskeySessionTransitionService
         $pdo = $this->db->pdo();
         $pdo->beginTransaction();
         $ceremonyConsumed = false;
+        $cutoff = null;
         try {
             $cutoff = $this->clock->capture($pdo);
             $this->lockActiveUser($pdo, $userId);
@@ -79,7 +80,7 @@ final class PasskeySessionTransitionService
             );
             $pdo->commit();
         } catch (OneTimeTokenException|PasskeyVerificationException|\DomainException $e) {
-            if ($pdo->inTransaction()) {
+            if ($pdo->inTransaction() && $cutoff !== null) {
                 $this->commitFailedAttempt(
                     $pdo,
                     $cutoff,
@@ -191,6 +192,7 @@ final class PasskeySessionTransitionService
         $pdo = $this->db->pdo();
         $pdo->beginTransaction();
         $ceremonyConsumed = false;
+        $cutoff = null;
         try {
             $cutoff = $this->clock->capture($pdo);
             if ($userId < 1) {
@@ -272,7 +274,7 @@ final class PasskeySessionTransitionService
             // řádek uživatele zamčený po celou transakci.
             $pdo->commit();
         } catch (OneTimeTokenException|PasskeyVerificationException|\DomainException $e) {
-            if ($pdo->inTransaction()) {
+            if ($pdo->inTransaction() && $cutoff !== null) {
                 $this->commitFailedAttempt(
                     $pdo,
                     $cutoff,
@@ -310,6 +312,7 @@ final class PasskeySessionTransitionService
         $pdo = $this->db->pdo();
         $pdo->beginTransaction();
         $ceremonyConsumed = false;
+        $cutoff = null;
         try {
             $cutoff = $this->clock->capture($pdo);
             $this->lockActiveUser($pdo, $userId);
@@ -356,7 +359,7 @@ final class PasskeySessionTransitionService
             | StepUpOperationException
             | \DomainException $e
         ) {
-            if ($pdo->inTransaction()) {
+            if ($pdo->inTransaction() && $cutoff !== null) {
                 $this->commitFailedAttempt(
                     $pdo,
                     $cutoff,

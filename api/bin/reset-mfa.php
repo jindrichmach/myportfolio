@@ -22,7 +22,7 @@ function cliOperator(): ?string
 {
     if (function_exists('posix_geteuid') && function_exists('posix_getpwuid')) {
         $pw = @posix_getpwuid(posix_geteuid());
-        if (is_array($pw) && ($pw['name'] ?? '') !== '') {
+        if (is_array($pw) && $pw['name'] !== '') {
             return (string) $pw['name'];
         }
     }
@@ -40,7 +40,7 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-[$_, $email] = array_pad($argv, 2, null);
+[$_, $email] = array_pad($_SERVER['argv'], 2, null);
 if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     fwrite(STDERR, "Použití: php api/bin/reset-mfa.php <email>\n");
     exit(2);

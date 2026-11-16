@@ -48,7 +48,7 @@ final class PublicUrlGuard
         return [
             'url'  => "https://$host" . ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : ''),
             'host' => $host,
-            'ips'  => array_values($ips),
+            'ips'  => $ips,
         ];
     }
 

@@ -52,7 +52,7 @@ final class ExchangeSyncService
         $ids = [];
         foreach ((array) ($preview['payload']['drafts'] ?? []) as $d) {
             $draft = Draft::fromArray($d);
-            if ($draft->kind !== 'skip' && $draft->externalId !== null) {
+            if ($draft->kind !== 'skip') {
                 $ids[] = $draft->externalId;
             }
         }

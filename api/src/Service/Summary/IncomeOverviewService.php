@@ -66,7 +66,11 @@ final class IncomeOverviewService
         ];
     }
 
-    /** @param array<string,BigDecimal>|null $sum @param array<string,mixed> $r */
+    /**
+     * @param array<string,BigDecimal>|null $sum
+     * @param-out array<string,BigDecimal> $sum
+     * @param array<string,mixed> $r
+     */
     private static function add(?array &$sum, array $r): void
     {
         $sum ??= ['dividends' => BigDecimal::zero(), 'interest' => BigDecimal::zero(), 'withheld' => BigDecimal::zero(), 'net' => BigDecimal::zero()];
