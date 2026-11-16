@@ -7,7 +7,7 @@
 #   4. Waits for the app (entrypoint runs migrations) and prints the setup wizard URL
 #
 # Idempotent — safe to re-run. Interaktivní průvodce: cmd/install.sh (volá tento skript).
-# Volitelné ENV: APP_PORT (8080), APP_URL (http://localhost:$APP_PORT), APP_ENV (development | production).
+# Volitelné ENV: APP_PORT (8080), APP_URL (http://localhost:$APP_PORT), APP_ENV (production | development — jen pro vývoj, uvolní kontrolu Origin a ukáže detaily chyb).
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -59,7 +59,7 @@ if [[ ! -f cfg.docker.php ]]; then
   cp cfg.sample.php cfg.docker.php
   # cfg.sample.php má DVA řádky `'host' => '127.0.0.1',` (db, pak redis).
   APP_URL="${APP_URL:-http://localhost:${APP_PORT}}"
-  APP_ENV="${APP_ENV:-development}"
+  APP_ENV="${APP_ENV:-production}"
   perl -i -pe '
       BEGIN { $n = 0 }
       if (/host.*127\.0\.0\.1/) {

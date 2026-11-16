@@ -90,8 +90,7 @@ if [[ $MODE == docker ]]; then
   else
     ask APP_PORT "Port aplikace na tomto počítači" "8080"
     ask APP_URL "Veřejná adresa (URL) aplikace" "http://localhost:${APP_PORT}"
-    if [[ $APP_URL == https://* ]]; then def_env=production; else def_env=development; fi
-    ask APP_ENV "Prostředí (production | development)" "$def_env"
+    ask APP_ENV "Prostředí (production | development — jen pro vývoj)" "production"
     export APP_PORT APP_URL APP_ENV
   fi
   "$ROOT/cmd/docker-install.sh"
@@ -160,8 +159,7 @@ CREATE_DB=0
 if [[ $WRITE_CFG -eq 1 ]]; then
   ask APP_URL "Veřejná adresa (URL) aplikace" "http://localhost"
   APP_URL="${APP_URL%/}"
-  if [[ $APP_URL == https://* ]]; then def_env=production; else def_env=development; fi
-  ask APP_ENV "Prostředí (production | development)" "$def_env"
+  ask APP_ENV "Prostředí (production | development — jen pro vývoj)" "production"
   [[ $APP_ENV == production || $APP_ENV == development ]] || fail "Prostředí musí být production nebo development."
   ask TIMEZONE "Časové pásmo" "Europe/Prague"
 

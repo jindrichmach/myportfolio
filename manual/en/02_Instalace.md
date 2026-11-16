@@ -21,7 +21,8 @@ passwords and stored secrets (SMTP, IMAP, exchange keys).
 
 ## 2.1 Docker (recommended)
 
-The wizard asks for the port, public address (URL) and environment (`production` / `development`)
+The wizard asks for the port, public address (URL) and environment (default `production`; `development` only for development — it relaxes the request
+origin check and shows error details)
 and runs `cmd/docker-install.sh`: it generates `.env` with random database passwords and
 `cfg.docker.php` (pepper, encryption key, app address), builds the image and starts the app
 with the database.

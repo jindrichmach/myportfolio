@@ -21,7 +21,8 @@ uživatelů i uložená tajemství (SMTP, IMAP, klíče burz).
 
 ## 2.1 Docker (doporučeno)
 
-Průvodce se zeptá na port, veřejnou adresu (URL) a prostředí (`production` / `development`)
+Průvodce se zeptá na port, veřejnou adresu (URL) a prostředí (výchozí `production`; `development` jen pro vývoj — uvolní kontrolu
+původu požadavků a ukazuje detaily chyb)
 a spustí `cmd/docker-install.sh`: vygeneruje `.env` s náhodnými hesly k databázi a
 `cfg.docker.php` (pepper, šifrovací klíč, adresa aplikace), postaví image a spustí aplikaci
 s databází.
