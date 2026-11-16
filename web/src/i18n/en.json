@@ -701,7 +701,9 @@
       "yahoo": "e.g. CSPX.L"
     },
     "all_classes": "All asset classes",
-    "quote_currency_hint": "The currency the market quotes the instrument in, e.g. EUR for BTC on a European exchange."
+    "quote_currency_hint": "The currency the market quotes the instrument in, e.g. EUR for BTC on a European exchange.",
+    "tax_country": "Dividend withholding country",
+    "tax_country_hint": "Two-letter code of the country that withheld the dividend tax, when it differs from the first two letters of the ISIN — e.g. TW for an ADR of a Taiwanese company with an ISIN US…. Empty = by ISIN."
   },
   "accounts": {
     "title": "Accounts",
@@ -1104,7 +1106,8 @@
       "cz_tax": "Czech tax 15 %",
       "to_pay": "To pay",
       "unknown_country": "unknown (no ISIN)",
-      "note": "Country by ISIN (issuer domicile). The foreign tax credit is capped at 15 % of the gross dividend; the tax treaty may set it lower. Basis for annex no. 3.",
+      "country_from_instrument": "set on the instrument",
+      "note": "Country by ISIN (issuer domicile), or by the withholding country set on the instrument (ADR). The foreign tax credit is capped at 15 % of the gross dividend; the tax treaty may set it lower. Basis for annex no. 3.",
       "domestic": "Czech dividends {amount} are taxed at source and are not reported."
     },
     "interest": {

@@ -64,7 +64,8 @@ Dílčí základ daně patří do přílohy č. 2 přiznání (ostatní příjmy
 
 ## 12.2 Zahraniční dividendy
 
-Dividendy po zemích — země je podle ISIN instrumentu (první dvě písmena). U každé země:
+Dividendy po zemích — země je podle ISIN instrumentu (první dvě písmena), nebo podle **státu srážky** nastaveného
+u instrumentu (u ADR se liší, viz [4. Účty a portfolia](04_Ucty_a_portfolia.md)); takovou zemi report označí „nastaveno u instrumentu“. U každé země:
 
 | Sloupec | Význam |
 |---|---|

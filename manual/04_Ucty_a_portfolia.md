@@ -30,6 +30,7 @@ Vyhledávat lze podle symbolu, názvu nebo ISIN a filtrovat podle třídy aktiv 
 | Název | Plný název |
 | Měna ceny | Měna, ve které trh instrument kotuje (`EUR`, `USD`) |
 | ISIN | Volitelně; kontroluje se formát |
+| Stát srážky daně z dividend | Volitelně, ne u krypta. Kód státu, který daň z dividendy srazil, když se liší od prvních dvou písmen ISIN — typicky ADR (např. TW u tchajwanské firmy s ISIN `US…`). Použije ho [12.2 Zahraniční dividendy](12_Danovy_report.md#122-zahraniční-dividendy) |
 | Zdroj ceny | CoinGecko / XTB / Yahoo Finance / Ručně — viz [6. Ceny a kurzy](06_Ceny_a_kurzy.md) |
 | Desetinná místa | Kolik míst množství zobrazovat |
 | Identifikátory u zdrojů | Jak instrument znají jednotlivé zdroje cen |

@@ -214,6 +214,25 @@ final class TaxReportTest extends ApiTestCase
             array_map(static fn (array $x) => [$x['expense'], $x['cost_warning']], $c['rows']));
     }
 
+    public function testDividendCountryOverrideBeatsIsinPrefix(): void
+    {
+        // ADR: ISIN US…, daň ale srazil Tchaj-wan → řádek TW, ne US
+        $acc = $this->account('ADR', 'XTS');
+        $ins = $this->call($this->userId, 'POST', '/api/instruments', ['asset_class' => 'stock', 'symbol' => 'SYNT', 'name' => 'Synthetic ADR',
+            'quote_currency' => 'XTS', 'price_source' => 'manual', 'isin' => 'US0000000003', 'tax_country' => 'tw']);
+        self::assertSame(201, $ins['status'], $ins['raw']);
+        self::assertSame('TW', $ins['body']['tax_country']);
+        $pos = $this->call($this->userId, 'POST', '/api/positions', ['valuation_mode' => 'market', 'portfolio_id' => $this->pf,
+            'account_id' => $acc, 'instrument_id' => $ins['body']['id']])['body']['id'];
+        $this->tx($pos, ['type' => 'buy', 'executed_at' => '2024-01-15 10:00', 'quantity' => '1', 'amount' => '100']);
+        $this->tx($pos, ['type' => 'dividend', 'executed_at' => '2024-03-15 10:00', 'amount' => '10', 'fee' => '2.1', 'fee_currency' => 'XTS']);
+
+        $div = $this->call($this->userId, 'GET', '/api/tax-report?year=2024&rate=daily')['body']['dividends']['countries'];
+        self::assertSame([['TW', 'instrument']], array_map(static fn (array $c) => [$c['country'], $c['rows'][0]['country_source']], $div));
+        self::assertSame(400, $this->call($this->userId, 'POST', '/api/instruments', ['asset_class' => 'stock', 'symbol' => 'SYNX', 'name' => 'X',
+            'quote_currency' => 'XTS', 'price_source' => 'manual', 'tax_country' => 'TWN'])['status']);
+    }
+
     public function testFilingCreditNeverExceedsTaxOnRoundedBase(): void
     {
         // 109,90 XTS × 10 = 1 099 Kč hrubě, sraženo 16,50 XTS = 165 Kč: ř. 409 = 1 000 → ř. 410 = 150, 15 % z ř. 411 = 164

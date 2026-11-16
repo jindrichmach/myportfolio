@@ -69,7 +69,7 @@ final class TaxRepository
     {
         $stmt = $this->db->pdo()->prepare(
             'SELECT t.id, t.type, t.executed_at, t.amount, t.price_currency, t.fee, t.fee_currency,
-                    pos.id AS position_id, pos.name AS position_name, ins.asset_class, ins.symbol, ins.name AS instrument_name, ins.isin,
+                    pos.id AS position_id, pos.name AS position_name, ins.asset_class, ins.symbol, ins.name AS instrument_name, ins.isin, ins.tax_country,
                     inst.name AS institution_name, acc.name AS account_name
                FROM transactions t
                JOIN positions pos ON pos.id = t.position_id AND pos.user_id = t.user_id

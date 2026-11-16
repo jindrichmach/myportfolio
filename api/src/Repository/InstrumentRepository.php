@@ -16,7 +16,7 @@ final class InstrumentRepository
     public const ASSET_CLASSES = ['crypto', 'etf', 'stock', 'fund', 'cash'];
     public const PRICE_SOURCES = ['coingecko', 'xtb', 'yahoo', 'manual'];
 
-    private const COLUMNS = 'id, asset_class, symbol, name, isin, quote_currency, decimals, price_source, source_refs, icon, created_by_user_id, is_active';
+    private const COLUMNS = 'id, asset_class, symbol, name, isin, tax_country, quote_currency, decimals, price_source, source_refs, icon, created_by_user_id, is_active';
 
     public function __construct(private readonly Connection $db) {}
 
@@ -100,10 +100,10 @@ final class InstrumentRepository
     public function create(array $data, int $createdByUserId): int
     {
         $this->db->pdo()->prepare(
-            'INSERT INTO instruments (asset_class, symbol, name, isin, quote_currency, decimals, price_source, source_refs, created_by_user_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO instruments (asset_class, symbol, name, isin, tax_country, quote_currency, decimals, price_source, source_refs, created_by_user_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         )->execute([
-            $data['asset_class'], $data['symbol'], $data['name'], $data['isin'], $data['quote_currency'],
+            $data['asset_class'], $data['symbol'], $data['name'], $data['isin'], $data['tax_country'] ?? null, $data['quote_currency'],
             $data['decimals'], $data['price_source'], self::encodeRefs($data['source_refs']), $createdByUserId,
         ]);
         return (int) $this->db->pdo()->lastInsertId();
@@ -113,11 +113,11 @@ final class InstrumentRepository
     public function update(int $id, array $data): void
     {
         $this->db->pdo()->prepare(
-            'UPDATE instruments SET asset_class = ?, symbol = ?, name = ?, isin = ?, quote_currency = ?, decimals = ?,
+            'UPDATE instruments SET asset_class = ?, symbol = ?, name = ?, isin = ?, tax_country = ?, quote_currency = ?, decimals = ?,
                     price_source = ?, source_refs = ?, is_active = ?
               WHERE id = ?'
         )->execute([
-            $data['asset_class'], $data['symbol'], $data['name'], $data['isin'], $data['quote_currency'],
+            $data['asset_class'], $data['symbol'], $data['name'], $data['isin'], $data['tax_country'] ?? null, $data['quote_currency'],
             $data['decimals'], $data['price_source'], self::encodeRefs($data['source_refs']),
             $data['is_active'] ? 1 : 0, $id,
         ]);

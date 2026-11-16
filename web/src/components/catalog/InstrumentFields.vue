@@ -46,6 +46,10 @@ const refSources = computed(() => (props.chainRefs ? PRICE_CHAINS[form.price_sou
       <input :id="fid('isin')" v-model="form.isin" maxlength="12" class="uppercase font-mono" :class="inputClass" />
     </div>
   </div>
+  <div v-if="form.asset_class !== 'crypto'">
+    <label :for="fid('tax_country')" class="flex items-center gap-1 text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.tax_country') }} <span class="text-xs font-normal text-neutral-500">{{ t('common.optional') }}</span><InfoTip :text="t('instruments.tax_country_hint')" :name="t('instruments.tax_country')" /></label>
+    <input :id="fid('tax_country')" v-model="form.tax_country" maxlength="2" placeholder="TW" class="uppercase font-mono w-24" :class="inputClass" />
+  </div>
   <div class="grid grid-cols-2 gap-3">
     <div>
       <label :for="fid('price_source')" class="block text-sm font-medium text-neutral-700 mb-1">{{ t('instruments.price_source') }}</label>

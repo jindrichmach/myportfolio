@@ -191,6 +191,7 @@ const selectClass = 'h-9 px-3 border border-field rounded-md bg-surface text-sm'
         <DataTable v-else :columns="dividendColumns" :rows="report.dividends.countries" :row-key="indexIn(report.dividends.countries)">
           <template #cell-country="{ row: c }">
             <span class="font-medium">{{ c.country ?? t('tax.dividends.unknown_country') }}</span>
+            <span v-if="c.rows.some(r => r.country_source === 'instrument')" class="text-xs text-neutral-500"> · {{ t('tax.dividends.country_from_instrument') }}</span>
             <span class="block text-xs text-neutral-500">{{ [...new Set(c.rows.map(r => r.symbol))].join(', ') }}</span>
           </template>
           <template #cell-gross="{ row: c }">{{ czk(c.gross) }}</template>

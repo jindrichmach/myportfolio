@@ -25,6 +25,8 @@ export interface Instrument {
   symbol: string
   name: string
   isin: string | null
+  /** Stát srážky daně z dividend, když se liší od prefixu ISIN (ADR); null = podle ISIN */
+  tax_country: string | null
   quote_currency: string
   decimals: number
   price_source: PriceSource

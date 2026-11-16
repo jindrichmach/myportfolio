@@ -176,6 +176,8 @@ final class ApiCatalog
                 self::p('symbol', 'body', 'string', true, 'Symbol, max. 40 znaků', 'Symbol, max 40', ['example' => 'VWCE']),
                 self::p('name', 'body', 'string', true, 'Název, max. 190 znaků', 'Name, max 190'),
                 self::p('isin', 'body', 'string', false, 'ISIN (12 znaků)', 'ISIN (12 characters)', ['example' => 'IE00BK5BQT80']),
+                self::p('tax_country', 'body', 'string', false, 'Stát srážky daně z dividend (ISO 3166, 2 písmena), když se liší od prefixu ISIN',
+                    'Country withholding dividend tax (ISO 3166, 2 letters) when it differs from the ISIN prefix', ['example' => 'TW']),
                 self::p('quote_currency', 'body', 'currency', true, 'Měna kotace', 'Quote currency', ['example' => 'EUR']),
                 self::p('decimals', 'body', 'integer', false, 'Desetinná místa množství (0–18)', 'Quantity decimals (0–18)', ['default' => 8]),
                 self::p('price_source', 'body', 'string', false, 'Zdroj ceny', 'Price source', ['enum' => ['coingecko', 'xtb', 'yahoo', 'manual'], 'default' => 'manual']),

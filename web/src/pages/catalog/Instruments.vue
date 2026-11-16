@@ -52,6 +52,7 @@ function openEdit(row: Instrument) {
   Object.assign(form, {
     ...row,
     isin: row.isin ?? '',
+    tax_country: row.tax_country ?? '',
     refs: { coingecko: row.source_refs.coingecko ?? '', xtb: row.source_refs.xtb ?? '', yahoo: row.source_refs.yahoo ?? '' },
   })
   error.value = ''

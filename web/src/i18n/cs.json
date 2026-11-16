@@ -701,7 +701,9 @@
       "yahoo": "např. CSPX.L"
     },
     "all_classes": "Všechny třídy aktiv",
-    "quote_currency_hint": "V jaké měně trh instrument kotuje, např. EUR u BTC na evropské burze."
+    "quote_currency_hint": "V jaké měně trh instrument kotuje, např. EUR u BTC na evropské burze.",
+    "tax_country": "Stát srážky daně z dividend",
+    "tax_country_hint": "Dvoupísmenný kód státu, který daň z dividendy srazil, když se liší od prvních dvou písmen ISIN — např. TW u ADR tchajwanské firmy s ISIN US…. Prázdné = podle ISIN."
   },
   "accounts": {
     "title": "Účty",
@@ -1104,7 +1106,8 @@
       "cz_tax": "Česká daň 15 %",
       "to_pay": "Doplatek",
       "unknown_country": "neznámá (bez ISIN)",
-      "note": "Země podle ISIN (sídlo emitenta). Zápočet zahraniční daně je omezen na 15 % hrubé dividendy; podle smlouvy o zamezení dvojího zdanění může být nižší. Podklad pro přílohu č. 3.",
+      "country_from_instrument": "nastaveno u instrumentu",
+      "note": "Země podle ISIN (sídlo emitenta), nebo podle státu srážky nastaveného u instrumentu (ADR). Zápočet zahraniční daně je omezen na 15 % hrubé dividendy; podle smlouvy o zamezení dvojího zdanění může být nižší. Podklad pro přílohu č. 3.",
       "domestic": "České dividendy {amount} jsou zdaněné srážkou u zdroje a do přiznání se neuvádějí."
     },
     "interest": {

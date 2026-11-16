@@ -44,6 +44,8 @@ export interface TaxSection {
 export interface DividendRow {
   date: string; symbol: string | null; name: string | null; isin: string | null; account: string
   amount: string; currency: string; gross_czk: string; withheld_czk: string
+  /** Odkud je země: nastavená u instrumentu, nebo prefix ISIN */
+  country_source: 'instrument' | 'isin' | null
 }
 
 export interface TaxReport {

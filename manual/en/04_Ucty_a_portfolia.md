@@ -30,6 +30,7 @@ You can search by symbol, name or ISIN and filter by asset class (see [1.4 Lists
 | Name | Full name |
 | Price currency | The currency the market quotes the instrument in (`EUR`, `USD`) |
 | ISIN | Optional; the format is validated |
+| Dividend withholding country | Optional, not for crypto. The code of the country that withheld the dividend tax, when it differs from the first two letters of the ISIN — typically an ADR (e.g. TW for a Taiwanese company with an ISIN `US…`). Used by [12.2 Foreign dividends](12_Danovy_report.md#122-foreign-dividends) |
 | Price source | CoinGecko / XTB / Yahoo Finance / Manual — see [6. Prices & rates](06_Ceny_a_kurzy.md) |
 | Decimals | How many decimal places of quantity to display |
 | Price source identifiers | How the individual price sources know the instrument |

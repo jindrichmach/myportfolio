@@ -114,6 +114,10 @@ final class InstrumentsAction
         if ($isin !== null && preg_match('/^[A-Z]{2}[A-Z0-9]{9}\d$/', strtoupper($isin)) !== 1) {
             $errors['isin'][] = 'Neplatný ISIN.';
         }
+        $taxCountry = Input::string($body, 'tax_country', 2, false, $errors);
+        if ($taxCountry !== null && preg_match('/^[A-Z]{2}$/', strtoupper($taxCountry)) !== 1) {
+            $errors['tax_country'][] = 'Kód státu má 2 písmena (ISO 3166), např. TW.';
+        }
         $quoteCurrency = Input::currency($body, 'quote_currency', true, $errors);
         $decimals = $body['decimals'] ?? 8;
         if (!is_numeric($decimals) || (int) $decimals < 0 || (int) $decimals > 18) {
@@ -143,6 +147,7 @@ final class InstrumentsAction
             'symbol'         => $symbol,
             'name'           => $name,
             'isin'           => $isin !== null ? strtoupper($isin) : null,
+            'tax_country'    => $taxCountry !== null ? strtoupper($taxCountry) : null,
             'quote_currency' => $quoteCurrency,
             'decimals'       => (int) $decimals,
             'price_source'   => $priceSource,

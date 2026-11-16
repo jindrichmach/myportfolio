@@ -281,7 +281,10 @@ final class TaxReportService
                 $interest[$key]['count']++;
                 continue;
             }
-            $country = $r['isin'] !== null && preg_match('/^[A-Z]{2}/', (string) $r['isin']) === 1 ? substr((string) $r['isin'], 0, 2) : null;
+            // Stát srážky: nastavený u instrumentu (ADR apod.), jinak prefix ISIN (stát emitenta)
+            $isinCountry = $r['isin'] !== null && preg_match('/^[A-Z]{2}/', (string) $r['isin']) === 1 ? substr((string) $r['isin'], 0, 2) : null;
+            $country = $r['tax_country'] ?? $isinCountry;
+            $row['country_source'] = $r['tax_country'] !== null ? 'instrument' : ($isinCountry !== null ? 'isin' : null);
             if ($country === 'CZ') {
                 $domestic['gross'] = $domestic['gross']->plus($amount);
                 $domestic['withheld'] = $domestic['withheld']->plus($withheld);
