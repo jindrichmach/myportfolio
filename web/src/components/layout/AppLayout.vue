@@ -101,6 +101,7 @@ const ICONS = {
   summary:    'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z',
   income:     'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',
   tax:        'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z',
+  quality:    'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
   accounts:   'M3 9l9-7 9 7m-2 0v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9m4 11V13h4v7',
   portfolios: 'M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10',
   instruments: 'M3 3v18h18M7 14l4-4 4 4 5-5',
@@ -172,6 +173,7 @@ const navSections = computed<NavSection[]>(() => {
         { to: '/summary',      label: t('nav.summary'),      icon: ICONS.summary },
         { to: '/income',       label: t('nav.income'),       icon: ICONS.income },
         { to: '/tax-report',   label: t('nav.tax_report'),   icon: ICONS.tax },
+        { to: '/data-quality', label: t('nav.data_quality'), icon: ICONS.quality },
       ],
     },
     {
@@ -208,6 +210,7 @@ const navSections = computed<NavSection[]>(() => {
       '/tax-report': !owner.hasSection('tax'),
       '/income': !owner.hasSection('income'),
       '/net-worth': !owner.hasSection('net_worth'),
+      '/data-quality': true, // vždy vlastní data přihlášeného
     }
     for (const section of sections) section.items = section.items.filter(i => !hidden[i.to])
   }

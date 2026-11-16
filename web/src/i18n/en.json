@@ -412,6 +412,7 @@
     "bank_notices": "Bank notices",
     "import": "Import",
     "tax_report": "Tax report",
+    "data_quality": "Data quality",
     "summary": "Summaries",
     "income": "Dividends & interest",
     "api": "API",
@@ -1699,5 +1700,26 @@
     "min_length": "Enter at least {min} characters.",
     "max_length": "Enter at most {max} characters.",
     "pattern": "The value does not match the required format."
+  },
+  "data_quality": {
+    "title": "Data quality",
+    "subtitle": "What can distort the portfolio value and the tax report — and where to fix it.",
+    "ok_title": "The data is fine",
+    "ok_hint": "All held instruments have a current price, CNB rates are fresh and lots have a complete acquisition cost.",
+    "costs": "Incomplete acquisition cost",
+    "costs_hint": "A lot with a zero or incomplete acquisition cost increases the taxable gain. Fix or complete the transaction on the position.",
+    "prices": "Instrument prices",
+    "prices_hint": "A position without a price is not counted in the value. Check the instrument's price source; a manual price is entered by the administrator.",
+    "missing_price": "price missing",
+    "stale_price": "last price from {date}",
+    "fx": "CNB exchange rates",
+    "stale_fx": "Latest CNB rates from {date} ({currencies})",
+    "fx_hint": "Rates are downloaded daily by the cron-fx scheduled job — the administrator checks it in Scheduled jobs.",
+    "notices": "Bank notices",
+    "imap_error": "mailbox read error",
+    "codes": {
+      "insufficient_quantity": "sale of more units than the position held — a purchase is missing",
+      "fee_exceeds_quantity": "the fee in units exceeds the purchased quantity"
+    }
   }
 }

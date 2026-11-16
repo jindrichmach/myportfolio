@@ -20,6 +20,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'summary',                name: 'summary',         component: () => import('@/pages/portfolio/Summary.vue'), meta: { title: 'nav.summary' } },
       { path: 'income',                 name: 'income',          component: () => import('@/pages/portfolio/Income.vue'), meta: { title: 'nav.income' } },
       { path: 'tax-report',             name: 'tax-report',      component: () => import('@/pages/portfolio/TaxReport.vue'), meta: { title: 'nav.tax_report' } },
+      { path: 'data-quality',           name: 'data-quality',    component: () => import('@/pages/portfolio/DataQuality.vue'), meta: { title: 'nav.data_quality' } },
       { path: 'accounts',               name: 'accounts',        component: () => import('@/pages/portfolio/Accounts.vue'), meta: { title: 'nav.accounts' } },
       { path: 'portfolios',             name: 'portfolios',      component: () => import('@/pages/portfolio/Portfolios.vue'), meta: { title: 'nav.portfolios' } },
       // Katalog (sdílený; úpravy jen admin)

@@ -38,6 +38,32 @@ final class LotRepository
         }
     }
 
+    /**
+     * Upozornění FIFO enginu s transakcí a pozicí (stránka Kvalita dat), nejnovější první.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function warnings(int $userId): array
+    {
+        $stmt = $this->db->pdo()->prepare(
+            'SELECT w.code, w.transaction_id, t.type, t.executed_at, t.position_id,
+                    COALESCE(ins.symbol, pos.name) AS symbol, ins.name AS instrument_name
+               FROM lot_warnings w
+               JOIN transactions t ON t.id = w.transaction_id AND t.user_id = w.user_id
+               JOIN positions pos ON pos.id = t.position_id AND pos.user_id = w.user_id
+          LEFT JOIN instruments ins ON ins.id = w.instrument_id
+              WHERE w.user_id = ?
+              ORDER BY t.executed_at DESC, w.transaction_id DESC
+              LIMIT 500'
+        );
+        $stmt->execute([$userId]);
+        return array_map(static function (array $r): array {
+            $r['transaction_id'] = (int) $r['transaction_id'];
+            $r['position_id'] = (int) $r['position_id'];
+            return $r;
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
     /** @param array<string,string|int|null> $lot */
     public function insertLot(int $userId, int $instrumentId, array $lot): int
     {

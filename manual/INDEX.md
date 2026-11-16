@@ -11,7 +11,7 @@
 - [5. Transakce](05_Transakce.md) — včetně importu z burz a brokerů a napojení burz přes API
 - [6. Ceny a kurzy](06_Ceny_a_kurzy.md)
 - [7. Přehled a výpočty](07_Prehled.md) — hodnota, výnos, FIFO loty, graf vývoje a metriky
-- [8. Reporty, upozornění a dividendy](08_Reporty_a_upozorneni.md) — týdenní a měsíční e-maily, upozornění, souhrny
+- [8. Reporty, upozornění a dividendy](08_Reporty_a_upozorneni.md) — týdenní a měsíční e-maily, upozornění, souhrny, kvalita dat
 - [9. Alokace a čisté jmění](09_Alokace_a_ciste_jmeni.md) — cílová alokace, rebalancing, majetek a úvěry
 - [12. Daňový report](12_Danovy_report.md)
 

@@ -8,14 +8,12 @@ use Brick\Math\BigDecimal;
 use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Repository\AlertRepository;
 use MyPortfolio\Repository\AllocationTargetRepository;
-use MyPortfolio\Repository\BankNoticeRepository;
-use MyPortfolio\Repository\FxRateRepository;
-use MyPortfolio\Repository\ImapAccountRepository;
 use MyPortfolio\Repository\LotRepository;
 use MyPortfolio\Repository\PortfolioRepository;
 use MyPortfolio\Repository\PositionRepository;
 use MyPortfolio\Repository\UserPreferenceRepository;
 use MyPortfolio\Service\Allocation\RebalanceService;
+use MyPortfolio\Service\DataQuality\DataQualityService;
 use MyPortfolio\Service\Fx\FxRateMissing;
 use MyPortfolio\Service\Fx\FxService;
 use MyPortfolio\Service\History\HistoryService;
@@ -33,8 +31,6 @@ use MyPortfolio\Service\Report\WeeklyReportBuilder;
 final class AlertService
 {
     private const TAXED_CLASSES = ['crypto', 'etf', 'stock', 'fund'];
-    private const NOTICE_PROBLEMS = ['unmapped', 'parse_failed', 'security_rejected', 'import_failed'];
-    private const FX_MAX_AGE_DAYS = 4;
     private const NOTICE_LOOKBACK_DAYS = 7;
 
     public function __construct(
@@ -42,9 +38,6 @@ final class AlertService
         private readonly AlertRepository $alerts,
         private readonly PositionRepository $positions,
         private readonly LotRepository $lots,
-        private readonly BankNoticeRepository $notices,
-        private readonly ImapAccountRepository $imap,
-        private readonly FxRateRepository $fxRates,
         private readonly WeeklyReportBuilder $builder,
         private readonly HistoryService $history,
         private readonly PriceService $prices,
@@ -54,6 +47,7 @@ final class AlertService
         private readonly AllocationTargetRepository $allocationTargets,
         private readonly RebalanceService $rebalance,
         private readonly PortfolioRepository $portfolios,
+        private readonly DataQualityService $quality,
     ) {}
 
     /**
@@ -111,7 +105,7 @@ final class AlertService
             }
         }
         if ($settings['data_issues']) {
-            foreach ($this->dataIssues($userId, $held, $positions, $today) as $key => $item) {
+            foreach ($this->quality->issues($userId, $held, $positions, $today, self::NOTICE_LOOKBACK_DAYS) as $key => $item) {
                 $candidates[self::key($key)] = ['data', $item];
             }
         }
@@ -263,57 +257,6 @@ final class AlertService
         return $out;
     }
 
-    /**
-     * Chybějící / zastaralé ceny držených instrumentů, zastaralé kurzy ČNB, chyby bankovních avíz a IMAP schránek.
-     *
-     * @param array<int,list<array<string,mixed>>> $held
-     * @param array<int,array<string,mixed>> $positions
-     * @return array<string,array<string,mixed>>
-     */
-    private function dataIssues(int $userId, array $held, array $positions, \DateTimeImmutable $today): array
-    {
-        $out = [];
-        $instruments = [];
-        $currencies = [];
-        foreach (array_keys($held) as $positionId) {
-            $p = $positions[$positionId];
-            if ($p['valuation_mode'] === 'market' && $p['instrument_id'] !== null) {
-                $instruments[(int) $p['instrument_id']] = ['id' => (int) $p['instrument_id'], 'asset_class' => $p['asset_class'],
-                    'symbol' => $p['instrument_symbol'], 'name' => $p['instrument_name']];
-                $currencies[(string) $p['quote_currency']] = true;
-            }
-        }
-        foreach ($this->prices->lastPrices(array_values($instruments)) as $id => $quote) {
-            $i = $instruments[$id];
-            if ($quote === null) {
-                $out["missing_price:$id"] = ['kind' => 'missing_price', 'symbol' => $i['symbol'], 'name' => $i['name'], 'date' => null];
-            } elseif ($quote['stale']) {
-                $out["stale_price:$id:{$quote['date']}"] = ['kind' => 'stale_price', 'symbol' => $i['symbol'], 'name' => $i['name'], 'date' => $quote['date']];
-            }
-        }
-
-        unset($currencies['CZK']);
-        $latestFx = $this->fxRates->latestDate();
-        if ($currencies !== [] && $latestFx !== null
-            && (int) (new \DateTimeImmutable($latestFx))->diff($today)->format('%r%a') > self::FX_MAX_AGE_DAYS) {
-            $out["stale_fx:$latestFx"] = ['kind' => 'stale_fx', 'symbol' => implode(', ', array_keys($currencies)), 'name' => null, 'date' => $latestFx];
-        }
-
-        $since = $today->modify('-' . self::NOTICE_LOOKBACK_DAYS . ' days')->format('Y-m-d');
-        foreach ($this->notices->list($userId, 100) as $n) {
-            if (in_array($n['status'], self::NOTICE_PROBLEMS, true) && substr((string) $n['created_at'], 0, 10) >= $since) {
-                $out["notice:{$n['id']}"] = ['kind' => 'notice_' . $n['status'], 'symbol' => (string) ($n['parser'] ?? ''),
-                    'name' => $n['subject'] ?? $n['error'], 'date' => substr((string) ($n['message_date'] ?? $n['created_at']), 0, 10)];
-            }
-        }
-        foreach ($this->imap->list($userId) as $a) {
-            if ($a['enabled'] && $a['last_scan_status'] === 'error') {
-                $out["imap:{$a['id']}:{$a['last_scan_at']}"] = ['kind' => 'imap_error', 'symbol' => $a['name'],
-                    'name' => $a['last_scan_message'], 'date' => substr((string) $a['last_scan_at'], 0, 10)];
-            }
-        }
-        return $out;
-    }
 
     /**
      * Otevřené loty po pozicích (jen nenulový zbytek).

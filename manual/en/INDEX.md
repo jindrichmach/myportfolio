@@ -11,7 +11,7 @@
 - [5. Transactions](05_Transakce.md) — including import from exchanges and brokers and connecting exchanges via API
 - [6. Prices & rates](06_Ceny_a_kurzy.md)
 - [7. Dashboard and calculations](07_Prehled.md) — value, return, FIFO lots, value history chart and metrics
-- [8. Reports, alerts and dividends](08_Reporty_a_upozorneni.md) — weekly and monthly e-mails, alerts, summaries
+- [8. Reports, alerts and dividends](08_Reporty_a_upozorneni.md) — weekly and monthly e-mails, alerts, summaries, data quality
 - [9. Allocation and net worth](09_Alokace_a_ciste_jmeni.md) — target allocation, rebalancing, assets and loans
 - [12. Tax report](12_Danovy_report.md)
 

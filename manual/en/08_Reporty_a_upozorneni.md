@@ -102,3 +102,18 @@ The monthly and yearly summary e-mails send the same figures ([8.1](#81-weekly-r
 
 Amounts are in the display currency at the CNB exchange rate on the payment date. Withholding tax is a fee on the
 dividend ([5.1 Transaction types](05_Transakce.md#51-transaction-types)). For your tax return, use the [12. Tax report](12_Danovy_report.md).
+
+## 8.5 Data quality
+
+The **Data quality** page (Portfolio menu) summarises what can distort the portfolio value and the tax report, and for each
+section shows where to fix the problem. When everything is fine, the page says so.
+
+| Section | What it shows | Where to fix it |
+|---|---|---|
+| Incomplete acquisition cost | Lots with a zero or incomplete purchase price — a reward without a price, a transfer without the outgoing side, a purchase fee without a CNB rate, a sale without a purchase (see [12.1 Sales](12_Danovy_report.md#121-sales)) | Link to the position — fix or complete the transaction |
+| Instrument prices | A held instrument without a price or with a last price older than usual | The price source in the instrument catalog; a manual price is entered by the administrator |
+| CNB exchange rates | The latest rates are older than 4 days | The administrator checks the `cron-fx` job in Scheduled jobs |
+| Bank notices | Notices from the last 30 days that were not recorded (unlinked account, unreadable, unverified sender, write error) and mailbox read errors | The Bank notices page ([10. Bank notices](10_Bankovni_aviza.md)) |
+
+The page always shows your own data, even while you are viewing data shared by a partner.
+The daily alert summary sends the same checks (except the incomplete acquisition cost) ([8.2](#82-alerts-by-e-mail)).

@@ -412,6 +412,7 @@
     "bank_notices": "Bankovní avíza",
     "import": "Import",
     "tax_report": "Daňový report",
+    "data_quality": "Kvalita dat",
     "summary": "Souhrny",
     "income": "Dividendy a úroky",
     "api": "API",
@@ -1699,5 +1700,26 @@
     "min_length": "Zadej alespoň {min} znaků.",
     "max_length": "Zadej nejvýš {max} znaků.",
     "pattern": "Hodnota neodpovídá požadovanému formátu."
+  },
+  "data_quality": {
+    "title": "Kvalita dat",
+    "subtitle": "Co může zkreslit hodnotu portfolia a daňový report — a kde to opravíš.",
+    "ok_title": "Data jsou v pořádku",
+    "ok_hint": "Všechny držené instrumenty mají aktuální cenu, kurzy ČNB jsou čerstvé a loty mají úplnou nabývací cenu.",
+    "costs": "Neúplná nabývací cena",
+    "costs_hint": "Lot s nulovou nebo neúplnou nabývací cenou zvýší zdanitelný zisk. Oprav nebo doplň transakci u pozice.",
+    "prices": "Ceny instrumentů",
+    "prices_hint": "Pozice bez ceny se do hodnoty nezapočítá. Zkontroluj zdroj ceny instrumentu, ruční cenu zadá správce.",
+    "missing_price": "chybí cena",
+    "stale_price": "poslední cena z {date}",
+    "fx": "Kurzy ČNB",
+    "stale_fx": "Poslední kurzy ČNB z {date} ({currencies})",
+    "fx_hint": "Kurzy stahuje denně plánovaná úloha cron-fx — správce ji zkontroluje v Plánovaných úlohách.",
+    "notices": "Bankovní avíza",
+    "imap_error": "chyba čtení schránky",
+    "codes": {
+      "insufficient_quantity": "prodej víc kusů, než pozice držela — chybí nákup",
+      "fee_exceeds_quantity": "poplatek v kusech je vyšší než nakoupené množství"
+    }
   }
 }

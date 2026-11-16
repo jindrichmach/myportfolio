@@ -38,6 +38,7 @@ use MyPortfolio\Action\Market\FxRatesAction;
 use MyPortfolio\Action\Market\MarketStatusAction;
 use MyPortfolio\Action\Market\PricesAction;
 use MyPortfolio\Action\Portfolio\AccountsAction;
+use MyPortfolio\Action\Portfolio\DataQualityAction;
 use MyPortfolio\Action\Portfolio\PortfoliosAction;
 use MyPortfolio\Action\Portfolio\PositionsAction;
 use MyPortfolio\Action\Portfolio\TransactionsAction;
@@ -188,6 +189,7 @@ final class Routes
         // Měsíční / roční souhrn, dividendy a úroky
         $app->get ('/api/summary', [SummaryAction::class, 'summary']);
         $app->get ('/api/income',  [SummaryAction::class, 'income']);
+        $app->get ('/api/data-quality', DataQualityAction::class);
 
         // Cílová alokace a rebalancing
         $app->get ('/api/allocation',         [AllocationAction::class, 'show']);

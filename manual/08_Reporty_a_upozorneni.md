@@ -103,3 +103,17 @@ Stejná čísla posílá měsíční a roční souhrn e-mailem ([8.1](#81-týden
 Částky jsou v měně zobrazení kurzem ČNB ke dni platby. Srážková daň je poplatek u dividendy
 ([5.1 Typy transakcí](05_Transakce.md#51-typy-transakcí)). Pro daňové přiznání slouží [12. Daňový report](12_Danovy_report.md).
 
+## 8.5 Kvalita dat
+
+Stránka **Kvalita dat** (menu Portfolio) shrne, co může zkreslit hodnotu portfolia a daňový report, a u každého
+oddílu ukáže, kde problém opravíš. Když je vše v pořádku, stránka to napíše.
+
+| Oddíl | Co ukazuje | Kde opravíš |
+|---|---|---|
+| Neúplná nabývací cena | Loty s nulovou nebo neúplnou nákupní cenou — odměna bez ceny, převod bez odchozí strany, poplatek nákupu bez kurzu ČNB, prodej bez nákupu (viz [12.1 Prodeje](12_Danovy_report.md#121-prodeje)) | Odkaz na pozici — oprav nebo doplň transakci |
+| Ceny instrumentů | Držený instrument bez ceny nebo s poslední cenou starší než obvykle | Zdroj ceny v katalogu instrumentů; ruční cenu zadá správce |
+| Kurzy ČNB | Poslední kurzy jsou starší než 4 dny | Správce zkontroluje úlohu `cron-fx` v Plánovaných úlohách |
+| Bankovní avíza | Avíza za posledních 30 dní, která se nezapsala (nenapojený účet, nečitelné, neověřený odesílatel, chyba zápisu), a chyby čtení schránky | Stránka Bankovní avíza ([10. Bankovní avíza](10_Bankovni_aviza.md)) |
+
+Stránka ukazuje vždy tvoje vlastní data, i když právě prohlížíš data sdílená partnerem.
+Stejné kontroly (kromě neúplné nabývací ceny) posílá i denní souhrn upozornění ([8.2](#82-upozornění-e-mailem)).
