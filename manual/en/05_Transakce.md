@@ -18,6 +18,10 @@ or in the **Portfolio → Transactions** overview, where you also choose the pos
 | Fee | ✅ | ✅ | amount (a standalone fee, e.g. for account maintenance) |
 | Transfer | ✅ | — | created with the **Transfer** button — see [5.3](#53-transfer-between-accounts) |
 
+A split divides or merges the units of all lots of the position; the acquisition cost and acquisition date stay. When the
+broker pays out a fraction of a unit in cash in a reverse split, record it after the split as a **Sell** of that fraction for
+the amount paid.
+
 ## 5.2 Form
 
 | Field | Meaning |

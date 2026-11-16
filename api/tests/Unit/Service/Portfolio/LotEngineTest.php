@@ -181,6 +181,23 @@ final class LotEngineTest extends TestCase
         self::eq('25', $r['disposals'][0]['cost']);
     }
 
+    public function testSplitRoundingDustGoesToLastLot(): void
+    {
+        // 3 × 1,000000000000000001 ks × 1,5: každý lot zaokrouhlený dolů na 18 míst by dohromady chyběl o 1e-18
+        $buys = array_map(fn () => $this->tx(1, 'buy', '2021-01-01', ['quantity' => '1.000000000000000001', 'amount' => '100']), [1, 2, 3]);
+        $r = $this->engine([
+            ...$buys,
+            $this->tx(1, 'split', '2022-01-01', ['split_ratio' => '1.5']),
+            $this->tx(1, 'sell', '2022-06-01', ['quantity' => '4.500000000000000004', 'amount' => '450']),
+        ]);
+
+        self::assertSame([], $r['warnings'], 'prodej celé držby po splitu nesmí narazit na chybějící množství');
+        self::eq('1.500000000000000002', $r['lots'][2]['quantity']);
+        foreach ($r['lots'] as $lot) {
+            self::eq('0', $lot['remaining']);
+        }
+    }
+
     public function testSellFromOtherPositionDoesNotTouchLots(): void
     {
         $r = $this->engine([

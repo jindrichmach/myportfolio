@@ -18,6 +18,9 @@ nebo v přehledu **Portfolio → Transakce**, kde vybereš i pozici.
 | Poplatek | ✅ | ✅ | částka (samostatný poplatek, např. za vedení účtu) |
 | Převod | ✅ | — | zakládá se tlačítkem **Převést** — viz [5.3](#53-převod-mezi-účty) |
 
+Split rozdělí nebo sloučí kusy všech lotů pozice; nabývací cena a datum nabytí zůstávají. Když broker při reverse
+splitu vyplatí zlomek kusu v penězích, zapiš ho po splitu jako **Prodej** toho zlomku za vyplacenou částku.
+
 ## 5.2 Formulář
 
 | Pole | Význam |

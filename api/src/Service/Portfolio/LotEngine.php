@@ -191,17 +191,33 @@ final class LotEngine
         ];
     }
 
-    /** @param array<string,mixed> $tx */
+    /**
+     * Každý lot se po vynásobení zaokrouhlí dolů; rozdíl proti přesné držbě × poměr (zaokrouhlené jednou)
+     * dostane poslední lot — součet lotů pak sedí s držbou pozice a prodej všeho nenarazí na „prach“.
+     *
+     * @param array<string,mixed> $tx
+     */
     private function split(array $tx): void
     {
         $ratio = BigDecimal::of((string) $tx['split_ratio']);
+        $held = BigDecimal::zero();
+        $splitRemaining = BigDecimal::zero();
+        $last = null;
         foreach ($this->lots as $i => $lot) {
             if ($lot['position_id'] === (int) $tx['position_id'] && $lot['remaining']->isPositive()
                 && $lot['acquired_at'] <= $tx['executed_at']
             ) {
+                $held = $held->plus($lot['remaining']);
                 $this->lots[$i]['quantity'] = $lot['quantity']->multipliedBy($ratio)->toScale(self::SCALE_QTY, RoundingMode::Down);
                 $this->lots[$i]['remaining'] = $lot['remaining']->multipliedBy($ratio)->toScale(self::SCALE_QTY, RoundingMode::Down);
+                $splitRemaining = $splitRemaining->plus($this->lots[$i]['remaining']);
+                $last = $i;
             }
+        }
+        if ($last !== null) {
+            $dust = $held->multipliedBy($ratio)->toScale(self::SCALE_QTY, RoundingMode::Down)->minus($splitRemaining);
+            $this->lots[$last]['quantity'] = $this->lots[$last]['quantity']->plus($dust);
+            $this->lots[$last]['remaining'] = $this->lots[$last]['remaining']->plus($dust);
         }
     }
 
