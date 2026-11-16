@@ -16,6 +16,8 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
   tajemství neuloží:
   - Docker: `docker compose -f docker-compose.production.yml exec app php /var/www/html/api/bin/migrate.php`
   - nativně: `php8.5 api/bin/migrate.php`
+- Bankovní avíza: schránky bez vyplněného *Důvěryhodného authserv-id* přestanou avíza zapisovat, dokud ho uživatel
+  nepotvrdí — po prvním avízu ho stránka Bankovní avíza nabídne tlačítkem **Ano, potvrdit**.
 
 ## [1.0.0] — 2026-10-30
 
