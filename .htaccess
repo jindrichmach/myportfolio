@@ -66,7 +66,7 @@ Options -Indexes -MultiViews
     Header always set Cross-Origin-Opener-Policy "same-origin"
     Header always set Cross-Origin-Resource-Policy "same-site"
     # CSP: sladěno s docker/nginx.conf.
-    Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-/EHZpL84nrfJ9uJPQZ3ILvattilT1WNuHypaSWGOKQ8=' https://challenges.cloudflare.com; worker-src 'self' blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self' https://challenges.cloudflare.com; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+    Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-/EHZpL84nrfJ9uJPQZ3ILvattilT1WNuHypaSWGOKQ8=' https://challenges.cloudflare.com; worker-src 'self' blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self' https://challenges.cloudflare.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
     Header unset Server
     Header unset X-Powered-By
 </IfModule>
