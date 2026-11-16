@@ -96,7 +96,7 @@ if [[ $MODE == docker ]]; then
   fi
   "$ROOT/cmd/docker-install.sh"
   step "Hotovo"
-  info "Otevři v prohlížeči ${APP_URL:-http://localhost:${APP_PORT:-8080}}/setup a dokonči průvodce:"
+  info "Otevři v prohlížeči odkaz na /setup s instalačním kódem (výše) a dokonči průvodce:"
   info "  správce → zabezpečení → e-mail (SMTP) → ukázková data → shrnutí."
   info "Plánované úlohy (ceny, kurzy, zálohy, reporty) běží v kontejneru samy."
   exit 0
@@ -280,6 +280,12 @@ info "Apache: DocumentRoot = $ROOT, AllowOverride All, mod_rewrite + mod_headers
 info "nginx + php-fpm: vzor v docker/nginx.conf (root $ROOT, /api/ → api/public/index.php, SPA → web/dist)."
 info "Rychlá zkouška bez webového serveru:  $PHP_BIN -S 127.0.0.1:8000 api/bin/dev-server-router.php"
 
+SETUP_TOKEN="$(tr -d '[:space:]' < storage/setup-token 2>/dev/null || true)"
 bold ""
-bold "Hotovo. Otevři ${APP_URL_NOW:-adresu aplikace}/setup a dokonči průvodce v prohlížeči:"
+if [[ -n "$SETUP_TOKEN" ]]; then
+  bold "Hotovo. Otevři ${APP_URL_NOW:-adresu aplikace}/setup?token=$SETUP_TOKEN a dokonči průvodce v prohlížeči:"
+  info "Instalační kód: $SETUP_TOKEN (je i v storage/setup-token; po založení správce zmizí)"
+else
+  bold "Hotovo. Otevři ${APP_URL_NOW:-adresu aplikace}/setup a dokonči průvodce v prohlížeči:"
+fi
 info "správce → zabezpečení → e-mail (SMTP) → ukázková data → shrnutí."

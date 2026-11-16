@@ -113,10 +113,20 @@ for i in {1..90}; do
   fi
 done
 
+# Instalační kód pro průvodce /setup (vygeneroval migrate.php v entrypointu; po založení správce zmizí)
+SETUP_TOKEN="$(docker compose exec -T app sh -c 'cat "${MYPORTFOLIO_DATA_DIR:-/var/www/html}/storage/setup-token" 2>/dev/null' | tr -d '[:space:]' || true)"
+
 echo ""
 echo "============================================================"
 echo " MyPortfolio is up at:  http://localhost:${APP_PORT}"
-echo " The browser will land on the setup wizard (admin account)."
+if [[ -n "$SETUP_TOKEN" ]]; then
+  echo " Setup wizard (admin account):"
+  echo "   http://localhost:${APP_PORT}/setup?token=${SETUP_TOKEN}"
+  echo " Installation code: ${SETUP_TOKEN}"
+else
+  echo " The browser will land on the setup wizard (admin account)."
+  echo " Installation code: docker compose logs app | grep -i 'kód'"
+fi
 echo ""
 echo " Useful:"
 echo "   docker compose logs -f app    # tail app logs"

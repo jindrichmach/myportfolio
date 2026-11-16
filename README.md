@@ -130,8 +130,8 @@ připraví konfiguraci, databázi, build a cron:
 cmd/install.sh                 # nebo: cmd/install.sh --docker | --native [--yes]
 ```
 
-Pak otevři `<adresa>/setup` — webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně
-nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
+Pak otevři odkaz `<adresa>/setup?token=…`, který instalace vypíše (instalační kód je i v `storage/setup-token`) —
+webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
 
 Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.0.0`, u stabilních verzí
 i `1.0` a `latest`), produkční compose v

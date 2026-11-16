@@ -10,7 +10,10 @@ cmd/install.sh --yes      # bez dotazů, s výchozími hodnotami
 ```
 
 Skript připraví prostředí (konfiguraci, databázi, závislosti, build, migrace, cron) a na konci
-vypíše adresu **webového průvodce** (`/setup`, [11.1 Úvodní nastavení](11_Administrace.md#111-úvodní-nastavení)).
+vypíše adresu **webového průvodce** (`/setup`, [11.1 Úvodní nastavení](11_Administrace.md#111-úvodní-nastavení))
+i s **instalačním kódem** — bez něj průvodce správce nezaloží, takže si čerstvou instanci nikdo cizí nepřivlastní.
+Kód je i v `storage/setup-token` (v Dockeru `/data/storage/setup-token` a ve výpisu `docker compose logs app`);
+po založení správce zmizí.
 Tam založíš správce, nastavíš e-mail a můžeš zaškrtnout **ukázková data**.
 Skript lze spustit znovu — existující konfiguraci nepřepíše bez dotazu. Při přepsání uloží zálohu `cfg.php` do
 `storage/backup/config/` (mimo dosah webu) a ponechá stávající pepper a šifrovací klíč — nové by zneplatnily hesla

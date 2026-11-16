@@ -6,6 +6,7 @@ namespace MyPortfolio\Middleware;
 
 use MyPortfolio\Http\Json;
 use MyPortfolio\Infrastructure\Database\Connection;
+use MyPortfolio\Service\Auth\SetupToken;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
@@ -17,10 +18,17 @@ use Slim\Psr7\Factory\ResponseFactory;
  *   GET  /api/health
  *   GET  /api/auth/setup-status
  *   POST /api/auth/setup
- * Vše ostatní vrací 423 Locked s `setup_required`.
+ * Vše ostatní vrací 423 Locked s `setup_required`. Zápisy průvodce (setup, test SMTP) navíc vyžadují
+ * instalační kód v hlavičce X-Setup-Token (SetupToken) — jinak 403 `setup_token_invalid`.
  */
 final class FirstRunLockMiddleware implements MiddlewareInterface
 {
+    /** Zápisy průvodce — chráněné instalačním kódem. */
+    private const TOKEN_PATHS = [
+        'POST /api/auth/setup',
+        'POST /api/auth/setup/smtp-test',
+    ];
+
     private const ALLOWED_PATHS = [
         'GET /api/health',
         'GET /api/auth/setup-status',
@@ -37,6 +45,7 @@ final class FirstRunLockMiddleware implements MiddlewareInterface
     public function __construct(
         private readonly Connection $db,
         private readonly ResponseFactory $responseFactory,
+        private readonly SetupToken $setupToken,
     ) {}
 
     public function process(Request $request, Handler $handler): Response
@@ -46,7 +55,21 @@ final class FirstRunLockMiddleware implements MiddlewareInterface
         }
 
         $key = strtoupper($request->getMethod()) . ' ' . $request->getUri()->getPath();
+        if (in_array($key, self::TOKEN_PATHS, true)) {
+            if (!$this->setupToken->matches($request->getHeaderLine(SetupToken::HEADER))) {
+                return Json::error($this->responseFactory->createResponse(403), 'setup_token_invalid',
+                    'Neplatný instalační kód — najdeš ho ve výstupu instalace (docker logs) nebo v storage/setup-token.', 403);
+            }
+            return $handler->handle($request);
+        }
         if (in_array($key, self::ALLOWED_PATHS, true)) {
+            if ($key === 'GET /api/auth/setup-status') {
+                // pojistka, když migrate.php kód nevytvořil (např. MYPORTFOLIO_SKIP_MIGRATIONS) — do odpovědi nejde
+                try {
+                    $this->setupToken->ensure();
+                } catch (\RuntimeException) {
+                }
+            }
             return $handler->handle($request);
         }
 

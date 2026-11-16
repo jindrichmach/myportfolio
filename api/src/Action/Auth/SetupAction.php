@@ -23,6 +23,7 @@ use MyPortfolio\Service\BackgroundProcess;
 use MyPortfolio\Infrastructure\Config\RuntimePaths;
 use MyPortfolio\Repository\SmtpSettingsRepository;
 use MyPortfolio\Service\Auth\SecretEncryption;
+use MyPortfolio\Service\Auth\SetupToken;
 use MyPortfolio\Service\IpMatcher;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -47,6 +48,7 @@ final class SetupAction
         private readonly SmtpSettingsRepository $smtpSettings,
         private readonly SecretEncryption $secrets,
         private readonly DemoDataSeeder $demo,
+        private readonly SetupToken $setupToken,
     ) {}
 
     public function __invoke(Request $request, Response $response): Response
@@ -171,6 +173,7 @@ final class SetupAction
             $pdo->rollBack();
             return Json::error($response, 'setup_failed', $e->getMessage(), 500);
         }
+        $this->setupToken->clear();
 
         // Zapiš obecnou MFA politiku, legacy TOTP flag a případně detekované app.url.
         // `app.url` přepisujeme JEN pokud je v configu prázdné nebo některý ze známých

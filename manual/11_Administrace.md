@@ -9,7 +9,8 @@ až tlačítkem **Dokončit** v posledním kroku.
 
 | Krok | Pole | Význam |
 |---|---|---|
-| Správce | Jméno, e-mail, heslo | První uživatel s rolí **admin**; heslo nejméně 12 znaků (doporučená je delší věta) |
+| Správce | Instalační kód | Kód z výstupu instalace nebo ze souboru `storage/setup-token` ([2. Instalace](02_Instalace.md)); odkaz z instalace ho vyplní sám |
+| | Jméno, e-mail, heslo | První uživatel s rolí **admin**; heslo nejméně 12 znaků (doporučená je delší věta) |
 | | Jazyk, měna zobrazení | Jazyk aplikace a e-mailů a měna, ve které vidíš hodnoty; obojí jde změnit v Profilu |
 | Zabezpečení | Vynutit vícefaktorové ověření | Všichni uživatelé si po přihlášení musí nastavit passkey nebo TOTP |
 | E-mail | Nastavit odesílání e-mailů teď | SMTP server, port, šifrování, přihlášení a odesílatel. **Poslat zkušební e-mail** ověří nastavení ještě před dokončením. Nastavit jde i později ([11.4 Nastavení](#114-nastavení)) |

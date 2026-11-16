@@ -149,10 +149,12 @@ export interface SetupPayload {
 export const authApi = {
   setupStatus: () => api.get<SetupStatus>('/auth/setup-status').then((r) => r.data),
 
-  setupSmtpTest: (smtp: SetupSmtp, to: string, locale: string) =>
-    api.post<{ ok: boolean; message: string }>('/auth/setup/smtp-test', { smtp, to, locale }, { timeout: 60_000 }).then((r) => r.data),
+  /** Zápisy průvodce nesou instalační kód (výstup instalace / storage/setup-token) */
+  setupSmtpTest: (smtp: SetupSmtp, to: string, locale: string, token: string) =>
+    api.post<{ ok: boolean; message: string }>('/auth/setup/smtp-test', { smtp, to, locale },
+      { timeout: 60_000, headers: { 'X-Setup-Token': token } }).then((r) => r.data),
 
-  setup: (payload: SetupPayload) =>
+  setup: (payload: SetupPayload, token: string) =>
     api.post<{
       user: User
       next: string
@@ -165,6 +167,7 @@ export const authApi = {
     }>(
       '/auth/setup',
       payload,
+      { headers: { 'X-Setup-Token': token } },
     ).then(r => r.data),
 
   login: (payload: LoginPayload) =>

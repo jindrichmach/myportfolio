@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppShell from '@/components/layout/AppShell.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -17,6 +17,7 @@ import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 const { t, locale } = useI18n()
 const fid = useFieldId()
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 
 const STEPS = ['admin', 'security', 'email', 'data', 'summary'] as const
@@ -29,6 +30,9 @@ const requireMfa = ref(false)
 const useSmtp = ref(false)
 const smtp = reactive<SetupSmtp>({ host: '', port: 587, encryption: 'tls', verify_peer: true, auth_enabled: true, username: '', password: '', from_email: '', from_name: 'MyPortfolio' })
 const demoData = ref(false)
+// Instalační kód z výstupu instalace; odkaz z konzole ho nese v ?token=
+const setupToken = ref(typeof route.query.token === 'string' ? route.query.token.trim() : '')
+const tokenValid = computed(() => /^[0-9a-f]{32}$/i.test(setupToken.value.trim()))
 
 const submitting = ref(false)
 const error = ref('')
@@ -39,7 +43,7 @@ const result = ref<{ demo: { ok: boolean; transactions?: number; backfill_starte
 
 const passwordOk = computed(() => admin.password.length >= 12)
 const passwordMatch = computed(() => admin.password === admin.password_confirm)
-const adminValid = computed(() => admin.name.trim().length > 0 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(admin.email) && passwordOk.value && passwordMatch.value)
+const adminValid = computed(() => tokenValid.value && admin.name.trim().length > 0 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(admin.email) && passwordOk.value && passwordMatch.value)
 const smtpValid = computed(() => !useSmtp.value || (smtp.host.trim() !== '' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(smtp.from_email)
   && (!smtp.auth_enabled || (smtp.username.trim() !== '' && smtp.password !== ''))))
 
@@ -72,7 +76,7 @@ async function testSmtp() {
   smtpTesting.value = true
   smtpTest.value = null
   try {
-    smtpTest.value = await authApi.setupSmtpTest({ ...smtp }, admin.email, admin.locale)
+    smtpTest.value = await authApi.setupSmtpTest({ ...smtp }, admin.email, admin.locale, setupToken.value.trim())
   } catch (e: any) {
     const fields = e?.response?.data?.error?.fields as Record<string, string[]> | undefined
     smtpTest.value = { ok: false, message: fields ? Object.values(fields).flat().join(' ') : (e?.response?.data?.error?.message ?? t('setup.failed')) }
@@ -94,7 +98,7 @@ async function submit() {
       smtp: useSmtp.value ? { ...smtp } : null,
       demo_data: demoData.value,
     }
-    const r = await authApi.setup(payload)
+    const r = await authApi.setup(payload, setupToken.value.trim())
     auth.setSessionCsrfToken(r.csrf_token)
     result.value = { demo: r.demo }
     step.value = 'done'
@@ -102,7 +106,10 @@ async function submit() {
     const data = e?.response?.data?.error
     fieldErrors.value = data?.fields ?? {}
     const keys = Object.keys(fieldErrors.value)
-    if (keys.length > 0) {
+    if (data?.code === 'setup_token_invalid') {
+      error.value = t('setup.token_invalid')
+      step.value = 'admin'
+    } else if (keys.length > 0) {
       error.value = t('setup.fix_fields', { fields: keys.map(k => t(`setup.fields.${k.replace('.', '_')}`, k)).join(', ') })
       const target = FIELD_STEP[keys[0].split('.')[0]]
       if (target) step.value = target
@@ -143,6 +150,11 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           <div>
             <h1 class="text-xl font-semibold mb-1">{{ t('setup.create_admin') }}</h1>
             <p class="text-sm text-neutral-500">{{ t('setup.admin_hint') }}</p>
+          </div>
+          <div>
+            <label :for="fid('setup_token')" :class="labelClass">{{ t('setup.token') }}</label>
+            <input :id="fid('setup_token')" v-model="setupToken" required autocomplete="off" spellcheck="false" :class="[inputClass, 'font-mono']" />
+            <p class="text-xs mt-1" :class="setupToken && !tokenValid ? 'text-danger-500' : 'text-neutral-500'">{{ t('setup.token_hint') }}</p>
           </div>
           <div>
             <label :for="fid('name')" :class="labelClass">{{ t('users.name') }}</label>

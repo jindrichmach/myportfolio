@@ -108,6 +108,22 @@ foreach ($pending as $file) {
 
 echo "Hotovo.\n";
 
+// Čerstvá instalace: instalační kód pro průvodce /setup (bez něj správce nejde založit)
+if ((int) $db->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'users'")->fetchColumn() > 0
+    && (int) $db->query('SELECT COUNT(*) FROM users WHERE is_active = 1')->fetchColumn() === 0
+) {
+    $setupToken = new \MyPortfolio\Service\Auth\SetupToken();
+    try {
+        $code = $setupToken->ensure();
+        $url = rtrim((string) $config->get('app.url', ''), '/');
+        echo "\nInstalační kód pro /setup: {$code}\n"
+            . ($url !== '' ? "Otevři: {$url}/setup?token={$code}\n" : '')
+            . "(uložený v {$setupToken->path()})\n";
+    } catch (\RuntimeException $e) {
+        fwrite(STDERR, $e->getMessage() . "\n");
+    }
+}
+
 /**
  * Rozdělí SQL na jednotlivé statementy podle aktuálního delimiteru.
  * Default delimiter `;` lze přepnout direktivou `DELIMITER xxx` (klient-side, na vlastním řádku),

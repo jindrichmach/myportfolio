@@ -9,7 +9,8 @@ until you click **Finish** in the last step.
 
 | Step | Field | Meaning |
 |---|---|---|
-| Admin | Name, e-mail, password | The first user with the **admin** role; password at least 12 characters (a longer sentence is recommended) |
+| Admin | Installation code | The code from the installation output or from the `storage/setup-token` file ([2. Installation](02_Instalace.md)); the link from the installation fills it in |
+| | Name, e-mail, password | The first user with the **admin** role; password at least 12 characters (a longer sentence is recommended) |
 | | Language, display currency | The language of the app and e-mails and the currency you see values in; both can be changed in Profile |
 | Security | Require multi-factor authentication | All users must set up a passkey or TOTP after signing in |
 | E-mail | Set up sending e-mails now | SMTP server, port, encryption, login and sender. **Send a test e-mail** verifies the settings before finishing. It can also be set up later ([11.4 Settings](#114-settings)) |

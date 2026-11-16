@@ -10,7 +10,10 @@ cmd/install.sh --yes      # no questions, default values
 ```
 
 The script prepares the environment (configuration, database, dependencies, build, migrations, cron) and at the end
-prints the address of the **web setup wizard** (`/setup`, [11.1 Initial setup](11_Administrace.md#111-initial-setup)).
+prints the address of the **web setup wizard** (`/setup`, [11.1 Initial setup](11_Administrace.md#111-initial-setup))
+together with the **installation code** — without it the wizard does not create the administrator, so nobody else can take
+over a fresh instance. The code is also in `storage/setup-token` (in Docker `/data/storage/setup-token` and in the output
+of `docker compose logs app`); it disappears once the administrator is created.
 There you create the administrator, set up email and can tick **demo data**.
 The script can be run again — it does not overwrite existing configuration without asking. When overwriting, it saves a backup of `cfg.php` to
 `storage/backup/config/` (out of web reach) and keeps the existing pepper and encryption key — new ones would invalidate users'
