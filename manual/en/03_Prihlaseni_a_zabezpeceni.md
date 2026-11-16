@@ -5,7 +5,8 @@
 Enter your email and password. If the account has multi-factor authentication enabled, this is followed by
 confirmation with a **passkey** (fingerprint, face, device PIN or security key),
 or a six-digit **authenticator code** (TOTP). The code is submitted automatically after you enter
-the sixth digit.
+the sixth digit. Each code works only once — if you confirm another action right afterwards
+(e.g. creating an API token), wait for the next code.
 
 If the administrator has enabled passwordless sign-in, you can use
 **Sign in with a passkey** directly.

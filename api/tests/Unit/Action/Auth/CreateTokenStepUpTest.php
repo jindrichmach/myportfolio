@@ -14,7 +14,7 @@ use MyPortfolio\Service\Auth\BruteForceGuard;
 use MyPortfolio\Service\Auth\MfaPolicyService;
 use MyPortfolio\Service\Auth\MfaProtectedOperationService;
 use MyPortfolio\Service\Auth\SecretEncryption;
-use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\IpMatcher;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
@@ -52,7 +52,7 @@ final class CreateTokenStepUpTest extends TestCase
         $action = new CreateTokenAction(
             $db,
             $tokens,
-            $this->createMock(TotpService::class),
+            $this->createMock(TotpVerifier::class),
             $this->createMock(SecretEncryption::class),
             $this->createMock(ActivityLogger::class),
             $this->createMock(IpMatcher::class),

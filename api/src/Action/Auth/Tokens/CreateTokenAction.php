@@ -16,7 +16,7 @@ use MyPortfolio\Service\Auth\MfaProtectedOperationService;
 use MyPortfolio\Service\Auth\OneTimeTokenException;
 use MyPortfolio\Service\Auth\SecretEncryption;
 use MyPortfolio\Service\Auth\StepUpOperationException;
-use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\IpMatcher;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -37,7 +37,7 @@ final class CreateTokenAction
     public function __construct(
         private readonly Connection $db,
         private readonly ApiTokenService $tokens,
-        private readonly TotpService $totp,
+        private readonly TotpVerifier $totp,
         private readonly SecretEncryption $crypto,
         private readonly ActivityLogger $activity,
         private readonly IpMatcher $ipMatcher,
@@ -145,7 +145,7 @@ final class CreateTokenAction
             } catch (\RuntimeException) {
                 return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
             }
-            if (!$this->totp->verify($secret, $totpCode)) {
+            if (!$this->totp->verify($userId, $secret, $totpCode)) {
                 $this->bruteForce->recordTotpFailure($userId);
                 return Json::error($response, 'invalid_code', 'Neplatný TOTP kód.', 401);
             }

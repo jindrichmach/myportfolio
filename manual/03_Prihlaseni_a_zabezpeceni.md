@@ -5,7 +5,8 @@
 Zadej e-mail a heslo. Má-li účet zapnuté vícefaktorové ověření, následuje
 potvrzení **passkey** (otisk, obličej, PIN zařízení nebo bezpečnostní klíč),
 nebo šestimístný **kód z autentikátoru** (TOTP). Kód se odešle sám po zadání
-šesté číslice.
+šesté číslice. Každý kód platí jen jednou — když hned potom potvrzuješ další akci
+(např. vytvoření API tokenu), počkej na další kód.
 
 Pokud správce povolil přihlášení bez hesla, můžeš použít rovnou
 **Přihlásit přístupovým klíčem**.

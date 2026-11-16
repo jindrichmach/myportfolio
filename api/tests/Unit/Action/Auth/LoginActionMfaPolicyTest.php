@@ -17,7 +17,7 @@ use MyPortfolio\Service\Auth\PasskeyService;
 use MyPortfolio\Service\Auth\PasswordHasher;
 use MyPortfolio\Service\Auth\SecretEncryption;
 use MyPortfolio\Service\Auth\SessionAuthContext;
-use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\Auth\TrustedDeviceService;
 use MyPortfolio\Service\Auth\WebAuthnCeremonyStore;
 use MyPortfolio\Service\Captcha\TurnstileVerifier;
@@ -86,7 +86,7 @@ final class LoginActionMfaPolicyTest extends TestCase
                 return $response->withStatus(204);
             }
         );
-        $totp = $this->createMock(TotpService::class);
+        $totp = $this->createMock(TotpVerifier::class);
         $totp->method('verify')->willReturn(true);
 
         $this->login(
@@ -119,7 +119,7 @@ final class LoginActionMfaPolicyTest extends TestCase
                 return $response->withStatus(204);
             }
         );
-        $totp = $this->createMock(TotpService::class);
+        $totp = $this->createMock(TotpVerifier::class);
         $totp->method('verify')->willReturn(true);
 
         $this->login(
@@ -189,7 +189,7 @@ final class LoginActionMfaPolicyTest extends TestCase
         int $activePasskeys = 0,
         array $body = [],
         ?EmailOtpService $emailOtp = null,
-        ?TotpService $totpService = null,
+        ?TotpVerifier $totpService = null,
     ): ResponseInterface {
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('execute')->willReturn(true);
@@ -243,7 +243,7 @@ final class LoginActionMfaPolicyTest extends TestCase
                     'email_otp' => ['enabled' => $emailOtpEnabled],
                 ],
             ]),
-            $totpService ?? $this->createMock(TotpService::class),
+            $totpService ?? $this->createMock(TotpVerifier::class),
             $crypto,
             $emailOtp ?? $this->createMock(EmailOtpService::class),
             $this->createMock(TrustedDeviceService::class),

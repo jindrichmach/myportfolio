@@ -13,7 +13,7 @@ namespace MyPortfolio\Service\Auth;
  * Použití:
  *   $secret = TotpService::generateSecret();              // base32 string, ulož do DB
  *   $uri = $svc->provisioningUri($secret, 'me@x', 'MyPortfolio'); // pro QR
- *   $svc->verify($secret, '123456');                      // true/false (s ±1 window pro skew)
+ *   $svc->matchStep($secret, '123456');                   // číslo kroku nebo null (s ±1 window pro skew); jednorázově přes TotpVerifier
  */
 final class TotpService
 {
@@ -33,20 +33,21 @@ final class TotpService
     }
 
     /**
-     * Ověří 6místný kód proti aktuálnímu času ± window slotů (default 1 = ±30s pro skew).
+     * Ověří 6místný kód proti aktuálnímu času ± window slotů (default 1 = ±30s pro skew)
+     * a vrátí číslo časového kroku, ke kterému kód patří (null = neplatný).
      */
-    public function verify(string $base32Secret, string $code, int $window = 1): bool
+    public function matchStep(string $base32Secret, string $code, int $window = 1): ?int
     {
         $code = trim($code);
-        if (!preg_match('/^\d{6}$/', $code)) return false;
+        if (!preg_match('/^\d{6}$/', $code)) return null;
 
         $now = (int) floor(time() / self::PERIOD);
         for ($offset = -$window; $offset <= $window; $offset++) {
             if (hash_equals($this->generateAt($base32Secret, $now + $offset), $code)) {
-                return true;
+                return $now + $offset;
             }
         }
-        return false;
+        return null;
     }
 
     /**

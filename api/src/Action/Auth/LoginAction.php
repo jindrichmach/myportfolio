@@ -18,7 +18,7 @@ use MyPortfolio\Service\Auth\PasswordHasher;
 use MyPortfolio\Service\Auth\SecretEncryption;
 use MyPortfolio\Service\Auth\SessionAuthContext;
 use MyPortfolio\Service\Auth\StoredPasskeyCredential;
-use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\Auth\TrustedDeviceService;
 use MyPortfolio\Service\Auth\WebAuthnCeremonyStore;
 use MyPortfolio\Service\Captcha\TurnstileVerifier;
@@ -37,7 +37,7 @@ final class LoginAction
         private readonly ActivityLogger $logger,
         private readonly IpMatcher $ipMatcher,
         private readonly Config $config,
-        private readonly TotpService $totp,
+        private readonly TotpVerifier $totp,
         private readonly SecretEncryption $crypto,
         private readonly EmailOtpService $emailOtp,
         private readonly TrustedDeviceService $trustedDevices,
@@ -317,7 +317,7 @@ final class LoginAction
                 return Json::error($response, 'too_many_attempts', 'Příliš mnoho TOTP pokusů. Zkus to později.', 429);
             }
             $totpSecret = $this->crypto->decrypt((string) $user['totp_secret']);
-            if (!$this->totp->verify($totpSecret, $totpCode)) {
+            if (!$this->totp->verify((int) $user['id'], $totpSecret, $totpCode)) {
                 $this->bf->recordTotpFailure((int) $user['id']);
                 $this->bf->recordFailure($email, $ip);
                 $this->logger->log('auth.login_failed', (int) $user['id'], 'user', (int) $user['id'], [

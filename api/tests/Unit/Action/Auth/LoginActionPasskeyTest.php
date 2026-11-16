@@ -17,7 +17,7 @@ use MyPortfolio\Service\Auth\PasskeyService;
 use MyPortfolio\Service\Auth\PasswordHasher;
 use MyPortfolio\Service\Auth\SecretEncryption;
 use MyPortfolio\Service\Auth\StoredPasskeyCredential;
-use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\Auth\TrustedDeviceService;
 use MyPortfolio\Service\Auth\WebAuthnCeremonyStore;
 use MyPortfolio\Service\Auth\WebAuthnConfigProvider;
@@ -101,7 +101,7 @@ final class LoginActionPasskeyTest extends TestCase
             $this->createMock(ActivityLogger::class),
             $ipMatcher,
             new Config(['auth' => ['email_otp' => ['enabled' => false]]]),
-            $this->createMock(TotpService::class),
+            $this->createMock(TotpVerifier::class),
             $this->createMock(SecretEncryption::class),
             $this->createMock(EmailOtpService::class),
             $this->createMock(TrustedDeviceService::class),
@@ -198,7 +198,7 @@ final class LoginActionPasskeyTest extends TestCase
             $this->createMock(ActivityLogger::class),
             $ipMatcher,
             new Config(['auth' => ['email_otp' => ['enabled' => false]]]),
-            $this->createMock(TotpService::class),
+            $this->createMock(TotpVerifier::class),
             $this->createMock(SecretEncryption::class),
             $this->createMock(EmailOtpService::class),
             $this->createMock(TrustedDeviceService::class),
@@ -337,7 +337,7 @@ final class LoginActionPasskeyTest extends TestCase
             $this->createMock(ActivityLogger::class),
             $ipMatcher,
             $config,
-            $this->createMock(TotpService::class),
+            $this->createMock(TotpVerifier::class),
             $this->createMock(SecretEncryption::class),
             $this->createMock(EmailOtpService::class),
             $this->createMock(TrustedDeviceService::class),

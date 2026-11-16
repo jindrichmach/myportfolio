@@ -12,7 +12,7 @@ use MyPortfolio\Service\Auth\BruteForceGuard;
 use MyPortfolio\Service\Auth\MfaStepUpService;
 use MyPortfolio\Service\Auth\SecretEncryption;
 use MyPortfolio\Service\Auth\StepUpOperationException;
-use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\IpMatcher;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -22,7 +22,7 @@ final class MfaStepUpAction
     public function __construct(
         private readonly Connection $db,
         private readonly MfaStepUpService $stepUp,
-        private readonly TotpService $totp,
+        private readonly TotpVerifier $totp,
         private readonly SecretEncryption $crypto,
         private readonly BruteForceGuard $bruteForce,
         private readonly ActivityLogger $logger,
@@ -81,7 +81,7 @@ final class MfaStepUpAction
         } catch (\RuntimeException) {
             return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
         }
-        if (!$this->totp->verify($secret, $code)) {
+        if (!$this->totp->verify($userId, $secret, $code)) {
             $this->bruteForce->recordTotpFailure($userId);
             return Json::error($response, 'invalid_code', 'Neplatný TOTP kód.', 401);
         }

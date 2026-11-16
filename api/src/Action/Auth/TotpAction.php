@@ -19,6 +19,7 @@ use MyPortfolio\Service\Auth\SessionAuthContext;
 use MyPortfolio\Service\Auth\SessionCookieFactory;
 use MyPortfolio\Service\Auth\SessionManager;
 use MyPortfolio\Service\Auth\TotpService;
+use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\IpMatcher;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -37,6 +38,7 @@ final class TotpAction
     public function __construct(
         private readonly Connection $db,
         private readonly TotpService $totp,
+        private readonly TotpVerifier $verifier,
         private readonly Config $config,
         private readonly ActivityLogger $logger,
         private readonly IpMatcher $ipMatcher,
@@ -77,7 +79,7 @@ final class TotpAction
             return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
         }
         // Šifrované AES-256-GCM v DB; do response zasíláme plain (jednorázově pro setup)
-        $this->db->pdo()->prepare('UPDATE users SET totp_secret = ?, totp_enabled = 0 WHERE id = ?')
+        $this->db->pdo()->prepare('UPDATE users SET totp_secret = ?, totp_enabled = 0, totp_last_step = NULL WHERE id = ?')
             ->execute([$encrypted, (int) $user['id']]);
 
         $issuer = parse_url((string) $this->config->get('app.url', 'MyPortfolio'), PHP_URL_HOST) ?: 'MyPortfolio';
@@ -122,7 +124,7 @@ final class TotpAction
         } catch (\RuntimeException) {
             return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
         }
-        if (!$this->totp->verify($secret, $code)) {
+        if (!$this->verifier->verify((int) $user['id'], $secret, $code)) {
             return Json::error($response, 'invalid_code', 'Neplatný TOTP kód.', 400);
         }
 

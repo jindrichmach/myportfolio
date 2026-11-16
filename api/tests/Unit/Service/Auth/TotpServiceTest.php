@@ -33,23 +33,23 @@ final class TotpServiceTest extends TestCase
         $svc = new TotpService();
         $secret = TotpService::generateSecret();
         $code = $svc->currentCode($secret);
-        self::assertTrue($svc->verify($secret, $code));
+        self::assertSame((int) floor(time() / 30), $svc->matchStep($secret, $code));
     }
 
     public function testWrongCodeRejected(): void
     {
         $svc = new TotpService();
         $secret = TotpService::generateSecret();
-        self::assertFalse($svc->verify($secret, '000000'));
+        self::assertNull($svc->matchStep($secret, '000000'));
     }
 
     public function testNonNumericCodeRejected(): void
     {
         $svc = new TotpService();
         $secret = TotpService::generateSecret();
-        self::assertFalse($svc->verify($secret, 'abcdef'));
-        self::assertFalse($svc->verify($secret, '12345'));   // 5 digits
-        self::assertFalse($svc->verify($secret, '1234567')); // 7 digits
+        self::assertNull($svc->matchStep($secret, 'abcdef'));
+        self::assertNull($svc->matchStep($secret, '12345'));   // 5 digits
+        self::assertNull($svc->matchStep($secret, '1234567')); // 7 digits
     }
 
     /**
