@@ -16,7 +16,7 @@
 
 services:
   app:
-    image: ghcr.io/jindrichmach/myportfolio:1.0.0   # stabilní verze mají i :latest, vývojové (-dev) ne
+    image: ghcr.io/jindrichmach/myportfolio:1.1.0   # stabilní verze mají i :latest, vývojové (-dev) ne
     restart: unless-stopped
     # Bez nových oprávnění a jen s capabilities, které entrypoint (root) a php-fpm / cron (www-data) potřebují
     security_opt:

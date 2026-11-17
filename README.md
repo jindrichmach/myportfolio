@@ -14,7 +14,7 @@
   <a href="manual/INDEX.md">Manuál</a> ·
   <a href="manual/en/INDEX.md">Manual (EN)</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
-  verze <code>1.0.0</code>
+  verze <code>1.1.0</code>
 </p>
 
 ![Přehled — hodnota portfolia, vývoj v čase s benchmarkem a alokace](docs/screenshots/prehled.webp)
@@ -26,7 +26,7 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 *[English summary below](#in-english).*
 
-> **Stav:** verze 1.0.0. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
+> **Stav:** verze 1.1.0. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
 > jsou ověřené na syntetických exportech, ne na skutečných souborech.
 
 ## Funkce
@@ -68,8 +68,9 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 - **Daňový report** za rok podle českých pravidel: prodeje cenných papírů a kryptoaktiv po FIFO lotech, limit
   100 000 Kč, časový test 3 roky se stropem 40 mil. Kč (u krypta osvobození pro prodeje od 15. 2. 2025),
   zahraniční dividendy po zemích se zápočtem daně, úroky; denní nebo jednotný kurz ČNB; CSV a tisk.
-- **Podklad pro přiznání** podle toho, jak ho podáváš — řádky DPFO k přepsání do EPO, souhrn pro daňového
-  poradce, nebo CSV pro jiný program.
+- **Podklad pro přiznání** podle toho, jak ho podáváš — řádky DPFO k přepsání do EPO nebo **XML k načtení do EPO /
+  Moje daně** (roky 2024 a 2025), souhrn pro daňového poradce, nebo CSV pro jiný program.
+- Upozornění na prodeje s neúplnou nabývací cenou a stát srážky daně z dividend u ADR.
 
 ### Majetek a domácnost
 - **Čisté jmění** — investice + nemovitosti a ostatní majetek − závazky; úvěr jako anuita s mimořádnými splátkami,
@@ -78,6 +79,7 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
   jen pro čtení nebo i pro zápis, pozvánka e-mailem, log změn partnera a společná stránka **Domácnost**.
 
 ### Upozornění a e-maily
+- **Kvalita dat** — chybějící ceny a kurzy, neúplné nabývací ceny a chyby bankovních avíz na jednom místě.
 - Týdenní report, měsíční a roční souhrn a denní souhrn upozornění (vlastní cenové hranice instrumentů,
   velký pohyb, blížící se časový test, alokace mimo toleranci, problémy s daty).
 
@@ -134,7 +136,7 @@ cmd/install.sh                 # nebo: cmd/install.sh --docker | --native [--yes
 Pak otevři odkaz `<adresa>/setup?token=…`, který instalace vypíše (instalační kód je i v `storage/setup-token`) —
 webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
 
-Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.0.0`, u stabilních verzí
+Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.1.0`, u stabilních verzí
 i `1.0` a `latest`), produkční compose v
 [`docker-compose.production.yml`](docker-compose.production.yml). Vývojové verze (`-dev`) nedostávají značku
 `latest` — v compose uveď konkrétní verzi.

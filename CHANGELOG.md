@@ -5,6 +5,12 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-11-17
+
+Bezpečnostní vydání podle nezávislého code review a nové funkce pro daně: přehled Kvalita dat, XML pro EPO,
+upozornění na neúplnou nabývací cenu a stát srážky daně u ADR. **Po aktualizaci budou všichni uživatelé jednou
+odhlášeni** (přihlášení se nově ukládají jen jako hash) — a projdi kroky níže.
+
 ### Po aktualizaci
 - Jednorázově přepočítej FIFO loty, aby daňový report označil prodeje s neúplnou nabývací cenou i u stávajících dat
   (jinak se upozornění objeví až po změně transakcí daného instrumentu):
@@ -18,6 +24,52 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
   - nativně: `php8.5 api/bin/migrate.php`
 - Bankovní avíza: schránky bez vyplněného *Důvěryhodného authserv-id* přestanou avíza zapisovat, dokud ho uživatel
   nepotvrdí — po prvním avízu ho stránka Bankovní avíza nabídne tlačítkem **Ano, potvrdit**.
+
+### Přidáno
+- **Kvalita dat** (Portfolio → Kvalita dat) — neúplné nabývací ceny lotů, držené instrumenty bez ceny nebo se
+  zastaralou cenou, staré kurzy ČNB, nezapsaná bankovní avíza a chyby schránek, s odkazem, kde problém opravit.
+- **XML pro EPO / Moje daně** — v Podkladu pro přiznání (režim „Sám v EPO / Moje daně“) rozpracované přiznání ve
+  struktuře Finanční správy DPFDP7 pro roky 2024 a 2025: příloha č. 2, dividendy v příloze č. 4 nebo č. 3, ř. 38 / 40 / 74a.
+  Číslo finančního úřadu se zadá podle oficiálního číselníku.
+- **Neúplná nabývací cena v daňovém reportu** — prodej z lotu s nulovou nebo neúplnou cenou (odměna bez ceny, převod
+  bez odchozí strany, poplatek nákupu bez kurzu ČNB, chybějící nákup) má u řádku důvod, nad reportem počet takových
+  prodejů; totéž v CSV a v podkladu pro přiznání.
+- **Stát srážky daně z dividend** u instrumentu (ADR, např. TW u ISIN `US…`) — report zařadí dividendy do správné země.
+- Výrazné upozornění „Není to daňové poradenství“ s datem, ke kterému byla daňová pravidla ověřena, a odkazem na zákon.
+- **Systém → Aktualizace** vypíše popis všech vydání mezi nainstalovanou a nejnovější verzí a zvýrazní kroky po aktualizaci.
+- Vlastní výběr data a času (DatePicker) a select s vyhledáváním ve všech formulářích; chyby validace u konkrétních polí;
+  tlačítko **Vše** u množství převodu; horní lišta s ikonami a rozbalovacími menu (GitHub, manuál, motiv, jazyk, uživatel).
+- Anglická verze manuálu.
+- `api/bin/rotate-secret-key.php` — přešifrování uložených tajemství po výměně šifrovacího klíče.
+
+### Bezpečnost
+- TOTP kód jde použít jen jednou (ani znovu, ani starší kód z okna ±30 s).
+- Ochrana proti hádání hesla i napříč IP adresami (50 selhání účtu za 15 min → zámek 15 min); zámek na 24 hodin
+  opravdu trvá 24 hodin.
+- Rate limit funguje i bez Redisu (počítadla v MariaDB); limit resetu hesla podle e-mailu se dřív neuplatňoval vůbec.
+- První spuštění jen s **instalačním kódem** — instalace vypíše odkaz `/setup?token=…` (kód je i v `storage/setup-token`).
+- Session tokeny v databázi jen jako SHA-256.
+- Tajemství (klíče burz, hesla IMAP a SMTP, TOTP) šifrovaná s vazbou na sloupec a uživatele, s ID klíče a možností
+  rotace; nešifrované hodnoty se odmítnou; bez `secret_encryption_key` se v produkci tajemství neuloží.
+- Stahování loga z webu instituce bez SSRF (CGNAT, DNS rebinding, limit velikosti); IMAP schránka jen na portech 143 a 993.
+- Bankovní avíza se zapisují jen s potvrzeným důvěryhodným authserv-id.
+- API klíče burz s právem obchodovat nebo vybírat se neuloží (výjimku povolí `exchanges.allow_dangerous_keys`).
+- Webserver vydá jen build aplikace a `/styles/` (zdrojáky repozitáře ne); Docker kontejner s `no-new-privileges`
+  a omezenými capabilities; CSP bez `unsafe-inline` pro skripty a `frame-ancestors 'none'`.
+- Instalační skripty nabízejí výchozí prostředí `production`.
+- Aktualizované závislosti včetně bezpečnostních oprav Symfony; CI kontroluje `composer audit`, `pnpm audit` a PHPStan.
+
+### Změněno
+- XIRR se ukazuje jen pro období od 1 roku (za kratší by vycházely zavádějící roční míry).
+- Upozornění „Redis není dostupný“ v Systém → Nastavení — rate limiting a ochrana přihlášení pak běží v databázi.
+- Přehled: prodané pozice se ve výpisu portfolií nevypisují (součty je dál zahrnují); jednotné rozbalování skupin,
+  čitelná čísla pozic.
+- Nová investice: katalog hned po otevření, desetinná místa a identifikátory podle zdroje ceny.
+
+### Opraveno
+- Split už nenechává „prach“ po zaokrouhlení — prodej celé držby po splitu nehlásí chybějící množství.
+- Neplatné datum „Avíza od“ u pozice vracelo chybu 500 místo validační hlášky.
+- Osiřelý převod bez skupiny převodu v FIFO enginu.
 
 ## [1.0.0] — 2026-10-30
 
