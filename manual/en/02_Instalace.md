@@ -120,13 +120,18 @@ do not get it — for them, specify the exact image version in compose.
 
 **Local Docker build:** `git pull`, then `cmd/docker-build.sh` and `docker compose up -d`.
 
-**Native installation:**
+**Native installation** (run as the user who owns the application files; take the version number from the System → Updates page):
 
 ```bash
-git pull
+git fetch --tags
+git checkout vX.Y.Z                                                  # replace X.Y.Z with the target version
 cd api && composer install --no-dev --optimize-autoloader && cd ..   # in development without --no-dev
 php8.5 api/bin/migrate.php
 cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
 ```
+
+Updates follow the release tag, not a branch. `git checkout vX.Y.Z` detaches HEAD from the branch, so `git pull` does not
+work on the tag — for the next update run `git fetch --tags` and `git checkout vX.Y.Z` again.
+Instead of the manual commands, a native installation can use the button in the browser, see [11.7 Update from the browser](11_Administrace.md#update-from-the-browser).
 
 New scheduled jobs are added by re-running `cmd/install.sh` (Cron step), or add them yourself according to `cmd/crontab`.

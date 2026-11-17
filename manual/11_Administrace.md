@@ -120,12 +120,80 @@ jiný repozitář (např. fork) nastavíš v `cfg.php` klíčem `update.github_r
 `MYPORTFOLIO_UPDATE_GITHUB_REPO`.
 
 Pod tím je postup aktualizace pro **Docker** i **nativní instalaci** — stránka předvybere typ této
-instalace a doplní cestu k aplikaci a k PHP, příkazy jdou zkopírovat. Aktualizaci spouštíš na serveru
-sám; aplikace nemá práva měnit vlastní soubory ani Docker image. Postup je stejný jako
+instalace a doplní cestu k aplikaci a k PHP, příkazy jdou zkopírovat. Aktualizaci spustíš na serveru sám,
+nebo u nativní instalace tlačítkem z prohlížeče (níže). Postup je stejný jako
 v [2.4 Aktualizace](02_Instalace.md#24-aktualizace).
 
 Když některá z verzí vyžaduje krok navíc (např. jednorázový přepočet dat), přidá stránka bod
 **3. Po aktualizaci ještě spusť** se zvýrazněnými příkazy z popisu té verze. Spusť je až po dokončení aktualizace.
+
+### Aktualizace z prohlížeče
+
+U **nativní instalace** se v sekci **Aktualizace z prohlížeče** zobrazí tlačítko **Aktualizovat na X**, je-li
+k dispozici novější verze. Aktualizace proběhne bez SSH. Aplikace na pozadí spustí tyto kroky v tomto pořadí:
+
+1. záloha databáze (`cron-backup`),
+2. zapnutí údržby (web dočasně vrací hlášku o údržbě),
+3. `git fetch --tags` a `git checkout vX.Y.Z`,
+4. `composer install`,
+5. migrace databáze,
+6. `pnpm install` a `pnpm build`,
+7. kontrola souboru `VERSION` a vypnutí údržby.
+
+Před spuštěním se otevře potvrzení (záloha, krátká nedostupnost, žádný rollback). Průběh se ukazuje na stránce,
+výstup příkazů se zapisuje do `log/update.log` a spuštění se zapíše do záznamu aktivit ([11.5](11_Administrace.md#115-záznam-aktivit)).
+
+> ⚠️ Pozor: aktualizace z prohlížeče dává webovému procesu právo měnit kód aplikace. Kdo by ovládl účet správce,
+> mohl by tak kód trvale změnit. Proto je funkce ve výchozím stavu vypnutá a zapíná se záměrně v `cfg.php`.
+
+### Předpoklady
+
+Funkci zapneš v `cfg.php` klíčem `update.web_update = true` (výchozí `false`). Funguje jen za těchto podmínek:
+
+- Instalace je **git klon** repozitáře s tagy verzí (`vX.Y.Z`), ne kopie souborů z archivu.
+- **Webový uživatel** (ten, pod kterým běží PHP-FPM) vlastní **celý** adresář aplikace rekurzivně, např.
+  `sudo chown -R <webový-uživatel> <adresář-aplikace>`. Průvodce instalací nastavuje vlastníka jen u `storage/` a `log/`,
+  to nestačí: aktualizace přepisuje soubory i v `api/src`, `db/migrations`, `web/src` a `manual`. Kontrola zápisu
+  pokrývá jen kořen, `.git`, `api/vendor`, `web/node_modules` a `web/dist`. Chybějící vlastnictví jinde se projeví
+  až při checkoutu, tedy po zapnutí údržby, a běh pak skončí chybou.
+- `git`, `composer` a `pnpm` jsou dostupné webovému uživateli — buď na PATH PHP-FPM, nebo cestou v `cfg.php`
+  (`update.git_bin`, `update.composer_bin`, `update.pnpm_bin`). PHP-FPM mívá minimální PATH, proto jsou cesty v `cfg.php`
+  spolehlivější. Stejně musí PHP-FPM najít `php` a `node` (pnpm běží na `node`).
+- Není-li HOME webového uživatele zapisovatelný, runner použije `storage/update-home`; globální konfigurace gitu
+  (např. `safe.directory`) se pak nenačte.
+- Běh je chráněný MFA: před spuštěním potvrdíš kódem z autentikátoru (TOTP), nebo přístupovým klíčem (passkey).
+  Záložní kód nestačí. Správce bez zaregistrovaného TOTP ani passkey ověření nepotřebuje.
+
+### Proč je tlačítko neaktivní
+
+Pokud některá podmínka není splněna, je tlačítko neaktivní a pod ním je seznam důvodů:
+
+| Důvod na stránce | Co znamená a co udělat |
+|---|---|
+| Aktualizace z prohlížeče je vypnutá (update.web_update v cfg.php). | V `cfg.php` nastav `update.web_update = true`. |
+| Adresář aplikace není git klon. | Instalace musí být `git clone` repozitáře; kopii z archivu z prohlížeče neaktualizuješ. |
+| V adresáři aplikace jsou necommitnuté změny. | Zjisti je příkazem `git status` v adresáři aplikace a změny v kódu vrať nebo ulož mimo něj. Soubory ignorované gitem (`cfg.php`, `storage/`, `log/`) to nebrání. |
+| Webový uživatel nemůže zapisovat do adresářů aplikace (kořen, .git, api/vendor, web/node_modules, web/dist). | Vlastníkem adresáře aplikace musí být webový uživatel (viz Předpoklady). |
+| Na serveru se nenašel příkaz git. | Nainstaluj git, nebo jeho cestu zadej v `update.git_bin`. |
+| Na serveru se nenašel příkaz composer. | Nainstaluj composer, nebo jeho cestu zadej v `update.composer_bin`. |
+| Na serveru se nenašel příkaz pnpm. | Nainstaluj pnpm, nebo jeho cestu zadej v `update.pnpm_bin`. |
+| Aktualizace už běží. | Počkej, až běh skončí. Zámek drží jen běžící proces; běh, který skončil, zámek neblokuje. |
+
+### Když aktualizace selže
+
+Stránka ukáže krok, ve kterém se aktualizace zastavila, a konec logu. Údržba se vypne sama, ale **nic se nevrací
+zpět** — ani kód, ani databáze. Co dělat:
+
+1. Přečti `log/update.log`. Na začátku je zapsané HOME a PATH, pod kterými běh proběhl; na konci je chyba.
+   Nejčastější příčina je chybějící binárka nebo špatná cesta.
+2. Oprav příčinu na serveru (např. chybějící `php` nebo `node` pro PHP-FPM, výpadek sítě při `git fetch`,
+   adresář nezapisovatelný pro webového uživatele).
+3. Dokonči aktualizaci ručně podle [2.4 Aktualizace](02_Instalace.md#24-aktualizace), od kroku, který selhal.
+   Kroky lze bezpečně opakovat.
+4. Zkontroluj, že stránka ukazuje novou verzi a web funguje.
+
+Záloha z `cron-backup` vznikla před prvním zásahem do kódu. Pokud běh selhal až po migracích, je schéma databáze
+už nové a záloha z [11.8](11_Administrace.md#118-zálohy-a-obnova) je k dispozici pro obnovu.
 
 ## 11.8 Zálohy a obnova
 
