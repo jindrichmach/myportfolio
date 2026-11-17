@@ -29,7 +29,7 @@ foreach (['target', 'root', 'state', 'log', 'maintenance'] as $required) {
 }
 
 $target = $opts['target'];
-if (preg_match('/^\d+\.\d+\.\d+$/', $target) !== 1) {
+if (preg_match('/^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$/D', $target) !== 1) {
     fwrite(STDERR, "Neplatná verze: {$target}\n");
     exit(64);
 }

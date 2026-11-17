@@ -71,6 +71,32 @@ final class MfaProtectedOperationService
         }
     }
 
+    /**
+     * Spotřebuje jednorázový proof pro operaci bez další databázové změny (např. spuštění aktualizace).
+     */
+    public function consumeProof(int $userId, string $sessionToken, string $proofToken, string $operation): void
+    {
+        $pdo = $this->db->pdo();
+        $pdo->beginTransaction();
+        try {
+            $cutoff = $this->clock->capture($pdo);
+            $this->lockActiveUser($pdo, $userId);
+            $this->lockCurrentSession($pdo, $cutoff, $userId, $sessionToken);
+            $this->stepUp->consumeInTransaction($pdo, $cutoff, $proofToken, $userId, $sessionToken, $operation);
+            $pdo->commit();
+        } catch (OneTimeTokenException|StepUpOperationException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->commit();
+            }
+            throw $e;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
     public function revokePasskey(
         int $userId,
         string $sessionToken,

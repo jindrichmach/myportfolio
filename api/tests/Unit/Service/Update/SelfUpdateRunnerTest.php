@@ -37,10 +37,10 @@ final class SelfUpdateRunnerTest extends TestCase
     }
 
     /** @return array{0:int,1:string} */
-    private function runner(array $extra = [], array $env = []): array
+    private function runner(array $extra = [], array $env = [], string $target = '1.1.0'): array
     {
         $args = [
-            '--target=1.1.0', '--root=' . $this->dir . '/root', '--state=' . $this->dir . '/root/storage/update-state.json',
+            '--target=' . $target, '--root=' . $this->dir . '/root', '--state=' . $this->dir . '/root/storage/update-state.json',
             '--log=' . $this->dir . '/root/log/update.log', '--maintenance=' . $this->dir . '/root/storage/maintenance.json',
             '--php=' . $this->dir . '/bin/php', '--git=' . $this->dir . '/bin/git',
             '--composer=' . $this->dir . '/bin/composer', '--pnpm=' . $this->dir . '/bin/pnpm',
@@ -91,6 +91,16 @@ final class SelfUpdateRunnerTest extends TestCase
         self::assertSame($this->expectedPlan(false), explode("\n", trim($out)));
         self::assertFileDoesNotExist($this->dir . '/calls.txt');
         self::assertFileDoesNotExist($this->dir . '/root/storage/update-state.json');
+    }
+
+    public function testPrereleaseTargetIsAcceptedAndMalformedRejected(): void
+    {
+        [$code] = $this->runner(['--dry-run'], [], '1.2.0-rc1');
+        self::assertSame(0, $code);
+        foreach (['1.2', '1.2.0;rm', "1.2.0\n"] as $bad) {
+            [$code] = $this->runner(['--dry-run'], [], $bad);
+            self::assertSame(64, $code, $bad);
+        }
     }
 
     public function testDevelopmentEnvKeepsDevDependencies(): void
