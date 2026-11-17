@@ -177,6 +177,24 @@ docker compose up -d / down
 - Manuál je i ve webu (stránka Manuál, přibalený při `pnpm build`) — odkazy mezi kapitolami piš jako
   `NN_Kapitola.md#kotva-nadpisu` (kotvy jako na GitHubu); hlídá je `web/tests/manual-links.test.mjs`.
 
+## Workflow větších features
+
+Drobné opravy se dělají rovnou. Větší funkce (více vrstev, víc než pár souborů) jdou přes plán → implementaci → review;
+stav je v souborech, takže roli může převzít jiný nástroj nebo jiná session.
+
+| Role | Model | Skill (`.claude/skills/`) |
+|---|---|---|
+| Planner / orchestrátor | silný (Opus, GPT-5 high …) | `plan-feature`, `run-tasks` |
+| Implementer — jeden task | levnější (Sonnet; Haiku pro `mechanical`) | `implement-task` (+ `project-ui` pro UI) |
+| Reviewer — čistý kontext, nic neopravuje | silný | `review-task` |
+
+- Soubory v `private/features/<slug>/` (gitignorované): `spec.md`, `tasks.md` (jediný zdroj pravdy o stavu), `reviews/T<n>-r<k>.md`.
+- Stavy tasku: `todo → in_progress → review → done`, případně `changes_requested`; po 3. neúspěšném kole nebo při potřebě rozhodnutí člověka `blocked`.
+- Schvaluje člověk: plán (`Schváleno: <datum>` ve spec), každý `blocked` task, konec feature (merge `feature/<slug>` do `master`, push).
+- Commit po každém hotovém tasku dělá orchestrátor, ve stylu níže s číslem tasku: `feat(scope): … (T<n>)`. Implementer necommituje.
+- Claude Code: orchestrátor deleguje na subagenty `.claude/agents/implementer.md` a `reviewer.md`. Jiné nástroje: stejné skills,
+  role se střídají ručně v nových sessions (review vždy v nové session).
+
 ## Konvence
 
 - Drž se stylu okolního kódu (pojmenování, idiomy, hustota komentářů). Nepřidávej komentáře, které kód jen opakují.
