@@ -53,10 +53,26 @@ export interface UpdateStatus {
   repo: string
   install: 'docker' | 'native'
   php: string
+  web_update: { reasons: string[] }
+  last_run: UpdateRun
+}
+
+export interface UpdateRun {
+  status: 'idle' | 'running' | 'succeeded' | 'failed'
+  from?: string
+  target?: string
+  step?: string | null
+  started_at?: string | null
+  finished_at?: string | null
+  error_step?: string | null
+  log_tail: string[]
+  stale: boolean
 }
 
 export const adminApi = {
   update: (refresh = false) => api.get<UpdateStatus>('/admin/update', { params: refresh ? { refresh: 1 } : {} }).then(r => r.data),
+  runUpdate: (payload: { version: string; totp_code?: string; step_up_token?: string }) =>
+    api.post('/admin/update/run', payload).then(r => r.data),
   activityLog: (params: { action?: string; user_id?: number; entity_type?: string; entity_id?: number; q?: string; from?: string; to?: string; limit?: number; offset?: number } = {}) =>
     api.get<ActivityLogResponse>('/admin/activity-log', { params }).then(r => r.data),
 
