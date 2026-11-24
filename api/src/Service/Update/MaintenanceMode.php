@@ -35,7 +35,7 @@ final class MaintenanceMode
      * Zapíše (nebo prodlouží) značku. Volá se před nasazením a znovu při každém
      * hlášení průběhu, aby dlouhý přechod nepropadl expirací zrovna uprostřed.
      */
-    public static function begin(string $stateDir, string $product, string $target, ?string $step = null): void
+    public static function begin(string $stateDir, string $product, string $target, ?string $step = null, string $reason = 'update'): void
     {
         $path = self::path($stateDir);
         $dir  = dirname($path);
@@ -47,7 +47,7 @@ final class MaintenanceMode
         $existing = self::read($path);
 
         @file_put_contents($path, json_encode([
-            'reason'     => 'update',
+            'reason'     => $reason,
             'product'    => $product,
             'target'     => $target,
             'step'       => $step,

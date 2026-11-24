@@ -8,6 +8,8 @@ use MyPortfolio\Action\Admin\AppearanceAction;
 use MyPortfolio\Action\Admin\CronJobsAction;
 use MyPortfolio\Action\Api\ApiCatalogAction;
 use MyPortfolio\Action\Admin\SmtpAction;
+use MyPortfolio\Action\Admin\BackupsAction;
+use MyPortfolio\Action\Admin\RestoreBackupAction;
 use MyPortfolio\Action\Admin\RunUpdateAction;
 use MyPortfolio\Action\Admin\UpdateStatusAction;
 use MyPortfolio\Action\Admin\ListActivityLogAction;
@@ -254,6 +256,9 @@ final class Routes
         $app->post   ('/api/admin/cron-jobs/{script:cron-[a-z0-9-]+}/run', RunCronJobAction::class);
         $app->get    ('/api/admin/update',            UpdateStatusAction::class);
         $app->post   ('/api/admin/update/run',        RunUpdateAction::class);
+        $app->get    ('/api/admin/backups',           BackupsAction::class);
+        $app->post   ('/api/admin/backups/restore',   RestoreBackupAction::class);
+        $app->post   ('/api/admin/backups/{name}/download', [BackupsAction::class, 'download']);
 
         // 404 fallback pro /api/*
         $app->any('/api/{path:.*}', function ($req, $res) {

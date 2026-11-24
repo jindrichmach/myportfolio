@@ -35,6 +35,25 @@ final class MfaStepUpServiceTest extends TestCase
         $service->issue(17, 'session', 'admin.anything', 'totp');
     }
 
+    public function testRecoveryCodeCannotAuthorizeBackupOperations(): void
+    {
+        $proofs = $this->createMock(MfaStepUpProofStore::class);
+        $proofs->expects(self::never())->method('issue');
+        $service = new MfaStepUpService(
+            $proofs,
+            $this->createMock(MfaPolicyService::class),
+            $this->createMock(PasskeyCredentialRepository::class),
+        );
+        foreach ([MfaStepUpService::OPERATION_BACKUP_RESTORE, MfaStepUpService::OPERATION_BACKUP_DOWNLOAD] as $op) {
+            try {
+                $service->issue(17, 'session', $op, 'recovery');
+                self::fail('Záložní kód nesmí potvrdit ' . $op);
+            } catch (StepUpOperationException) {
+                self::assertTrue(true);
+            }
+        }
+    }
+
     public function testPhasedOutTotpCanAuthorizePasskeyEnrollmentOnly(): void
     {
         $proofs = $this->createMock(MfaStepUpProofStore::class);

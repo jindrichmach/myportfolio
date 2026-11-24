@@ -69,7 +69,39 @@ export interface UpdateRun {
   stale: boolean
 }
 
+export interface BackupItem {
+  name: string
+  created_at: string
+  size: number
+  encrypted: boolean
+  restorable: boolean
+}
+
+export interface RestoreRun {
+  status: 'idle' | 'running' | 'succeeded' | 'failed'
+  file?: string
+  safety_backup?: string | null
+  step?: string | null
+  started_at?: string | null
+  finished_at?: string | null
+  error_step?: string | null
+  log_tail: string[]
+  interrupted: boolean
+}
+
+export interface BackupsResponse {
+  backups: BackupItem[]
+  restore: { reasons: string[]; last_run: RestoreRun }
+}
+
+export interface StepUpPayload { totp_code?: string; step_up_token?: string }
+
 export const adminApi = {
+  backups: () => api.get<BackupsResponse>('/admin/backups').then(r => r.data),
+  downloadBackup: (name: string, payload: StepUpPayload) =>
+    api.post<Blob>(`/admin/backups/${encodeURIComponent(name)}/download`, payload, { responseType: 'blob', timeout: 0 }).then(r => r.data),
+  restoreBackup: (payload: StepUpPayload & { file: string; confirm: string }) =>
+    api.post<{ started: boolean; file: string }>('/admin/backups/restore', payload).then(r => r.data),
   update: (refresh = false) => api.get<UpdateStatus>('/admin/update', { params: refresh ? { refresh: 1 } : {} }).then(r => r.data),
   runUpdate: (payload: { version: string; totp_code?: string; step_up_token?: string }) =>
     api.post('/admin/update/run', payload).then(r => r.data),

@@ -204,7 +204,101 @@ with a database dump and the catalog icons. 30 daily and 12 monthly backups are 
 `cron.backup.password` is set in `cfg.php`, the ZIP is encrypted (AES-256) — you cannot open it without the password,
 so store the password outside the server as well.
 
-Restoring from a backup:
+The administrator manages backups on the page **System → Backups**. The restore can also be run on the server
+from the command line, see [Restore from the command line](#restore-from-the-command-line).
+
+### Backup list
+
+The page shows the backups from the backup folder, newest first: the file, the creation date, the size and the status
+**Encrypted** or **Not encrypted**. Only the ZIP backups of the whole instance are listed; PDF backups and SQL files are not.
+
+Above the list are these buttons:
+
+- **Back up now** runs the `cron-backup` job (the same as **Run now** in [11.6](11_Administrace.md#116-scheduled-jobs)).
+  The progress is shown on the page and the list is refreshed when it finishes. If the backup fails, the details are
+  in **System → Scheduled jobs**.
+- **Download** on each backup downloads the ZIP of the whole instance. The ZIP contains the data of all users,
+  store it securely.
+- **Restore…** opens the dialog for restoring the instance from this backup ([below](#restore-from-the-web)).
+
+Downloading and restoring are protected by MFA: confirm with a code from the authenticator app (TOTP), or with a passkey.
+A recovery code is not enough. An administrator without a registered TOTP or passkey does not need to confirm.
+
+An encrypted backup cannot be restored while `cron.backup.password` is missing in `cfg.php`; the **Restore…** button
+is then inactive for it, and the download still works.
+
+Downloads and restores are recorded in the [Activity log](11_Administrace.md#115-activity-log).
+
+### Restore from the web
+
+The restore overwrites the whole instance. Before the start, a dialog with a warning opens, which says that:
+
+- it overwrites the data of **all** users, not just yours,
+- everything created after the backup was made is lost permanently,
+- all users including you will be signed out; you sign in with the credentials valid in the backup (the user may not
+  exist, or may have a different password),
+- old passwords, deleted or revoked API tokens and trusted MFA devices come back to life (they return in the state
+  from the backup),
+- a safety backup of the current state is created automatically first.
+
+Then type the exact name of the backup into the field **Type the backup name to confirm**. The **Restore the instance**
+button is active only when the name matches. Confirm the MFA step-up and the restore starts.
+
+The restore runs in the background and takes minutes. During that time the application is in maintenance mode and the page
+shows the current step: the safety backup, unpacking and verifying the backup, dropping tables, database import,
+restoring icons, migrations and invalidating sign-ins. When it finishes successfully, the application signs you out
+and redirects you to the sign-in page with a message about the restore.
+
+### Why restore is inactive
+
+If any of these conditions applies, the **Restore…** buttons are inactive and the page lists the reasons:
+
+| Reason on the page | What it means and what to do |
+|---|---|
+| The PHP zip extension is missing. | Install and enable the `zip` extension for PHP. |
+| Neither the mariadb nor the mysql client was found on the server. | Install a database client that the web process can use. |
+| PHP CLI was not found on the server. | Install the PHP CLI in the same version as PHP-FPM. |
+| The web user cannot write to the storage directory. | The web user must own `storage/`. |
+| A restore is already running. | Wait until it finishes. |
+| An application update is in progress. | Wait until it finishes ([11.7](11_Administrace.md#117-updates)). |
+
+### During the restore
+
+The application is in maintenance mode: the web shows the maintenance message and the API returns 503.
+**Scheduled jobs (cron) do not run** — each of their scripts exits immediately and writes nothing to the unfinished
+database or to the job history ([11.6](11_Administrace.md#116-scheduled-jobs)). When the restore ends, the jobs run
+again on their schedule.
+
+### When the restore fails
+
+The restore can stop at any step. Maintenance mode is then turned off by itself, but **the restore does not roll back
+anything** — the database may stay half-imported. The page shows the step where the restore failed, the end of the log
+and the name of the safety backup. The same view appears when the restore process stopped running (e.g. the server was
+restarted in the middle) — the page then reports the restore as interrupted. If the application stops responding,
+the page shows the last known step.
+
+If the restore failed in the step **starting the restore process**, **safety backup** or **unpacking and verifying the backup**, the database was not changed.
+Do not roll anything back: just fix the cause (step 3) and try again. In that case the safety backup either was not created
+(the page then does not show its name) or is not needed — do not use the command below, because it would overwrite
+untouched data with an older backup. For the other cases, proceed as follows:
+
+1. Read `log/restore.log` (in Docker `/data/log/restore.log`); the error is at its end.
+2. If the restore failed later, roll back from the safety backup with the command below. Its name is on the page next to
+   "Safety backup of the state before the restore". The safety backup was made just before the restore, so you return to
+   the state from before the attempt.
+3. If the cause was the environment (disk space, an unavailable database), fix it before trying again.
+4. Check the sign-in and the data.
+
+```bash
+php8.5 api/bin/restore-backup.php storage/backup/<safety-backup>.zip --yes
+# Docker:
+docker compose exec app php api/bin/restore-backup.php /data/storage/backup/<safety-backup>.zip --yes
+```
+
+### Restore from the command line
+
+The restore can also be run on the server without the dialog and MFA; this is useful when the web cannot be used.
+The command without `--yes` only lists the backup contents and changes nothing:
 
 ```bash
 php8.5 api/bin/restore-backup.php storage/backup/<file>.zip          # only lists the backup contents
@@ -214,8 +308,13 @@ docker compose exec app php api/bin/restore-backup.php /data/storage/backup/<fil
 ```
 
 The restore first makes a **safety backup** of the current state by itself (you will find it in the same folder as
-the newest file), then deletes the database, imports the backup, restores the icons and runs migrations — so the backup
-can even be from an older version of the app. Everything created after the backup was made is lost by the restore.
+the newest file), then deletes the tables and views in the database, imports the backup, restores the icons and runs
+migrations and invalidates all sign-ins — so the backup can even be from an older version of the app. Everything created
+after the backup was made is lost by the restore.
+
+The command line restores the live database in the same way as the web: it turns on maintenance mode, holds the lock
+`storage/restore.lock` (a second restore does not start until the first one finishes) and writes the progress to
+`log/restore.log`. Afterwards it writes an entry to the activity log (action `admin.backup.restore`, without a signed-in user).
 
 > 💡 Tip: You can safely try out a backup by restoring it into a different database:
 > `… restore-backup.php <file>.zip --yes --db=myportfolio_zkouska` (icons are not overwritten in that case).
