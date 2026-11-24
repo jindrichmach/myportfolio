@@ -176,14 +176,11 @@ return [
     // Kontrola nové verze (Systém → Aktualizace) přes GitHub releases; pro fork změň repozitář.
     // 'update' => [
     //     'github_repo' => 'jindrichmach/myportfolio',
-    //     // Aktualizace nativní instalace tlačítkem ve webu (Systém → Aktualizace). RIZIKO: webový proces (PHP-FPM)
-    //     // musí vlastnit a smět přepisovat kód aplikace a spouštět git/composer/pnpm — zneužití webu pak může kód trvale
-    //     // změnit. Zapínej jen vědomě; výchozí false. V Dockeru se nepoužívá.
+    //     // Aktualizace nativní instalace tlačítkem ve webu (Systém → Aktualizace): stáhne balíček vydání z GitHub Release,
+    //     // ověří SHA-256, nasadí soubory (se zálohou a rollbackem) a spustí migrace. RIZIKO: webový proces (PHP-FPM)
+    //     // musí vlastnit a smět přepisovat kód aplikace — zneužití webu pak může kód trvale změnit.
+    //     // Zapínej jen vědomě; výchozí false. V Dockeru se nepoužívá.
     //     'web_update'   => false,
-    //     // Cesty k binárkám, pokud nejsou na PATH PHP-FPM (jinak se hledají na PATH):
-    //     'git_bin'      => '/usr/bin/git',
-    //     'composer_bin' => '/usr/local/bin/composer',
-    //     'pnpm_bin'     => '/usr/local/bin/pnpm',
     // ],
 
     // Cron retention (api/bin/cron-cleanup.php + cron-backup.php)

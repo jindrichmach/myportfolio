@@ -130,69 +130,109 @@ Když některá z verzí vyžaduje krok navíc (např. jednorázový přepočet 
 ### Aktualizace z prohlížeče
 
 U **nativní instalace** se v sekci **Aktualizace z prohlížeče** zobrazí tlačítko **Aktualizovat na X**, je-li
-k dispozici novější verze. Aktualizace proběhne bez SSH. Aplikace na pozadí spustí tyto kroky v tomto pořadí:
+k dispozici novější verze. Aktualizace proběhne bez SSH. Před spuštěním se otevře potvrzení: záloha databáze,
+krátká nedostupnost a při chybě návrat souborů ze zálohy (databáze se nevrací). Aplikace na pozadí provede tyto kroky:
 
-1. záloha databáze (`cron-backup`),
-2. zapnutí údržby (web dočasně vrací hlášku o údržbě),
-3. `git fetch --tags` a `git checkout vX.Y.Z`,
-4. `composer install`,
-5. migrace databáze,
-6. `pnpm install` a `pnpm build`,
-7. kontrola souboru `VERSION` a vypnutí údržby.
+1. **kontrola předpokladů** — rozšíření PHP (zlib, cURL nebo `allow_url_fopen`), PHP CLI, zápis do adresářů aplikace a volné místo na disku; nesplněná podmínka zastaví běh dřív, než cokoli změní,
+2. **záloha databáze** — úloha `cron-backup` (ZIP do `storage/backup/`); selže-li, běh skončí dřív, než se zapne údržba,
+3. **zapnutí údržby** — web dočasně vrací hlášku o údržbě a API odpovídá 503,
+4. **stažení balíčku vydání** — `myportfolio-X.Y.Z.tar.gz` z GitHub Release (nejvýše 600 MB),
+5. **ověření SHA-256** — nesouhlasí-li kontrolní součet, balíček se smaže a běh skončí,
+6. **rozbalení balíčku** — do `storage/update/`; ověří se, že balíček hlásí cílovou verzi a obsahuje všechny povinné soubory,
+7. **nasazení souborů** — přepsané a smazané soubory se přesunou do zálohy `storage/update/backup`, nové přijdou z balíčku; soubory se stejným obsahem se nepřepisují,
+8. **migrace databáze** — `php api/bin/migrate.php`,
+9. **dokončení (zápis verze)** — zapíše soubor `VERSION` a uklidí stažený balíček. Údržba se vypne vždy, i po chybě.
 
-Před spuštěním se otevře potvrzení (záloha, krátká nedostupnost, žádný rollback). Průběh se ukazuje na stránce,
-výstup příkazů se zapisuje do `log/update.log` a spuštění se zapíše do záznamu aktivit ([11.5](11_Administrace.md#115-záznam-aktivit)).
+Pravidla při nasazení:
+
+- Soubory `cfg.php`, `cfg.local.php`, `cfg.docker.php`, `.env`, `storage/`, `log/`, `private/` a `.git` se nikdy nepřepíší ani nesmažou.
+- Soubory v `web/dist`, které nové vydání nemá, se přesunou do zálohy.
+- Záloha souborů je vždy jen poslední verze; při další aktualizaci se nahradí.
+
+Průběh se ukazuje na stránce, výstup příkazů se zapisuje do `log/update.log` a spuštění se zapíše do záznamu aktivit ([11.5](11_Administrace.md#115-záznam-aktivit)).
 
 > ⚠️ Pozor: aktualizace z prohlížeče dává webovému procesu právo měnit kód aplikace. Kdo by ovládl účet správce,
 > mohl by tak kód trvale změnit. Proto je funkce ve výchozím stavu vypnutá a zapíná se záměrně v `cfg.php`.
+
+### Aktualizace z příkazové řádky
+
+Stejný běh jde spustit na serveru jako uživatel, který vlastní soubory aplikace. Příkaz nevyžaduje `update.web_update`
+ani MFA — ověřením je přístup k serveru:
+
+```bash
+php8.5 api/bin/native-update.php --target=X.Y.Z --preflight   # jen kontrola předpokladů, nic nemění
+php8.5 api/bin/native-update.php --target=X.Y.Z               # celá aktualizace
+```
+
+Návratový kód: `0` nasazeno (s `--preflight`: předpoklady splněné), `1` selhalo (průběh v `log/update.log`; s `--preflight`: předpoklady nesplněné), `2` chybné použití nebo aktualizace už běží.
 
 ### Předpoklady
 
 Funkci zapneš v `cfg.php` klíčem `update.web_update = true` (výchozí `false`). Funguje jen za těchto podmínek:
 
-- Instalace je **git klon** repozitáře s tagy verzí (`vX.Y.Z`), ne kopie souborů z archivu.
-- **Webový uživatel** (ten, pod kterým běží PHP-FPM) vlastní **celý** adresář aplikace rekurzivně, např.
-  `sudo chown -R <webový-uživatel> <adresář-aplikace>`. Průvodce instalací nastavuje vlastníka jen u `storage/` a `log/`,
-  to nestačí: aktualizace přepisuje soubory i v `api/src`, `db/migrations`, `web/src` a `manual`. Kontrola zápisu
-  pokrývá jen kořen, `.git`, `api/vendor`, `web/node_modules` a `web/dist`. Chybějící vlastnictví jinde se projeví
-  až při checkoutu, tedy po zapnutí údržby, a běh pak skončí chybou.
-- `git`, `composer` a `pnpm` jsou dostupné webovému uživateli — buď na PATH PHP-FPM, nebo cestou v `cfg.php`
-  (`update.git_bin`, `update.composer_bin`, `update.pnpm_bin`). PHP-FPM mívá minimální PATH, proto jsou cesty v `cfg.php`
-  spolehlivější. Stejně musí PHP-FPM najít `php` a `node` (pnpm běží na `node`).
-- Není-li HOME webového uživatele zapisovatelný, runner použije `storage/update-home`; globální konfigurace gitu
-  (např. `safe.directory`) se pak nenačte.
-- Běh je chráněný MFA: před spuštěním potvrdíš kódem z autentikátoru (TOTP), nebo přístupovým klíčem (passkey).
+- **Nativní instalace**, ne Docker. Stačí instalace z archivu i git klon. Balíček obsahuje hotový kód, `vendor` i zkompilovaný frontend,
+  takže `git`, `composer` ani `pnpm` na serveru nejsou potřeba. Git klon jen zobrazí upozornění (níže).
+- **Binárka PHP CLI** ve stejné verzi jako PHP-FPM. Hledá se vedle běžícího PHP a v běžných cestách (např. `/usr/bin/php8.5`);
+  záloha a migrace se spouštějí jako podproces.
+- **Rozšíření PHP** `zlib` (rozbalení balíčku) a `curl`, nebo zapnuté `allow_url_fopen` (stahování).
+- **Vlastník celé instalace**: webový uživatel (ten, pod kterým běží PHP-FPM) musí zapisovat do celého adresáře aplikace,
+  např. `sudo chown -R <webový-uživatel> <adresář-aplikace>`. Průvodce instalací nastavuje vlastníka jen u `storage/` a `log/`, to nestačí.
+  Kontrola předpokladů ověřuje jen kořen, `api`, `web`, `db`, `manual` a `storage/update`, ale soubory se přesouvají i do podadresářů
+  (`api/src`, `web/src`, `db/migrations`…). Chybějící právo tam se projeví až při nasazení, po zapnutí údržby; běh pak skončí chybou
+  a soubory se vrátí ze zálohy.
+- **Místo na disku**: nejméně 512 MB volných; při stahování nejméně trojnásobek velikosti balíčku (platí větší z obou hodnot).
+  Balíček je nejvýše 600 MB.
+- **MFA**: před spuštěním z prohlížeče potvrdíš kódem z autentikátoru (TOTP), nebo přístupovým klíčem (passkey).
   Záložní kód nestačí. Správce bez zaregistrovaného TOTP ani passkey ověření nepotřebuje.
 
 ### Proč je tlačítko neaktivní
 
-Pokud některá podmínka není splněna, je tlačítko neaktivní a pod ním je seznam důvodů:
+Pokud některá podmínka není splněna, je tlačítko neaktivní a pod ním je seznam důvodů. Texty jsou stejné jako na stránce:
 
 | Důvod na stránce | Co znamená a co udělat |
 |---|---|
 | Aktualizace z prohlížeče je vypnutá (update.web_update v cfg.php). | V `cfg.php` nastav `update.web_update = true`. |
-| Adresář aplikace není git klon. | Instalace musí být `git clone` repozitáře; kopii z archivu z prohlížeče neaktualizuješ. |
-| V adresáři aplikace jsou necommitnuté změny. | Zjisti je příkazem `git status` v adresáři aplikace a změny v kódu vrať nebo ulož mimo něj. Soubory ignorované gitem (`cfg.php`, `storage/`, `log/`) to nebrání. |
-| Webový uživatel nemůže zapisovat do adresářů aplikace (kořen, .git, api/vendor, web/node_modules, web/dist). | Vlastníkem adresáře aplikace musí být webový uživatel (viz Předpoklady). |
-| Na serveru se nenašel příkaz git. | Nainstaluj git, nebo jeho cestu zadej v `update.git_bin`. |
-| Na serveru se nenašel příkaz composer. | Nainstaluj composer, nebo jeho cestu zadej v `update.composer_bin`. |
-| Na serveru se nenašel příkaz pnpm. | Nainstaluj pnpm, nebo jeho cestu zadej v `update.pnpm_bin`. |
-| Aktualizace už běží. | Počkej, až běh skončí. Zámek drží jen běžící proces; běh, který skončil, zámek neblokuje. |
+| Instalace běží v Dockeru — aktualizuje se novým image. | Nastav novou verzi image v `docker-compose.production.yml` a spusť `pull` a `up -d` ([2.4](02_Instalace.md#24-aktualizace)). |
+| Na serveru chybí rozšíření zlib — balíček nelze rozbalit. | Zapni rozšíření `zlib` pro PHP. |
+| Na serveru nejsou dostupné ani cURL, ani allow_url_fopen — balíček nelze stáhnout. | Zapni rozšíření `curl`, nebo `allow_url_fopen` v php.ini. |
+| Nenalezena binárka PHP CLI — nelze spustit zálohu a migrace. | Nainstaluj PHP CLI ve stejné verzi jako PHP-FPM (např. `php8.5`). |
+| Webový uživatel nemůže zapisovat do některého z adresářů aplikace (kořen, api, web, db, manual, storage/update). | Vlastníkem adresáře aplikace musí být webový uživatel (viz Předpoklady). |
+| Na disku je málo volného místa pro stažení a zálohu. | Uvolni místo (viz Předpoklady). |
+| Nejnovější vydání nemá balíček pro aktualizaci z webu. | Vydání nemá přiložený balíček `myportfolio-X.Y.Z.tar.gz` a `.sha256`; počkej na vydání s balíčkem. |
+| Aktualizace už běží. | Počkej, až běh skončí. |
+
+Pod tlačítkem se mohou zobrazit upozornění, která aktualizaci neblokují:
+
+| Upozornění na stránce | Co znamená |
+|---|---|
+| Aplikace je git klon. Aktualizace z webu mění soubory mimo git, takže git status pak ukáže lokální změny. | Nic nebrání. Po aktualizaci `git status` ukáže změněné soubory. |
+| OPcache nekontroluje změny souborů (opcache.validate_timestamps = 0). Po aktualizaci může běžet starý kód, dokud se PHP-FPM nerestartuje. | Nic nebrání. Po aktualizaci restartuj PHP-FPM. |
 
 ### Když aktualizace selže
 
-Stránka ukáže krok, ve kterém se aktualizace zastavila, a konec logu. Údržba se vypne sama, ale **nic se nevrací
-zpět** — ani kód, ani databáze. Co dělat:
+Stránka ukáže krok, ve kterém se aktualizace zastavila, a konec logu. Údržba se vypne sama. Co se vrací zpět, závisí na kroku:
 
-1. Přečti `log/update.log`. Na začátku je zapsané HOME a PATH, pod kterými běh proběhl; na konci je chyba.
-   Nejčastější příčina je chybějící binárka nebo špatná cesta.
-2. Oprav příčinu na serveru (např. chybějící `php` nebo `node` pro PHP-FPM, výpadek sítě při `git fetch`,
-   adresář nezapisovatelný pro webového uživatele).
-3. Dokonči aktualizaci ručně podle [2.4 Aktualizace](02_Instalace.md#24-aktualizace), od kroku, který selhal.
-   Kroky lze bezpečně opakovat.
+| Selhání v kroku | Co se vrátí |
+|---|---|
+| kontrola předpokladů, záloha databáze, zapnutí údržby, stažení, ověření SHA-256, rozbalení | nic, soubory instalace se ještě neměnily |
+| nasazení souborů | soubory se vrátí ze zálohy `storage/update/backup` (přepsané a smazané obnoví, nově přidané odstraní) |
+| migrace databáze, dokončení (zápis verze) | nic — kód je už nová verze a schéma může být napůl migrované |
+
+Databáze se **nikdy** nevrací. Pokud se některý soubor při návratu nepodaří obnovit, stránka i log to uvedou
+a instalaci je potřeba opravit ručně ze zálohy.
+
+Pokud proces skončil uprostřed (např. restart serveru), stránka běh označí jako přerušený. Značka údržby má expiraci
+30 minut od posledního kroku, takže se vypne nejpozději po nich.
+
+Co dělat:
+
+1. Přečti `log/update.log`. Na konci je chyba, nad ní výstup jednotlivých kroků.
+2. Oprav příčinu na serveru (např. chybějící PHP CLI, málo místa, adresář nezapisovatelný pro webového uživatele, výpadek sítě při stahování).
+3. Spusť aktualizaci znovu, tlačítkem nebo příkazem z [sekce Aktualizace z příkazové řádky](#aktualizace-z-příkazové-řádky).
+   Migrace jsou idempotentní, takže běh lze opakovat. Chceš-li pokračovat ručně, postupuj podle [2.4](02_Instalace.md#24-aktualizace) od kroku, který selhal.
 4. Zkontroluj, že stránka ukazuje novou verzi a web funguje.
 
-Záloha z `cron-backup` vznikla před prvním zásahem do kódu. Pokud běh selhal až po migracích, je schéma databáze
+Záloha z `cron-backup` vznikla před prvním zásahem do souborů. Pokud běh selhal až po migracích, je schéma databáze
 už nové a záloha z [11.8](11_Administrace.md#118-zálohy-a-obnova) je k dispozici pro obnovu.
 
 ## 11.8 Zálohy a obnova

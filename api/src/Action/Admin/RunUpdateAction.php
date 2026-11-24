@@ -7,7 +7,6 @@ namespace MyPortfolio\Action\Admin;
 use Closure;
 use MyPortfolio\Bootstrap;
 use MyPortfolio\Http\Json;
-use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Infrastructure\Config\RuntimePaths;
 use MyPortfolio\Middleware\AuthMiddleware;
 use MyPortfolio\Service\ActivityLogger;
@@ -15,8 +14,6 @@ use MyPortfolio\Service\Auth\MfaStepUpService;
 use MyPortfolio\Service\Auth\StepUpGate;
 use MyPortfolio\Service\BackgroundProcess;
 use MyPortfolio\Service\IpMatcher;
-use MyPortfolio\Service\PhpCliLocator;
-use MyPortfolio\Service\Update\CommandLocator;
 use MyPortfolio\Service\Update\MaintenanceMode;
 use MyPortfolio\Service\Update\UpdateChecker;
 use MyPortfolio\Service\Update\UpdateState;
@@ -28,8 +25,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  * POST /api/admin/update/run — spustí na pozadí aktualizaci nativní instalace na nejnovější vydání.
  *
  * Body: { version, totp_code? | step_up_token? }. `version` musí být nejnovější vydání z UpdateChecker
- * (žádná libovolná ref). Runner `api/bin/self-update.php` se před startem kopíruje do `storage/update/`,
- * protože `git checkout` přepisuje soubory aplikace. Stejný MFA step-up jako vytvoření API tokenu.
+ * (žádná libovolná ref). Na pozadí běží `api/bin/native-update.php` (balíček vydání, ne git). Stejný MFA step-up jako vytvoření API tokenu.
  */
 final class RunUpdateAction
 {
@@ -43,11 +39,9 @@ final class RunUpdateAction
         private readonly UpdateChecker $checker,
         private readonly WebUpdatePreflight $preflight,
         private readonly UpdateState $state,
-        private readonly Config $config,
         private readonly ActivityLogger $activity,
         private readonly IpMatcher $ipMatcher,
         private readonly StepUpGate $stepUp,
-        private readonly CommandLocator $locator = new CommandLocator(),
         ?callable $spawner = null,
     ) {
         $this->spawner = Closure::fromCallable($spawner ?? static function (string $script, array $args, string $logPath, string $cwd): bool {
@@ -97,15 +91,6 @@ final class RunUpdateAction
             return $denied;
         }
 
-        $storage = dirname($this->state->path());
-        $runner = $storage . '/update/self-update.php';
-        if (!is_dir(dirname($runner))) {
-            @mkdir(dirname($runner), 0775, true);
-        }
-        if (!@copy(Bootstrap::rootDir() . '/api/bin/self-update.php', $runner)) {
-            return Json::error($response, 'server_error', 'Nepodařilo se připravit runner aktualizace.', 500);
-        }
-
         $from = $check['current'];
         $startedAt = date(\DateTimeInterface::ATOM);
         $this->state->write([
@@ -114,7 +99,7 @@ final class RunUpdateAction
         ]);
 
         $logPath = RuntimePaths::log('update.log');
-        $spawned = ($this->spawner)($runner, $this->runnerArgs($version, $storage, $logPath), $logPath, Bootstrap::rootDir());
+        $spawned = ($this->spawner)(Bootstrap::rootDir() . '/api/bin/native-update.php', ['--target=' . $version], $logPath, Bootstrap::rootDir());
         if (!$spawned) {
             $this->state->write([
                 'status' => 'failed', 'from' => $from, 'target' => $version, 'step' => 'starting',
@@ -134,30 +119,5 @@ final class RunUpdateAction
         );
 
         return Json::ok($response, ['started' => true, 'target' => $version], 202);
-    }
-
-    /** @return list<string> */
-    private function runnerArgs(string $version, string $storage, string $logPath): array
-    {
-        $args = [
-            '--target=' . $version,
-            '--root=' . Bootstrap::rootDir(),
-            '--state=' . $this->state->path(),
-            '--log=' . $logPath,
-            '--maintenance=' . $storage . '/' . MaintenanceMode::FILE,
-            '--lock=' . $this->preflight->lockFile(),
-            '--env=' . ((string) $this->config->get('app.env', 'production') === 'development' ? 'development' : 'production'),
-        ];
-        $php = PhpCliLocator::resolve();
-        if ($php !== null) {
-            $args[] = '--php=' . $php;
-        }
-        foreach (['git', 'composer', 'pnpm'] as $name) {
-            $bin = $this->locator->resolve($name, (string) $this->config->get('update.' . $name . '_bin', ''));
-            if ($bin !== null) {
-                $args[] = '--' . $name . '=' . $bin;
-            }
-        }
-        return $args;
     }
 }

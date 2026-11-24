@@ -46,6 +46,7 @@ final class UpdateStatusActionTest extends TestCase
         $checker = new UpdateChecker(new FakeHttpFetcher([]), new VersionService(), $config, $this->dir . '/check.json');
         $preflight = $this->createMock(WebUpdatePreflight::class);
         $preflight->method('check')->willReturn($this->reasons);
+        $preflight->method('warnings')->willReturn(['git_checkout']);
 
         $action = new UpdateStatusAction($checker, $config, $preflight, new UpdateState($this->dir . '/state.json'), $this->dir . '/update.log');
         $response = $action((new ServerRequestFactory())->createServerRequest('GET', '/api/admin/update'), (new ResponseFactory())->createResponse());
@@ -61,7 +62,9 @@ final class UpdateStatusActionTest extends TestCase
 
     public function testExposesPreflightReasons(): void
     {
-        self::assertSame(['disabled'], $this->get()['web_update']['reasons']);
+        $web = $this->get()['web_update'];
+        self::assertSame(['disabled'], $web['reasons']);
+        self::assertSame(['git_checkout'], $web['warnings']);
     }
 
     public function testIdleWithoutStateFile(): void

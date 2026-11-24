@@ -131,71 +131,114 @@ the update has finished.
 ### Update from the browser
 
 On a **native install**, the **Update from the browser** section shows the **Update to X** button when a newer version
-is available. The update runs without SSH. The application starts these steps in the background, in this order:
+is available. The update runs without SSH. Before it starts, a confirmation dialog opens: database backup, short
+downtime, and on an error the files are restored from the backup (the database is never rolled back). In the background
+the application runs these steps:
 
-1. database backup (`cron-backup`),
-2. maintenance mode on (the web temporarily shows a maintenance message),
-3. `git fetch --tags` and `git checkout vX.Y.Z`,
-4. `composer install`,
-5. database migrations,
-6. `pnpm install` and `pnpm build`,
-7. check of the `VERSION` file and maintenance mode off.
+1. **preflight checks** — PHP extensions (zlib, cURL or `allow_url_fopen`), the PHP CLI, write access to the application directories and free disk space; if a condition is not met, the run stops before anything changes,
+2. **database backup** — the `cron-backup` job (ZIP into `storage/backup/`); if it fails, the run stops before maintenance mode is turned on,
+3. **turning maintenance on** — the web temporarily shows a maintenance message and the API answers 503,
+4. **downloading the release bundle** — `myportfolio-X.Y.Z.tar.gz` from the GitHub Release (max. 600 MB),
+5. **verifying the SHA-256 checksum** — on a mismatch the bundle is deleted and the run ends,
+6. **extracting the bundle** — into `storage/update/`; it checks that the bundle reports the target version and contains all required files,
+7. **deploying the files** — replaced and deleted files are moved to the backup `storage/update/backup`, new files come from the bundle; files with identical content are not rewritten,
+8. **database migrations** — `php api/bin/migrate.php`,
+9. **finishing (writing the version)** — writes the `VERSION` file and cleans up the downloaded bundle. Maintenance mode is always turned off, even after an error.
 
-Before the start, a dialog opens (backup, short downtime, no rollback). The page shows the progress, the output of the
-commands is written to `log/update.log`, and the start is recorded in the activity log ([11.5](11_Administrace.md#115-activity-log)).
+Rules during deployment:
+
+- The files `cfg.php`, `cfg.local.php`, `cfg.docker.php`, `.env`, `storage/`, `log/`, `private/` and `.git` are never overwritten or deleted.
+- Files in `web/dist` that the new release does not have are moved to the backup.
+- The file backup always holds only the last version; the next update replaces it.
+
+The progress is shown on the page, the output of the commands is written to `log/update.log`, and the start is recorded
+in the activity log ([11.5](11_Administrace.md#115-activity-log)).
 
 > ⚠️ Warning: the update from the browser gives the web process the right to change the application code. Anyone who
 > took over the administrator account could change the code permanently. That is why the feature is off by default and
 > is turned on deliberately in `cfg.php`.
 
+### Command-line update
+
+The same run can be started on the server as the user who owns the application files. The command does not require
+`update.web_update` or MFA — access to the server is the check:
+
+```bash
+php8.5 api/bin/native-update.php --target=X.Y.Z --preflight   # only checks the prerequisites, changes nothing
+php8.5 api/bin/native-update.php --target=X.Y.Z               # the whole update
+```
+
+Exit code: `0` deployed (with `--preflight`: prerequisites met), `1` failed (progress in `log/update.log`; with `--preflight`: prerequisites not met), `2` wrong usage or an update is already running.
+
 ### Prerequisites
 
 The feature is turned on in `cfg.php` with the key `update.web_update = true` (default `false`). It works only if:
 
-- The installation is a **git clone** of the repository with the version tags (`vX.Y.Z`), not a copy of the files from an archive.
-- The **web user** (the user PHP-FPM runs as) owns the **entire** application directory recursively, e.g.
-  `sudo chown -R <web-user> <app-directory>`. The installer sets the owner only for `storage/` and `log/`, which is not
-  enough: the update overwrites files also in `api/src`, `db/migrations`, `web/src` and `manual`. The writability check
-  covers only the root, `.git`, `api/vendor`, `web/node_modules` and `web/dist`. A missing owner elsewhere shows up only
-  at the checkout, i.e. after maintenance mode is on, and the run then ends with an error.
-- `git`, `composer` and `pnpm` are available to the web user — either on the PATH of PHP-FPM, or by path in `cfg.php`
-  (`update.git_bin`, `update.composer_bin`, `update.pnpm_bin`). PHP-FPM often has a minimal PATH, so the paths in `cfg.php`
-  are more reliable. PHP-FPM must also find `php` and `node` (pnpm runs on `node`).
-- If the HOME of the web user is not writable, the runner uses `storage/update-home`; the global git configuration
-  (e.g. `safe.directory`) is then not loaded.
-- The run is protected by MFA: confirm it with a code from the authenticator app (TOTP), or with a passkey. A recovery
-  code is not enough. An administrator without a registered TOTP or passkey does not need to confirm.
+- It is a **native install**, not Docker. An archive installation and a git clone both work. The bundle contains the built code, `vendor`
+  and the compiled frontend, so `git`, `composer` and `pnpm` are not needed on the server. A git clone only shows a warning (below).
+- A **PHP CLI binary** of the same version as PHP-FPM is available. It is looked up next to the running PHP and in common paths
+  (e.g. `/usr/bin/php8.5`); the backup and the migrations are started as a subprocess.
+- The PHP extensions **zlib** (extracting the bundle) and **curl**, or `allow_url_fopen` enabled (downloading).
+- **The owner of the whole installation**: the web user (the one PHP-FPM runs as) must be able to write to the entire application directory,
+  e.g. `sudo chown -R <web-user> <app-directory>`. The installer sets the owner only for `storage/` and `log/`, which is not enough.
+  The prerequisites check covers only the root, `api`, `web`, `db`, `manual` and `storage/update`, but files are also moved into subdirectories
+  (`api/src`, `web/src`, `db/migrations`…). A missing permission there shows up only at deployment, after maintenance mode is on; the run then
+  ends with an error and the files are restored from the backup.
+- **Disk space**: at least 512 MB free; for the download at least three times the size of the bundle (the larger of the two values applies).
+  The bundle is at most 600 MB.
+- **MFA**: before starting from the browser, confirm with a code from the authenticator app (TOTP), or with a passkey.
+  A recovery code is not enough. An administrator without a registered TOTP or passkey does not need to confirm.
 
 ### Why the button is inactive
 
-If a condition is not met, the button is inactive and a list of reasons is shown below it:
+If a condition is not met, the button is inactive and a list of reasons is shown below it. The texts are the same as on the page:
 
 | Reason on the page | What it means and what to do |
 |---|---|
 | Updating from the browser is turned off (update.web_update in cfg.php). | Set `update.web_update = true` in `cfg.php`. |
-| The application directory is not a git clone. | The installation must be a `git clone` of the repository; a copy from an archive cannot be updated from the browser. |
-| The application directory has uncommitted changes. | Find them with `git status` in the application directory and revert the code changes or move them out. Files ignored by git (`cfg.php`, `storage/`, `log/`) do not count. |
-| The web user cannot write to the application directories (root, .git, api/vendor, web/node_modules, web/dist). | The application directory must be owned by the web user (see Prerequisites). |
-| The git command was not found on the server. | Install git, or set its path as `update.git_bin`. |
-| The composer command was not found on the server. | Install composer, or set its path as `update.composer_bin`. |
-| The pnpm command was not found on the server. | Install pnpm, or set its path as `update.pnpm_bin`. |
-| An update is already running. | Wait until it finishes. A lock held by a process that has ended does not block the update. |
+| The installation runs in Docker — it is updated with a new image. | Set the new version in `docker-compose.production.yml` and run `pull` and `up -d` ([2.4](02_Instalace.md#24-updates)). |
+| The zlib extension is missing on the server — the bundle cannot be extracted. | Enable the `zlib` extension for PHP. |
+| Neither cURL nor allow_url_fopen is available on the server — the bundle cannot be downloaded. | Enable the `curl` extension, or `allow_url_fopen` in php.ini. |
+| The PHP CLI binary was not found — the backup and migrations cannot run. | Install the PHP CLI in the same version as PHP-FPM (e.g. `php8.5`). |
+| The web user cannot write to one of the application directories (root, api, web, db, manual, storage/update). | The application directory must be owned by the web user (see Prerequisites). |
+| There is little free disk space for the download and the backup. | Free up space (see Prerequisites). |
+| The latest release has no bundle for updating from the browser. | The release does not have the `myportfolio-X.Y.Z.tar.gz` and `.sha256` bundle attached; wait for a release that has one. |
+| An update is already running. | Wait until it finishes. |
+
+Warnings that do not block the button may be shown below it:
+
+| Warning on the page | What it means |
+|---|---|
+| The application is a git clone. Updating from the browser changes files outside git, so git status will show local changes afterwards. | Nothing is blocked. After the update, `git status` shows the changed files. |
+| OPcache does not check files for changes (opcache.validate_timestamps = 0). After the update, old code may still run until PHP-FPM is restarted. | Nothing is blocked. Restart PHP-FPM after the update. |
 
 ### When the update fails
 
-The page shows the step where the update stopped and the end of the log. Maintenance mode is turned off by itself, but
-**nothing is rolled back** — neither the code nor the database. What to do:
+The page shows the step where the update stopped and the end of the log. Maintenance mode is turned off by itself.
+What is restored depends on the step:
 
-1. Read `log/update.log`. At its start it records the HOME and PATH the run used; at the end is the error.
-   The most common cause is a missing binary or a wrong path.
-2. Fix the cause on the server (e.g. a missing `php` or `node` for PHP-FPM, a network failure during `git fetch`,
-   a directory the web user cannot write to).
-3. Finish the update manually as in [2.4 Updates](02_Instalace.md#24-updates), starting from the step that failed.
-   The steps can be repeated safely.
+| Failure in step | What is restored |
+|---|---|
+| preflight checks, database backup, turning maintenance on, downloading, verifying the SHA-256 checksum, extracting | nothing; the files of the installation were not changed yet |
+| deploying the files | the files are restored from the backup `storage/update/backup` (replaced and deleted files come back, newly added ones are removed) |
+| database migrations, finishing (writing the version) | nothing — the code is already the new version and the schema may be partly migrated |
+
+The database is **never** restored. If a file cannot be restored during the rollback, the page and the log say so,
+and the installation has to be repaired manually from the backup.
+
+If the process ended in the middle (e.g. a server restart), the page marks the run as interrupted. The maintenance
+mark expires 30 minutes after the last step, so maintenance mode is turned off no later than that.
+
+What to do:
+
+1. Read `log/update.log`. The error is at the end, the output of the individual steps is above it.
+2. Fix the cause on the server (e.g. a missing PHP CLI, too little disk space, a directory the web user cannot write to, a network failure during the download).
+3. Run the update again, from the button or with the command in [Command-line update](#command-line-update).
+   The migrations are idempotent, so the run can be repeated. To continue by hand, follow [2.4](02_Instalace.md#24-updates) from the step that failed.
 4. Check that the page shows the new version and that the site works.
 
-The backup from `cron-backup` is made before any change to the code. If the run failed after the migrations, the database
-schema is already the new one, and the backup from [11.8](11_Administrace.md#118-backups-and-restore) is available for a restore.
+The backup from `cron-backup` was made before the first change to the files. If the run failed after the migrations,
+the database schema is already the new one, and the backup from [11.8](11_Administrace.md#118-backups-and-restore) is available for a restore.
 
 ## 11.8 Backups and restore
 

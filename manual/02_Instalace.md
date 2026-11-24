@@ -120,7 +120,22 @@ nedostávají ji — pro ně uveď v compose konkrétní verzi image.
 
 **Lokální build Dockeru:** `git pull`, pak `cmd/docker-build.sh` a `docker compose up -d`.
 
-**Nativní instalace** (spouštěj jako uživatel, který vlastní soubory aplikace; číslo verze ber ze stránky Systém → Aktualizace):
+**Nativní instalace** (spouštěj jako uživatel, který vlastní soubory aplikace; číslo verze ber ze stránky Systém → Aktualizace).
+Aplikace se nasazuje z balíčku vydání `myportfolio-X.Y.Z.tar.gz` (asset GitHub Release), ne z gitu. Příkazy spusť v adresáři aplikace (kde je soubor `VERSION`):
+
+```bash
+curl -fLO https://github.com/jindrichmach/myportfolio/releases/download/vX.Y.Z/myportfolio-X.Y.Z.tar.gz
+tar -xzf myportfolio-X.Y.Z.tar.gz --strip-components=1   # přepíše soubory aplikace; balíček neobsahuje cfg.php ani storage/
+rm myportfolio-X.Y.Z.tar.gz
+php8.5 api/bin/migrate.php
+```
+
+Balíček obsahuje hotový `vendor` i frontend, `composer` ani `pnpm` tedy nejsou potřeba. Ruční rozbalení nedělá údržbu, zálohu
+ani rollback a nesmaže soubory, které nové vydání nemá. Proto si nejdřív udělej zálohu (výše). Aktualizace z prohlížeče
+([11.7](11_Administrace.md#117-aktualizace)) zálohu, údržbu i návrat souborů při chybě udělá sama a zastaralé soubory
+odstraní ve `web/dist`.
+
+**Vývojová instalace z git klonu** (ne pro provoz):
 
 ```bash
 git fetch --tags
@@ -130,8 +145,7 @@ php8.5 api/bin/migrate.php
 cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
 ```
 
-Aktualizace se řídí tagem vydání, ne větví. `git checkout vX.Y.Z` odpojí HEAD od větve (detached HEAD), proto na tagu
+Aktualizace z gitu se řídí tagem vydání, ne větví. `git checkout vX.Y.Z` odpojí HEAD od větve (detached HEAD), proto na tagu
 `git pull` nefunguje — další aktualizaci dělej znovu `git fetch --tags` a `git checkout vX.Y.Z`.
-Místo ručních příkazů můžeš na nativní instalaci použít tlačítko z prohlížeče, viz [11.7 Aktualizace z prohlížeče](11_Administrace.md#aktualizace-z-prohlížeče).
 
 Nové plánované úlohy přidá znovu spuštěný `cmd/install.sh` (krok Cron), nebo je doplň podle `cmd/crontab`.

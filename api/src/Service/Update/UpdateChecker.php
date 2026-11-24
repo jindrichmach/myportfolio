@@ -32,7 +32,7 @@ final class UpdateChecker
     }
 
     /**
-     * @return array{current:string,latest:?array{version:string,name:string,published_at:?string,url:string,notes:string,prerelease:bool},
+     * @return array{current:string,latest:?array{version:string,name:string,published_at:?string,url:string,notes:string,prerelease:bool,bundle:bool},
      *               releases:list<array<string,mixed>>,update_available:bool,checked_at:?string,error:?string,repo:string}
      */
     public function check(bool $refresh = false): array
@@ -64,7 +64,7 @@ final class UpdateChecker
     /**
      * Vydané verze z odpovědi `GET /repos/{repo}/releases`, nejnovější první.
      *
-     * @return list<array{version:string,name:string,published_at:?string,url:string,notes:string,prerelease:bool}>
+     * @return list<array{version:string,name:string,published_at:?string,url:string,notes:string,prerelease:bool,bundle:bool}>
      */
     public static function pickReleases(string $json): array
     {
@@ -88,10 +88,25 @@ final class UpdateChecker
                 'url'          => is_string($r['html_url'] ?? null) ? $r['html_url'] : '',
                 'notes'        => is_string($r['body'] ?? null) ? $r['body'] : '',
                 'prerelease'   => (bool) ($r['prerelease'] ?? false),
+                'bundle'       => self::hasBundle($version, $r['assets'] ?? null),
             ];
         }
         usort($out, static fn (array $a, array $b) => version_compare($b['version'], $a['version']));
         return $out;
+    }
+
+    /** Vydání má asset `myportfolio-<verze>.tar.gz` i jeho `.sha256`. */
+    private static function hasBundle(string $version, mixed $assets): bool
+    {
+        $names = [];
+        foreach (is_array($assets) ? $assets : [] as $a) {
+            if (is_array($a) && is_string($a['name'] ?? null)) {
+                $names[$a['name']] = true;
+            }
+        }
+        $bundle = 'myportfolio-' . $version . '.tar.gz';
+
+        return isset($names[$bundle], $names[$bundle . '.sha256']);
     }
 
     /** @param list<array<string,mixed>> $releases nejnovější první */
@@ -119,6 +134,12 @@ final class UpdateChecker
         if (!is_array($data) || ($data['repo'] ?? null) !== $repo || !is_string($data['checked_at'] ?? null)
             || !is_array($data['releases'] ?? null) || !array_is_list($data['releases'])) {
             return null;
+        }
+        // cache bez pole `bundle` (před balíčkovou aktualizací) se přenačte
+        foreach ($data['releases'] as $r) {
+            if (!is_array($r) || !is_bool($r['bundle'] ?? null)) {
+                return null;
+            }
         }
         return ['releases' => $data['releases'], 'checked_at' => $data['checked_at']];
     }

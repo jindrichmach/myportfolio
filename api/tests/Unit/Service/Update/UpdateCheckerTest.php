@@ -46,6 +46,29 @@ final class UpdateCheckerTest extends TestCase
         self::assertStringContainsString('### Přidáno', $latest['notes']);
     }
 
+    public function testBundleFlagRequiresBothAssets(): void
+    {
+        $assets = static fn (string ...$names): string => json_encode(array_map(static fn (string $n) => ['name' => $n], $names));
+        $json = '[
+            {"tag_name":"v0.4.0","assets":' . $assets('myportfolio-0.4.0.tar.gz', 'myportfolio-0.4.0.tar.gz.sha256') . '},
+            {"tag_name":"v0.3.0","assets":' . $assets('myportfolio-0.3.0.tar.gz') . '},
+            {"tag_name":"v0.2.0"}
+        ]';
+
+        self::assertSame([true, false, false], array_column(UpdateChecker::pickReleases($json), 'bundle'));
+    }
+
+    public function testCacheWithoutBundleFlagIsRefetched(): void
+    {
+        file_put_contents($this->cache, json_encode(['repo' => 'example/repo', 'checked_at' => date(\DateTimeInterface::ATOM),
+            'releases' => [['version' => '0.4.0-dev', 'name' => 'x', 'published_at' => null, 'url' => '', 'notes' => '', 'prerelease' => true]]]));
+        $http = new FakeHttpFetcher(['releases' => self::RELEASES]);
+
+        $this->checker($http, '0.3.0-dev')->check();
+
+        self::assertCount(1, $http->requested);
+    }
+
     public function testStableReleaseIsNewerThanItsDevVersion(): void
     {
         $releases = UpdateChecker::pickReleases('[{"tag_name":"v0.4.0-dev"},{"tag_name":"v0.4.0"}]');

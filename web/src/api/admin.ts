@@ -53,7 +53,7 @@ export interface UpdateStatus {
   repo: string
   install: 'docker' | 'native'
   php: string
-  web_update: { reasons: string[] }
+  web_update: { reasons: string[]; warnings: string[] }
   last_run: UpdateRun
 }
 
