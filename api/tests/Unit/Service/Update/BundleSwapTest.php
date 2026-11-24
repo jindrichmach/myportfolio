@@ -133,8 +133,10 @@ final class BundleSwapTest extends TestCase
         $this->put($this->stage, 'z.php', 'z-nova');
         $snapshot = self::snapshot($this->root);
 
-        $updater = new BundleUpdater($this->root, static function (string $rel): void {
-            if ($rel === 'z.php') {
+        // Pořadí souborů závisí na souborovém systému; selže vždy až druhé nasazení.
+        $calls = 0;
+        $updater = new BundleUpdater($this->root, static function (string $rel) use (&$calls): void {
+            if (++$calls === 2) {
                 throw new RuntimeException('boom');
             }
         });
@@ -144,7 +146,64 @@ final class BundleSwapTest extends TestCase
         } catch (RuntimeException) {
         }
 
+        self::assertSame(2, $calls);
         self::assertSame($snapshot, self::snapshot($this->root));
+    }
+
+    public function testFailureAfterBackupBeforeMoveRestoresOriginal(): void
+    {
+        $this->put($this->root, 'a.php', 'a-stara');
+        $this->put($this->stage, 'a.php', 'a-nova');
+        $snapshot = self::snapshot($this->root);
+
+        // hák běží po záloze: původní soubor je už v záloze a cíl chybí
+        $updater = new BundleUpdater($this->root, function (string $rel): void {
+            self::assertFileDoesNotExist($this->root . '/' . $rel);
+            self::assertSame('a-stara', file_get_contents($this->backup . '/' . $rel));
+            throw new RuntimeException('boom');
+        });
+        try {
+            $updater->swap($this->stage, $this->backup);
+            self::fail('swap měl selhat');
+        } catch (RuntimeException) {
+        }
+
+        self::assertSame($snapshot, self::snapshot($this->root));
+    }
+
+    public function testIncompleteRollbackReportsUnrestoredFiles(): void
+    {
+        $this->put($this->root, 'a.php', 'a-stara');
+        $this->put($this->stage, 'a.php', 'a-nova');
+
+        $updater = new BundleUpdater($this->root, function (string $rel): void {
+            unlink($this->backup . '/' . $rel);
+            throw new RuntimeException('boom');
+        });
+        try {
+            $updater->swap($this->stage, $this->backup);
+            self::fail('swap měl selhat');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('NEPODAŘILO SE vrátit', $e->getMessage());
+            self::assertStringContainsString('a.php', $e->getMessage());
+        }
+    }
+
+    public function testExecutableBitIsKeptOnReplaceAndSyncedOnIdenticalContent(): void
+    {
+        $this->put($this->root, 'run.sh', 'stary');
+        $this->put($this->root, 'same.sh', 'totozne');
+        $this->put($this->stage, 'run.sh', 'novy');
+        $this->put($this->stage, 'same.sh', 'totozne');
+        chmod($this->stage . '/run.sh', 0755);
+        chmod($this->stage . '/same.sh', 0755);
+        chmod($this->root . '/same.sh', 0644);
+
+        (new BundleUpdater($this->root))->swap($this->stage, $this->backup);
+
+        self::assertSame(0755, fileperms($this->root . '/run.sh') & 0777);
+        self::assertSame('novy', file_get_contents($this->root . '/run.sh'));
+        self::assertSame(0755, fileperms($this->root . '/same.sh') & 0777);
     }
 
     /** @return array<string,string> */
