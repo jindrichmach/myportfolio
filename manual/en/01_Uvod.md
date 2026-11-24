@@ -80,7 +80,8 @@ Deactivate user, Revoke token) have their name written right next to the icon.
 
 Longer lists have a filter bar above the table. Each filter has a label above it. Lists with text search
 (accounts, instruments, institutions, users…) have **Search** as the first filter; Positions and Transactions are filtered only
-by selection (portfolio, account, type, period). On mobile, all filters except the first are hidden under the **Filters** button
+by selection (portfolio, account, instrument, type, period). You can type into a selection filter to narrow
+the list to matching options. On mobile, all filters except the first are hidden under the **Filters** button
 with the number of active ones.
 The **Clear filter** button appears only when some filter is set, and resets all of them to their defaults.
 

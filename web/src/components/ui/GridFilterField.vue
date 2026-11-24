@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { GridDateRange, GridFilter } from '@/components/ui/grid'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 /** Jeden filtr DataGridu s viditelným popiskem nad ovládacím prvkem. `custom` řeší rodič přes slot. */
 const props = defineProps<{ filter: Exclude<GridFilter, { type: 'custom' }>; modelValue: unknown }>()
@@ -63,11 +64,11 @@ function setRange(part: keyof GridDateRange, value: string) {
     <!-- select -->
     <template v-else-if="filter.type === 'select'">
       <label :for="id" :class="labelClass">{{ filter.label }}</label>
-      <select :id="id" :value="(modelValue as string) ?? ''" :class="inputClass"
-        @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)">
-        <option value="">{{ filter.allLabel }}</option>
-        <option v-for="o in filter.options" :key="o.value" :value="o.value">{{ o.label }}</option>
-      </select>
+      <div class="min-w-48">
+        <SearchableSelect :input-id="id" size="sm" :model-value="(modelValue as string) ?? ''"
+          :options="[{ value: '', label: filter.allLabel }, ...filter.options]"
+          @update:model-value="emit('update:modelValue', $event ?? '')" />
+      </div>
     </template>
 
     <!-- multiselect -->

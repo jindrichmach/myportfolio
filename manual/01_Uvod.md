@@ -80,7 +80,8 @@ Deaktivovat uživatele, Zrušit token) mají název napsaný přímo vedle ikony
 
 Delší seznamy mají nad tabulkou lištu filtrů. Každý filtr má nad sebou popisek. Seznamy s textem k hledání
 (účty, instrumenty, instituce, uživatelé…) mají jako první filtr **Hledat**; Pozice a Transakce se filtrují jen
-výběrem (portfolio, účet, typ, období). Na mobilu jsou filtry kromě prvního schované pod tlačítkem **Filtry**
+výběrem (portfolio, účet, instrument, typ, období). Do výběrového filtru jde psát a nabídka se
+zúží na odpovídající položky. Na mobilu jsou filtry kromě prvního schované pod tlačítkem **Filtry**
 s počtem nastavených.
 Tlačítko **Zrušit filtr** se ukáže, jen když je nějaký filtr nastavený, a vrátí všechny do výchozího stavu.
 
