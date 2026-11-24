@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Icon from '@/components/ui/Icon.vue'
+import ManualLink from '@/components/ui/ManualLink.vue'
 import SegmentControl from '@/components/ui/SegmentControl.vue'
 import { adminApi, type UpdateStatus } from '@/api/admin'
 import { apiErrorMessage } from '@/api/errors'
@@ -197,7 +198,7 @@ async function copy() {
         <template #footer>
           <p class="text-xs text-neutral-500">
             {{ t('update.manual_only') }}
-            <RouterLink to="/manual/02_Instalace#24-aktualizace" class="text-primary-700 hover:underline">{{ t('update.manual_link') }}</RouterLink>
+            <ManualLink inline to="02_Instalace#24-aktualizace" :label="t('update.manual_link')" />
           </p>
         </template>
       </SectionCard>

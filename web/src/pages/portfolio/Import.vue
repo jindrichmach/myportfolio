@@ -270,7 +270,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
         <p class="text-xs text-neutral-500 mt-3">
           {{ t('import.supported') }}:
           <template v-for="(s, i) in sources" :key="s.key">
-            <RouterLink v-if="IMPORT_GUIDES[s.key]" :to="`/manual/${IMPORT_GUIDES[s.key]}`" class="text-primary-700 hover:underline">{{ s.label }}</RouterLink>
+            <ManualLink v-if="IMPORT_GUIDES[s.key]" inline :to="IMPORT_GUIDES[s.key]" :label="s.label" />
             <span v-else>{{ s.label }}</span>{{ i < sources.length - 1 ? ', ' : '' }}
           </template>
         </p>

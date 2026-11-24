@@ -16,6 +16,7 @@ const ICONS = {
   'chevron-down': 'M19 9l-7 7-7-7',
   'chevron-left': 'M15 19l-7-7 7-7',
   'chevron-right': 'M9 5l7 7-7 7',
+  external: 'M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14',
   calendar: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z',
 } as const
 

@@ -10,7 +10,9 @@ catalog of institutions and instruments, and prices and exchange rates, are shar
 This manual is also available directly in the app: **Account → Manual** (an administrator has it in the **System** section). Chapters
 are in vertical tabs on the left, and the open chapter also shows its sections. The **Search the manual** field at the top searches
 all chapters (ignoring diacritics) and shows matching sections with a snippet. Chapters 2. Installation and 11. Administration
-are visible only to administrators. Many screens have a **How is it calculated?** link leading to the relevant section.
+are visible only to administrators. Many screens have a **How is it calculated?** link (or another link to the manual) leading to
+the relevant section. Clicking the link opens the section in a dialog right over the screen; the small icon after the link opens
+it in a new browser window.
 
 ## 1.1 Basic terms
 

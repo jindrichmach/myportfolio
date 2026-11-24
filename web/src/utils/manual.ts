@@ -57,6 +57,29 @@ export function findHeading(root: ParentNode, id: string): HTMLElement | null {
   return number ? root.querySelector<HTMLElement>(`[id^="${number}-"]`) : null
 }
 
+export interface ManualSection { slug: string; title: string; source: string }
+
+/**
+ * Oddíl manuálu pro odkaz `kapitola#kotva` — od nadpisu po další nadpis stejné nebo vyšší úrovně, bez nadpisu
+ * samotného (ten je titulkem). Kotva se v anglické kapitole dohledá podle čísla oddílu jako ve findHeading();
+ * bez kotvy nebo s neznámou kotvou celá kapitola.
+ */
+export function manualSection(locale: string, to: string): ManualSection | null {
+  const [slug, id] = to.split('#')
+  const chapter = manualChapters(locale).find(c => c.slug === slug)
+  if (!chapter) return null
+  const lines = chapter.source.split('\n')
+  const headings = lines.flatMap((line, i) => {
+    const m = line.match(/^(#{1,4}) (.+)$/)
+    return m ? [{ i, level: m[1].length, title: m[2].trim(), id: headingSlug(m[2]) }] : []
+  })
+  const number = id?.match(/^(\d+)-/)?.[1]
+  const start = headings.find(h => h.id === id) ?? (number ? headings.find(h => h.id.startsWith(`${number}-`)) : undefined)
+  if (!id || !start) return { slug, title: chapter.title, source: chapter.source.replace(/^# .+$/m, '') }
+  const end = headings.find(h => h.i > start.i && h.level <= start.level)?.i ?? lines.length
+  return { slug, title: start.title, source: lines.slice(start.i + 1, end).join('\n') }
+}
+
 /** Text bez diakritiky a velkých písmen — hledání „uroky“ najde „Úroky“. */
 const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
 /** Markdown → prostý text pro úryvek (odkazy, zvýraznění, tabulky, kód). */

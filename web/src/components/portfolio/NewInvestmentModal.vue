@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
+import ManualLink from '@/components/ui/ManualLink.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import InstrumentFields from '@/components/catalog/InstrumentFields.vue'
 import { catalogApi, type Instrument } from '@/api/catalog'
@@ -100,7 +101,7 @@ async function submit() {
       <p class="flex flex-wrap gap-x-4">
         <RouterLink v-if="!accounts.length" to="/accounts" class="text-primary-700 hover:underline" @click="emit('close')">{{ t('accounts.new') }}</RouterLink>
         <RouterLink v-if="!portfolios.length" to="/portfolios" class="text-primary-700 hover:underline" @click="emit('close')">{{ t('portfolios.new') }}</RouterLink>
-        <RouterLink to="/manual/00_Prvni_kroky" class="text-primary-700 hover:underline" @click="emit('close')">{{ t('invest.first_steps') }}</RouterLink>
+        <ManualLink inline to="00_Prvni_kroky" :label="t('invest.first_steps')" />
       </p>
     </div>
     <form v-else id="invest-form" class="space-y-4" @submit.prevent="submit">

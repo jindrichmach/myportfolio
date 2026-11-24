@@ -1589,7 +1589,8 @@
     "terms": "Co je účet, portfolio a instituce?",
     "search": "Hledat v manuálu",
     "search_placeholder": "např. dividenda, FIFO, záloha",
-    "search_results": "Nalezeno oddílů: {n}"
+    "search_results": "Nalezeno oddílů: {n}",
+    "open_new_window": "Otevřít v novém okně"
   },
   "update": {
     "title": "Aktualizace",

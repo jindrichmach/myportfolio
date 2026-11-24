@@ -1589,7 +1589,8 @@
     "terms": "What is an account, portfolio and institution?",
     "search": "Search the manual",
     "search_placeholder": "e.g. dividend, FIFO, backup",
-    "search_results": "Sections found: {n}"
+    "search_results": "Sections found: {n}",
+    "open_new_window": "Open in a new window"
   },
   "update": {
     "title": "Updates",
