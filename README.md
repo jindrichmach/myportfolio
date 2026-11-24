@@ -14,7 +14,7 @@
   <a href="manual/INDEX.md">Manuál</a> ·
   <a href="manual/en/INDEX.md">Manual (EN)</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
-  verze <code>1.2.0</code>
+  verze <code>1.3.0</code>
 </p>
 
 ![Přehled — hodnota portfolia, vývoj v čase s benchmarkem a alokace](docs/screenshots/prehled.webp)
@@ -26,7 +26,7 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 *[English summary below](#in-english).*
 
-> **Stav:** verze 1.2.0. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
+> **Stav:** verze 1.3.0. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
 > jsou ověřené na syntetických exportech, ne na skutečných souborech.
 
 ## Funkce
@@ -138,7 +138,7 @@ cmd/install.sh                 # nebo: cmd/install.sh --docker | --native [--yes
 Pak otevři odkaz `<adresa>/setup?token=…`, který instalace vypíše (instalační kód je i v `storage/setup-token`) —
 webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
 
-Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.2.0`, u stabilních verzí
+Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.3.0`, u stabilních verzí
 i `1.0` a `latest`), produkční compose v
 [`docker-compose.production.yml`](docker-compose.production.yml). Vývojové verze (`-dev`) nedostávají značku
 `latest` — v compose uveď konkrétní verzi.

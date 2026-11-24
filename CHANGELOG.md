@@ -5,6 +5,18 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-11-24
+
+Import výpisu účtu ze starého Coinbase Pro a aktualizovaný návod k exportu z Coinbase.
+
+### Přidáno
+- **Coinbase Pro** — import výpisu účtu (Statements → Other, CSV) jako zdroj Coinbase; formát se rozpozná sám.
+  Obchody (řádky `match` + `fee`) jako nákup / prodej s poplatkem, obchody za USDT / USDC oceněné v USD, výběry
+  a vklady kryptoměn jako převody. Obchody krypto za krypto bez fiat ani stablecoinu se přeskočí k ručnímu zadání.
+
+### Změněno
+- Návod k exportu z Coinbase podle aktuálního webu: Settings → Accounts → Statements, měsíční nebo vlastní výpis v CSV.
+
 ## [1.2.0] — 2026-11-24
 
 Správa instance z prohlížeče: zálohy se stažením a obnovou na stránce Systém → Zálohy a aktualizace nativní
