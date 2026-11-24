@@ -40,6 +40,8 @@ final class RestoreBackupAction
         private readonly RestorePreflight $preflight,
         private readonly RestoreState $state,
         private readonly StepUpGate $stepUp,
+        private readonly ?string $startLock = null,
+        private readonly ?string $logFile = null,
         ?callable $spawner = null,
     ) {
         $this->spawner = Closure::fromCallable($spawner ?? static function (string $script, array $args, string $logPath, string $cwd): bool {
@@ -58,14 +60,33 @@ final class RestoreBackupAction
         $body = (array) ($request->getParsedBody() ?? []);
         $file = (string) ($body['file'] ?? '');
         $catalog = new BackupCatalog(BackupDirectory::resolve($this->config));
-        $path = $catalog->find($file);
-        if ($path === null) {
+        if ($catalog->find($file) === null) {
             return Json::error($response, 'not_found', 'Záloha nenalezena.', 404);
         }
         if ((string) ($body['confirm'] ?? '') !== $file) {
             return Json::error($response, 'confirm_mismatch', 'Potvrzení neodpovídá názvu zálohy.', 422);
         }
 
+        // preflight → zápis stavu → spawn pod krátkým zámkem, aby dva souběžné POSTy nespustily dvě obnovy
+        $lock = @fopen($this->startLock ?? RuntimePaths::storage('restore-start.lock'), 'c');
+        if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
+            return Json::error($response, 'restore_not_possible', 'Obnovu z webu nelze spustit.', 409, ['reasons' => ['restore_running']]);
+        }
+        try {
+            return $this->start($request, $response, $catalog, $user, $body, $file);
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+    }
+
+    /**
+     * @param array<string,mixed> $user
+     * @param array<string,mixed> $body
+     */
+    private function start(Request $request, Response $response, BackupCatalog $catalog, array $user, array $body, string $file): Response
+    {
+        $userId = (int) ($user['id'] ?? 0);
         $reasons = $this->preflight->check();
         if (BackupEncryption::passwordFromConfig($this->config) === '' && $this->isEncrypted($catalog, $file)) {
             $reasons[] = 'no_password';
@@ -81,9 +102,10 @@ final class RestoreBackupAction
 
         $startedAt = date(\DateTimeInterface::ATOM);
         $this->state->write([
-            'status' => 'running', 'file' => $file, 'step' => 'starting',
+            'status' => 'running', 'file' => $file, 'step' => 'starting', 'actor_email' => (string) ($user['email'] ?? ''),
             'started_at' => $startedAt, 'finished_at' => null, 'error_step' => null,
         ]);
+        @file_put_contents($this->logFile ?? RuntimePaths::log('restore.log'), '');
         $script = Bootstrap::rootDir() . '/api/bin/restore-backup.php';
         $spawned = ($this->spawner)(
             $script,

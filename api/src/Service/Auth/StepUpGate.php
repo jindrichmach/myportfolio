@@ -28,7 +28,7 @@ final class StepUpGate
     ) {}
 
     /** @param array<string,mixed> $body */
-    public function check(Request $request, Response $response, int $userId, array $body, string $operation): ?Response
+    public function check(Request $request, Response $response, int $userId, array $body, string $operation, string $requiredMessage = 'Pro tuto operaci je vyžadováno nové ověření.'): ?Response
     {
         $totpCode = trim((string) ($body['totp_code'] ?? ''));
         $proof = trim((string) ($body['step_up_token'] ?? ''));
@@ -78,7 +78,7 @@ final class StepUpGate
         return Json::error(
             $response,
             'step_up_required',
-            'Pro tuto operaci je vyžadováno nové ověření.',
+            $requiredMessage,
             403,
             ['methods' => array_values(array_filter([$passkeyAvailable ? 'passkey' : null, $totpAvailable ? 'totp' : null]))],
         );

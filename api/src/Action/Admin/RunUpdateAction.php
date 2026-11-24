@@ -9,18 +9,10 @@ use MyPortfolio\Bootstrap;
 use MyPortfolio\Http\Json;
 use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Infrastructure\Config\RuntimePaths;
-use MyPortfolio\Infrastructure\Database\Connection;
 use MyPortfolio\Middleware\AuthMiddleware;
-use MyPortfolio\Repository\PasskeyCredentialRepository;
 use MyPortfolio\Service\ActivityLogger;
-use MyPortfolio\Service\Auth\BruteForceGuard;
-use MyPortfolio\Service\Auth\MfaPolicyService;
-use MyPortfolio\Service\Auth\MfaProtectedOperationService;
 use MyPortfolio\Service\Auth\MfaStepUpService;
-use MyPortfolio\Service\Auth\OneTimeTokenException;
-use MyPortfolio\Service\Auth\SecretEncryption;
-use MyPortfolio\Service\Auth\StepUpOperationException;
-use MyPortfolio\Service\Auth\TotpVerifier;
+use MyPortfolio\Service\Auth\StepUpGate;
 use MyPortfolio\Service\BackgroundProcess;
 use MyPortfolio\Service\IpMatcher;
 use MyPortfolio\Service\PhpCliLocator;
@@ -52,15 +44,9 @@ final class RunUpdateAction
         private readonly WebUpdatePreflight $preflight,
         private readonly UpdateState $state,
         private readonly Config $config,
-        private readonly Connection $db,
         private readonly ActivityLogger $activity,
         private readonly IpMatcher $ipMatcher,
-        private readonly TotpVerifier $totp,
-        private readonly SecretEncryption $crypto,
-        private readonly BruteForceGuard $bruteForce,
-        private readonly MfaPolicyService $mfaPolicy,
-        private readonly PasskeyCredentialRepository $credentials,
-        private readonly MfaProtectedOperationService $protectedOperations,
+        private readonly StepUpGate $stepUp,
         private readonly CommandLocator $locator = new CommandLocator(),
         ?callable $spawner = null,
     ) {
@@ -99,7 +85,14 @@ final class RunUpdateAction
             return Json::error($response, 'update_not_possible', 'Aktualizaci z webu nelze spustit.', 409, ['reasons' => $reasons]);
         }
 
-        $denied = $this->stepUp($request, $response, $userId, $body);
+        $denied = $this->stepUp->check(
+            $request,
+            $response,
+            $userId,
+            $body,
+            MfaStepUpService::OPERATION_UPDATE_RUN,
+            'Pro spuštění aktualizace je vyžadováno nové ověření.',
+        );
         if ($denied !== null) {
             return $denied;
         }
@@ -166,66 +159,5 @@ final class RunUpdateAction
             }
         }
         return $args;
-    }
-
-    /**
-     * MFA step-up jako u vytvoření API tokenu; admin bez zaregistrovaného faktoru ho nepotřebuje.
-     *
-     * @param array<string,mixed> $body
-     */
-    private function stepUp(Request $request, Response $response, int $userId, array $body): ?Response
-    {
-        $totpCode = trim((string) ($body['totp_code'] ?? ''));
-        $proof = trim((string) ($body['step_up_token'] ?? ''));
-
-        $stmt = $this->db->pdo()->prepare('SELECT totp_secret, totp_enabled FROM users WHERE id = ?');
-        $stmt->execute([$userId]);
-        $u = $stmt->fetch(\PDO::FETCH_ASSOC) ?: [];
-        $totpAvailable = (int) ($u['totp_enabled'] ?? 0) === 1 && !empty($u['totp_secret']);
-        $passkeyAvailable = $this->mfaPolicy->isMethodAllowed('passkey')
-            && $this->credentials->countActiveForUser($userId) > 0;
-
-        if ($proof !== '') {
-            try {
-                $this->protectedOperations->consumeProof(
-                    $userId,
-                    (string) $request->getAttribute(AuthMiddleware::ATTR_TOKEN, ''),
-                    $proof,
-                    MfaStepUpService::OPERATION_UPDATE_RUN,
-                );
-            } catch (OneTimeTokenException|StepUpOperationException) {
-                return Json::error($response, 'step_up_proof_invalid', 'Step-up ověření je neplatné nebo již bylo použito.', 403);
-            } catch (\DomainException) {
-                return Json::error($response, 'session_expired', 'Session vypršela.', 401);
-            }
-            return null;
-        }
-        if (!$totpAvailable && !$passkeyAvailable) {
-            return null;
-        }
-        if ($totpAvailable && $totpCode !== '') {
-            if ($this->bruteForce->isTotpLocked($userId)) {
-                return Json::error($response, 'too_many_attempts', 'Příliš mnoho TOTP pokusů. Zkus to později.', 429);
-            }
-            try {
-                $secret = $this->crypto->decrypt((string) $u['totp_secret'], SecretEncryption::context('users.totp_secret', $userId));
-            } catch (\RuntimeException) {
-                return Json::error($response, 'server_error', 'Chyba konfigurace serveru.', 500);
-            }
-            if (!$this->totp->verify($userId, $secret, $totpCode)) {
-                $this->bruteForce->recordTotpFailure($userId);
-                return Json::error($response, 'step_up_proof_invalid', 'Neplatný TOTP kód.', 403);
-            }
-            $this->bruteForce->recordTotpSuccess($userId);
-            return null;
-        }
-
-        return Json::error(
-            $response,
-            'step_up_required',
-            'Pro spuštění aktualizace je vyžadováno nové ověření.',
-            403,
-            ['methods' => array_values(array_filter([$passkeyAvailable ? 'passkey' : null, $totpAvailable ? 'totp' : null]))],
-        );
     }
 }

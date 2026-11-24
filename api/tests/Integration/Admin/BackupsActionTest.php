@@ -10,6 +10,7 @@ use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Infrastructure\Database\Connection;
 use MyPortfolio\Middleware\AuthMiddleware;
 use MyPortfolio\Repository\PasskeyCredentialRepository;
+use MyPortfolio\Service\ActivityLogger;
 use MyPortfolio\Service\Auth\BruteForceGuard;
 use MyPortfolio\Service\Auth\MfaPolicyService;
 use MyPortfolio\Service\Auth\MfaProtectedOperationService;
@@ -20,6 +21,7 @@ use MyPortfolio\Service\Auth\StepUpGate;
 use MyPortfolio\Service\Auth\StepUpOperationException;
 use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\Backup\RestorePreflight;
+use MyPortfolio\Service\IpMatcher;
 use MyPortfolio\Service\Backup\RestoreState;
 use MyPortfolio\Service\Update\UpdateState;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -42,6 +44,7 @@ final class BackupsActionTest extends TestCase
     private bool $zipLoaded = true;
     private string $password = '';
     private MfaProtectedOperationService $protectedOps;
+    private ActivityLogger $activity;
 
     protected function setUp(): void
     {
@@ -49,6 +52,7 @@ final class BackupsActionTest extends TestCase
         mkdir($this->dir . '/backup', 0775, true);
         $this->spawned = [];
         $this->protectedOps = $this->createMock(MfaProtectedOperationService::class);
+        $this->activity = $this->createMock(ActivityLogger::class);
         $this->makeZip(self::FILE, false);
         file_put_contents($this->dir . '/backup/myportfolio-pdf-2026-11-20_03-00.zip', 'x');
     }
@@ -116,6 +120,7 @@ final class BackupsActionTest extends TestCase
     private function restore(): RestoreBackupAction
     {
         return new RestoreBackupAction($this->config(), $this->preflight(), $this->state(), $this->gate(),
+            startLock: $this->dir . '/restore-start.lock', logFile: $this->dir . '/restore.log',
             spawner: function (string $script, array $args): bool {
                 $this->spawned[] = [$script, $args];
                 return true;
@@ -124,13 +129,13 @@ final class BackupsActionTest extends TestCase
 
     private function list(): BackupsAction
     {
-        return new BackupsAction($this->config(), $this->preflight(), $this->state(), $this->gate(), $this->dir . '/restore.log');
+        return new BackupsAction($this->config(), $this->preflight(), $this->state(), $this->gate(), $this->activity, $this->createMock(IpMatcher::class), $this->dir . '/restore.log');
     }
 
     private function request(string $method, string $role, array $body = []): \Psr\Http\Message\ServerRequestInterface
     {
         return (new ServerRequestFactory())->createServerRequest($method, '/api/admin/backups')
-            ->withAttribute(AuthMiddleware::ATTR_USER, ['id' => 5, 'role' => $role])
+            ->withAttribute(AuthMiddleware::ATTR_USER, ['id' => 5, 'role' => $role, 'email' => 'admin@example.invalid'])
             ->withAttribute(AuthMiddleware::ATTR_TOKEN, str_repeat('a', 64))
             ->withParsedBody($body);
     }
@@ -268,7 +273,7 @@ final class BackupsActionTest extends TestCase
 
     public function testSpawnFailureMarksFailed(): void
     {
-        $action = new RestoreBackupAction($this->config(), $this->preflight(), $this->state(), $this->gate(), spawner: static fn (): bool => false);
+        $action = new RestoreBackupAction($this->config(), $this->preflight(), $this->state(), $this->gate(), startLock: $this->dir . '/restore-start.lock', logFile: $this->dir . '/restore.log', spawner: static fn (): bool => false);
         $r = $action($this->request('POST', 'admin', $this->good()), (new ResponseFactory())->createResponse());
         self::assertSame(500, $r->getStatusCode());
         self::assertSame('failed', $this->state()->read()['status']);
@@ -343,5 +348,46 @@ final class BackupsActionTest extends TestCase
         $this->protectedOps->expects(self::once())->method('consumeProof')
             ->with(5, str_repeat('a', 64), 'proof', MfaStepUpService::OPERATION_BACKUP_DOWNLOAD);
         self::assertSame(200, $this->callDownload(self::FILE, ['step_up_token' => 'proof'])->getStatusCode());
+    }
+
+    public function testConcurrentStartHoldingLockGives409(): void
+    {
+        $h = fopen($this->dir . '/restore-start.lock', 'c');
+        flock($h, LOCK_EX);
+        [$status, $body] = $this->callRestore('admin', $this->good());
+        fclose($h);
+        self::assertSame(409, $status);
+        self::assertSame(['restore_running'], $body['error']['reasons']);
+        self::assertSame([], $this->spawned);
+    }
+
+    public function testStartWritesActorEmailAndClearsOldLog(): void
+    {
+        file_put_contents($this->dir . '/restore.log', "stary beh\n");
+        $this->callRestore('admin', $this->good());
+        self::assertSame('admin@example.invalid', $this->state()->read()['actor_email']);
+        self::assertSame('', file_get_contents($this->dir . '/restore.log'));
+    }
+
+    public function testStartingStateHidesLogTail(): void
+    {
+        file_put_contents($this->dir . '/restore.log', "stary beh\n");
+        $this->state()->write(['status' => 'running', 'step' => 'starting', 'started_at' => date(\DateTimeInterface::ATOM)]);
+        $r = $this->list()($this->request('GET', 'admin'), (new ResponseFactory())->createResponse());
+        self::assertSame([], json_decode((string) $r->getBody(), true)['restore']['last_run']['log_tail']);
+    }
+
+    public function testDownloadIsLogged(): void
+    {
+        $this->activity->expects(self::once())->method('log')
+            ->with('admin.backup.download', 5, null, null, ['file' => self::FILE]);
+        self::assertSame(200, $this->callDownload(self::FILE)->getStatusCode());
+    }
+
+    public function testDeniedDownloadIsNotLogged(): void
+    {
+        $this->activity->expects(self::never())->method('log');
+        $this->userRow = ['totp_secret' => 'enc', 'totp_enabled' => 1];
+        self::assertSame(403, $this->callDownload(self::FILE)->getStatusCode());
     }
 }

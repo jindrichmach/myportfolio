@@ -16,6 +16,7 @@ use MyPortfolio\Service\Auth\MfaProtectedOperationService;
 use MyPortfolio\Service\Auth\MfaStepUpService;
 use MyPortfolio\Service\Auth\OneTimeTokenException;
 use MyPortfolio\Service\Auth\SecretEncryption;
+use MyPortfolio\Service\Auth\StepUpGate;
 use MyPortfolio\Service\Auth\StepUpOperationException;
 use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\IpMatcher;
@@ -93,8 +94,9 @@ final class RunUpdateActionTest extends TestCase
         self::assertNotSame($current, $newer);
 
         return new RunUpdateAction(
-            $checker, $preflight, new UpdateState($this->dir . '/update-state.json'), $config, $db,
-            $this->activity, $ip, $totp, $crypto, $this->createMock(BruteForceGuard::class), $policy, $creds, $this->protectedOps,
+            $checker, $preflight, new UpdateState($this->dir . '/update-state.json'), $config,
+            $this->activity, $ip,
+            new StepUpGate($db, $totp, $crypto, $this->createMock(BruteForceGuard::class), $policy, $creds, $this->protectedOps),
             spawner: function (string $script, array $args): bool {
                 $this->spawned[] = [$script, $args];
                 return true;

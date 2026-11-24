@@ -9,6 +9,7 @@ use MyPortfolio\Http\Json;
 use MyPortfolio\Infrastructure\Config\Config;
 use MyPortfolio\Infrastructure\Config\RuntimePaths;
 use MyPortfolio\Middleware\AuthMiddleware;
+use MyPortfolio\Service\ActivityLogger;
 use MyPortfolio\Service\Auth\MfaStepUpService;
 use MyPortfolio\Service\Auth\StepUpGate;
 use MyPortfolio\Service\Backup\BackupCatalog;
@@ -16,6 +17,7 @@ use MyPortfolio\Service\Backup\BackupDirectory;
 use MyPortfolio\Service\Backup\RestorePreflight;
 use MyPortfolio\Service\Backup\RestoreState;
 use MyPortfolio\Service\Cron\BackupEncryption;
+use MyPortfolio\Service\IpMatcher;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Psr7\Stream;
@@ -32,6 +34,8 @@ final class BackupsAction
         private readonly RestorePreflight $preflight,
         private readonly RestoreState $state,
         private readonly StepUpGate $stepUp,
+        private readonly ActivityLogger $activity,
+        private readonly IpMatcher $ipMatcher,
         private readonly ?string $logFile = null,
     ) {}
 
@@ -78,6 +82,16 @@ final class BackupsAction
             return Json::error($response, 'server_error', 'Zálohu se nepodařilo otevřít.', 500);
         }
 
+        $this->activity->log(
+            'admin.backup.download',
+            (int) ($user['id'] ?? 0),
+            null,
+            null,
+            ['file' => basename($path)],
+            $this->ipMatcher->clientIp($request->getServerParams(), [], 'X-Forwarded-For'),
+            $request->getHeaderLine('User-Agent'),
+        );
+
         return $response
             ->withBody(new Stream($handle))
             ->withHeader('Content-Type', 'application/zip')
@@ -101,7 +115,9 @@ final class BackupsAction
     {
         $state = $this->state->read();
         $status = $state['status'] ?? 'idle';
-        $state['log_tail'] = $status === 'idle' ? [] : $this->logTail();
+        // mezi zápisem `running` z API a převzetím runnerem ještě může být v logu konec předchozího běhu
+        $starting = $status === 'running' && ($state['step'] ?? '') === 'starting';
+        $state['log_tail'] = $status === 'idle' || $starting ? [] : $this->logTail();
         // proces zabit / spadl: stav zůstal `running`, ale nikdo nedrží zámek a start je dávno pryč
         $state['interrupted'] = $status === 'running' && !$this->preflight->isRunning();
 
