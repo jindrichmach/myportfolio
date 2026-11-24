@@ -1630,6 +1630,8 @@
     "lost_contact_hint": "Na serveru obnov stav z pojistné zálohy — je to nejnovější soubor *.zip ve složce záloh:",
     "cli_path_note": "Cesta odpovídá výchozí složce záloh; při vlastním cron.backup.output_dir ji uprav.",
     "login_notice": "Obnova ze zálohy skončila a přihlášení byla zneplatněna. Přihlas se znovu (údaji platnými v záloze). Pokud se nejde přihlásit nebo data nesedí, postupuj podle manuálu, kapitola Zálohy a obnova – obnova z pojistné zálohy.",
+    "lost_contact_unknown": "Aplikace přestala odpovídat a není jasné, jestli běží obnova nebo aktualizace. Postupuj podle manuálu.",
+    "safety_placeholder": "<pojistná-záloha>.zip",
     "manual_link": "Manuál: Zálohy a obnova",
     "running": "Probíhá obnova ze zálohy {file}",
     "running_step": "Krok: {step}",

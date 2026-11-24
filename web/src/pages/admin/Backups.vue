@@ -289,9 +289,12 @@ const cliCommand = (name: string) => [
 
       <div v-if="lostContact && !running" role="alert" class="mb-4 rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
         <p class="font-medium">{{ t('backups.lost_contact', { step: stepLabel(runStep) }) }}</p>
-        <p class="mt-1">{{ t('backups.lost_contact_hint') }}</p>
-        <pre class="mt-1 rounded-md bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 p-3 font-mono text-xs leading-relaxed overflow-x-auto">{{ cliCommand('<safety-backup>.zip') }}</pre>
-        <p class="mt-1 text-xs">{{ t('backups.cli_path_note') }}</p>
+        <template v-if="runFile !== ''">
+          <p class="mt-1">{{ t('backups.lost_contact_hint') }}</p>
+          <pre class="mt-1 rounded-md bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 p-3 font-mono text-xs leading-relaxed overflow-x-auto">{{ cliCommand(t('backups.safety_placeholder')) }}</pre>
+          <p class="mt-1 text-xs">{{ t('backups.cli_path_note') }}</p>
+        </template>
+        <p v-else class="mt-1">{{ t('backups.lost_contact_unknown') }}</p>
         <p class="mt-2"><ManualLink inline to="11_Administrace#118-zálohy-a-obnova" :label="t('backups.manual_link')" /></p>
       </div>
 

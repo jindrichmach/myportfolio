@@ -1630,6 +1630,8 @@
     "lost_contact_hint": "On the server, restore the state from the safety backup — it is the newest *.zip file in the backup folder:",
     "cli_path_note": "The path matches the default backup folder; adjust it if you use a custom cron.backup.output_dir.",
     "login_notice": "The restore from backup has finished and sign-ins were invalidated. Please sign in again (with the credentials valid in the backup). If you cannot sign in or the data looks wrong, follow the manual, chapter Backups and restore – restore from the safety backup.",
+    "lost_contact_unknown": "The application stopped responding and it is unclear whether a restore or an update is running. Follow the manual.",
+    "safety_placeholder": "<safety-backup>.zip",
     "manual_link": "Manual: Backups and restore",
     "running": "Restoring from backup {file}",
     "running_step": "Step: {step}",
