@@ -15,6 +15,12 @@ jinak `php` (přebij přes `PHP_BIN=/cesta/k/php`).
 |---|---|
 | `test.sh [args]` | PHPUnit (`api/`) + `pnpm build` (`web/`); argumenty jdou do PHPUnit, `SKIP_WEB=1` přeskočí frontend |
 
+## Vydání
+
+| Skript | Co dělá |
+|---|---|
+| `build-bundle.sh <X.Y.Z> [<out-dir>]` | Sestaví `myportfolio-X.Y.Z.tar.gz` + `.sha256` (prefix `myportfolio-X.Y.Z/`, s `api/vendor` a `web/dist`, bez testů, zdrojů frontendu a konfigurace) pro aktualizaci nativní instalace z webu. Verze musí souhlasit se souborem `VERSION`; build běží v dočasné kopii sledovaných souborů, archiv se zapíše mimo repozitář (výchozí `${TMPDIR:-/tmp}`). V CI ho volá job `bundle` při tagu `v*.*.*` a nahraje assety do release |
+
 ## Docker
 
 | Skript | Co dělá |

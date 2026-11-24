@@ -148,3 +148,49 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+
+  # Produkční balíček pro aktualizaci nativní instalace z webu (Systém → Aktualizace):
+  # myportfolio-X.Y.Z.tar.gz + .sha256 jako assety GitHub Release. Release vytváří správce
+  # ručně (`gh release create`); job na něj počká, a když do ~10 min nevznikne, založí ho.
+  bundle:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write   # nutné pro upload release assetu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, gd, intl, zip, pdo_mysql, exif, bcmath
+          coverage: none
+          tools: composer:v2
+
+      - name: Setup Node 24 + pnpm
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        run: corepack enable   # verze z web/package.json → packageManager
+
+      - name: Build bundle
+        run: cmd/build-bundle.sh "${GITHUB_REF_NAME#v}" "$RUNNER_TEMP/bundle"
+
+      - name: Upload bundle to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          for i in $(seq 1 60); do
+            if gh release view "$TAG" >/dev/null 2>&1; then found=1; break; fi
+            echo "Release $TAG zatím neexistuje (pokus $i/60)"; sleep 10
+          done
+          if [ -z "${found:-}" ]; then
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" "$RUNNER_TEMP"/bundle/myportfolio-*.tar.gz "$RUNNER_TEMP"/bundle/myportfolio-*.tar.gz.sha256 --clobber
