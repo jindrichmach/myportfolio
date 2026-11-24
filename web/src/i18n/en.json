@@ -15,6 +15,9 @@
       "admin": {
         "cron": {
           "run_now": "Scheduled job run manually"
+        },
+        "update": {
+          "run": "Application update started"
         }
       },
       "api_token": {
@@ -1624,7 +1627,47 @@
     "copy": "Copy",
     "copied": "Copied",
     "manual_only": "Updates run on the server — the application cannot change its own files or Docker image.",
-    "manual_link": "Details in the manual, chapter 2.4"
+    "manual_link": "Details in the manual, chapter 2.4",
+    "web_title": "Update from the browser",
+    "run_button": "Update to {version}",
+    "reasons_title": "The update cannot be started from the browser right now:",
+    "reason_docker": "The installation runs in Docker — it is updated with a new image.",
+    "reason_disabled": "Updating from the browser is turned off (update.web_update in cfg.php).",
+    "reason_not_git": "The application directory is not a git clone.",
+    "reason_dirty_tree": "The application directory has uncommitted changes.",
+    "reason_not_writable": "The web user cannot write to the application directories (root, .git, api/vendor, web/node_modules, web/dist).",
+    "reason_no_git": "The git command was not found on the server.",
+    "reason_no_composer": "The composer command was not found on the server.",
+    "reason_no_pnpm": "The pnpm command was not found on the server.",
+    "reason_running": "An update is already running.",
+    "manual_link_admin": "Details in the manual, chapter 11.7",
+    "confirm_title": "Update to {version}",
+    "confirm_backup": "A database backup is created before any code is touched.",
+    "confirm_downtime": "The application will be unavailable for a few minutes (maintenance).",
+    "confirm_no_rollback": "Nothing is rolled back on failure — it has to be fixed manually on the server.",
+    "step_up_hint": "Updating is a sensitive operation — confirm it with a passkey or a code from your authenticator.",
+    "totp_hint": "Enter the current code from your authenticator app (a recovery code is not enough).",
+    "confirm_run": "Start update",
+    "running": "Updating to {version}",
+    "running_step": "Step: {step}",
+    "running_hint": "The application may be briefly unavailable during the update. Do not close this page.",
+    "succeeded": "Update finished, the installed version is {version}.",
+    "reload": "Reload page",
+    "failed": "The update failed at step: {step}. Maintenance is off, nothing was rolled back.",
+    "failed_stale": "The update was interrupted — the update process ended before finishing its work.",
+    "failed_manual": "Finish the update manually on the server.",
+    "step_backup": "database backup",
+    "step_maintenance": "turning maintenance on",
+    "step_fetch": "fetching releases (git fetch)",
+    "step_checkout": "switching to the release (git checkout)",
+    "step_composer": "PHP dependencies (composer)",
+    "step_migrate": "database migrations",
+    "step_pnpm_install": "frontend dependencies (pnpm install)",
+    "step_pnpm_build": "building the frontend (pnpm build)",
+    "step_verify": "version check",
+    "step_spawn": "starting the update",
+    "step_starting": "preparing",
+    "step_unknown": "unknown step"
   },
   "admin_settings": {
     "title": "Settings",

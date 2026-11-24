@@ -108,6 +108,10 @@ final class Bootstrap
             // Za reverse proxy → audit log a brute-force lockout vidí IP proxy místo
             // reálného klienta. Explicitní injekce Configu to opravuje.
             IpMatcher::class       => fn (ContainerInterface $c) => new IpMatcher($c->get(Config::class)),
+            \MyPortfolio\Service\Update\WebUpdatePreflight::class => fn (ContainerInterface $c) => new \MyPortfolio\Service\Update\WebUpdatePreflight(
+                $c->get(Config::class),
+                $rootDir,
+            ),
 
             // Kurzy a ceny — externí zdroje za rozhraním (v testech fake s fixtures).
             \MyPortfolio\Service\Market\HttpFetcher::class => fn (ContainerInterface $c) => $c->get(\MyPortfolio\Service\Market\GuzzleHttpFetcher::class),

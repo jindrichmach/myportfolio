@@ -120,13 +120,18 @@ nedostávají ji — pro ně uveď v compose konkrétní verzi image.
 
 **Lokální build Dockeru:** `git pull`, pak `cmd/docker-build.sh` a `docker compose up -d`.
 
-**Nativní instalace:**
+**Nativní instalace** (spouštěj jako uživatel, který vlastní soubory aplikace; číslo verze ber ze stránky Systém → Aktualizace):
 
 ```bash
-git pull
+git fetch --tags
+git checkout vX.Y.Z                                                  # místo X.Y.Z dosaď cílovou verzi
 cd api && composer install --no-dev --optimize-autoloader && cd ..   # ve vývoji bez --no-dev
 php8.5 api/bin/migrate.php
 cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
 ```
+
+Aktualizace se řídí tagem vydání, ne větví. `git checkout vX.Y.Z` odpojí HEAD od větve (detached HEAD), proto na tagu
+`git pull` nefunguje — další aktualizaci dělej znovu `git fetch --tags` a `git checkout vX.Y.Z`.
+Místo ručních příkazů můžeš na nativní instalaci použít tlačítko z prohlížeče, viz [11.7 Aktualizace z prohlížeče](11_Administrace.md#aktualizace-z-prohlížeče).
 
 Nové plánované úlohy přidá znovu spuštěný `cmd/install.sh` (krok Cron), nebo je doplň podle `cmd/crontab`.

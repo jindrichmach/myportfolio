@@ -262,6 +262,20 @@ final class MfaStepUpServiceTest extends TestCase
         $service->issue(17, 'session', MfaStepUpService::OPERATION_API_TOKEN_CREATE, 'recovery');
     }
 
+    public function testRecoveryCodeCannotAuthorizeUpdateRun(): void
+    {
+        $proofs = $this->createMock(MfaStepUpProofStore::class);
+        $proofs->expects(self::never())->method('issue');
+        $service = new MfaStepUpService(
+            $proofs,
+            $this->createMock(MfaPolicyService::class),
+            $this->createMock(PasskeyCredentialRepository::class),
+        );
+
+        $this->expectException(StepUpOperationException::class);
+        $service->issue(17, 'session', MfaStepUpService::OPERATION_UPDATE_RUN, 'recovery');
+    }
+
     /** Minimální aktivní passkey — step-up si ověřuje jen její existenci. */
     private static function storedCredential(): StoredPasskeyCredential
     {

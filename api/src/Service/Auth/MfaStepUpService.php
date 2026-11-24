@@ -12,6 +12,9 @@ final class MfaStepUpService
     public const OPERATION_API_TOKEN_CREATE = 'api_token.create';
     public const OPERATION_PASSKEY_REGISTER = 'passkey.register';
 
+    /** Spuštění aktualizace aplikace z webu (kód aplikace se přepíše). */
+    public const OPERATION_UPDATE_RUN = 'update.run';
+
     /** Vygenerování nové sady záložních kódů — stará se tím nevratně zahodí. */
     public const OPERATION_RECOVERY_CODES = 'mfa.recovery_codes';
 
@@ -42,6 +45,7 @@ final class MfaStepUpService
             throw new StepUpOperationException('Nepodporovaná metoda step-up ověření.');
         }
         if ($operation !== self::OPERATION_API_TOKEN_CREATE
+            && $operation !== self::OPERATION_UPDATE_RUN
             && $operation !== self::OPERATION_PASSKEY_REGISTER
             && $operation !== self::OPERATION_RECOVERY_CODES
             && preg_match('/^passkey\.revoke:([1-9][0-9]*)$/D', $operation, $matches) !== 1

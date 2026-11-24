@@ -33,6 +33,7 @@ declare(strict_types=1);
 
     $product = (string) ($flag['product'] ?? 'aplikace');
     $target  = (string) ($flag['target'] ?? '');
+    $step    = isset($flag['step']) && is_string($flag['step']) ? $flag['step'] : null;
     $message = 'Probíhá aktualizace na ' . $product . ($target !== '' ? ' ' . $target : '')
         . '. Zkus to prosím za chvíli — nasazení souborů a migrace databáze trvají jednotky minut.';
 
@@ -45,7 +46,7 @@ declare(strict_types=1);
     if (str_starts_with($path, '/api/') || stripos($accept, 'application/json') !== false) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(
-            ['error' => ['code' => 'maintenance', 'message' => $message]],
+            ['error' => ['code' => 'maintenance', 'message' => $message, 'step' => $step]],
             JSON_UNESCAPED_UNICODE
         );
         exit;

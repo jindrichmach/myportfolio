@@ -121,12 +121,81 @@ a different repository (e.g. a fork) is set in `cfg.php` with the `update.github
 
 Below that is the update procedure for **Docker** and **Native install** — the page preselects the type of this
 installation and fills in the path to the app and to PHP; the commands can be copied. You run the update on the server
-yourself; the app has no rights to change its own files or the Docker image. The procedure is the same as
+yourself, or, for a native install, with the button in the browser (below). The procedure is the same as
 in [2.4 Updates](02_Instalace.md#24-updates).
 
 When one of the versions needs an extra step (e.g. a one-off recalculation of data), the page adds the item
 **3. After updating, also run** with the highlighted commands from that version's description. Run them only after
 the update has finished.
+
+### Update from the browser
+
+On a **native install**, the **Update from the browser** section shows the **Update to X** button when a newer version
+is available. The update runs without SSH. The application starts these steps in the background, in this order:
+
+1. database backup (`cron-backup`),
+2. maintenance mode on (the web temporarily shows a maintenance message),
+3. `git fetch --tags` and `git checkout vX.Y.Z`,
+4. `composer install`,
+5. database migrations,
+6. `pnpm install` and `pnpm build`,
+7. check of the `VERSION` file and maintenance mode off.
+
+Before the start, a dialog opens (backup, short downtime, no rollback). The page shows the progress, the output of the
+commands is written to `log/update.log`, and the start is recorded in the activity log ([11.5](11_Administrace.md#115-activity-log)).
+
+> ⚠️ Warning: the update from the browser gives the web process the right to change the application code. Anyone who
+> took over the administrator account could change the code permanently. That is why the feature is off by default and
+> is turned on deliberately in `cfg.php`.
+
+### Prerequisites
+
+The feature is turned on in `cfg.php` with the key `update.web_update = true` (default `false`). It works only if:
+
+- The installation is a **git clone** of the repository with the version tags (`vX.Y.Z`), not a copy of the files from an archive.
+- The **web user** (the user PHP-FPM runs as) owns the **entire** application directory recursively, e.g.
+  `sudo chown -R <web-user> <app-directory>`. The installer sets the owner only for `storage/` and `log/`, which is not
+  enough: the update overwrites files also in `api/src`, `db/migrations`, `web/src` and `manual`. The writability check
+  covers only the root, `.git`, `api/vendor`, `web/node_modules` and `web/dist`. A missing owner elsewhere shows up only
+  at the checkout, i.e. after maintenance mode is on, and the run then ends with an error.
+- `git`, `composer` and `pnpm` are available to the web user — either on the PATH of PHP-FPM, or by path in `cfg.php`
+  (`update.git_bin`, `update.composer_bin`, `update.pnpm_bin`). PHP-FPM often has a minimal PATH, so the paths in `cfg.php`
+  are more reliable. PHP-FPM must also find `php` and `node` (pnpm runs on `node`).
+- If the HOME of the web user is not writable, the runner uses `storage/update-home`; the global git configuration
+  (e.g. `safe.directory`) is then not loaded.
+- The run is protected by MFA: confirm it with a code from the authenticator app (TOTP), or with a passkey. A recovery
+  code is not enough. An administrator without a registered TOTP or passkey does not need to confirm.
+
+### Why the button is inactive
+
+If a condition is not met, the button is inactive and a list of reasons is shown below it:
+
+| Reason on the page | What it means and what to do |
+|---|---|
+| Updating from the browser is turned off (update.web_update in cfg.php). | Set `update.web_update = true` in `cfg.php`. |
+| The application directory is not a git clone. | The installation must be a `git clone` of the repository; a copy from an archive cannot be updated from the browser. |
+| The application directory has uncommitted changes. | Find them with `git status` in the application directory and revert the code changes or move them out. Files ignored by git (`cfg.php`, `storage/`, `log/`) do not count. |
+| The web user cannot write to the application directories (root, .git, api/vendor, web/node_modules, web/dist). | The application directory must be owned by the web user (see Prerequisites). |
+| The git command was not found on the server. | Install git, or set its path as `update.git_bin`. |
+| The composer command was not found on the server. | Install composer, or set its path as `update.composer_bin`. |
+| The pnpm command was not found on the server. | Install pnpm, or set its path as `update.pnpm_bin`. |
+| An update is already running. | Wait until it finishes. A lock held by a process that has ended does not block the update. |
+
+### When the update fails
+
+The page shows the step where the update stopped and the end of the log. Maintenance mode is turned off by itself, but
+**nothing is rolled back** — neither the code nor the database. What to do:
+
+1. Read `log/update.log`. At its start it records the HOME and PATH the run used; at the end is the error.
+   The most common cause is a missing binary or a wrong path.
+2. Fix the cause on the server (e.g. a missing `php` or `node` for PHP-FPM, a network failure during `git fetch`,
+   a directory the web user cannot write to).
+3. Finish the update manually as in [2.4 Updates](02_Instalace.md#24-updates), starting from the step that failed.
+   The steps can be repeated safely.
+4. Check that the page shows the new version and that the site works.
+
+The backup from `cron-backup` is made before any change to the code. If the run failed after the migrations, the database
+schema is already the new one, and the backup from [11.8](11_Administrace.md#118-backups-and-restore) is available for a restore.
 
 ## 11.8 Backups and restore
 

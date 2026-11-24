@@ -8,6 +8,7 @@ use MyPortfolio\Action\Admin\AppearanceAction;
 use MyPortfolio\Action\Admin\CronJobsAction;
 use MyPortfolio\Action\Api\ApiCatalogAction;
 use MyPortfolio\Action\Admin\SmtpAction;
+use MyPortfolio\Action\Admin\RunUpdateAction;
 use MyPortfolio\Action\Admin\UpdateStatusAction;
 use MyPortfolio\Action\Admin\ListActivityLogAction;
 use MyPortfolio\Action\Admin\RunCronJobAction;
@@ -252,6 +253,7 @@ final class Routes
         $app->get    ('/api/admin/cron-jobs',         CronJobsAction::class);
         $app->post   ('/api/admin/cron-jobs/{script:cron-[a-z0-9-]+}/run', RunCronJobAction::class);
         $app->get    ('/api/admin/update',            UpdateStatusAction::class);
+        $app->post   ('/api/admin/update/run',        RunUpdateAction::class);
 
         // 404 fallback pro /api/*
         $app->any('/api/{path:.*}', function ($req, $res) {

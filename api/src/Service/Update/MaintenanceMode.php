@@ -35,7 +35,7 @@ final class MaintenanceMode
      * Zapíše (nebo prodlouží) značku. Volá se před nasazením a znovu při každém
      * hlášení průběhu, aby dlouhý přechod nepropadl expirací zrovna uprostřed.
      */
-    public static function begin(string $stateDir, string $product, string $target): void
+    public static function begin(string $stateDir, string $product, string $target, ?string $step = null): void
     {
         $path = self::path($stateDir);
         $dir  = dirname($path);
@@ -50,6 +50,7 @@ final class MaintenanceMode
             'reason'     => 'update',
             'product'    => $product,
             'target'     => $target,
+            'step'       => $step,
             'started_at' => $existing['started_at'] ?? date(\DateTimeInterface::ATOM, $now),
             'expires_at' => date(\DateTimeInterface::ATOM, $now + self::TTL_SECONDS),
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
