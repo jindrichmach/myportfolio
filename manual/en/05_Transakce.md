@@ -74,6 +74,9 @@ A transfer cannot be edited; deleting one part deletes the whole transfer.
 **Type** and **Period** filters (see [1.4 Lists with filters](01_Uvod.md#lists-with-filters)). Each row has a link to the position,
 Edit and Delete. The transactions of a single position are also in its detail, with the same pagination.
 
+The quantity has a sign by the direction of the movement of units: **+** in green when units are added to the position (buy,
+reward, transfer in), **−** in red when they are removed (sell, transfer out). The transfer type is coloured too.
+
 ## 5.5 Import from an exchange / broker
 
 **Portfolio → Import** (or the **Import** button on the Transactions page) — you upload a transaction export

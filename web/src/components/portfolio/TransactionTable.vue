@@ -11,6 +11,7 @@ import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter, GridQuery } from '@/components/ui/grid'
 import type { Transaction, TransactionType } from '@/api/portfolio'
 import { formatDec, formatDateTime, formatPrice, formatQty } from '@/composables/useFormat'
+import { gainClass } from '@/utils/tone'
 
 /** Seznam transakcí jako serverový DataGrid: rodič načítá stránku na `change` a předá `rows` + `total`. */
 const props = defineProps<{
@@ -35,8 +36,8 @@ const TONES: Record<TransactionType, BadgeTone> = {
   buy: 'success',
   sell: 'danger',
   reward: 'accent',
-  transfer_in: 'neutral',
-  transfer_out: 'neutral',
+  transfer_in: 'success',
+  transfer_out: 'danger',
   deposit: 'success',
   withdrawal: 'danger',
   dividend: 'primary',
@@ -55,8 +56,14 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'note', label: t('common.note'), hideBelow: '2xl' },
 ])
 const txKey = (tx: Transaction) => tx.id
-/** Množství a kurzy kryptoměn v mono. */
-const mono = (tx: Transaction) => ({ 'font-mono': tx.asset_class === 'crypto' })
+/** Směr pohybu kusů na pozici: + přibývají (zeleně), − ubývají (červeně). */
+const QTY_SIGN: Partial<Record<TransactionType, 1 | -1>> = { buy: 1, reward: 1, transfer_in: 1, sell: -1, transfer_out: -1 }
+function signedQty(tx: Transaction): string {
+  const text = formatQty(tx.quantity, tx.asset_class)
+  const sign = QTY_SIGN[tx.type as TransactionType]
+  return sign && tx.quantity ? `${sign > 0 ? '+' : '−'}${text}` : text
+}
+const qtyClass = (tx: Transaction) => (tx.quantity ? gainClass(QTY_SIGN[tx.type as TransactionType] ?? null) : '')
 </script>
 
 <template>
@@ -77,13 +84,13 @@ const mono = (tx: Transaction) => ({ 'font-mono': tx.asset_class === 'crypto' })
       <Badge :tone="TONES[tx.type as TransactionType]" class="mt-0.5">{{ t(`tx.types.${tx.type}`) }}</Badge>
     </template>
     <template #cell-quantity="{ row: tx }">
-      <span v-if="tx.type === 'split'" :class="mono(tx)">× {{ formatDec(tx.split_ratio, 10) }}</span>
-      <span v-else :class="mono(tx)" :title="tx.quantity ?? undefined">{{ formatQty(tx.quantity, tx.asset_class) }}</span>
+      <span v-if="tx.type === 'split'" class="font-mono">× {{ formatDec(tx.split_ratio, 10) }}</span>
+      <span v-else class="font-mono whitespace-nowrap" :class="qtyClass(tx)" :title="tx.quantity ?? undefined">{{ signedQty(tx) }}</span>
     </template>
-    <template #cell-unit_price="{ row: tx }"><span :class="mono(tx)" :title="tx.unit_price ?? undefined">{{ formatPrice(tx.unit_price) }}</span></template>
+    <template #cell-unit_price="{ row: tx }"><span class="font-mono" :title="tx.unit_price ?? undefined">{{ formatPrice(tx.unit_price) }}</span></template>
     <template #cell-amount="{ row: tx }">
-      {{ tx.amount ? formatDec(tx.amount, 4, tx.price_currency) : '—' }}
-      <span v-if="tx.fee && Number(tx.fee) !== 0" class="block text-xs text-neutral-500">{{ t('tx.fee') }} {{ formatDec(tx.fee, 4, tx.fee_currency) }}</span>
+      <span class="font-mono whitespace-nowrap">{{ tx.amount ? formatDec(tx.amount, 4, tx.price_currency) : '—' }}</span>
+      <span v-if="tx.fee && Number(tx.fee) !== 0" class="block text-xs text-neutral-500">{{ t('tx.fee') }} <span class="font-mono">{{ formatDec(tx.fee, 4, tx.fee_currency) }}</span></span>
     </template>
     <template #cell-note="{ row: tx }">
       <span class="block max-w-64 truncate text-neutral-500" :title="tx.note ?? undefined">
