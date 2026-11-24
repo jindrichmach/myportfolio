@@ -14,7 +14,7 @@ declare(strict_types=1);
  * všechny tabulky, naimportuje dump, obnoví ikony a spustí migrace (záloha může být ze starší verze).
  * Obnova ostré DB drží storage/restore.lock, zapisuje storage/restore-state.json + log/restore.log a po celou
  * dobu zapíná údržbu (503). Web režim bere zálohu jen podle názvu ze složky záloh, pojistná záloha je povinná
- * a po obnově se zneplatní všechny sessions.
+ * a po obnově ostré DB (web i CLI) se zneplatní všechny sessions a zapíše activity log.
  * Docker: docker compose exec app php api/bin/restore-backup.php /data/storage/backup/<zip> --yes
  */
 
@@ -240,19 +240,24 @@ $steps['migrate'] = static function () use ($target, $php, $exec): void {
     // Záloha může být ze starší verze.
     $exec(sprintf('MYPORTFOLIO_DB_NAME=%s %s %s', escapeshellarg($target), escapeshellarg($php), escapeshellarg(__DIR__ . '/migrate.php')), 'Migrace selhaly');
 };
-if ($web) {
-    $steps['sessions'] = static function () use ($config, $opts, $zipPath, $restoreState, $say): void {
+if ($toLive) {
+    $steps['sessions'] = static function () use ($config, $opts, $web, $zipPath, $restoreState, $say): void {
         $db = new Connection($config);
         $pdo = $db->pdo();
         $pdo->exec('DELETE FROM sessions');
         $say('Všechny přihlášené relace zneplatněny.');
-        $actor = (int) $opts['actor'];
-        $exists = $pdo->prepare('SELECT COUNT(*) FROM users WHERE id = ?');
-        $exists->execute([$actor]);
-        (new ActivityLogger($db))->log('admin.backup.restore', (int) $exists->fetchColumn() > 0 ? $actor : null, null, null, [
+        $actor = $web ? (int) $opts['actor'] : null;
+        $actorKnown = false;
+        if ($actor !== null) {
+            $exists = $pdo->prepare('SELECT COUNT(*) FROM users WHERE id = ?');
+            $exists->execute([$actor]);
+            $actorKnown = (int) $exists->fetchColumn() > 0;
+        }
+        (new ActivityLogger($db))->log('admin.backup.restore', $actorKnown ? $actor : null, null, null, [
             'file' => basename($zipPath),
             'safety_backup' => $restoreState->read()['safety_backup'] ?? null,
             'actor_id' => $actor,
+            'source' => $web ? 'web' : 'cli',
         ]);
     };
 }
