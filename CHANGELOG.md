@@ -5,6 +5,13 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.4.1] — 2026-11-24
+
+Aktualizace závislostí.
+
+### Změněno
+- vue-router 5.5.1, monolog 3.13.0, php-cs-fixer 3.95.31 (vývojová závislost).
+
 ## [1.4.0] — 2026-11-24
 
 Aktualizace nativní instalace na klik z hotového balíčku vydání — server už nepotřebuje git, Composer ani Node.
