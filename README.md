@@ -14,7 +14,7 @@
   <a href="manual/INDEX.md">Manuál</a> ·
   <a href="manual/en/INDEX.md">Manual (EN)</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
-  verze <code>1.1.0</code>
+  verze <code>1.2.0</code>
 </p>
 
 ![Přehled — hodnota portfolia, vývoj v čase s benchmarkem a alokace](docs/screenshots/prehled.webp)
@@ -26,7 +26,7 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 *[English summary below](#in-english).*
 
-> **Stav:** verze 1.1.0. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
+> **Stav:** verze 1.2.0. Všechny funkce níže jsou hotové a pokryté testy; importy z burz a brokerů
 > jsou ověřené na syntetických exportech, ne na skutečných souborech.
 
 ## Funkce
@@ -54,7 +54,8 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 
 ### Importy a napojení
 - **Import exportů** (CSV / XLSX / ZIP) — Coinbase, Anycoin, Coinmate, Binance, Kraken, XTB, Trading 212, Revolut,
-  DEGIRO, Interactive Brokers. Náhled s párováním instrumentů a převodů, idempotence, vrácení celé dávky.
+  DEGIRO, Interactive Brokers. Náhled s párováním instrumentů a převodů i ručně zadaných transakcí, idempotence,
+  vrácení celé dávky; návod k exportu pro každý zdroj.
 - **Napojení burz přes API** — Coinbase, Binance, Kraken, Coinmate: read-only klíč uložený šifrovaně, hodinová
   synchronizace, navázání na poslední import.
 - **Bankovní e-mailová avíza přes IMAP** — Fio, Air Bank, MONETA, Raiffeisenbank, ČSOB, Česká spořitelna,
@@ -93,7 +94,8 @@ chybějící cenu nikdy tiše nenahradí — ukáže poslední známou se štít
 - Světlý i tmavý motiv, 10 barevných schémat (výchozí volí správce, uživatel si může vybrat své), mobilní
   zobrazení a instalace jako aplikace (PWA).
 - Správa pro admina: uživatelé, ceny a kurzy, plánované úlohy s ručním spuštěním, záznam aktivit, kontrola
-  aktualizací; denní záloha databáze s obnovou přes `api/bin/restore-backup.php`.
+  aktualizací, aktualizace nativní instalace z prohlížeče; denní záloha databáze se stažením a obnovou
+  z webu (Systém → Zálohy) nebo přes `api/bin/restore-backup.php`.
 
 ## Ukázky
 
@@ -136,7 +138,7 @@ cmd/install.sh                 # nebo: cmd/install.sh --docker | --native [--yes
 Pak otevři odkaz `<adresa>/setup?token=…`, který instalace vypíše (instalační kód je i v `storage/setup-token`) —
 webový průvodce založí správce, nastaví jazyk a měnu, MFA, SMTP a volitelně nahraje ukázková data. Podrobně v [manuálu, kapitola 2](manual/02_Instalace.md).
 
-Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.1.0`, u stabilních verzí
+Hotový Docker image (linux/amd64 i arm64) je v GHCR (`ghcr.io/jindrichmach/myportfolio:1.2.0`, u stabilních verzí
 i `1.0` a `latest`), produkční compose v
 [`docker-compose.production.yml`](docker-compose.production.yml). Vývojové verze (`-dev`) nedostávají značku
 `latest` — v compose uveď konkrétní verzi.

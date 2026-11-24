@@ -5,6 +5,36 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-11-24
+
+Správa instance z prohlížeče: zálohy se stažením a obnovou na stránce Systém → Zálohy a aktualizace nativní
+instalace jedním tlačítkem. Import umí spárovat řádky s ručně zadanými transakcemi a ke každému zdroji má návod
+k exportu.
+
+### Přidáno
+- **Systém → Zálohy** — seznam záloh (šifrovaná / nešifrovaná), **Zálohovat teď**, stažení ZIPu a **obnova celé
+  instance z webu**: běží na pozadí v režimu údržby, před obnovou vytvoří pojistnou zálohu, po dokončení odhlásí
+  všechny uživatele. Stažení i obnova jsou chráněné MFA a zapisují se do záznamu aktivit; během obnovy neběží
+  plánované úlohy. `api/bin/restore-backup.php` bez `--yes` jen vypíše obsah zálohy.
+- **Aktualizace nativní instalace z prohlížeče** (Systém → Aktualizace) — záloha, údržba, checkout tagu, composer,
+  migrace a build frontendu na pozadí s průběhem na stránce, chráněné MFA. Ve výchozím stavu vypnuté, zapíná se
+  v `cfg.php` klíčem `update.web_update` (předpoklady v manuálu, kapitola 11.7).
+- **Párování importu s ručně zadanými transakcemi** — řádek importu se stejným účtem, instrumentem, typem
+  a množstvím (čas ±1 den) se v náhledu označí **Spárované**; potvrzení u ručně zadané transakce opraví čas, částku
+  a poplatek podle exportu, ponechá poznámku a naváže ji na zdroj importu, takže opakovaný import nevytvoří duplicitu.
+- **Anycoin** — import exportu objednávek (Objednávky → Export CSV) vedle exportu transakcí.
+- **Návody k exportu** pro všech 10 zdrojů importu v manuálu (kapitola 5.5) a krátká nápověda u vybraného zdroje
+  na stránce importu.
+- Odkazy do manuálu se otevírají v dialogu přímo v aplikaci; malá ikonka za odkazem otevře manuál v novém okně.
+
+### Změněno
+- Transakce: množství má znaménko podle pohybu kusů (+ nákup, odměna, příchozí převod; − prodej, odchozí převod),
+  částka podle peněžního toku (+ prodej, dividenda, úrok, vklad; − nákup, výběr, poplatek). Směr převodu barevně
+  v badge, všechna čísla v tabulce neproporcionálním písmem.
+
+### Bezpečnost
+- `web-auth/webauthn-lib` 5.3.17 (bezpečnostní opravy přístupových klíčů).
+
 ## [1.1.0] — 2026-11-17
 
 Bezpečnostní vydání podle nezávislého code review a nové funkce pro daně: přehled Kvalita dat, XML pro EPO,
