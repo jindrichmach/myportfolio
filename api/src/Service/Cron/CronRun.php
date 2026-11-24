@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MyPortfolio\Service\Cron;
 
+use MyPortfolio\Infrastructure\Config\RuntimePaths;
+use MyPortfolio\Service\Update\MaintenanceMode;
 use PDO;
 use Throwable;
 
@@ -33,8 +35,32 @@ final class CronRun
         $this->startedAt = $startedAt;
     }
 
+    /**
+     * Běží obnova ze zálohy (`maintenance.json` s `reason: restore`)? Cron pak nesmí sahat do rozpracované DB.
+     * Potomci samotného restore runneru (pojistná záloha) nastavují MYPORTFOLIO_RESTORE_RUNNER=1 a neskipují.
+     */
+    public static function restoreInProgress(?string $maintenanceFile = null): bool
+    {
+        if (getenv('MYPORTFOLIO_RESTORE_RUNNER') === '1') {
+            return false;
+        }
+        $raw = @file_get_contents($maintenanceFile ?? RuntimePaths::storage(MaintenanceMode::FILE));
+        $flag = is_string($raw) && $raw !== '' ? json_decode($raw, true) : null;
+        if (!is_array($flag) || ($flag['reason'] ?? null) !== 'restore') {
+            return false;
+        }
+        $expires = strtotime((string) ($flag['expires_at'] ?? ''));
+
+        return $expires !== false && $expires >= time();
+    }
+
     public static function start(PDO $pdo, string $script): self
     {
+        if (self::restoreInProgress()) {
+            // Bez zápisu do cron_runs (DB se právě maže/importuje; enum stavu 'skipped' nezná).
+            echo "$script: přeskočeno — probíhá obnova ze zálohy.\n";
+            exit(0);
+        }
         $startedAt = microtime(true);
         $host = (string) (gethostname() ?: '');
         $stmt = $pdo->prepare(

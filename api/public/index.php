@@ -34,8 +34,12 @@ declare(strict_types=1);
     $product = (string) ($flag['product'] ?? 'aplikace');
     $target  = (string) ($flag['target'] ?? '');
     $step    = isset($flag['step']) && is_string($flag['step']) ? $flag['step'] : null;
-    $message = 'Probíhá aktualizace na ' . $product . ($target !== '' ? ' ' . $target : '')
-        . '. Zkus to prosím za chvíli — nasazení souborů a migrace databáze trvají jednotky minut.';
+    $restore = ($flag['reason'] ?? '') === 'restore';
+    $title   = $restore ? 'Probíhá obnova ze zálohy' : 'Probíhá aktualizace';
+    $message = $restore
+        ? 'Probíhá obnova ze zálohy. Zkus to prosím za chvíli — trvá jednotky minut a poté bude nutné se znovu přihlásit.'
+        : 'Probíhá aktualizace na ' . $product . ($target !== '' ? ' ' . $target : '')
+            . '. Zkus to prosím za chvíli — nasazení souborů a migrace databáze trvají jednotky minut.';
 
     http_response_code(503);
     header('Retry-After: 20');
@@ -55,10 +59,10 @@ declare(strict_types=1);
     header('Content-Type: text/html; charset=utf-8');
     echo '<!doctype html><html lang="cs"><head><meta charset="utf-8">'
         . '<meta http-equiv="refresh" content="20">'
-        . '<title>Probíhá aktualizace</title>'
+        . '<title>' . $title . '</title>'
         . '<style>body{font:14px/1.6 system-ui,sans-serif;max-width:560px;margin:80px auto;padding:0 20px;color:#15131D}'
         . 'h1{color:#3B2D83;font-size:22px}</style></head><body>'
-        . '<h1>Probíhá aktualizace</h1><p>' . htmlspecialchars($message, ENT_QUOTES) . '</p>'
+        . '<h1>' . $title . '</h1><p>' . htmlspecialchars($message, ENT_QUOTES) . '</p>'
         . '<p>Stránka se sama obnoví.</p></body></html>';
     exit;
 })();
