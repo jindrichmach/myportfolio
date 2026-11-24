@@ -259,6 +259,7 @@ final class Routes
         $app->get    ('/api/admin/backups',           BackupsAction::class);
         $app->post   ('/api/admin/backups/restore',   RestoreBackupAction::class);
         $app->post   ('/api/admin/backups/{name}/download', [BackupsAction::class, 'download']);
+        $app->post   ('/api/admin/backups/{name}/delete', [BackupsAction::class, 'delete']);
 
         // 404 fallback pro /api/*
         $app->any('/api/{path:.*}', function ($req, $res) {

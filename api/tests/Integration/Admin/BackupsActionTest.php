@@ -399,6 +399,52 @@ final class BackupsActionTest extends TestCase
         self::assertSame(200, $this->callDownload(self::FILE)->getStatusCode());
     }
 
+    /** @param array<string,mixed> $body */
+    private function callDelete(string $name, string $role = 'admin', array $body = []): \Psr\Http\Message\ResponseInterface
+    {
+        return $this->list()->delete($this->request('POST', $role, $body), (new ResponseFactory())->createResponse(), ['name' => $name]);
+    }
+
+    public function testDeleteRequiresStepUp(): void
+    {
+        $this->userRow = ['totp_secret' => 'enc', 'totp_enabled' => 1];
+        self::assertSame(403, $this->callDelete(self::FILE)->getStatusCode());
+        self::assertFileExists($this->dir . '/backup/' . self::FILE);
+        $this->protectedOps->expects(self::once())->method('consumeProof')
+            ->with(5, str_repeat('a', 64), 'proof', MfaStepUpService::OPERATION_BACKUP_DELETE);
+        self::assertSame(204, $this->callDelete(self::FILE, 'admin', ['step_up_token' => 'proof'])->getStatusCode());
+        self::assertFileDoesNotExist($this->dir . '/backup/' . self::FILE);
+    }
+
+    public function testDeleteRemovesBackupAndIsLogged(): void
+    {
+        $this->activity->expects(self::once())->method('log')
+            ->with('admin.backup.delete', 5, null, null, ['file' => self::FILE]);
+        self::assertSame(204, $this->callDelete(self::FILE)->getStatusCode());
+        self::assertFileDoesNotExist($this->dir . '/backup/' . self::FILE);
+    }
+
+    public function testDeleteRejectsNonAdminTraversalAndUnknown(): void
+    {
+        $this->activity->expects(self::never())->method('log');
+        self::assertSame(403, $this->callDelete(self::FILE, 'user')->getStatusCode());
+        foreach (['../backup/' . self::FILE, '/etc/passwd', 'myportfolio-2026-01-01.zip', 'myportfolio-pdf-2026-11-20_03-00.zip'] as $n) {
+            self::assertSame(404, $this->callDelete($n)->getStatusCode(), $n);
+        }
+        self::assertFileExists($this->dir . '/backup/' . self::FILE);
+        self::assertFileExists($this->dir . '/backup/myportfolio-pdf-2026-11-20_03-00.zip');
+    }
+
+    public function testDeleteDuringRestoreGives409(): void
+    {
+        $h = fopen($this->dir . '/restore.lock', 'c');
+        flock($h, LOCK_EX);
+        $status = $this->callDelete(self::FILE)->getStatusCode();
+        fclose($h);
+        self::assertSame(409, $status);
+        self::assertFileExists($this->dir . '/backup/' . self::FILE);
+    }
+
     public function testDeniedDownloadIsNotLogged(): void
     {
         $this->activity->expects(self::never())->method('log');

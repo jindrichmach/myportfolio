@@ -14,6 +14,7 @@
     "actions": {
       "admin": {
         "backup": {
+          "delete": "Smazána záloha",
           "download": "Stažena záloha",
           "restore": "Obnovena instance ze zálohy"
         },
@@ -1618,6 +1619,9 @@
     "plain": "Nešifrovaná",
     "download": "Stáhnout",
     "restore": "Obnovit…",
+    "delete": "Smazat",
+    "deleted": "Záloha smazána.",
+    "actions_for": "Akce: {file}",
     "empty_title": "Zatím žádné zálohy",
     "empty_message": "Spusť „Zálohovat teď“ nebo počkej na noční úlohu cron-backup.",
     "reasons_title": "Obnovu z webu teď nejde spustit:",
@@ -1669,7 +1673,10 @@
     "download_title": "Stáhnout zálohu {file}",
     "download_warn": "ZIP obsahuje data všech uživatelů. Ulož ho bezpečně.",
     "download_run": "Stáhnout",
-    "download_failed": "Stažení zálohy se nepodařilo."
+    "download_failed": "Stažení zálohy se nepodařilo.",
+    "delete_title": "Smazat zálohu {file}",
+    "delete_warn": "Záloha se ze serveru nenávratně smaže a obnova z ní už nepůjde.",
+    "delete_run": "Smazat zálohu"
   },
   "update": {
     "title": "Aktualizace",

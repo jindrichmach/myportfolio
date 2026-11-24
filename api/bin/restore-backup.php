@@ -31,6 +31,7 @@ use MyPortfolio\Service\Backup\BackupDirectory;
 use MyPortfolio\Service\Backup\RestoreRunner;
 use MyPortfolio\Service\Backup\RestoreState;
 use MyPortfolio\Service\Cron\BackupEncryption;
+use MyPortfolio\Service\Update\CommandLocator;
 
 // Ruční parsování — getopt() končí na prvním poziční argumentu, takže `<zip> --yes` by nepřečetl.
 $opts = [];
@@ -194,12 +195,10 @@ $steps['extract'] = static function () use ($work, $sqlFile, $cnf, $zip, $sqlEnt
         $host === 'localhost' ? '127.0.0.1' : $host, (int) $config->get('db.port', 3306), (string) $config->get('db.user'),
         str_replace(['\\', '"'], ['\\\\', '\\"'], (string) $config->get('db.pass', ''))));
     chmod($cnf, 0600);
-    foreach (['mariadb', 'mysql'] as $bin) {
-        exec(sprintf('%s --version 2>/dev/null', escapeshellarg($bin)), $o, $rcv);
-        if ($rcv === 0) { $client = $bin; break; }
-    }
+    $locator = new CommandLocator();
+    $client = $locator->resolve('mariadb') ?? $locator->resolve('mysql') ?? '';
     if ($client === '') {
-        throw new RuntimeException('Chybí klient mariadb / mysql v PATH.');
+        throw new RuntimeException('Chybí klient mariadb / mysql (PATH ani /usr/local/bin, /usr/bin, /bin).');
     }
 };
 $steps['drop_tables'] = static function () use ($toLive, $target, $config, $sql, $say): void {

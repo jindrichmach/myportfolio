@@ -8,6 +8,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import Icon from '@/components/ui/Icon.vue'
 import ManualLink from '@/components/ui/ManualLink.vue'
 import Modal from '@/components/ui/Modal.vue'
+import RowActionsMenu, { type RowAction } from '@/components/ui/RowActionsMenu.vue'
 import { adminApi, type BackupItem, type BackupsResponse } from '@/api/admin'
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
@@ -18,7 +19,7 @@ import { useFieldId } from '@/composables/useFieldId'
 import { useToast } from '@/composables/useToast'
 
 /**
- * Systém → Zálohy: seznam záloh z cron-backup, ruční záloha, stažení ZIPu a obnova celé instance z webu
+ * Systém → Zálohy: seznam záloh z cron-backup, ruční záloha, stažení / smazání ZIPu a obnova celé instance z webu
  * (step-up + opsání názvu zálohy; obnovu řídí `restore-backup.php --web` na pozadí).
  */
 const { t, te } = useI18n()
@@ -147,8 +148,18 @@ function startPolling(step: string | null) {
   pollTimer = setTimeout(tick, POLL_MS)
 }
 
-// --- Dialog (stažení / obnova) se step-upem ---
-const target = ref<{ kind: 'download' | 'restore'; backup: BackupItem } | null>(null)
+// --- Akce řádku (menu „⋯“) ---
+function rowActions(b: BackupItem): RowAction[] {
+  return [
+    { key: 'download', label: t('backups.download'), run: () => openDialog('download', b) },
+    ...(canRestoreAny.value && b.restorable ? [{ key: 'restore', label: t('backups.restore'), run: () => openDialog('restore', b) }] : []),
+    { key: 'delete', label: t('backups.delete'), danger: true, run: () => openDialog('delete', b) },
+  ]
+}
+
+// --- Dialog (stažení / obnova / smazání) se step-upem ---
+type DialogKind = 'download' | 'restore' | 'delete'
+const target = ref<{ kind: DialogKind; backup: BackupItem } | null>(null)
 const busy = ref(false)
 const passkeyBusy = ref(false)
 const dialogError = ref('')
@@ -159,11 +170,11 @@ const passkeySupported = isWebAuthnAvailable()
 const needsTotp = computed(() => auth.user?.totp_enabled === true)
 const hasPasskey = computed(() => auth.user?.mfa_methods?.includes('passkey') === true || (auth.user?.passkey_count ?? 0) > 0)
 const needsStepUp = computed(() => needsTotp.value || hasPasskey.value)
-const operation = computed(() => target.value?.kind === 'restore' ? 'backup.restore' : 'backup.download')
+const operation = computed(() => `backup.${target.value?.kind ?? 'download'}`)
 const confirmMatches = computed(() => target.value?.kind !== 'restore' || confirmText.value === target.value.backup.name)
 const canRestoreAny = computed(() => reasons.value.length === 0 && !running.value)
 
-function openDialog(kind: 'download' | 'restore', backup: BackupItem) {
+function openDialog(kind: DialogKind, backup: BackupItem) {
   totpCode.value = ''
   passkeyToken.value = ''
   confirmText.value = ''
@@ -229,6 +240,11 @@ async function submit() {
       a.click()
       setTimeout(() => URL.revokeObjectURL(url), 10_000)
       target.value = null
+    } else if (current.kind === 'delete') {
+      await adminApi.deleteBackup(current.backup.name, stepUp)
+      target.value = null
+      toast.success(t('backups.deleted'))
+      await load()
     } else {
       await adminApi.restoreBackup({ ...stepUp, file: current.backup.name, confirm: confirmText.value })
       target.value = null
@@ -324,18 +340,7 @@ const cliCommand = (name: string) => [
             </Badge>
           </template>
           <template #actions="{ row }">
-            <div class="flex flex-wrap items-center justify-end gap-2">
-              <button type="button" :disabled="running" @click="openDialog('download', row as BackupItem)"
-                class="cursor-pointer h-8 px-3 border border-neutral-300 rounded-md bg-surface text-sm hover:bg-neutral-50 disabled:opacity-60">
-                {{ t('backups.download') }}
-              </button>
-              <button type="button" :disabled="!canRestoreAny || !(row as BackupItem).restorable"
-                :title="!(row as BackupItem).restorable ? t('backups.not_restorable') : undefined"
-                @click="openDialog('restore', row as BackupItem)"
-                class="cursor-pointer h-8 px-3 border border-danger-500 text-danger-500 rounded-md bg-surface text-sm hover:bg-danger-50 disabled:border-neutral-300 disabled:text-neutral-400 disabled:bg-surface disabled:cursor-not-allowed">
-                {{ t('backups.restore') }}
-              </button>
-            </div>
+            <RowActionsMenu v-if="!running" :items="rowActions(row as BackupItem)" :label="t('backups.actions_for', { file: (row as BackupItem).name })" />
           </template>
         </DataTable>
         <template #footer>
@@ -353,7 +358,7 @@ const cliCommand = (name: string) => [
       </SectionCard>
     </template>
 
-    <Modal v-if="target" :title="target.kind === 'restore' ? t('backups.restore_title', { file: target.backup.name }) : t('backups.download_title', { file: target.backup.name })"
+    <Modal v-if="target" :title="t(`backups.${target.kind}_title`, { file: target.backup.name })"
       width-class="max-w-lg" @close="closeDialog">
       <div class="space-y-3">
         <div v-if="target.kind === 'restore'" role="alert" class="rounded-md bg-danger-50 border border-danger-500/40 px-3 py-2 text-sm text-danger-500">
@@ -366,7 +371,7 @@ const cliCommand = (name: string) => [
             <li>{{ t('backups.warn_safety') }}</li>
           </ul>
         </div>
-        <p v-else class="text-sm text-neutral-700">{{ t('backups.download_warn') }}</p>
+        <p v-else class="text-sm text-neutral-700">{{ t(`backups.${target.kind}_warn`) }}</p>
 
         <label v-if="target.kind === 'restore'" class="block text-sm">
           <span class="text-neutral-700 font-medium">{{ t('backups.confirm_label') }}</span>
@@ -406,10 +411,10 @@ const cliCommand = (name: string) => [
         </button>
         <button type="button" @click="submit" :disabled="busy || passkeyBusy || !confirmMatches"
           class="cursor-pointer h-9 px-4 text-sm font-medium rounded-md disabled:cursor-not-allowed"
-          :class="target.kind === 'restore'
+          :class="target.kind !== 'download'
             ? 'border border-danger-500 text-danger-500 bg-surface hover:bg-danger-50 disabled:border-neutral-300 disabled:text-neutral-400 disabled:hover:bg-surface'
             : 'bg-action hover:bg-action-hover text-on-action disabled:bg-neutral-300'">
-          {{ busy ? '…' : target.kind === 'restore' ? t('backups.confirm_run') : t('backups.download_run') }}
+          {{ busy ? '…' : target.kind === 'restore' ? t('backups.confirm_run') : t(`backups.${target.kind}_run`) }}
         </button>
       </template>
     </Modal>

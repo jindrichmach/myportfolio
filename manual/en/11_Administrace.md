@@ -255,22 +255,25 @@ from the command line, see [Restore from the command line](#restore-from-the-com
 The page shows the backups from the backup folder, newest first: the file, the creation date, the size and the status
 **Encrypted** or **Not encrypted**. Only the ZIP backups of the whole instance are listed; PDF backups and SQL files are not.
 
-Above the list are these buttons:
+The **Back up now** button above the list runs the `cron-backup` job (the same as **Run now** in [11.6](11_Administrace.md#116-scheduled-jobs)).
+The progress is shown on the page and the list is refreshed when it finishes. If the backup fails, the details are
+in **System → Scheduled jobs**.
 
-- **Back up now** runs the `cron-backup` job (the same as **Run now** in [11.6](11_Administrace.md#116-scheduled-jobs)).
-  The progress is shown on the page and the list is refreshed when it finishes. If the backup fails, the details are
-  in **System → Scheduled jobs**.
-- **Download** on each backup downloads the ZIP of the whole instance. The ZIP contains the data of all users,
-  store it securely.
-- **Restore…** opens the dialog for restoring the instance from this backup ([below](#restore-from-the-web)).
+The actions for a backup are in the **⋯** menu at the end of its row:
 
-Downloading and restoring are protected by MFA: confirm with a code from the authenticator app (TOTP), or with a passkey.
+- **Download** downloads the ZIP of the whole instance. The ZIP contains the data of all users, store it securely.
+- **Restore…** opens the dialog for restoring the instance from this backup ([below](#restore-from-the-web)). It is in
+  the menu only when a restore can be started.
+- **Delete** opens a confirmation and then permanently deletes the backup from the backup folder. Backups cannot be
+  deleted while a restore is running.
+
+Downloading, deleting and restoring are protected by MFA: confirm with a code from the authenticator app (TOTP), or with a passkey.
 A recovery code is not enough. An administrator without a registered TOTP or passkey does not need to confirm.
 
-An encrypted backup cannot be restored while `cron.backup.password` is missing in `cfg.php`; the **Restore…** button
-is then inactive for it, and the download still works.
+An encrypted backup cannot be restored while `cron.backup.password` is missing in `cfg.php`; the **Restore…** item
+is then missing from its menu, and the download still works.
 
-Downloads and restores are recorded in the [Activity log](11_Administrace.md#115-activity-log).
+Downloads, deletions and restores are recorded in the [Activity log](11_Administrace.md#115-activity-log).
 
 ### Restore from the web
 
@@ -294,12 +297,12 @@ and redirects you to the sign-in page with a message about the restore.
 
 ### Why restore is inactive
 
-If any of these conditions applies, the **Restore…** buttons are inactive and the page lists the reasons:
+If any of these conditions applies, the **Restore…** item is missing from the backup menus and the page lists the reasons:
 
 | Reason on the page | What it means and what to do |
 |---|---|
 | The PHP zip extension is missing. | Install and enable the `zip` extension for PHP. |
-| Neither the mariadb nor the mysql client was found on the server. | Install a database client that the web process can use. |
+| Neither the mariadb nor the mysql client was found on the server. | Install a database client (`mariadb` or `mysql`). It is looked up on the web process's PATH and in `/usr/local/bin`, `/usr/bin` and `/bin`. |
 | PHP CLI was not found on the server. | Install the PHP CLI in the same version as PHP-FPM. |
 | The web user cannot write to the storage directory. | The web user must own `storage/`. |
 | A restore is already running. | Wait until it finishes. |

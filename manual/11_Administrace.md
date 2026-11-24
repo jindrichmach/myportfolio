@@ -250,20 +250,23 @@ viz [Obnova z příkazové řádky](#obnova-z-příkazové-řádky).
 Stránka ukáže zálohy ze složky záloh, od nejnovější: soubor, datum vytvoření, velikost a stav **Šifrovaná**
 nebo **Nešifrovaná**. Zobrazí se jen ZIP zálohy celé instance; PDF zálohy a SQL soubory v seznamu nejsou.
 
-Nad seznamem jsou tlačítka:
+Tlačítko **Zálohovat teď** nad seznamem spustí úlohu `cron-backup` (stejně jako **Spustit nyní** v [11.6](11_Administrace.md#116-plánované-úlohy)).
+Průběh se ukazuje na stránce a po dokončení se seznam obnoví. Když záloha selže, podrobnosti jsou v **Systém → Plánované úlohy**.
 
-- **Zálohovat teď** spustí úlohu `cron-backup` (stejně jako **Spustit nyní** v [11.6](11_Administrace.md#116-plánované-úlohy)).
-  Průběh se ukazuje na stránce a po dokončení se seznam obnoví. Když záloha selže, podrobnosti jsou v **Systém → Plánované úlohy**.
-- **Stáhnout** u každé zálohy stáhne ZIP celé instance. ZIP obsahuje data všech uživatelů, ulož ho bezpečně.
-- **Obnovit…** otevře dialog pro obnovu instance z této zálohy ([níže](#obnova-z-webu)).
+Akce u zálohy jsou v menu **⋯** na konci řádku:
 
-Stažení i obnova jsou chráněné MFA: potvrdíš je kódem z aplikace pro ověřování (TOTP), nebo přístupovým klíčem (passkey).
+- **Stáhnout** stáhne ZIP celé instance. ZIP obsahuje data všech uživatelů, ulož ho bezpečně.
+- **Obnovit…** otevře dialog pro obnovu instance z této zálohy ([níže](#obnova-z-webu)). V menu je jen tehdy,
+  když obnovu jde spustit.
+- **Smazat** otevře potvrzení a zálohu pak trvale smaže ze složky záloh. Během obnovy zálohy mazat nejde.
+
+Stažení, smazání i obnova jsou chráněné MFA: potvrdíš je kódem z aplikace pro ověřování (TOTP), nebo přístupovým klíčem (passkey).
 Záložní kód nestačí. Správce bez zaregistrovaného TOTP ani passkey ověření nepotřebuje.
 
-Šifrovanou zálohu nejde obnovit, dokud v `cfg.php` chybí `cron.backup.password`; tlačítko **Obnovit…** je u ní
-neaktivní a stažení funguje dál.
+Šifrovanou zálohu nejde obnovit, dokud v `cfg.php` chybí `cron.backup.password`; volba **Obnovit…** v jejím menu
+chybí a stažení funguje dál.
 
-Stažení i obnova se zapisují do [záznamu aktivit](11_Administrace.md#115-záznam-aktivit).
+Stažení, smazání i obnova se zapisují do [záznamu aktivit](11_Administrace.md#115-záznam-aktivit).
 
 ### Obnova z webu
 
@@ -285,12 +288,12 @@ přihlášení. Po úspěšném dokončení tě aplikace odhlásí a přesměruj
 
 ### Proč je obnova neaktivní
 
-Pokud platí některý z důvodů, jsou tlačítka **Obnovit…** neaktivní a stránka důvody vypíše:
+Pokud platí některý z důvodů, volba **Obnovit…** v menu záloh chybí a stránka důvody vypíše:
 
 | Důvod na stránce | Co znamená a co udělat |
 |---|---|
 | V PHP chybí rozšíření zip. | Nainstaluj a zapni rozšíření `zip` pro PHP. |
-| Na serveru se nenašel klient mariadb ani mysql. | Nainstaluj klienta databáze, aby byl dostupný webovému procesu. |
+| Na serveru se nenašel klient mariadb ani mysql. | Nainstaluj klienta databáze (`mariadb` nebo `mysql`). Hledá se na PATH webového procesu a v `/usr/local/bin`, `/usr/bin` a `/bin`. |
 | Na serveru se nenašel PHP CLI. | Nainstaluj PHP CLI ve stejné verzi jako PHP-FPM. |
 | Webový uživatel nemůže zapisovat do adresáře storage. | Vlastníkem `storage/` musí být webový uživatel. |
 | Obnova už běží. | Počkej, až skončí. |

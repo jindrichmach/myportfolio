@@ -21,6 +21,9 @@ final class MfaStepUpService
     /** Stažení ZIPu zálohy (obsahuje data všech uživatelů). */
     public const OPERATION_BACKUP_DOWNLOAD = 'backup.download';
 
+    /** Smazání zálohy (nevratně přijdeš o bod obnovy). */
+    public const OPERATION_BACKUP_DELETE = 'backup.delete';
+
     /** Vygenerování nové sady záložních kódů — stará se tím nevratně zahodí. */
     public const OPERATION_RECOVERY_CODES = 'mfa.recovery_codes';
 
@@ -54,6 +57,7 @@ final class MfaStepUpService
             && $operation !== self::OPERATION_UPDATE_RUN
             && $operation !== self::OPERATION_BACKUP_RESTORE
             && $operation !== self::OPERATION_BACKUP_DOWNLOAD
+            && $operation !== self::OPERATION_BACKUP_DELETE
             && $operation !== self::OPERATION_PASSKEY_REGISTER
             && $operation !== self::OPERATION_RECOVERY_CODES
             && preg_match('/^passkey\.revoke:([1-9][0-9]*)$/D', $operation, $matches) !== 1

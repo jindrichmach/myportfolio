@@ -100,6 +100,7 @@ export const adminApi = {
   backups: () => api.get<BackupsResponse>('/admin/backups').then(r => r.data),
   downloadBackup: (name: string, payload: StepUpPayload) =>
     api.post<Blob>(`/admin/backups/${encodeURIComponent(name)}/download`, payload, { responseType: 'blob', timeout: 0 }).then(r => r.data),
+  deleteBackup: (name: string, payload: StepUpPayload) => api.post(`/admin/backups/${encodeURIComponent(name)}/delete`, payload),
   restoreBackup: (payload: StepUpPayload & { file: string; confirm: string }) =>
     api.post<{ started: boolean; file: string }>('/admin/backups/restore', payload).then(r => r.data),
   update: (refresh = false) => api.get<UpdateStatus>('/admin/update', { params: refresh ? { refresh: 1 } : {} }).then(r => r.data),

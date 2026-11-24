@@ -44,7 +44,7 @@ final class MfaStepUpServiceTest extends TestCase
             $this->createMock(MfaPolicyService::class),
             $this->createMock(PasskeyCredentialRepository::class),
         );
-        foreach ([MfaStepUpService::OPERATION_BACKUP_RESTORE, MfaStepUpService::OPERATION_BACKUP_DOWNLOAD] as $op) {
+        foreach ([MfaStepUpService::OPERATION_BACKUP_RESTORE, MfaStepUpService::OPERATION_BACKUP_DOWNLOAD, MfaStepUpService::OPERATION_BACKUP_DELETE] as $op) {
             try {
                 $service->issue(17, 'session', $op, 'recovery');
                 self::fail('Záložní kód nesmí potvrdit ' . $op);

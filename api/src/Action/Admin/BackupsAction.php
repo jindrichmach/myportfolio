@@ -26,6 +26,7 @@ use Slim\Psr7\Stream;
  * GET /api/admin/backups — seznam záloh z cron-backup + `restore.reasons` (preflight obnovy z webu)
  * a `restore.last_run` (stav posledního běhu + konec logu).
  * POST /api/admin/backups/{name}/download — stažení ZIPu zálohy (MFA step-up). Soubor jen podle názvu ze seznamu.
+ * POST /api/admin/backups/{name}/delete — smazání zálohy (MFA step-up, ne během obnovy).
  */
 final class BackupsAction
 {
@@ -98,6 +99,47 @@ final class BackupsAction
             ->withHeader('Content-Length', (string) filesize($path))
             ->withHeader('Content-Disposition', sprintf('attachment; filename="%s"', basename($path)))
             ->withHeader('Cache-Control', 'no-store');
+    }
+
+    /** @param array{name?: string} $args */
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        if (!$this->isAdmin($request)) {
+            return Json::error($response, 'forbidden', 'Pouze admin.', 403);
+        }
+        $path = $this->catalog()->find((string) ($args['name'] ?? ''));
+        if ($path === null) {
+            return Json::error($response, 'not_found', 'Záloha nenalezena.', 404);
+        }
+        if ($this->preflight->isRunning()) {
+            return Json::error($response, 'restore_running', 'Během obnovy nelze zálohy mazat.', 409);
+        }
+        $user = (array) $request->getAttribute(AuthMiddleware::ATTR_USER, []);
+        $denied = $this->stepUp->check(
+            $request,
+            $response,
+            (int) ($user['id'] ?? 0),
+            (array) ($request->getParsedBody() ?? []),
+            MfaStepUpService::OPERATION_BACKUP_DELETE,
+        );
+        if ($denied !== null) {
+            return $denied;
+        }
+        if (!@unlink($path)) {
+            return Json::error($response, 'server_error', 'Zálohu se nepodařilo smazat.', 500);
+        }
+
+        $this->activity->log(
+            'admin.backup.delete',
+            (int) ($user['id'] ?? 0),
+            null,
+            null,
+            ['file' => basename($path)],
+            $this->ipMatcher->clientIp($request->getServerParams(), [], 'X-Forwarded-For'),
+            $request->getHeaderLine('User-Agent'),
+        );
+
+        return $response->withStatus(204);
     }
 
     private function isAdmin(Request $request): bool
