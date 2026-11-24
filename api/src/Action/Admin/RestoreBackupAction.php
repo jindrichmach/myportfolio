@@ -55,7 +55,6 @@ final class RestoreBackupAction
         if (($user['role'] ?? '') !== 'admin') {
             return Json::error($response, 'forbidden', 'Pouze admin.', 403);
         }
-        $userId = (int) ($user['id'] ?? 0);
 
         $body = (array) ($request->getParsedBody() ?? []);
         $file = (string) ($body['file'] ?? '');
@@ -69,7 +68,11 @@ final class RestoreBackupAction
 
         // preflight → zápis stavu → spawn pod krátkým zámkem, aby dva souběžné POSTy nespustily dvě obnovy
         $lock = @fopen($this->startLock ?? RuntimePaths::storage('restore-start.lock'), 'c');
-        if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
+        if ($lock === false) {
+            return Json::error($response, 'restore_not_possible', 'Obnovu z webu nelze spustit.', 409, ['reasons' => ['not_writable']]);
+        }
+        if (!flock($lock, LOCK_EX | LOCK_NB)) {
+            fclose($lock);
             return Json::error($response, 'restore_not_possible', 'Obnovu z webu nelze spustit.', 409, ['reasons' => ['restore_running']]);
         }
         try {

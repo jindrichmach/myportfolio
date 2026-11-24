@@ -277,7 +277,7 @@ and the name of the safety backup. The same view appears when the restore proces
 restarted in the middle) — the page then reports the restore as interrupted. If the application stops responding,
 the page shows the last known step.
 
-If the restore failed in the step **safety backup** or **unpacking and verifying the backup**, the database was not changed.
+If the restore failed in the step **starting the restore process**, **safety backup** or **unpacking and verifying the backup**, the database was not changed.
 Do not roll anything back: just fix the cause (step 3) and try again. In that case the safety backup either was not created
 (the page then does not show its name) or is not needed — do not use the command below, because it would overwrite
 untouched data with an older backup. For the other cases, proceed as follows:

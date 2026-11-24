@@ -21,8 +21,8 @@ use MyPortfolio\Service\Auth\StepUpGate;
 use MyPortfolio\Service\Auth\StepUpOperationException;
 use MyPortfolio\Service\Auth\TotpVerifier;
 use MyPortfolio\Service\Backup\RestorePreflight;
-use MyPortfolio\Service\IpMatcher;
 use MyPortfolio\Service\Backup\RestoreState;
+use MyPortfolio\Service\IpMatcher;
 use MyPortfolio\Service\Update\UpdateState;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
@@ -348,6 +348,21 @@ final class BackupsActionTest extends TestCase
         $this->protectedOps->expects(self::once())->method('consumeProof')
             ->with(5, str_repeat('a', 64), 'proof', MfaStepUpService::OPERATION_BACKUP_DOWNLOAD);
         self::assertSame(200, $this->callDownload(self::FILE, ['step_up_token' => 'proof'])->getStatusCode());
+    }
+
+    public function testUnwritableStartLockGives409NotWritable(): void
+    {
+        $action = new RestoreBackupAction($this->config(), $this->preflight(), $this->state(), $this->gate(),
+            startLock: $this->dir . '/missing-dir/restore-start.lock', logFile: $this->dir . '/restore.log',
+            spawner: function (string $script, array $args): bool {
+                $this->spawned[] = [$script, $args];
+                return true;
+            });
+        $r = $action($this->request('POST', 'admin', $this->good()), (new ResponseFactory())->createResponse());
+        $body = json_decode((string) $r->getBody(), true);
+        self::assertSame(409, $r->getStatusCode());
+        self::assertSame(['not_writable'], $body['error']['reasons']);
+        self::assertSame([], $this->spawned);
     }
 
     public function testConcurrentStartHoldingLockGives409(): void

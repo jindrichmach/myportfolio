@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Obnova ze zálohy cron-backup (ZIP: <db>-<datum>.sql + icons/*.png, volitelně AES s cron.backup.password).
  *
  *   php8.5 api/bin/restore-backup.php <zip>                       # jen vypíše obsah zálohy, nic nezmění
- *   php8.5 api/bin/restore-backup.php <zip> --yes                 # obnoví databázi z cfg + ikony
+ *   php8.5 api/bin/restore-backup.php <zip> --yes                 # obnoví databázi z cfg + ikony (ostrá DB: odhlásí všechny uživatele, zapíše activity log)
  *   php8.5 api/bin/restore-backup.php <zip> --yes --db=<název>    # obnoví do jiné DB (zkouška zálohy), ikony vynechá
  *   php8.5 api/bin/restore-backup.php <název.zip> --yes --web --actor=<user_id>   # web režim (spouští ho API na pozadí)
  *

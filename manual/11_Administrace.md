@@ -269,7 +269,7 @@ může zůstat napůl naimportovaná. Stránka ukáže krok, ve kterém obnova s
 Stejně vypadá, když proces obnovy přestal běžet (např. restart serveru uprostřed) — stránka pak hlásí přerušenou obnovu.
 Pokud aplikace přestane odpovídat, stránka ukáže poslední známý krok.
 
-Pokud obnova selhala v kroku **pojistná záloha** nebo **rozbalení a ověření zálohy**, databáze zůstala beze změny.
+Pokud obnova selhala v kroku **spuštění procesu obnovy**, **pojistná záloha** nebo **rozbalení a ověření zálohy**, databáze zůstala beze změny.
 Nic nevracej, jen oprav příčinu (krok 3) a obnovu zopakuj. Pojistná záloha v tom případě buď nevznikla (stránka pak
 neukáže její název), nebo není potřeba — příkaz níže v tom případě nepoužívej, protože by přepsal nedotčená data
 starší zálohou. Postup pro ostatní případy:
