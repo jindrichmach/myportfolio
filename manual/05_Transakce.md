@@ -75,6 +75,8 @@ Upravit a Smazat. Transakce jedné pozice jsou i na jejím detailu, se stejným 
 
 Množství má znaménko podle směru pohybu kusů: **+**, když na pozici přibývají (nákup, odměna,
 převod dovnitř), **−**, když ubývají (prodej, převod ven). Směr barevně rozlišuje štítek typu transakce.
+Částka má znaménko podle peněžního toku: **+**, když peníze přišly (prodej, dividenda, úrok, vklad), **−**, když
+odešly (nákup, výběr, poplatek). Odměna a převod jsou bez znaménka.
 
 ## 5.5 Import z burzy / brokera
 

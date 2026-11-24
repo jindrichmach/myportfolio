@@ -55,13 +55,16 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'note', label: t('common.note'), hideBelow: '2xl' },
 ])
 const txKey = (tx: Transaction) => tx.id
+type Sign = Partial<Record<TransactionType, 1 | -1>>
 /** Směr pohybu kusů na pozici: + přibývají, − ubývají (barvu nese badge typu). */
-const QTY_SIGN: Partial<Record<TransactionType, 1 | -1>> = { buy: 1, reward: 1, transfer_in: 1, sell: -1, transfer_out: -1 }
-function signedQty(tx: Transaction): string {
-  const text = formatQty(tx.quantity, tx.asset_class)
-  const sign = QTY_SIGN[tx.type as TransactionType]
-  return sign && tx.quantity ? `${sign > 0 ? '+' : '−'}${text}` : text
+const QTY_SIGN: Sign = { buy: 1, reward: 1, transfer_in: 1, sell: -1, transfer_out: -1 }
+/** Peněžní tok částky: + přišlo, − zaplaceno. Odměna nese jen hodnotu, ne tok. */
+const AMOUNT_SIGN: Sign = { sell: 1, dividend: 1, interest: 1, deposit: 1, buy: -1, withdrawal: -1, fee: -1 }
+function signed(text: string, sign: 1 | -1 | undefined): string {
+  return sign && text !== '—' && !text.startsWith('−') ? `${sign > 0 ? '+' : '−'}${text}` : text
 }
+const signedQty = (tx: Transaction) => signed(formatQty(tx.quantity, tx.asset_class), QTY_SIGN[tx.type as TransactionType])
+const signedAmount = (tx: Transaction) => (tx.amount ? signed(formatDec(tx.amount, 4, tx.price_currency), AMOUNT_SIGN[tx.type as TransactionType]) : '—')
 </script>
 
 <template>
@@ -87,7 +90,7 @@ function signedQty(tx: Transaction): string {
     </template>
     <template #cell-unit_price="{ row: tx }"><span class="font-mono" :title="tx.unit_price ?? undefined">{{ formatPrice(tx.unit_price) }}</span></template>
     <template #cell-amount="{ row: tx }">
-      <span class="font-mono whitespace-nowrap">{{ tx.amount ? formatDec(tx.amount, 4, tx.price_currency) : '—' }}</span>
+      <span class="font-mono whitespace-nowrap">{{ signedAmount(tx) }}</span>
       <span v-if="tx.fee && Number(tx.fee) !== 0" class="block text-xs text-neutral-500">{{ t('tx.fee') }} <span class="font-mono">{{ formatDec(tx.fee, 4, tx.fee_currency) }}</span></span>
     </template>
     <template #cell-note="{ row: tx }">

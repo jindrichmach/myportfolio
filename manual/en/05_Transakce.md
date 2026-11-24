@@ -76,6 +76,8 @@ Edit and Delete. The transactions of a single position are also in its detail, w
 
 The quantity has a sign by the direction of the movement of units: **+** when units are added to the position (buy,
 reward, transfer in), **−** when they are removed (sell, transfer out). The direction is colour-coded by the transaction type badge.
+The amount has a sign by the cash flow: **+** when money came in (sell, dividend, interest, deposit), **−** when it went out
+(buy, withdrawal, fee). Rewards and transfers have no sign.
 
 ## 5.5 Import from an exchange / broker
 
