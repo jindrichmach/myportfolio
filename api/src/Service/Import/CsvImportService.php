@@ -401,6 +401,11 @@ final class CsvImportService
         if ($id !== null) {
             return $id;
         }
+        // Instrument už má na účtu pozici v jiném portfoliu → tam (jako párování, které hledá v celém účtu).
+        $onAccount = $this->positions->idsOnAccount($userId, $accountId, $instrumentId);
+        if (count($onAccount) === 1) {
+            return $onAccount[0];
+        }
         $instrument = $this->instruments->find($instrumentId) ?? throw DomainError::notFound('Instrument nenalezen.');
         return $this->positions->create($userId, ['portfolio_id' => $portfolioId, 'account_id' => $accountId, 'instrument_id' => $instrumentId,
             'valuation_mode' => 'market', 'name' => null, 'currency' => $instrument['quote_currency'], 'interest_rate_pa' => null]);

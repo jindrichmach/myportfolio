@@ -101,7 +101,7 @@ the import.
 | Field | Meaning |
 |---|---|
 | Account | The exchange / broker account the export comes from — positions are written into it |
-| Portfolio | The portfolio in which new positions are created |
+| Portfolio | The portfolio in which new positions are created. If the instrument already has a position on the account in another portfolio, rows go there |
 | Source | Usually detected automatically from the file header; otherwise choose it — a short hint and a link to the guide appear below the field |
 | File | CSV, XLSX or ZIP, at most 20 MB |
 

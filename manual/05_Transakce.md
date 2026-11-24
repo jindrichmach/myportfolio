@@ -100,7 +100,7 @@ nepotvrdíš.
 | Pole | Význam |
 |---|---|
 | Účet | Účet u burzy / brokera, ze kterého export pochází — do něj se zapíšou pozice |
-| Portfolio | Portfolio, do kterého se založí nové pozice |
+| Portfolio | Portfolio, do kterého se založí nové pozice. Má-li instrument na účtu už pozici v jiném portfoliu, zapíše se do ní |
 | Zdroj | Obvykle se pozná sám z hlavičky souboru; jinak ho vyber — pod polem se ukáže krátká nápověda a odkaz na návod |
 | Soubor | CSV, XLSX nebo ZIP, nejvýš 20 MB |
 

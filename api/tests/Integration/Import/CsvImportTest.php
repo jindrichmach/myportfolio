@@ -137,6 +137,31 @@ final class CsvImportTest extends ApiTestCase
         self::assertSame(2, $this->rowCount('SELECT COUNT(*) FROM transactions WHERE user_id = ?', [$this->userId]));
     }
 
+    public function testNewRowsUseExistingAccountPositionFromAnotherPortfolio(): void
+    {
+        $inst = $this->call($this->userId, 'POST', '/api/institutions', ['name' => 'Synthetic Broker Q', 'type' => 'exchange'])['body']['id'];
+        $acc = $this->call($this->userId, 'POST', '/api/accounts', ['institution_id' => $inst, 'name' => 'Spot', 'currency' => 'CZK'])['body']['id'];
+        $crypto = $this->call($this->userId, 'POST', '/api/portfolios', ['name' => 'Krypto'])['body']['id'];
+        $other = $this->call($this->userId, 'POST', '/api/portfolios', ['name' => 'Akcie'])['body']['id'];
+        $ins = $this->call($this->userId, 'POST', '/api/instruments', ['asset_class' => 'crypto', 'symbol' => 'XTSQ', 'name' => 'Synthetic Coin Q',
+            'quote_currency' => 'CZK', 'price_source' => 'manual'])['body']['id'];
+        $pos = $this->call($this->userId, 'POST', '/api/positions', ['valuation_mode' => 'market', 'portfolio_id' => $crypto, 'account_id' => $acc,
+            'instrument_id' => $ins])['body']['id'];
+        $this->call($this->userId, 'POST', '/api/transactions', ['position_id' => $pos, 'type' => 'buy',
+            'executed_at' => '2025-03-01 10:00', 'quantity' => '0.5', 'amount' => '1000']);
+
+        $csv = "Date,Type,Amount,Currency,Order ID,anycoin TX ID,Description\n"
+            . "2025-03-02T09:00:00Z,trade payment,-600,CZK,700101,8000101,\n"
+            . "2025-03-02T09:00:01Z,trade fill,0.3,XTSQ,700101,8000102,\n";
+        $file = (new UploadedFileFactory())->createUploadedFile((new StreamFactory())->createStream($csv), strlen($csv), UPLOAD_ERR_OK, 'anycoin.csv');
+        $p = $this->call($this->userId, 'POST', '/api/imports/preview', ['account_id' => $acc, 'portfolio_id' => $other], ['file' => $file])['body'];
+        $ok = $this->call($this->userId, 'POST', "/api/imports/preview/{$p['token']}/confirm", [])['body'];
+
+        self::assertSame(1, $ok['imported']);
+        self::assertSame(2, $this->rowCount('SELECT COUNT(*) FROM transactions WHERE position_id = ?', [$pos]));
+        self::assertSame(0, $this->rowCount('SELECT COUNT(*) FROM positions WHERE portfolio_id = ?', [$other]));
+    }
+
     public function testUnknownFormatAndForeignAccount(): void
     {
         $pf = $this->call($this->userId, 'POST', '/api/portfolios', ['name' => 'X'])['body']['id'];

@@ -101,6 +101,14 @@ final class PositionRepository
         return $id === false ? null : (int) $id;
     }
 
+    /** ID pozic instrumentu na účtu napříč portfolii. @return list<int> */
+    public function idsOnAccount(int $userId, int $accountId, int $instrumentId): array
+    {
+        $stmt = $this->db->pdo()->prepare('SELECT id FROM positions WHERE user_id = ? AND account_id = ? AND instrument_id = ? ORDER BY id');
+        $stmt->execute([$userId, $accountId, $instrumentId]);
+        return array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN));
+    }
+
     /** @param array<string,mixed> $data */
     public function create(int $userId, array $data): int
     {
