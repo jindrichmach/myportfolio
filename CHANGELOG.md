@@ -5,6 +5,14 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.4.2] — 2026-11-24
+
+Oprava obnovy zálohy z webu na hostingu s `open_basedir`.
+
+### Opraveno
+- Obnova zálohy z webu hlásila chybějícího klienta mariadb / mysql na serverech s `open_basedir` (ISPConfig apod.),
+  kde PHP-FPM nevidí do `/usr/bin` — klient se teď dohledá přes shell (`command -v`).
+
 ## [1.4.1] — 2026-11-24
 
 Aktualizace závislostí.
