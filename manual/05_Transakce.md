@@ -101,7 +101,7 @@ nepotvrdíš.
 
 ### 5.5.1 Náhled
 
-- **Souhrn** — kolik řádků je nových, už importovaných a přeskočených.
+- **Souhrn** — kolik řádků je nových, už importovaných, spárovaných a přeskočených.
 - **Instrumenty** — ke každému symbolu z exportu vyber **existující** instrument z katalogu,
   **založ nový** (symbol, název, třída a měna kotace jsou předvyplněné) nebo ho **vynech**.
   Známé instrumenty se spárují samy podle ISIN nebo symbolu.
@@ -109,6 +109,10 @@ nepotvrdíš.
   nabytí. Vyber druhou stranu: existující pozici, nebo jiný účet (pozice se založí). Bez výběru
   se řádek vynechá.
 - **Řádky** — všechny pohyby se stavem; u přeskočených je důvod.
+- **Spárované** — nákup nebo prodej, který už na účtu máš zadaný ručně (stejný instrument, typ a množství,
+  čas nejvýš den vedle). Import ho nezapíše podruhé: ručně zadanou transakci přepíše časem, částkou a
+  poplatkem z exportu (poznámka zůstane) a přiřadí ji ke zdroji, takže ji další import pozná jako už
+  importovanou. Vrácení dávky spárované transakce nesmaže. Transakce z jiného importu se jen přeskočí.
 
 | V exportu | V MyPortfolio |
 |---|---|

@@ -102,7 +102,7 @@ the import.
 
 ### 5.5.1 Preview
 
-- **Summary** — how many rows are new, already imported and skipped.
+- **Summary** — how many rows are new, already imported, paired and skipped.
 - **Instruments** — for each symbol from the export, choose an **Existing** instrument from the catalog,
   **Create new** (symbol, name, class and quote currency are prefilled) or **Skip** it.
   Known instruments are matched automatically by ISIN or symbol.
@@ -110,6 +110,11 @@ the import.
   date. Choose the other side: an existing position, or another account (a position is created). Without a choice
   the row is skipped.
 - **Rows** — all movements with their status; skipped ones show the reason.
+- **Paired** — a buy or sell you have already entered manually on the account (same instrument, type and quantity,
+  time at most a day apart). The import doesn't write it twice: it overwrites the manually entered transaction with
+  the time, amount and fee from the export (the note is kept) and assigns it to the source, so the next import
+  recognises it as already imported. Reverting the batch doesn't delete paired transactions. A transaction from
+  another import is just skipped.
 
 | In the export | In MyPortfolio |
 |---|---|

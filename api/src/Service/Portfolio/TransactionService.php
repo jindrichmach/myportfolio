@@ -96,6 +96,20 @@ final class TransactionService
         });
     }
 
+    /**
+     * Spárovaný řádek importu: hodnoty existující transakce se přepíšou podle exportu a transakce
+     * se přiřadí ke zdroji (do dávky ne — vrácení dávky ji nesmaže).
+     *
+     * @param array<string,mixed> $input
+     */
+    public function pairImported(int $userId, int $id, array $input, string $source, string $externalId): void
+    {
+        $this->inTransaction(function () use ($userId, $id, $input, $source, $externalId): void {
+            $this->update($userId, $id, $input);
+            $this->transactions->link($userId, $id, $source, $externalId);
+        });
+    }
+
     /** Smaže transakci; u převodu obě nohy. */
     public function delete(int $userId, int $id): void
     {

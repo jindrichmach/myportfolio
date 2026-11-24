@@ -233,6 +233,32 @@ final class TransactionRepository
         return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+    /**
+     * Nákupy a prodeje na účtu v časovém rozmezí — kandidáti k párování řádků importu.
+     *
+     * @return list<array{id:int,type:string,executed_at:string,quantity:string,symbol:string,source:string,external_id:?string,note:?string}>
+     */
+    public function pairCandidates(int $userId, int $accountId, string $from, string $to): array
+    {
+        $stmt = $this->db->pdo()->prepare(
+            "SELECT t.id, t.type, t.executed_at, t.quantity, i.symbol, t.source, t.external_id, t.note
+             FROM transactions t JOIN positions p ON p.id = t.position_id JOIN instruments i ON i.id = p.instrument_id
+             WHERE t.user_id = ? AND p.account_id = ? AND t.type IN ('buy', 'sell') AND t.executed_at BETWEEN ? AND ?
+             ORDER BY t.executed_at, t.id"
+        );
+        $stmt->execute([$userId, $accountId, $from, $to]);
+        return array_map(static fn (array $r) => ['id' => (int) $r['id'], 'type' => (string) $r['type'],
+            'executed_at' => (string) $r['executed_at'], 'quantity' => (string) $r['quantity'], 'symbol' => (string) $r['symbol'],
+            'source' => (string) $r['source'], 'external_id' => $r['external_id'], 'note' => $r['note']], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /** Přiřadí transakci k záznamu zdroje importu (idempotence dalších importů). */
+    public function link(int $userId, int $id, string $source, string $externalId): void
+    {
+        $this->db->pdo()->prepare('UPDATE transactions SET source = ?, external_id = ? WHERE user_id = ? AND id = ?')
+            ->execute([$source, $externalId, $userId, $id]);
+    }
+
     /** @return list<array<string,mixed>> transakce dávky importu (id, position_id, executed_at, transfer_group_id) */
     public function forBatch(int $userId, int $batchId): array
     {

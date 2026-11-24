@@ -361,7 +361,7 @@ final class ApiCatalog
                 self::p('token', 'path', 'string', true, 'Token náhledu', 'Preview token'),
                 self::p('assets', 'body', 'object', false, 'Rozhodnutí k instrumentům podle klíče z náhledu: {"instrument_id": 5} | {"create": {"name", "quote_currency", "asset_class", "symbol"}} | {"skip": true}', 'Instrument decisions by preview key: {"instrument_id": 5} | {"create": {"name", "quote_currency", "asset_class", "symbol"}} | {"skip": true}'),
                 self::p('transfers', 'body', 'object', false, 'Cíl odeslání / příjmů podle indexu řádku: {"position_id"} | {"account_id"}; bez = vynechat', 'Target of sends / receives by row index: {"position_id"} | {"account_id"}; omitted = skip'),
-            ], $ok('Výsledek dávky: batch_id, imported, transfers, skipped. Opakovaný import nevytvoří duplicity.', 'Batch result: batch_id, imported, transfers, skipped. Re-importing creates no duplicates.')),
+            ], $ok('Výsledek dávky: batch_id, imported, paired, transfers, skipped. Opakovaný import nevytvoří duplicity; řádky spárované s ručně zadanou transakcí ji přepíšou.', 'Batch result: batch_id, imported, paired, transfers, skipped. Re-importing creates no duplicates; rows paired with a manually entered transaction overwrite it.')),
             $e('imports_list', 'imports', 'GET', '/api/imports', $R, 'Historie importů', 'Import history', [], $ok('Dávky importu (max. 100, od nejnovější).', 'Import batches (max 100, newest first).')),
             $e('import_revert', 'imports', 'POST', '/api/imports/{id}/revert', $W, 'Vrátit import', 'Revert import', [$id], $ok('Počet smazaných transakcí; 409 already_reverted.', 'Number of deleted transactions; 409 already_reverted.', ['deleted' => 42])),
 

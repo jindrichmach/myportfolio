@@ -25,12 +25,18 @@ use MyPortfolio\Support\Decimal;
  *   preview()  — rozparsuje soubor, uloží ho do import_previews a vrátí náhled
  *   view()     — náhled k uloženému tokenu (párování instrumentů, duplicity, převody k rozhodnutí)
  *   confirm()  — zapíše transakce podle rozhodnutí uživatele jako jednu dávku (vše nebo nic)
+ *
+ * Párování: nákup / prodej z exportu, který odpovídá už zadané transakci na stejném účtu (stejný instrument,
+ * typ a množství, čas ±1 den — ruční zápis bývá v jiné časové zóně), se nezapíše znovu. Ručně zadanou
+ * transakci import přepíše hodnotami z exportu a přiřadí ke zdroji; transakci z jiného importu jen přeskočí.
  *   revert()   — vrátí dávku
  */
 final class CsvImportService
 {
     private const SECURITY_CLASSES = ['etf', 'stock', 'fund'];
     private const MAX_PREVIEW_ROWS = 2000;
+    private const PAIR_WINDOW = 86400;
+    private const RELINKABLE_SOURCES = ['manual', 'legacy'];
 
     public function __construct(
         private readonly Connection $db,
@@ -104,13 +110,20 @@ final class CsvImportService
         $existing = array_flip($this->transactions->existingExternalIds($userId, $source,
             array_values(array_filter(array_map(static fn (Draft $d) => $d->externalId, $drafts)))));
 
+        $pairs = $this->pairs($userId, $p['account_id'], $source, $drafts, $existing);
+
         $assets = [];
         $rows = [];
         $transfers = [];
-        $summary = ['rows' => count($drafts), 'new' => 0, 'duplicate' => 0, 'skipped' => 0, 'transfers' => 0];
+        $summary = ['rows' => count($drafts), 'new' => 0, 'duplicate' => 0, 'paired' => 0, 'skipped' => 0, 'transfers' => 0];
         foreach ($drafts as $i => $d) {
-            $status = $d->kind === 'skip' ? 'skip' : (isset($existing[$d->externalId]) ? 'duplicate' : 'new');
-            $summary[$status === 'new' ? 'new' : ($status === 'skip' ? 'skipped' : 'duplicate')]++;
+            $status = match (true) {
+                $d->kind === 'skip'                => 'skip',
+                isset($existing[$d->externalId])   => 'duplicate',
+                isset($pairs[$i])                  => 'paired',
+                default                            => 'new',
+            };
+            $summary[$status === 'skip' ? 'skipped' : $status]++;
             if ($d->kind !== 'skip') {
                 $key = self::assetKey($d);
                 $assets[$key] ??= ['key' => $key, 'symbol' => $d->symbol, 'isin' => $d->isin, 'name' => $d->name,
@@ -130,7 +143,8 @@ final class CsvImportService
             if (count($rows) < self::MAX_PREVIEW_ROWS) {
                 $rows[] = ['index' => $i, 'line' => $d->line, 'kind' => $d->kind, 'executed_at' => $d->executedAt, 'symbol' => $d->symbol,
                     'quantity' => $d->quantity, 'unit_price' => $d->unitPrice, 'amount' => $d->amount, 'currency' => $d->currency,
-                    'fee' => $d->fee, 'fee_currency' => $d->feeCurrency, 'status' => $status, 'reason' => $d->skipReason, 'note' => $d->note];
+                    'fee' => $d->fee, 'fee_currency' => $d->feeCurrency, 'status' => $status, 'reason' => $d->skipReason, 'note' => $d->note,
+                    'paired' => $status === 'paired' ? ['id' => $pairs[$i]['id'], 'executed_at' => $pairs[$i]['executed_at'], 'relink' => $pairs[$i]['relink']] : null];
             }
         }
 
@@ -169,7 +183,7 @@ final class CsvImportService
      * @param array{assets?:array<string,array<string,mixed>>,transfers?:array<int|string,?array<string,mixed>>} $decisions
      *        assets[key] = {instrument_id} | {create:{name,quote_currency,asset_class?}} | {skip:true}
      *        transfers[index] = {position_id} | {account_id} | null (vynechat)
-     * @return array{batch_id:?int,imported:int,transfers:int,skipped:int}
+     * @return array{batch_id:?int,imported:int,paired:int,transfers:int,skipped:int}
      */
     public function confirm(int $userId, string $token, array $decisions): array
     {
@@ -186,11 +200,23 @@ final class CsvImportService
             $batchId = $this->batches->create($userId, $source, $p['filename']);
             $existing = array_flip($this->transactions->existingExternalIds($userId, $source,
                 array_values(array_filter(array_map(static fn (Draft $d) => $d->externalId, $drafts)))));
+            $pairs = $this->pairs($userId, $p['account_id'], $source, $drafts, $existing);
 
             $byPosition = [];
             $transfers = [];
             $skipped = 0;
+            $paired = 0;
             foreach ($drafts as $i => $d) {
+                if (isset($pairs[$i]) && !isset($existing[$d->externalId])) {
+                    if ($pairs[$i]['relink']) {
+                        $this->transactionService->pairImported($userId, $pairs[$i]['id'],
+                            ['note' => $pairs[$i]['note'] ?? $d->note] + $this->input($d, $accountCurrency), $source, $d->externalId);
+                        $paired++;
+                    } else {
+                        $skipped++;
+                    }
+                    continue;
+                }
                 $instrumentId = $d->kind === 'skip' ? null : ($instrumentIds[self::assetKey($d)] ?? null);
                 if ($d->kind === 'skip' || $instrumentId === null || isset($existing[$d->externalId])) {
                     $skipped++;
@@ -239,13 +265,55 @@ final class CsvImportService
             }
             $this->previews->delete($userId, $token);
             $pdo->commit();
-            return ['batch_id' => $batchId, 'imported' => $imported, 'transfers' => count($transfers), 'skipped' => $skipped];
+            return ['batch_id' => $batchId, 'imported' => $imported, 'paired' => $paired, 'transfers' => count($transfers), 'skipped' => $skipped];
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
             throw $e;
         }
+    }
+
+    /**
+     * Řádky exportu, které odpovídají už zapsané transakci na účtu (viz popis třídy). Každá transakce
+     * se spáruje nejvýš jednou, s časově nejbližším řádkem.
+     *
+     * @param list<Draft> $drafts
+     * @param array<string,int> $existing external_id → (flip) už importované pro tento zdroj
+     * @return array<int,array{id:int,executed_at:string,relink:bool,note:?string}> index řádku → transakce
+     */
+    private function pairs(int $userId, int $accountId, string $source, array $drafts, array $existing): array
+    {
+        $open = array_filter($drafts, static fn (Draft $d) => in_array($d->kind, ['buy', 'sell'], true)
+            && $d->quantity !== null && !isset($existing[$d->externalId]));
+        if ($open === []) {
+            return [];
+        }
+        $times = array_map(static fn (Draft $d) => strtotime($d->executedAt), $open);
+        $candidates = array_filter(
+            $this->transactions->pairCandidates($userId, $accountId,
+                date('Y-m-d H:i:s', min($times) - self::PAIR_WINDOW), date('Y-m-d H:i:s', max($times) + self::PAIR_WINDOW)),
+            static fn (array $t) => !($t['source'] === $source && isset($existing[(string) $t['external_id']])),
+        );
+        $out = [];
+        foreach ($open as $i => $d) {
+            $qty = BigDecimal::of($d->quantity)->toScale(Decimal::SCALE_QUANTITY, RoundingMode::HalfUp);
+            $best = null;
+            foreach ($candidates as $k => $t) {
+                $gap = abs(strtotime($t['executed_at']) - $times[$i]);
+                if ($t['type'] === $d->kind && strcasecmp($t['symbol'], $d->symbol) === 0 && $gap <= self::PAIR_WINDOW
+                    && BigDecimal::of($t['quantity'])->isEqualTo($qty) && ($best === null || $gap < $best[1])) {
+                    $best = [$k, $gap];
+                }
+            }
+            if ($best !== null) {
+                $t = $candidates[$best[0]];
+                unset($candidates[$best[0]]);
+                $out[$i] = ['id' => $t['id'], 'executed_at' => $t['executed_at'],
+                    'relink' => in_array($t['source'], self::RELINKABLE_SOURCES, true), 'note' => $t['note']];
+            }
+        }
+        return $out;
     }
 
     /** @return int počet smazaných transakcí */

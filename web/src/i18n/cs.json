@@ -993,7 +993,8 @@
       "new": "nové: {n}",
       "duplicate": "už importované: {n}",
       "skipped": "přeskočené: {n}",
-      "transfers": "převody: {n}"
+      "transfers": "převody: {n}",
+      "paired": "spárované: {n}"
     },
     "assets_title": "Instrumenty",
     "asset_rows": "nových řádků: {n}",
@@ -1023,7 +1024,8 @@
     "statuses": {
       "new": "nový",
       "duplicate": "už importovaný",
-      "skip": "přeskočeno"
+      "skip": "přeskočeno",
+      "paired": "spárovaný"
     },
     "kinds": {
       "buy": "Nákup",
@@ -1038,7 +1040,9 @@
       "skip": "Přeskočeno"
     },
     "confirm": "Importovat ({n})",
-    "done": "Importováno transakcí: {imported}, přeskočeno: {skipped}.",
+    "done": "Importováno transakcí: {imported}, spárováno: {paired}, přeskočeno: {skipped}.",
+    "paired_relink": "Odpovídá už zadané transakci z {date} — přepíše se hodnotami z exportu.",
+    "paired_keep": "Odpovídá transakci z jiného importu z {date} — přeskočí se.",
     "batches_title": "Historie importů",
     "batches_empty": "Zatím žádné importy.",
     "revert": "Vrátit import",

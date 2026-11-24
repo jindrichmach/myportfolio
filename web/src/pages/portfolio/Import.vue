@@ -115,6 +115,7 @@ function setPreview(p: ImportPreview) {
   }
 }
 
+const importable = computed(() => (preview.value?.summary.new ?? 0) + (preview.value?.rows.filter(r => r.paired?.relink).length ?? 0))
 const pendingAssets = computed(() => preview.value?.assets.filter(a => a.new_rows > 0) ?? [])
 const filteredRows = computed(() => (preview.value?.rows ?? []).filter(r => !statusFilter.value || r.status === statusFilter.value))
 const accountCurrency = computed(() => accounts.value.find(a => a.id === preview.value?.account.id)?.currency ?? null)
@@ -162,7 +163,7 @@ async function confirmImport() {
   try {
     const d = decisions()
     const r = await importsApi.confirm(preview.value.token, d.assets, d.transfers)
-    toast.success(t('import.done', { imported: r.imported, skipped: r.skipped }))
+    toast.success(t('import.done', { imported: r.imported, paired: r.paired, skipped: r.skipped }))
     reset()
     await loadBatches()
   } catch (e) {
@@ -198,6 +199,7 @@ async function revert(b: ImportBatch) {
 const STATUS_TONES: Record<RowStatus, BadgeTone> = {
   new: 'success',
   duplicate: 'neutral',
+  paired: 'primary',
   skip: 'warning',
 }
 const modeOptions = computed(() => (['existing', 'create', 'skip'] as const).map(m => ({ value: m, label: t(`import.mode.${m}`) })))
@@ -274,6 +276,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
             <div class="flex flex-wrap gap-2">
               <Badge tone="success">{{ t('import.summary.new', { n: preview.summary.new }) }}</Badge>
               <Badge>{{ t('import.summary.duplicate', { n: preview.summary.duplicate }) }}</Badge>
+              <Badge v-if="preview.summary.paired" tone="primary">{{ t('import.summary.paired', { n: preview.summary.paired }) }}</Badge>
               <Badge tone="warning">{{ t('import.summary.skipped', { n: preview.summary.skipped }) }}</Badge>
               <Badge v-if="preview.summary.transfers" tone="primary">{{ t('import.summary.transfers', { n: preview.summary.transfers }) }}</Badge>
             </div>
@@ -334,7 +337,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           <template #actions>
             <select v-model="statusFilter" :aria-label="t('import.rows_title')" class="h-7 px-2 border border-field rounded-md bg-surface text-xs">
               <option value="">{{ t('import.all_rows', { n: preview.summary.rows }) }}</option>
-              <option v-for="s in (['new', 'duplicate', 'skip'] as const)" :key="s" :value="s">{{ t(`import.statuses.${s}`) }}</option>
+              <option v-for="s in (['new', 'duplicate', 'paired', 'skip'] as const)" :key="s" :value="s">{{ t(`import.statuses.${s}`) }}</option>
             </select>
           </template>
           <div class="overflow-x-auto max-h-[32rem]">
@@ -357,7 +360,10 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
                   <td class="px-4 py-2">
                     <span class="font-medium">{{ t(`import.kinds.${r.kind}`) }}</span> {{ r.symbol }}
                     <Badge class="ml-1" :tone="STATUS_TONES[r.status]">{{ t(`import.statuses.${r.status}`) }}</Badge>
-                    <span v-if="r.reason || r.note" class="block text-xs text-neutral-500 mt-0.5">{{ r.reason ?? r.note }}</span>
+                    <span v-if="r.paired" class="block text-xs text-neutral-500 mt-0.5">
+                      {{ t(r.paired.relink ? 'import.paired_relink' : 'import.paired_keep', { date: formatDateTime(r.paired.executed_at) }) }}
+                    </span>
+                    <span v-else-if="r.reason || r.note" class="block text-xs text-neutral-500 mt-0.5">{{ r.reason ?? r.note }}</span>
                   </td>
                   <td class="px-4 py-2 text-right tabular-nums whitespace-nowrap">{{ r.quantity ? formatDec(r.quantity) : '—' }}</td>
                   <td class="px-4 py-2 text-right tabular-nums whitespace-nowrap">{{ r.amount ? formatDec(r.amount, 4, r.currency ?? accountCurrency) : '—' }}</td>
@@ -372,9 +378,9 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
         </SectionCard>
 
         <div class="flex flex-wrap items-center gap-3 mb-6">
-          <button @click="confirmImport" :disabled="confirming || preview.summary.new === 0"
+          <button @click="confirmImport" :disabled="confirming || importable === 0"
             class="cursor-pointer h-9 px-4 bg-action hover:bg-action-hover disabled:bg-neutral-300 disabled:cursor-not-allowed text-on-action text-sm font-medium rounded-md">
-            {{ confirming ? t('common.loading') : t('import.confirm', { n: preview.summary.new }) }}
+            {{ confirming ? t('common.loading') : t('import.confirm', { n: importable }) }}
           </button>
           <button @click="reset" class="cursor-pointer h-9 px-4 border border-neutral-300 rounded-md text-sm hover:bg-neutral-50">{{ t('common.cancel') }}</button>
           <p v-if="confirmError" role="alert" class="w-full" :class="NOTICE">{{ confirmError }}</p>

@@ -2,7 +2,7 @@ import { api } from './client'
 import type { AssetClass } from './catalog'
 
 export type DraftKind = 'buy' | 'sell' | 'reward' | 'dividend' | 'interest' | 'fee' | 'send' | 'receive' | 'split' | 'skip'
-export type RowStatus = 'new' | 'duplicate' | 'skip'
+export type RowStatus = 'new' | 'duplicate' | 'paired' | 'skip'
 
 export interface ImportSource { key: string; label: string }
 
@@ -28,13 +28,15 @@ export interface ImportPreview {
   account: { id: number; name: string }
   portfolio: { id: number; name: string }
   accounts: { id: number; name: string }[]
-  summary: { rows: number; new: number; duplicate: number; skipped: number; transfers: number }
+  summary: { rows: number; new: number; duplicate: number; paired: number; skipped: number; transfers: number }
   assets: ImportAsset[]
   transfers: { index: number; kind: 'send' | 'receive'; executed_at: string; symbol: string; quantity: string | null; asset_key: string; note: string | null }[]
   /** Částky jsou desetinné stringy */
   rows: {
     index: number; line: number; kind: DraftKind; executed_at: string; symbol: string; quantity: string | null; unit_price: string | null
     amount: string | null; currency: string | null; fee: string | null; fee_currency: string | null; status: RowStatus; reason: string | null; note: string | null
+    /** Už zapsaná transakce, které řádek odpovídá; relink = přepíše se hodnotami z exportu, jinak se řádek přeskočí */
+    paired: { id: number; executed_at: string; relink: boolean } | null
   }[]
 }
 
@@ -70,7 +72,7 @@ export const importsApi = {
   },
   get: (token: string) => api.get<ImportPreview>(`/imports/preview/${token}`).then(r => r.data),
   confirm: (token: string, assets: Record<string, AssetDecision>, transfers: Record<number, TransferDecision>) =>
-    api.post<{ batch_id: number | null; imported: number; transfers: number; skipped: number }>(
+    api.post<{ batch_id: number | null; imported: number; paired: number; transfers: number; skipped: number }>(
       `/imports/preview/${token}/confirm`, { assets, transfers }, { timeout: 120_000 }).then(r => r.data),
   batches: () => api.get<ImportBatch[]>('/imports').then(r => r.data),
   revert: (id: number) => api.post<{ deleted: number }>(`/imports/${id}/revert`).then(r => r.data),

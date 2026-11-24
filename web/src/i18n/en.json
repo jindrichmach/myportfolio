@@ -993,7 +993,8 @@
       "new": "new: {n}",
       "duplicate": "already imported: {n}",
       "skipped": "skipped: {n}",
-      "transfers": "transfers: {n}"
+      "transfers": "transfers: {n}",
+      "paired": "paired: {n}"
     },
     "assets_title": "Instruments",
     "asset_rows": "new rows: {n}",
@@ -1023,7 +1024,8 @@
     "statuses": {
       "new": "new",
       "duplicate": "already imported",
-      "skip": "skipped"
+      "skip": "skipped",
+      "paired": "paired"
     },
     "kinds": {
       "buy": "Buy",
@@ -1038,7 +1040,9 @@
       "skip": "Skipped"
     },
     "confirm": "Import ({n})",
-    "done": "Imported transactions: {imported}, skipped: {skipped}.",
+    "done": "Imported transactions: {imported}, paired: {paired}, skipped: {skipped}.",
+    "paired_relink": "Matches the transaction already entered on {date} — it will be overwritten with the export values.",
+    "paired_keep": "Matches a transaction from another import on {date} — it will be skipped.",
     "batches_title": "Import history",
     "batches_empty": "No imports yet.",
     "revert": "Revert import",

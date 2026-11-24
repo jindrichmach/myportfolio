@@ -50,7 +50,7 @@ final class CsvImportTest extends ApiTestCase
         self::assertSame(200, $preview['status'], $preview['raw']);
         $p = $preview['body'];
         self::assertSame('coinbase', $p['source']['key']);
-        self::assertSame(['rows' => 4, 'new' => 3, 'duplicate' => 0, 'skipped' => 1, 'transfers' => 1], $p['summary']);
+        self::assertSame(['rows' => 4, 'new' => 3, 'duplicate' => 0, 'paired' => 0, 'skipped' => 1, 'transfers' => 1], $p['summary']);
         $assets = array_column($p['assets'], null, 'symbol');
         self::assertNull($assets['XTSA']['instrument_id']);
         self::assertSame($xtsb, $assets['XTSB']['instrument_id']);
@@ -79,7 +79,7 @@ final class CsvImportTest extends ApiTestCase
 
         // Opakovaný import téhož souboru: vše duplicitní
         $again = $this->call($this->userId, 'POST', '/api/imports/preview', $form, ['file' => self::upload()])['body'];
-        self::assertSame(['rows' => 4, 'new' => 0, 'duplicate' => 3, 'skipped' => 1, 'transfers' => 0], $again['summary']);
+        self::assertSame(['rows' => 4, 'new' => 0, 'duplicate' => 3, 'paired' => 0, 'skipped' => 1, 'transfers' => 0], $again['summary']);
         $none = $this->call($this->userId, 'POST', "/api/imports/preview/{$again['token']}/confirm", [])['body'];
         self::assertSame(0, $none['imported']);
         self::assertNull($none['batch_id']);
@@ -94,6 +94,47 @@ final class CsvImportTest extends ApiTestCase
         self::assertSame(4, $revert['body']['deleted']);
         self::assertSame(0, $this->rowCount('SELECT COUNT(*) FROM transactions WHERE user_id = ?', [$this->userId]));
         self::assertSame(409, $this->call($this->userId, 'POST', "/api/imports/$batch/revert")['status']);
+    }
+
+    public function testPairsManuallyEnteredTransactions(): void
+    {
+        $inst = $this->call($this->userId, 'POST', '/api/institutions', ['name' => 'Synthetic Broker', 'type' => 'exchange'])['body']['id'];
+        $acc = $this->call($this->userId, 'POST', '/api/accounts', ['institution_id' => $inst, 'name' => 'Spot', 'currency' => 'CZK'])['body']['id'];
+        $pf = $this->call($this->userId, 'POST', '/api/portfolios', ['name' => 'Krypto'])['body']['id'];
+        $ins = $this->call($this->userId, 'POST', '/api/instruments', ['asset_class' => 'crypto', 'symbol' => 'XTSP', 'name' => 'Synthetic Coin P',
+            'quote_currency' => 'CZK', 'price_source' => 'manual'])['body']['id'];
+        $pos = $this->call($this->userId, 'POST', '/api/positions', ['valuation_mode' => 'market', 'portfolio_id' => $pf, 'account_id' => $acc,
+            'instrument_id' => $ins])['body']['id'];
+        $buy = fn (string $at, string $qty) => $this->call($this->userId, 'POST', '/api/transactions', ['position_id' => $pos, 'type' => 'buy',
+            'executed_at' => $at, 'quantity' => $qty, 'amount' => '1000', 'note' => 'ručně'])['body']['id'];
+        $manual = $buy('2025-03-01 11:00', '0.5');     // ručně zadaný čas o hodinu vedle (jiná zóna)
+        $other = $buy('2025-03-01 10:00', '0.25');     // jiné množství → nespáruje se
+
+        $csv = "Date,Type,Amount,Currency,Order ID,anycoin TX ID,Description\n"
+            . "2025-03-01T09:00:05Z,trade payment,-1000.5,CZK,700001,8000001,\n"
+            . "2025-03-01T09:00:10Z,trade fill,0.5,XTSP,700001,8000002,\n"
+            . "2025-03-02T09:00:00Z,trade payment,-600,CZK,700002,8000003,\n"
+            . "2025-03-02T09:00:01Z,trade fill,0.3,XTSP,700002,8000004,\n";
+        $file = static fn () => (new UploadedFileFactory())->createUploadedFile((new StreamFactory())->createStream($csv), strlen($csv), UPLOAD_ERR_OK, 'anycoin.csv');
+        $form = ['account_id' => $acc, 'portfolio_id' => $pf];
+
+        $p = $this->call($this->userId, 'POST', '/api/imports/preview', $form, ['file' => $file()])['body'];
+        self::assertSame(['rows' => 2, 'new' => 1, 'duplicate' => 0, 'paired' => 1, 'skipped' => 0, 'transfers' => 0], $p['summary']);
+        self::assertSame(['id' => $manual, 'executed_at' => '2025-03-01 11:00:00', 'relink' => true], $p['rows'][0]['paired']);
+
+        $ok = $this->call($this->userId, 'POST', "/api/imports/preview/{$p['token']}/confirm", [])['body'];
+        self::assertSame([1, 1], [$ok['imported'], $ok['paired']]);
+        $tx = $this->db->pdo()->prepare('SELECT executed_at, amount, source, external_id, note, import_batch_id FROM transactions WHERE id = ?');
+        $tx->execute([$manual]);
+        self::assertSame(['2025-03-01 10:00:10', '1000.5000', 'csv:anycoin', 'order:700001', 'ručně', null], array_values($tx->fetch(\PDO::FETCH_ASSOC)));
+        self::assertSame(1, $this->rowCount("SELECT COUNT(*) FROM transactions WHERE id = ? AND source = 'manual' AND external_id IS NULL", [$other]));
+
+        $again = $this->call($this->userId, 'POST', '/api/imports/preview', $form, ['file' => $file()])['body'];
+        self::assertSame(['rows' => 2, 'new' => 0, 'duplicate' => 2, 'paired' => 0, 'skipped' => 0, 'transfers' => 0], $again['summary']);
+
+        // Vrácení dávky smaže jen nově zapsaný řádek, spárovaná transakce zůstane
+        self::assertSame(1, $this->call($this->userId, 'POST', "/api/imports/{$ok['batch_id']}/revert")['body']['deleted']);
+        self::assertSame(2, $this->rowCount('SELECT COUNT(*) FROM transactions WHERE user_id = ?', [$this->userId]));
     }
 
     public function testUnknownFormatAndForeignAccount(): void
