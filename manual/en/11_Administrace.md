@@ -135,7 +135,7 @@ is available. The update runs without SSH. Before it starts, a confirmation dial
 downtime, and on an error the files are restored from the backup (the database is never rolled back). In the background
 the application runs these steps:
 
-1. **preflight checks** — the same checks as the reasons in the table below; if a condition is not met, the run stops before anything changes,
+1. **preflight checks** — PHP extensions (zlib, cURL or `allow_url_fopen`), the PHP CLI, write access to the application directories and free disk space; if a condition is not met, the run stops before anything changes,
 2. **database backup** — the `cron-backup` job (ZIP into `storage/backup/`); if it fails, the run stops before maintenance mode is turned on,
 3. **turning maintenance on** — the web temporarily shows a maintenance message and the API answers 503,
 4. **downloading the release bundle** — `myportfolio-X.Y.Z.tar.gz` from the GitHub Release (max. 600 MB),
@@ -168,7 +168,7 @@ php8.5 api/bin/native-update.php --target=X.Y.Z --preflight   # only checks the 
 php8.5 api/bin/native-update.php --target=X.Y.Z               # the whole update
 ```
 
-Exit code: `0` deployed, `1` failed (progress in `log/update.log`), `2` wrong usage or an update is already running.
+Exit code: `0` deployed (with `--preflight`: prerequisites met), `1` failed (progress in `log/update.log`; with `--preflight`: prerequisites not met), `2` wrong usage or an update is already running.
 
 ### Prerequisites
 

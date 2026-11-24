@@ -132,7 +132,8 @@ php8.5 api/bin/migrate.php
 
 The bundle contains the built `vendor` and frontend, so `composer` and `pnpm` are not needed. Manual extraction does not turn on
 maintenance mode, does not make a backup or roll back, and does not delete files the new release no longer has. Make a backup first.
-The browser update ([11.7](11_Administrace.md#117-updates)) does all of this by itself.
+The browser update ([11.7](11_Administrace.md#117-updates)) handles the backup, maintenance mode and restoring files on an error
+by itself, and removes obsolete files in `web/dist`.
 
 **Development installation from a git clone** (not for production use):
 
@@ -146,6 +147,5 @@ cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
 
 Updates from git follow the release tag, not a branch. `git checkout vX.Y.Z` detaches HEAD from the branch, so `git pull` does not
 work on the tag — for the next update run `git fetch --tags` and `git checkout vX.Y.Z` again.
-Instead of the manual commands, a native installation can use the button in the browser, see [11.7 Update from the browser](11_Administrace.md#update-from-the-browser).
 
 New scheduled jobs are added by re-running `cmd/install.sh` (Cron step), or add them yourself according to `cmd/crontab`.

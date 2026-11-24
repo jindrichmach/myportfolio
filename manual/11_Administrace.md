@@ -133,7 +133,7 @@ U **nativní instalace** se v sekci **Aktualizace z prohlížeče** zobrazí tla
 k dispozici novější verze. Aktualizace proběhne bez SSH. Před spuštěním se otevře potvrzení: záloha databáze,
 krátká nedostupnost a při chybě návrat souborů ze zálohy (databáze se nevrací). Aplikace na pozadí provede tyto kroky:
 
-1. **kontrola předpokladů** — stejné kontroly jako důvody v tabulce níže; nesplněná podmínka zastaví běh dřív, než cokoli změní,
+1. **kontrola předpokladů** — rozšíření PHP (zlib, cURL nebo `allow_url_fopen`), PHP CLI, zápis do adresářů aplikace a volné místo na disku; nesplněná podmínka zastaví běh dřív, než cokoli změní,
 2. **záloha databáze** — úloha `cron-backup` (ZIP do `storage/backup/`); selže-li, běh skončí dřív, než se zapne údržba,
 3. **zapnutí údržby** — web dočasně vrací hlášku o údržbě a API odpovídá 503,
 4. **stažení balíčku vydání** — `myportfolio-X.Y.Z.tar.gz` z GitHub Release (nejvýše 600 MB),
@@ -164,7 +164,7 @@ php8.5 api/bin/native-update.php --target=X.Y.Z --preflight   # jen kontrola př
 php8.5 api/bin/native-update.php --target=X.Y.Z               # celá aktualizace
 ```
 
-Návratový kód: `0` nasazeno, `1` selhalo (průběh v `log/update.log`), `2` chybné použití nebo aktualizace už běží.
+Návratový kód: `0` nasazeno (s `--preflight`: předpoklady splněné), `1` selhalo (průběh v `log/update.log`; s `--preflight`: předpoklady nesplněné), `2` chybné použití nebo aktualizace už běží.
 
 ### Předpoklady
 
