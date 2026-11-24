@@ -13,6 +13,10 @@
     "search_placeholder": "Hledat akci, e-mail nebo jméno",
     "actions": {
       "admin": {
+        "backup": {
+          "download": "Stažena záloha",
+          "restore": "Obnovena instance ze zálohy"
+        },
         "cron": {
           "run_now": "Ruční spuštění plánované úlohy"
         },

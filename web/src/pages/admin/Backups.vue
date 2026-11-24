@@ -112,7 +112,8 @@ function startPolling(step: string | null) {
   lostContact.value = false
   pollStopped = false
   runStep.value = step
-  runFile.value = data.value?.restore.last_run.file ?? runFile.value
+  const lr = data.value?.restore.last_run
+  if (lr?.status === 'running' && !lr.interrupted && lr.file) runFile.value = lr.file
   let errors = 0
   const tick = async () => {
     if (pollStopped) return

@@ -13,6 +13,10 @@
     "search_placeholder": "Search action, email or name",
     "actions": {
       "admin": {
+        "backup": {
+          "download": "Backup downloaded",
+          "restore": "Instance restored from backup"
+        },
         "cron": {
           "run_now": "Scheduled job run manually"
         },
