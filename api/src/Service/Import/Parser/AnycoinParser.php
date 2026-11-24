@@ -12,10 +12,16 @@ use MyPortfolio\Service\Import\Draft;
  *   Date,Type,Amount,Currency,Order ID[,anycoin TX ID[,Description]]
  * Obchod = řádky se stejným Order ID: `trade payment` (−, co jsem zaplatil), `trade fill` (+, co jsem dostal),
  * případně `trade refund` (+, vrácení části platby). Poplatek je v kurzu. Stakované zůstatky mají příponu `.S`.
+ *
+ * Druhý formát — Objednávky (anycoin.cz/cs/orders) → Export: jeden řádek = jedna objednávka, čas v místní zóně:
+ *   UID,DATE,SYMBOL,ACTION,QUANTY,PRICE,FEE,FEE_CURRENCY,REBATE,REBATE_CURRENCY,ADDRESS_FROM,ADDRESS_TO
+ * UID odpovídá Order ID deníku, takže se oba exporty navzájem neduplikují.
  */
 final class AnycoinParser extends AbstractParser
 {
     private const ALIASES = ['XDG' => 'DOGE', 'XBT' => 'BTC'];
+    private const LEDGER = ['Date', 'Type', 'Amount', 'Currency', 'Order ID'];
+    private const ORDERS = ['UID', 'DATE', 'SYMBOL', 'ACTION', 'PRICE'];
 
     public function key(): string
     {
@@ -29,12 +35,16 @@ final class AnycoinParser extends AbstractParser
 
     public function detect(array $tables): bool
     {
-        return $this->hasHeader($tables, ['Date', 'Type', 'Amount', 'Currency', 'Order ID']);
+        return $this->hasHeader($tables, self::LEDGER) || $this->hasHeader($tables, self::ORDERS);
     }
 
     public function parse(array $tables): array
     {
-        $rows = $this->rows($tables, ['Date', 'Type', 'Amount', 'Currency', 'Order ID'])
+        $orderRows = $this->rows($tables, self::ORDERS);
+        if ($orderRows !== null) {
+            return array_map(fn (array $row) => $this->order($row), $orderRows);
+        }
+        $rows = $this->rows($tables, self::LEDGER)
             ?? throw new \InvalidArgumentException('Nenalezena hlavička Anycoin exportu.');
         $out = [];
         $orders = [];
@@ -95,6 +105,35 @@ final class AnycoinParser extends AbstractParser
         return new Draft($buy ? 'buy' : 'sell', $at, $symbol, quantity: (string) $crypto[$symbol]->abs(),
             amount: (string) $fiat[$fiatCode]->abs(), currency: $fiatCode, externalId: 'order:' . $orderId,
             note: 'Objednávka ' . $orderId, line: $line);
+    }
+
+    /** Řádek exportu objednávek. @param array<string,string> $row */
+    private function order(array $row): Draft
+    {
+        $at = $this->dateTime($this->col($row, 'DATE'), 'Europe/Prague');
+        $line = $this->line($row);
+        $uid = $this->col($row, 'UID');
+        $id = $uid !== '' ? 'order:' . $uid : $this->rowHash($row);
+        [$base, $quote] = array_pad(explode('/', $this->col($row, 'SYMBOL'), 2), 2, '');
+        $symbol = $this->symbol($base);
+        $quote = $this->symbol($quote);
+        $action = strtolower($this->col($row, 'ACTION'));
+        if (!in_array($action, ['buy', 'sell'], true)) {
+            return Draft::skip($at, "Nepodporovaný typ „{$action}\" — zadej ručně", $line, $id, $symbol);
+        }
+        if (!$this->isFiat($quote)) {
+            return Draft::skip($at, 'Obchod krypto za krypto — zadej ručně', $line, $id, $symbol);
+        }
+        $qty = $this->num($this->col($row, 'QUANTY', 'QUANTITY'), decimal: '.');
+        $price = $this->num($this->col($row, 'PRICE'), decimal: '.');
+        if ($qty === null || $price === null) {
+            return Draft::skip($at, 'Chybí množství nebo cena', $line, $id, $symbol);
+        }
+        $fee = $this->num($this->col($row, 'FEE'), decimal: '.');
+        $feeCurrency = $fee !== null ? ($this->symbol($this->col($row, 'FEE_CURRENCY')) ?: $quote) : null;
+        return new Draft($action, $at, $symbol, quantity: $qty, unitPrice: $price,
+            amount: (string) BigDecimal::of($qty)->multipliedBy($price)->strippedOfTrailingZeros(), currency: $quote,
+            fee: $fee, feeCurrency: $feeCurrency, externalId: $id, note: 'Objednávka ' . $uid, line: $line);
     }
 
     private function symbol(string $code): string

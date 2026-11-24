@@ -108,6 +108,24 @@ final class CryptoParsersTest extends TestCase
         self::assertSame('2025-04-10 20:16:52', $buy->executedAt); // čas fillu, UTC → Praha (letní čas)
     }
 
+    public function testAnycoinOrdersExport(): void
+    {
+        $csv = "UID,DATE,SYMBOL,ACTION,QUANTY,PRICE,FEE,FEE_CURRENCY,REBATE,REBATE_CURRENCY,ADDRESS_FROM,ADDRESS_TO\n"
+            . "100001,24. 2. 2022 6:16:23,BTC/CZK,BUY,0.05,800000.123456789,,,,,,\n"
+            . "00000000-0000-4000-8000-000000000001,21. 7. 2026 18:31:42,ETH/CZK,SELL,0.5,60000,15,CZK,,,,\n"
+            . "100003,1. 3. 2025 10:00:00,ETH/BTC,BUY,1,0.03,,,,,,\n"
+            . "100004,2. 3. 2025 10:00:00,BTC/CZK,WITHDRAWAL,0.01,,,,,,,bc1qexample\n";
+        $d = self::parse(new AnycoinParser(), $csv);
+        self::assertSame([
+            ['buy', 'BTC', '0.05', '40000.00617283945', 'CZK', null],
+            ['sell', 'ETH', '0.5', '30000', 'CZK', '15'],
+            ['skip', 'ETH', null, null, null, null],
+            ['skip', 'BTC', null, null, null, null],
+        ], self::brief($d));
+        self::assertSame(['800000.123456789', '2022-02-24 06:16:23', 'order:100001'], [$d[0]->unitPrice, $d[0]->executedAt, $d[0]->externalId]);
+        self::assertSame(['CZK', 'order:00000000-0000-4000-8000-000000000001', '2026-07-21 18:31:42'], [$d[1]->feeCurrency, $d[1]->externalId, $d[1]->executedAt]);
+    }
+
     public function testCoinmateEnglishAndCzech(): void
     {
         $csv = "\xEF\xBB\xBFID;Date;Account;Type;Amount;Amount Currency;Price;Price Currency;Fee;Fee Currency;Total;Total Currency;Description;Status;First balance after;First balance after Currency;Second balance after;Second balance after Currency\n"

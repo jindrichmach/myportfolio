@@ -82,7 +82,7 @@ nepotvrdíš.
 | Zdroj | Jaký soubor stáhnout |
 |---|---|
 | Coinbase | Transaction history (CSV) |
-| Anycoin | Export historie (CSV) |
+| Anycoin | Transakce → Export historie (CSV), nebo Objednávky → Export (CSV) |
 | Coinmate | Historie transakcí (CSV, česky i anglicky) |
 | Binance | Transaction History (CSV nebo XLSX) |
 | Kraken | Ledgers (`ledgers.csv`, i v ZIPu) |

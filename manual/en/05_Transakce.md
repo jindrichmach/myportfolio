@@ -83,7 +83,7 @@ the import.
 | Source | Which file to download |
 |---|---|
 | Coinbase | Transaction history (CSV) |
-| Anycoin | History export (CSV) |
+| Anycoin | Transactions → History export (CSV), or Orders → Export (CSV) |
 | Coinmate | Transaction history (CSV, Czech or English) |
 | Binance | Transaction History (CSV or XLSX) |
 | Kraken | Ledgers (`ledgers.csv`, also in a ZIP) |
