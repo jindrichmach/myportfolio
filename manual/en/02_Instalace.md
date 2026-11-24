@@ -120,7 +120,21 @@ do not get it — for them, specify the exact image version in compose.
 
 **Local Docker build:** `git pull`, then `cmd/docker-build.sh` and `docker compose up -d`.
 
-**Native installation** (run as the user who owns the application files; take the version number from the System → Updates page):
+**Native installation** (run as the user who owns the application files; take the version number from the System → Updates page).
+The application is deployed from the release bundle `myportfolio-X.Y.Z.tar.gz` (a GitHub Release asset), not from git. Run the commands in the application directory (where the `VERSION` file is):
+
+```bash
+curl -fLO https://github.com/jindrichmach/myportfolio/releases/download/vX.Y.Z/myportfolio-X.Y.Z.tar.gz
+tar -xzf myportfolio-X.Y.Z.tar.gz --strip-components=1   # overwrites the application files; the bundle contains no cfg.php or storage/
+rm myportfolio-X.Y.Z.tar.gz
+php8.5 api/bin/migrate.php
+```
+
+The bundle contains the built `vendor` and frontend, so `composer` and `pnpm` are not needed. Manual extraction does not turn on
+maintenance mode, does not make a backup or roll back, and does not delete files the new release no longer has. Make a backup first.
+The browser update ([11.7](11_Administrace.md#117-updates)) does all of this by itself.
+
+**Development installation from a git clone** (not for production use):
 
 ```bash
 git fetch --tags
@@ -130,7 +144,7 @@ php8.5 api/bin/migrate.php
 cd web && pnpm install --frozen-lockfile && pnpm build && cd ..
 ```
 
-Updates follow the release tag, not a branch. `git checkout vX.Y.Z` detaches HEAD from the branch, so `git pull` does not
+Updates from git follow the release tag, not a branch. `git checkout vX.Y.Z` detaches HEAD from the branch, so `git pull` does not
 work on the tag — for the next update run `git fetch --tags` and `git checkout vX.Y.Z` again.
 Instead of the manual commands, a native installation can use the button in the browser, see [11.7 Update from the browser](11_Administrace.md#update-from-the-browser).
 
