@@ -5,6 +5,35 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-11-24
+
+Aktualizace nativní instalace na klik z hotového balíčku vydání — server už nepotřebuje git, Composer ani Node.
+Zálohy jde mazat, seznamy mají filtry s vyhledáváním a transakce filtr podle instrumentu.
+
+> Na 1.4.0 se nativní instalace aktualizuje ještě dosavadním způsobem (tlačítko spouští updater nainstalované verze:
+> git + composer + pnpm), nebo ručně podle kapitoly 2.4 manuálu. Z balíčku se nasazují až další verze.
+> Docker beze změny (`pull` + `up -d`).
+
+### Přidáno
+- **Balíček vydání** `myportfolio-X.Y.Z.tar.gz` (+ `.sha256`) u každého GitHub Release: obsahuje hotový `api/vendor`
+  i sestavený frontend. Staví ho CI při tagu, lokálně `cmd/build-bundle.sh`.
+- **Systém → Zálohy**: smazání zálohy (chráněné MFA, zapisuje se do záznamu aktivit).
+- **Transakce**: filtr podle instrumentu (i v API `GET /api/transactions?instrument_id=`).
+- Výběrové filtry všech seznamů jdou prohledávat psaním.
+- `api/bin/native-update.php --target=X.Y.Z [--preflight]` — aktualizace z balíčku z příkazové řádky.
+
+### Změněno
+- **Aktualizace z prohlížeče** (Systém → Aktualizace) stáhne balíček vydání z GitHubu, ověří SHA-256, rozbalí ho
+  v PHP a nasadí; přepsané soubory zálohuje a při chybě nasazení je vrátí. Funguje i u instalace z archivu,
+  stačí PHP (zlib, cURL nebo `allow_url_fopen`) a zápis do adresáře aplikace. Zapíná se dál `update.web_update`.
+  Klíče `update.git_bin`, `update.composer_bin` a `update.pnpm_bin` se už nepoužívají.
+- Zálohy: akce Stáhnout / Obnovit / Smazat jsou v menu ⋯ u řádku.
+
+### Opraveno
+- Obnova zálohy z webu hlásila chybějícího klienta mariadb / mysql, i když byl nainstalovaný — PHP-FPM ho kvůli
+  minimální PATH nenašel. Hledá se i v `/usr/local/bin`, `/usr/bin` a `/bin`.
+- Twig 3.31.1 — bezpečnostní opravy závislosti.
+
 ## [1.3.1] — 2026-11-24
 
 Oprava importu do portfolia, ve kterém instrument na účtu ještě nemá pozici.
