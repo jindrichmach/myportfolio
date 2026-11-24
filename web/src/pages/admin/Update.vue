@@ -19,7 +19,7 @@ import { renderManual } from '@/utils/manual'
 
 /**
  * Systém → Aktualizace: nainstalovaná vs. nejnovější vydaná verze (GitHub releases) a příkazy pro aktualizaci
- * podle typu instalace. Aktualizaci spouští správce na serveru — aplikace nemá práva měnit své soubory ani image.
+ * podle typu instalace. Ruční aktualizace spouští správce na serveru; nativní instalaci lze aktualizovat i z webu.
  */
 const { t, te } = useI18n()
 const toast = useToast()
@@ -92,13 +92,13 @@ const commands = computed(() => {
       'docker compose -f docker-compose.production.yml up -d',
     ].join('\n')
   }
+  const bundle = `myportfolio-${target.value}.tar.gz`
   return [
     `# ${t('update.in_app_dir')}`,
-    'git fetch --tags',
-    `git checkout v${target.value.replace(/^v/, '')}`,
-    'cd api && composer install --no-dev --optimize-autoloader && cd ..',
+    `curl -fLO https://github.com/${d.repo}/releases/download/v${target.value}/${bundle}`,
+    `tar -xzf ${bundle} --strip-components=1`,
+    `rm ${bundle}`,
     `${d.php} api/bin/migrate.php`,
-    'cd web && pnpm install --frozen-lockfile && pnpm build && cd ..',
   ].join('\n')
 })
 
@@ -108,6 +108,7 @@ const POLL_MS = 3000
 const POLL_MAX_ERRORS = 5
 
 const reasons = computed(() => data.value?.web_update?.reasons ?? [])
+const warnings = computed(() => data.value?.web_update?.warnings ?? [])
 const canWebUpdate = computed(() => data.value?.install === 'native' && !!data.value.latest && data.value.update_available)
 const run = computed<UpdateRun | null>(() => data.value?.last_run ?? null)
 const running = ref(false)
@@ -317,6 +318,9 @@ async function copy() {
               class="cursor-pointer h-9 px-4 bg-action hover:bg-action-hover disabled:bg-neutral-300 disabled:cursor-not-allowed text-on-action text-sm font-medium rounded-md">
               {{ t('update.run_button', { version: data.latest?.version ?? '' }) }}
             </button>
+            <ul v-if="warnings.length" class="mt-3 space-y-1 text-sm text-warning-600">
+              <li v-for="w in warnings" :key="w"><Icon name="warning" class="w-4 h-4 align-[-3px] mr-1" />{{ t(`update.warning_${w}`) }}</li>
+            </ul>
             <div v-if="reasons.length" class="mt-3 text-sm text-neutral-600">
               <p>{{ t('update.reasons_title') }}</p>
               <ul class="list-disc pl-5 mt-1 space-y-0.5">
@@ -351,7 +355,7 @@ async function copy() {
         <ol class="space-y-4 text-sm">
           <li class="flex gap-3">
             <span class="w-6 h-6 shrink-0 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold inline-flex items-center justify-center">1</span>
-            <p class="pt-0.5">{{ t('update.step_backup') }}
+            <p class="pt-0.5">{{ t('update.howto_backup') }}
               <RouterLink to="/admin/cron-jobs" class="text-primary-700 hover:underline whitespace-nowrap">{{ t('update.step_backup_link') }} →</RouterLink>
             </p>
           </li>
@@ -396,7 +400,7 @@ async function copy() {
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>{{ t('update.confirm_backup') }}</li>
           <li>{{ t('update.confirm_downtime') }}</li>
-          <li>{{ t('update.confirm_no_rollback') }}</li>
+          <li>{{ t('update.confirm_rollback') }}</li>
         </ul>
 
         <div v-if="hasPasskey" class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
