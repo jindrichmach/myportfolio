@@ -988,7 +988,20 @@
     "file": "Soubor",
     "file_hint": "CSV, XLSX nebo ZIP, nejvýš 20 MB.",
     "load_preview": "Načíst náhled",
-    "supported": "Podporované zdroje",
+    "supported": "Návod k exportu",
+    "guide_link": "Podrobný návod",
+    "guides": {
+      "coinbase": "Profil → Reports → Transaction history → Generate report, formát CSV.",
+      "anycoin": "Můj účet → Transakce → Všechny měny → Export (CSV), nebo Objednávky → Export.",
+      "coinmate": "Menu → Historie → CSV All (celá historie).",
+      "binance": "Assets → Asset History → Export Transaction Records; nejvýš rok na jeden export.",
+      "kraken": "Documents → Create Export → Ledgers, formát CSV; příprava může trvat i dny.",
+      "xtb": "xStation 5 → Historie → Peněžní operace → export do Excelu; každý účet zvlášť.",
+      "trading212": "Menu → Historie → export CSV; nejvýš rok na jeden export, všechny typy dat.",
+      "revolut": "Invest → Více → Dokumenty → Výpis účtu, formát Excel.",
+      "degiro": "Schránka → Transakce a Výpis z účtu → export CSV; počáteční datum před první obchod.",
+      "ibkr": "Performance & Reports → Statements → Activity, ročně, formát CSV."
+    },
     "summary": {
       "new": "nové: {n}",
       "duplicate": "už importované: {n}",

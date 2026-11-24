@@ -20,6 +20,7 @@ import { useToast } from '@/composables/useToast'
 import { useFieldId } from '@/composables/useFieldId'
 import ManualLink from '@/components/ui/ManualLink.vue'
 import FileInput from '@/components/ui/FileInput.vue'
+import { IMPORT_GUIDES } from './importGuides'
 
 const { t } = useI18n()
 const fid = useFieldId()
@@ -248,6 +249,10 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           <div>
             <label :for="fid('source')" :class="labelClass">{{ t('import.source') }}</label>
             <SearchableSelect :input-id="fid('source')" v-model="upload.source" :options="[{ value: '', label: t('import.source_auto') }, ...sources.map(s => ({ value: s.key, label: s.label }))]" />
+            <p v-if="upload.source && IMPORT_GUIDES[upload.source]" class="text-xs text-neutral-500 mt-1">
+              {{ t(`import.guides.${upload.source}`) }}
+              <ManualLink class="ml-1 align-middle" :to="IMPORT_GUIDES[upload.source]" :label="t('import.guide_link')" />
+            </p>
           </div>
           <div>
             <label :for="fid('field')" :class="labelClass">{{ t('import.file') }}</label>
@@ -262,7 +267,13 @@ const labelClass = 'block text-sm font-medium text-neutral-700 mb-1'
           </div>
           <p v-if="uploadError" role="alert" class="md:col-span-2" :class="NOTICE">{{ uploadError }}</p>
         </form>
-        <p class="text-xs text-neutral-500 mt-3">{{ t('import.supported') }}: {{ sources.map(s => s.label).join(', ') }}</p>
+        <p class="text-xs text-neutral-500 mt-3">
+          {{ t('import.supported') }}:
+          <template v-for="(s, i) in sources" :key="s.key">
+            <RouterLink v-if="IMPORT_GUIDES[s.key]" :to="`/manual/${IMPORT_GUIDES[s.key]}`" class="text-primary-700 hover:underline">{{ s.label }}</RouterLink>
+            <span v-else>{{ s.label }}</span>{{ i < sources.length - 1 ? ', ' : '' }}
+          </template>
+        </p>
       </SectionCard>
 
       <!-- 2. Náhled -->

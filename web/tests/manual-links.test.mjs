@@ -122,3 +122,20 @@ test('české kotvy z aplikace se v anglickém manuálu dohledají podle čísla
   })
   assert.deepEqual(broken, [])
 })
+
+test('každý zdroj importu má návod k exportu v manuálu (importGuides.ts, cs i en)', async () => {
+  const guides = await readFile(new URL('../src/pages/portfolio/importGuides.ts', import.meta.url), 'utf8')
+  const map = Object.fromEntries([...guides.matchAll(/^\s+(\w+): '([^']+)'/gm)].map(m => [m[1], m[2]]))
+  const catalog = await readFile(new URL('../../api/src/Api/ApiCatalog.php', import.meta.url), 'utf8')
+  const keys = catalog.match(/'source', 'form'.*?'enum' => \[([^\]]+)\]/)[1].match(/'([^']+)'/g).map(k => k.slice(1, -1))
+  assert.deepEqual(Object.keys(map).sort(), keys.sort())
+  const headings = async (d, f) => [...(await readFile(new URL(f, d), 'utf8')).matchAll(/^#{1,4} (.+)$/gm)].map(m => slug(m[1]))
+  const broken = []
+  for (const target of Object.values(map)) {
+    const [chapter, hash] = target.split('#')
+    const number = hash.match(/^(\d+)-/)[1]
+    if (!(await headings(dir, `${chapter}.md`)).includes(hash)) broken.push(`cs ${target}`)
+    if (!(await headings(enDir, `${chapter}.md`)).some(id => id.startsWith(`${number}-`))) broken.push(`en ${target}`)
+  }
+  assert.deepEqual(broken, [])
+})

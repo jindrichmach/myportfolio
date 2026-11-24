@@ -81,25 +81,147 @@ nepotvrdíš.
 
 | Zdroj | Jaký soubor stáhnout |
 |---|---|
-| Coinbase | Transaction history (CSV) |
-| Anycoin | Transakce → Export historie (CSV), nebo Objednávky → Export (CSV) |
-| Coinmate | Historie transakcí (CSV, česky i anglicky) |
-| Binance | Transaction History (CSV nebo XLSX) |
-| Kraken | Ledgers (`ledgers.csv`, i v ZIPu) |
-| XTB | Historie → Peněžní operace → Export (XLSX, starší CSV) |
-| Trading 212 | Historie → Export (CSV) |
-| Revolut | Akcie → Dokumenty → Výpis účtu (CSV) |
-| DEGIRO | `Transactions.csv` (obchody) a `Account.csv` (dividendy) — zvlášť nebo spolu v ZIPu |
-| Interactive Brokers | Activity Statement (CSV) nebo Flex Query (CSV) |
+| Coinbase | Transaction history (CSV) — [návod](#551-export-z-coinbase) |
+| Anycoin | Transakce → Všechny měny → Export (CSV), nebo Objednávky → Export (CSV) — [návod](#552-export-z-anycoinu) |
+| Coinmate | Historie → CSV All (česky i anglicky) — [návod](#553-export-z-coinmate) |
+| Binance | Export Transaction Records (CSV nebo XLSX) — [návod](#554-export-z-binance) |
+| Kraken | Ledgers (`ledgers.csv`, i v ZIPu) — [návod](#555-export-z-krakenu) |
+| XTB | Historie → Peněžní operace → Export (XLSX, starší CSV) — [návod](#556-export-z-xtb) |
+| Trading 212 | Historie → Export (CSV) — [návod](#557-export-z-trading-212) |
+| Revolut | Invest → Dokumenty → Výpis účtu — [návod](#558-export-z-revolutu) |
+| DEGIRO | `Transactions.csv` (obchody) a `Account.csv` (dividendy) — zvlášť nebo spolu v ZIPu — [návod](#559-export-z-degiro) |
+| Interactive Brokers | Activity Statement (CSV) nebo Flex Query (CSV) — [návod](#5510-export-z-interactive-brokers) |
 
 | Pole | Význam |
 |---|---|
 | Účet | Účet u burzy / brokera, ze kterého export pochází — do něj se zapíšou pozice |
 | Portfolio | Portfolio, do kterého se založí nové pozice |
-| Zdroj | Obvykle se pozná sám z hlavičky souboru; jinak ho vyber |
+| Zdroj | Obvykle se pozná sám z hlavičky souboru; jinak ho vyber — pod polem se ukáže krátká nápověda a odkaz na návod |
 | Soubor | CSV, XLSX nebo ZIP, nejvýš 20 MB |
 
-### 5.5.1 Náhled
+Návody níže popisují, jak export stáhnout. Burzy a brokeři menu občas přejmenují — když se popisek
+liší, hledej podobně pojmenovanou volbu. Názvy v závorce jsou z anglického rozhraní. Stahuj vždy
+**celou historii** (od založení účtu) a formát **CSV** nebo **Excel**, ne PDF. Překrývající se
+soubory nevadí — už importované řádky se přeskočí ([5.5.12](#5512-opakovaný-import)).
+
+### 5.5.1 Export z Coinbase
+
+1. Na webu klikni vpravo nahoře na svůj profil → **Reports**.
+2. U **Transaction history** klikni na **Generate report** a zvol **CSV**.
+3. Až je report hotový, stáhni ho (**Download**).
+
+Soubor obsahuje celou historii všech aktiv. Převody krypto za krypto (Convert, Advanced Trade)
+se zapíšou jako prodej + nákup. Oficiální nápověda:
+[Coinbase — statements](https://help.coinbase.com/en/coinbase/taxes/tools/statements).
+
+### 5.5.2 Export z Anycoinu
+
+Anycoin nabízí dva exporty; stačí jeden z nich.
+
+- **Historie transakcí** (doporučený): **Můj účet → Transakce → Všechny měny → Export (CSV)**.
+  Obsahuje obchody, vklady, výběry do peněženky, staking i odměny.
+- **Objednávky**: stránka **Objednávky** (`anycoin.cz/cs/orders`) → **Export** (CSV). Jen nákupy a prodeje.
+
+Výběry kryptoměn do vlastní peněženky jsou v náhledu jako **Odeslání** — v části **Odeslání a příjmy** vyber druhou stranu
+převodu, nebo je nech vynechat. Zrušené objednávky, blokace výběru a úvěry se přeskočí.
+Oba exporty můžeš kombinovat: obchod, který už je importovaný z druhého exportu, se
+spáruje a přeskočí ([5.5.11](#5511-náhled)).
+
+### 5.5.3 Export z Coinmate
+
+1. Na webu otevři menu vpravo nahoře → **Historie** (History).
+2. Klikni na **CSV All** — stáhne se celá historie.
+
+Hlavička souboru je česky nebo anglicky podle jazyka rozhraní, import zvládne obojí. Obchody
+kryptoměny za kryptoměnu (např. ETH/BTC) se neimportují — zadej je ručně.
+
+### 5.5.4 Export z Binance
+
+1. Na webu **Assets → Asset History** (nebo **Wallet → Transaction History**).
+2. Najeď na ikonu exportu a zvol **Export Transaction Records**.
+3. Vyber období, **všechny účty a všechny coiny** (starší období přes **Customize**) → **Generate**.
+4. Až je soubor připravený (přijde SMS / e-mail, může to trvat i hodiny), stáhni ho v okně
+   **Export Transaction Records** — odkaz platí 7 dní.
+
+Jeden export pokryje nejvýš rok a měsíčně jich jde vytvořit jen omezený počet — delší historii
+stáhni po letech a nahraj postupně. Nepleť si ho s **Orders → Spot Order → Export Trade History**,
+to je jiný soubor. Futures a margin se neimportují. Oficiální nápověda:
+[Binance — Transaction History](https://www.binance.com/en/support/faq/990afa0a0a9341f78e7a9298a9575163).
+
+### 5.5.5 Export z Krakenu
+
+1. Na webu klikni na profil → **Documents**.
+2. V části **Exports** zvol **Create Export → Ledgers**.
+3. Začátek období nastav na datum založení účtu, nech vybraná všechna aktiva i všechna pole,
+   formát **CSV** → **Generate**.
+4. Export se připravuje minuty až dny a e-mail o tom nepřijde — vrať se na **Documents** a stáhni
+   ho, až je ikona stažení aktivní.
+
+Stažený ZIP můžeš nahrát rovnou, nebo z něj `ledgers.csv`. Oficiální nápověda:
+[Kraken — export account history](https://support.kraken.com/articles/208267878-how-to-export-your-account-history).
+
+### 5.5.6 Export z XTB
+
+1. V xStation 5 otevři záložku **Historie** (History) → **Peněžní operace** (Cash operations).
+2. Nastav období od založení účtu a exportuj do **Excelu**.
+
+V mobilní aplikaci: profil → **Historie transakcí** → **Peněžní operace** → šipka vpravo nahoře →
+**Nový report** → období a účet → **Vygenerovat**; soubor najdeš v historii reportů.
+
+Každý účet (i měnový podúčet) exportuj zvlášť a nahraj ho do odpovídajícího účtu v MyPortfolio —
+částky jsou v měně účtu. Množství a cenu import čte z komentáře operace. Oficiální nápověda:
+[XTB — history of cash operations](https://www.xtb.com/int/help-center/our-platforms/history-of-cash-operations-web-and-mobile-app).
+
+### 5.5.7 Export z Trading 212
+
+1. ☰ Menu → **Historie** (History) → ikona exportu vpravo nahoře.
+2. Vyber období (nejvýš 1 rok) a zaškrtni všechny typy dat — objednávky, dividendy, transakce.
+3. Až je soubor připravený, stáhni CSV.
+
+Delší historii exportuj po letech. Účty Invest a ISA exportuj zvlášť; export z CFD účtu se
+neimportuje. Oficiální nápověda:
+[Trading 212 — export trading data](https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account).
+
+### 5.5.8 Export z Revolutu
+
+1. V aplikaci otevři **Invest** → **Více** (More) → **Dokumenty** (Documents) a vyber brokerský účet.
+2. Zvol **Výpis účtu** (Account statement), formát **Excel** a období od začátku obchodování.
+
+Dividendy jsou ve výpisu v čisté výši (bez srážkové daně) a split uvádí jen přidané kusy —
+splity zadej ručně. Peněžní fondy (Flexible Cash Funds) ve výpisu akcií nejsou.
+
+### 5.5.9 Export z DEGIRO
+
+Oba soubory najdeš ve **Schránce** (Inbox) — na webu v levém menu, v aplikaci vpravo dole:
+
+- **Transakce** (Transactions) — obchody, soubor `Transactions.csv`;
+- **Výpis z účtu** (Account statement) — dividendy, soubor `Account.csv`.
+
+U obou nastav **počáteční datum** před první obchod (výchozí je jen poslední měsíc), klikni na
+export a zvol **CSV**. Soubory nahraj zvlášť, nebo oba v jednom ZIPu. Daňové PDF se neimportují.
+Oficiální nápověda:
+[DEGIRO — reports](https://www.degiro.com/uk/helpdesk/tax/tax-treaties/which-reports-are-there-and-where-can-i-find-them).
+
+### 5.5.10 Export z Interactive Brokers
+
+**Activity Statement** — jednorázově:
+
+1. V Client Portalu **Performance & Reports → Statements**.
+2. U **Activity** klikni na šipku (Run), období **Annual** a rok.
+3. V **Advanced Options** zvol formát **CSV** → **Download**.
+
+Vlastní rozsah je nejvýš 365 dní — historii stahuj po letech.
+
+**Flex Query** — když stahuješ pravidelně:
+
+1. **Performance & Reports → Flex Queries** → **+** u **Activity Flex Query**.
+2. Přidej sekce **Trades** a **Cash Transactions** (v každé vyber všechna pole), formát **CSV** → **Create**.
+3. Query spusť (Run), zvol období a soubor stáhni.
+
+Importují se akcie a ETF; dividenda se spojí se srážkovou daní. Oficiální nápověda:
+[IBKR — Activity Flex Query](https://www.ibkrguides.com/clientportal/performanceandstatements/activityflex.htm).
+
+### 5.5.11 Náhled
 
 - **Souhrn** — kolik řádků je nových, už importovaných, spárovaných a přeskočených.
 - **Instrumenty** — ke každému symbolu z exportu vyber **existující** instrument z katalogu,
@@ -129,12 +251,12 @@ nepotvrdíš.
 > 🛈 Poznámka: Revolut uvádí dividendy jen v čisté výši — srážková daň ve výpisu chybí.
 > Trading 212 uvádí srážkovou daň v měně instrumentu; dividenda se pak zapíše v té měně.
 
-### 5.5.2 Opakovaný import
+### 5.5.12 Opakovaný import
 
 Každý řádek si pamatuje své ID z exportu (nebo otisk řádku, když export ID nemá). Stejný
 nebo překrývající se soubor můžeš nahrát znovu — už importované řádky se přeskočí.
 
-### 5.5.3 Vrácení importu
+### 5.5.13 Vrácení importu
 
 Dole na stránce je **Historie importů**. Tlačítko **Vrátit import** smaže všechny transakce
 dávky (u převodu obě části). Když by po vrácení pozdější transakce přestaly sedět (prodej

@@ -82,25 +82,146 @@ the import.
 
 | Source | Which file to download |
 |---|---|
-| Coinbase | Transaction history (CSV) |
-| Anycoin | Transactions → History export (CSV), or Orders → Export (CSV) |
-| Coinmate | Transaction history (CSV, Czech or English) |
-| Binance | Transaction History (CSV or XLSX) |
-| Kraken | Ledgers (`ledgers.csv`, also in a ZIP) |
-| XTB | History → Cash operations → Export (XLSX, older CSV) |
-| Trading 212 | History → Export (CSV) |
-| Revolut | Stocks → Documents → Account statement (CSV) |
-| DEGIRO | `Transactions.csv` (trades) and `Account.csv` (dividends) — separately or together in a ZIP |
-| Interactive Brokers | Activity Statement (CSV) or Flex Query (CSV) |
+| Coinbase | Transaction history (CSV) — [guide](#551-export-from-coinbase) |
+| Anycoin | Transactions → All currencies → Export (CSV), or Orders → Export (CSV) — [guide](#552-export-from-anycoin) |
+| Coinmate | History → CSV All (Czech or English) — [guide](#553-export-from-coinmate) |
+| Binance | Export Transaction Records (CSV or XLSX) — [guide](#554-export-from-binance) |
+| Kraken | Ledgers (`ledgers.csv`, also in a ZIP) — [guide](#555-export-from-kraken) |
+| XTB | History → Cash operations → Export (XLSX, older CSV) — [guide](#556-export-from-xtb) |
+| Trading 212 | History → Export (CSV) — [guide](#557-export-from-trading-212) |
+| Revolut | Invest → Documents → Account statement — [guide](#558-export-from-revolut) |
+| DEGIRO | `Transactions.csv` (trades) and `Account.csv` (dividends) — separately or together in a ZIP — [guide](#559-export-from-degiro) |
+| Interactive Brokers | Activity Statement (CSV) or Flex Query (CSV) — [guide](#5510-export-from-interactive-brokers) |
 
 | Field | Meaning |
 |---|---|
 | Account | The exchange / broker account the export comes from — positions are written into it |
 | Portfolio | The portfolio in which new positions are created |
-| Source | Usually detected automatically from the file header; otherwise choose it |
+| Source | Usually detected automatically from the file header; otherwise choose it — a short hint and a link to the guide appear below the field |
 | File | CSV, XLSX or ZIP, at most 20 MB |
 
-### 5.5.1 Preview
+The guides below describe how to download the export. Exchanges and brokers rename their menus from time to
+time — if a label differs, look for a similarly named option. Always download the **whole history** (since the
+account was opened) in **CSV** or **Excel** format, not PDF. Overlapping files are fine — already imported rows
+are skipped ([5.5.12](#5512-repeated-import)).
+
+### 5.5.1 Export from Coinbase
+
+1. On the web, click your profile in the top right → **Reports**.
+2. Next to **Transaction history**, click **Generate report** and choose **CSV**.
+3. When the report is ready, download it (**Download**).
+
+The file contains the whole history of all assets. Crypto-to-crypto swaps (Convert, Advanced Trade) are recorded
+as a sell + buy. Official help:
+[Coinbase — statements](https://help.coinbase.com/en/coinbase/taxes/tools/statements).
+
+### 5.5.2 Export from Anycoin
+
+Anycoin offers two exports; one of them is enough.
+
+- **Transaction history** (recommended): **Můj účet → Transakce → Všechny měny → Export (CSV)**
+  (My account → Transactions → All currencies). It contains trades, deposits, withdrawals to a wallet, staking and rewards.
+- **Orders**: the **Objednávky** (Orders) page (`anycoin.cz/cs/orders`) → **Export** (CSV). Buys and sells only.
+
+Crypto withdrawals to your own wallet appear in the preview as **Send** rows — in **Sends and receives** choose the other side of the transfer,
+or let them be skipped. Cancelled orders, withdrawal blocks and loans are skipped. You can combine both exports:
+a trade already imported from the other export is paired and skipped ([5.5.11](#5511-preview)).
+
+### 5.5.3 Export from Coinmate
+
+1. On the web, open the menu in the top right → **History**.
+2. Click **CSV All** — the whole history is downloaded.
+
+The file header is in Czech or English depending on the interface language; the import handles both. Crypto-to-crypto
+trades (e.g. ETH/BTC) are not imported — enter them manually.
+
+### 5.5.4 Export from Binance
+
+1. On the web, **Assets → Asset History** (or **Wallet → Transaction History**).
+2. Hover over the export icon and choose **Export Transaction Records**.
+3. Choose the period, **all accounts and all coins** (older periods via **Customize**) → **Generate**.
+4. When the file is ready (you get an SMS / e-mail, it can take hours), download it in the
+   **Export Transaction Records** window — the link is valid for 7 days.
+
+One export covers at most a year and only a limited number can be created per month — download a longer history
+year by year and upload the files one after another. Don't confuse it with **Orders → Spot Order → Export Trade
+History**, which is a different file. Futures and margin are not imported. Official help:
+[Binance — Transaction History](https://www.binance.com/en/support/faq/990afa0a0a9341f78e7a9298a9575163).
+
+### 5.5.5 Export from Kraken
+
+1. On the web, click your profile → **Documents**.
+2. In the **Exports** section choose **Create Export → Ledgers**.
+3. Set the start of the period to the date the account was opened, keep all assets and all fields selected,
+   format **CSV** → **Generate**.
+4. The export takes minutes to days to prepare and no e-mail is sent — come back to **Documents** and download it
+   once the download icon is active.
+
+You can upload the downloaded ZIP directly, or the `ledgers.csv` from it. Official help:
+[Kraken — export account history](https://support.kraken.com/articles/208267878-how-to-export-your-account-history).
+
+### 5.5.6 Export from XTB
+
+1. In xStation 5 open the **History** tab → **Cash operations**.
+2. Set the period from the account opening and export to **Excel**.
+
+In the mobile app: profile → **Transaction history** → **Cash operations** → arrow in the top right →
+**New report** → period and account → **Generate report**; the file is in the report history.
+
+Export each account (including currency sub-accounts) separately and upload it to the matching account in
+MyPortfolio — amounts are in the account currency. The import reads quantity and price from the operation comment.
+Official help:
+[XTB — history of cash operations](https://www.xtb.com/int/help-center/our-platforms/history-of-cash-operations-web-and-mobile-app).
+
+### 5.5.7 Export from Trading 212
+
+1. ☰ Menu → **History** → the export icon in the top right.
+2. Choose the period (at most 1 year) and tick all data types — orders, dividends, transactions.
+3. When the file is ready, download the CSV.
+
+Export a longer history year by year. Export Invest and ISA accounts separately; an export from a CFD account is
+not imported. Official help:
+[Trading 212 — export trading data](https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account).
+
+### 5.5.8 Export from Revolut
+
+1. In the app open **Invest** → **More** → **Documents** and choose the brokerage account.
+2. Choose **Account statement**, format **Excel** and the period from the start of trading.
+
+Dividends are listed at the net amount (without withholding tax) and a split lists only the added units — enter
+splits manually. Money market funds (Flexible Cash Funds) are not in the stock statement.
+
+### 5.5.9 Export from DEGIRO
+
+You find both files in the **Inbox** — on the web in the left menu, in the app in the bottom right:
+
+- **Transactions** — trades, file `Transactions.csv`;
+- **Account statement** — dividends, file `Account.csv`.
+
+For both, set the **start date** before your first trade (the default is just the last month), click export and
+choose **CSV**. Upload the files separately, or both in one ZIP. Tax PDFs are not imported. Official help:
+[DEGIRO — reports](https://www.degiro.com/uk/helpdesk/tax/tax-treaties/which-reports-are-there-and-where-can-i-find-them).
+
+### 5.5.10 Export from Interactive Brokers
+
+**Activity Statement** — one-off:
+
+1. In Client Portal, **Performance & Reports → Statements**.
+2. Next to **Activity**, click the arrow (Run), period **Annual** and the year.
+3. In **Advanced Options** choose format **CSV** → **Download**.
+
+A custom range is at most 365 days — download the history year by year.
+
+**Flex Query** — if you download regularly:
+
+1. **Performance & Reports → Flex Queries** → **+** next to **Activity Flex Query**.
+2. Add the **Trades** and **Cash Transactions** sections (select all fields in each), format **CSV** → **Create**.
+3. Run the query, choose the period and download the file.
+
+Stocks and ETFs are imported; a dividend is combined with its withholding tax. Official help:
+[IBKR — Activity Flex Query](https://www.ibkrguides.com/clientportal/performanceandstatements/activityflex.htm).
+
+### 5.5.11 Preview
 
 - **Summary** — how many rows are new, already imported, paired and skipped.
 - **Instruments** — for each symbol from the export, choose an **Existing** instrument from the catalog,
@@ -131,12 +252,12 @@ the import.
 > 🛈 Note: Revolut lists dividends only at the net amount — the withholding tax is missing from the statement.
 > Trading 212 lists the withholding tax in the instrument's currency; the dividend is then recorded in that currency.
 
-### 5.5.2 Repeated import
+### 5.5.12 Repeated import
 
 Each row remembers its ID from the export (or a fingerprint of the row if the export has no ID). You can upload the same
 or an overlapping file again — already imported rows are skipped.
 
-### 5.5.3 Reverting an import
+### 5.5.13 Reverting an import
 
 At the bottom of the page there is the **Import history**. The **Revert import** button deletes all transactions
 of the batch (both parts of a transfer). If later transactions would stop adding up after the revert (selling

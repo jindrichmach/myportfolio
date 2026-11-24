@@ -988,7 +988,20 @@
     "file": "File",
     "file_hint": "CSV, XLSX or ZIP, up to 20 MB.",
     "load_preview": "Load preview",
-    "supported": "Supported sources",
+    "supported": "How to export",
+    "guide_link": "Detailed guide",
+    "guides": {
+      "coinbase": "Profile → Reports → Transaction history → Generate report, CSV format.",
+      "anycoin": "Můj účet → Transakce → Všechny měny → Export (CSV), or Objednávky (Orders) → Export.",
+      "coinmate": "Menu → History → CSV All (whole history).",
+      "binance": "Assets → Asset History → Export Transaction Records; at most a year per export.",
+      "kraken": "Documents → Create Export → Ledgers, CSV format; preparation can take days.",
+      "xtb": "xStation 5 → History → Cash operations → export to Excel; each account separately.",
+      "trading212": "Menu → History → export CSV; at most a year per export, all data types.",
+      "revolut": "Invest → More → Documents → Account statement, Excel format.",
+      "degiro": "Inbox → Transactions and Account statement → export CSV; start date before your first trade.",
+      "ibkr": "Performance & Reports → Statements → Activity, annual, CSV format."
+    },
     "summary": {
       "new": "new: {n}",
       "duplicate": "already imported: {n}",
