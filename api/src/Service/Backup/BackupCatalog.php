@@ -18,6 +18,9 @@ final class BackupCatalog
     /** @return list<array{name: string, created_at: string, size: int, encrypted: bool}> od nejnovější */
     public function list(): array
     {
+        if (!is_dir($this->dir)) {
+            return [];
+        }
         $out = [];
         foreach (scandir($this->dir) ?: [] as $name) {
             if (preg_match(self::NAME_PATTERN, $name, $m) !== 1 || !is_file($this->dir . '/' . $name)) {
