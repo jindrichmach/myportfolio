@@ -11,7 +11,6 @@ import type { DataColumn } from '@/components/ui/DataTable.vue'
 import type { GridFilter, GridQuery } from '@/components/ui/grid'
 import type { Transaction, TransactionType } from '@/api/portfolio'
 import { formatDec, formatDateTime, formatPrice, formatQty } from '@/composables/useFormat'
-import { gainClass } from '@/utils/tone'
 
 /** Seznam transakcí jako serverový DataGrid: rodič načítá stránku na `change` a předá `rows` + `total`. */
 const props = defineProps<{
@@ -56,14 +55,13 @@ const columns = computed<DataColumn[]>(() => [
   { key: 'note', label: t('common.note'), hideBelow: '2xl' },
 ])
 const txKey = (tx: Transaction) => tx.id
-/** Směr pohybu kusů na pozici: + přibývají (zeleně), − ubývají (červeně). */
+/** Směr pohybu kusů na pozici: + přibývají, − ubývají (barvu nese badge typu). */
 const QTY_SIGN: Partial<Record<TransactionType, 1 | -1>> = { buy: 1, reward: 1, transfer_in: 1, sell: -1, transfer_out: -1 }
 function signedQty(tx: Transaction): string {
   const text = formatQty(tx.quantity, tx.asset_class)
   const sign = QTY_SIGN[tx.type as TransactionType]
   return sign && tx.quantity ? `${sign > 0 ? '+' : '−'}${text}` : text
 }
-const qtyClass = (tx: Transaction) => (tx.quantity ? gainClass(QTY_SIGN[tx.type as TransactionType] ?? null) : '')
 </script>
 
 <template>
@@ -85,7 +83,7 @@ const qtyClass = (tx: Transaction) => (tx.quantity ? gainClass(QTY_SIGN[tx.type 
     </template>
     <template #cell-quantity="{ row: tx }">
       <span v-if="tx.type === 'split'" class="font-mono">× {{ formatDec(tx.split_ratio, 10) }}</span>
-      <span v-else class="font-mono whitespace-nowrap" :class="qtyClass(tx)" :title="tx.quantity ?? undefined">{{ signedQty(tx) }}</span>
+      <span v-else class="font-mono whitespace-nowrap" :title="tx.quantity ?? undefined">{{ signedQty(tx) }}</span>
     </template>
     <template #cell-unit_price="{ row: tx }"><span class="font-mono" :title="tx.unit_price ?? undefined">{{ formatPrice(tx.unit_price) }}</span></template>
     <template #cell-amount="{ row: tx }">

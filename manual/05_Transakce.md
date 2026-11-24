@@ -73,8 +73,8 @@ Převod nejde upravit; smazáním jedné části se smaže celý převod.
 **Typ** a **Období** (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry)). U každého řádku je odkaz na pozici,
 Upravit a Smazat. Transakce jedné pozice jsou i na jejím detailu, se stejným stránkováním.
 
-Množství má znaménko podle směru pohybu kusů: **+** zeleně, když na pozici přibývají (nákup, odměna,
-převod dovnitř), **−** červeně, když ubývají (prodej, převod ven). Barvu má i typ převodu.
+Množství má znaménko podle směru pohybu kusů: **+**, když na pozici přibývají (nákup, odměna,
+převod dovnitř), **−**, když ubývají (prodej, převod ven). Směr barevně rozlišuje štítek typu transakce.
 
 ## 5.5 Import z burzy / brokera
 
