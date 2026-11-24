@@ -8,11 +8,14 @@ use Brick\Math\BigDecimal;
 use MyPortfolio\Service\Import\Draft;
 
 /**
- * Coinbase — „Transaction history" CSV (Profil → Reports / Statements → Generate report → CSV).
+ * Coinbase — „Transaction history" CSV (Settings → Accounts → Statements → CSV).
  * Varianty: v4 (2024+, sloupec ID, „Price Currency"), v3/v2 („Spot Price Currency"), v1 (měna v názvu sloupce).
  * Nad hlavičkou bývá preambule. Časy v UTC, peněžní sloupce s symbolem měny („€81000.00", "$2,116.18").
  * Znaménka množství nejsou konzistentní → absolutní hodnota, směr podle typu.
  * Convert a Advanced Trade s kryptoměnou jako kotací mají druhou stranu jen v Notes.
+ *
+ * Coinbase Pro — výpis účtu (portfolio, type, time, amount, balance, amount/balance unit, transfer id, trade id, order id):
+ * obchod = řádky match (obě strany) + fee se stejným order id a trade id.
  */
 final class CoinbaseParser extends AbstractParser
 {
@@ -23,6 +26,7 @@ final class CoinbaseParser extends AbstractParser
     private const INTERNAL = ['retail staking transfer', 'retail unstaking transfer', 'vault withdrawal', 'cash to savings', 'savings to cash',
         'transfer', 'exchange deposit', 'pro deposit', 'prime deposit', 'exchange withdrawal', 'pro withdrawal'];
     private const AMOUNT = '([\d,]+(?:\.\d+)?)';
+    private const PRO = ['portfolio', 'type', 'time', 'amount', 'amount/balance unit'];
 
     public function key(): string
     {
@@ -36,11 +40,16 @@ final class CoinbaseParser extends AbstractParser
 
     public function detect(array $tables): bool
     {
-        return $this->hasHeader($tables, ['Timestamp', 'Transaction Type', 'Asset', 'Quantity Transacted']);
+        return $this->hasHeader($tables, ['Timestamp', 'Transaction Type', 'Asset', 'Quantity Transacted'])
+            || $this->hasHeader($tables, self::PRO);
     }
 
     public function parse(array $tables): array
     {
+        $pro = $this->rows($tables, self::PRO);
+        if ($pro !== null) {
+            return $this->pro($pro);
+        }
         $rows = $this->rows($tables, ['Timestamp', 'Transaction Type', 'Asset', 'Quantity Transacted'])
             ?? throw new \InvalidArgumentException('Nenalezena hlavička Coinbase exportu.');
         $out = [];
@@ -112,6 +121,53 @@ final class CoinbaseParser extends AbstractParser
             return [$base('send')];
         }
         return [Draft::skip($at, "Nepodporovaný typ „{$this->col($row, 'Transaction Type')}\" — zadej ručně", $line, $id, $asset)];
+    }
+
+    /** @param list<array<string,string>> $rows @return list<Draft> */
+    private function pro(array $rows): array
+    {
+        $out = [];
+        $trades = [];
+        foreach ($rows as $row) {
+            $type = strtolower($this->col($row, 'type'));
+            $unit = strtoupper($this->col($row, 'amount/balance unit'));
+            $at = $this->dateTime($this->col($row, 'time'));
+            if (in_array($type, ['match', 'fee'], true)) {
+                $key = $this->col($row, 'order id') . ':' . $this->col($row, 'trade id');
+                $out[$key] ??= null;
+                $trades[$key][] = $row;
+                continue;
+            }
+            $line = $this->line($row);
+            $id = 'pro:' . ($this->col($row, 'transfer id') ?: $this->rowHash($row));
+            $qty = $this->num($this->col($row, 'amount'));
+            $out[] = match (true) {
+                $this->isFiat($unit) => Draft::skip($at, 'Pohyb fiat měny (vklad / výběr)', $line, $id, $unit),
+                $type === 'deposit' => new Draft('receive', $at, $unit, quantity: $qty, externalId: $id, note: 'Coinbase Pro', line: $line),
+                $type === 'withdrawal' => new Draft('send', $at, $unit, quantity: $qty, externalId: $id, note: 'Coinbase Pro', line: $line),
+                default => Draft::skip($at, "Nepodporovaný typ „{$this->col($row, 'type')}\" — zadej ručně", $line, $id, $unit),
+            };
+        }
+        foreach ($trades as $key => $legs) {
+            $net = [];
+            $fees = [];
+            foreach ($legs as $leg) {
+                $unit = strtoupper($this->col($leg, 'amount/balance unit'));
+                $amount = BigDecimal::of($this->num($this->col($leg, 'amount'), false) ?? '0');
+                if (strtolower($this->col($leg, 'type')) === 'fee') {
+                    $fees[$unit] = ($fees[$unit] ?? BigDecimal::zero())->plus($amount->abs());
+                } else {
+                    $net[$unit] = ($net[$unit] ?? BigDecimal::zero())->plus($amount);
+                }
+            }
+            $out[$key] = $this->tradeFromNet($net, $fees, $this->dateTime($this->col($legs[0], 'time')), 'pro:' . $key,
+                $this->line($legs[0]), 'Coinbase Pro');
+        }
+        $drafts = [];
+        foreach ($out as $item) {
+            array_push($drafts, ...(is_array($item) ? $item : [$item]));
+        }
+        return $drafts;
     }
 
     /** Měna peněžních sloupců: sloupec Price/Spot Price Currency, ve v1 prefix názvu sloupce. */

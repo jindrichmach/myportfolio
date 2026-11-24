@@ -85,6 +85,36 @@ final class CryptoParsersTest extends TestCase
         self::assertNotSame($d[0]->externalId, $d[1]->externalId);
     }
 
+    public function testCoinbaseProAccountStatement(): void
+    {
+        $csv = "portfolio,type,time,amount,balance,amount/balance unit,transfer id,trade id,order id\n"
+            . "default,deposit,2021-03-01T10:00:00.000Z,500.0000000000000000,500.0000000000000000,EUR,t-0001,,\n"
+            . "default,match,2021-03-02T10:00:00.100Z,-400.0000000000000000,100.0000000000000000,EUR,,1001,o-0001\n"
+            . "default,match,2021-03-02T10:00:00.100Z,0.0100000000000000,0.0100000000000000,BTC,,1001,o-0001\n"
+            . "default,fee,2021-03-02T10:00:00.100Z,-2.0000000000000000,98.0000000000000000,EUR,,1001,o-0001\n"
+            . "default,match,2021-03-03T10:00:00.200Z,-0.0040000000000000,0.0060000000000000,BTC,,1002,o-0002\n"
+            . "default,match,2021-03-03T10:00:00.200Z,200.0000000000000000,298.0000000000000000,EUR,,1002,o-0002\n"
+            . "default,fee,2021-03-03T10:00:00.200Z,-1.0000000000000000,297.0000000000000000,EUR,,1002,o-0002\n"
+            . "default,match,2021-03-04T10:00:00.300Z,-50.0000000000000000,10.0000000000000000,USDT,,1001,o-0003\n"
+            . "default,match,2021-03-04T10:00:00.300Z,0.0010000000000000,0.0070000000000000,BTC,,1001,o-0003\n"
+            . "default,fee,2021-03-04T10:00:00.300Z,-0.2500000000000000,9.7500000000000000,USDT,,1001,o-0003\n"
+            . "default,match,2021-03-05T10:00:00.400Z,-1000.0000000000000000,0.0000000000000000,DOGE,,2001,o-0004\n"
+            . "default,match,2021-03-05T10:00:00.400Z,0.0030000000000000,0.0100000000000000,BTC,,2001,o-0004\n"
+            . "default,withdrawal,2021-03-06T10:00:00.000Z,-0.0100000000000000,0.0000000000000000,BTC,t-0002,,\n";
+        $d = self::parse(new CoinbaseParser(), $csv);
+        $brief = array_map(static fn (Draft $x) => [$x->kind, $x->symbol, $x->quantity, $x->amount, $x->currency, $x->fee, $x->feeCurrency, $x->externalId], $d);
+        self::assertSame([
+            ['skip', 'EUR', null, null, null, null, null, 'pro:t-0001'],
+            ['buy', 'BTC', '0.01', '400', 'EUR', '2', 'EUR', 'pro:o-0001:1001'],
+            ['sell', 'BTC', '0.004', '200', 'EUR', '1', 'EUR', 'pro:o-0002:1002'],
+            ['buy', 'BTC', '0.001', '50', 'USD', '0.25', 'USDT', 'pro:o-0003:1001'],
+            ['sell', 'USDT', '50', '50', 'USD', null, null, 'pro:o-0003:1001:paid'],
+            ['skip', 'BTC', null, null, null, null, null, 'pro:o-0004:2001'],
+            ['send', 'BTC', '0.01', null, null, null, null, 'pro:t-0002'],
+        ], $brief);
+        self::assertSame('2021-03-02 11:00:00', $d[1]->executedAt);
+    }
+
     public function testAnycoinGroupsOrders(): void
     {
         $csv = "Date,Type,Amount,Currency,Order ID,anycoin TX ID,Description\n"

@@ -999,7 +999,7 @@
     "supported": "Návod k exportu",
     "guide_link": "Podrobný návod",
     "guides": {
-      "coinbase": "Profil → Reports → Transaction history → Generate report, formát CSV.",
+      "coinbase": "Avatar → Settings → Accounts → Statements (coinbase.com/statements) → měsíční nebo vlastní výpis (All assets, All transactions), formát CSV. Coinbase Pro: záložka Other, výpis účtu v CSV.",
       "anycoin": "Můj účet → Transakce → Všechny měny → Export (CSV), nebo Objednávky → Export.",
       "coinmate": "Menu → Historie → CSV All (celá historie).",
       "binance": "Assets → Asset History → Export Transaction Records; nejvýš rok na jeden export.",

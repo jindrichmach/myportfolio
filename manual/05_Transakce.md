@@ -86,7 +86,7 @@ nepotvrdíš.
 
 | Zdroj | Jaký soubor stáhnout |
 |---|---|
-| Coinbase | Transaction history (CSV) — [návod](#551-export-z-coinbase) |
+| Coinbase | Statements → výpis (CSV), i výpis účtu Coinbase Pro — [návod](#551-export-z-coinbase) |
 | Anycoin | Transakce → Všechny měny → Export (CSV), nebo Objednávky → Export (CSV) — [návod](#552-export-z-anycoinu) |
 | Coinmate | Historie → CSV All (česky i anglicky) — [návod](#553-export-z-coinmate) |
 | Binance | Export Transaction Records (CSV nebo XLSX) — [návod](#554-export-z-binance) |
@@ -111,13 +111,29 @@ soubory nevadí — už importované řádky se přeskočí ([5.5.12](#5512-opak
 
 ### 5.5.1 Export z Coinbase
 
-1. Na webu klikni vpravo nahoře na svůj profil → **Reports**.
-2. U **Transaction history** klikni na **Generate report** a zvol **CSV**.
-3. Až je report hotový, stáhni ho (**Download**).
+CSV s transakcemi stáhneš na stránce **Statements** (Výpisy):
 
-Soubor obsahuje celou historii všech aktiv. Převody krypto za krypto (Convert, Advanced Trade)
-se zapíšou jako prodej + nákup. Oficiální nápověda:
-[Coinbase — statements](https://help.coinbase.com/en/coinbase/taxes/tools/statements).
+1. Přihlas se na coinbase.com.
+2. Klikni vpravo nahoře na svůj profilový avatar → **Settings** → **Accounts** a v menu vyber **Statements**.
+   Stránku můžeš otevřít i rovnou: `coinbase.com/statements`.
+3. Zvol jednu z možností:
+   - **Měsíční výpis** — u vybraného měsíce zvol formát **CSV** a stáhni ho.
+   - **Vlastní výpis** (custom statement) — vyber aktivum (např. **All assets**), typ transakce
+     (**All transactions**) a období, formát **CSV** a klikni na **Generate**. Hodí se pro celou historii najednou.
+
+Převody krypto za krypto (Convert, Advanced Trade) se zapíšou jako prodej + nákup.
+
+Výpis z dřívějšího **Coinbase Pro** je na stejné stránce v záložce **Other**. Stáhni výpis účtu v CSV
+(sloupce `portfolio, type, time, amount, balance, …`) a importuj ho jako Coinbase — formát se rozpozná sám:
+
+- obchod (řádky `match` a `fee` se stejným order a trade id) = nákup nebo prodej s poplatkem,
+- obchod za USDT nebo USDC = nákup + prodej stablecoinu oceněný v USD,
+- obchod krypto za krypto bez fiat ani stablecoinu (např. DOGE → BTC) se přeskočí — zadej ho ručně,
+- vklad a výběr kryptoměny = příchozí a odchozí převod, vklady a výběry fiat měn (EUR, USD) se neimportují.
+
+Oficiální nápověda:
+[Coinbase — statements](https://help.coinbase.com/en/coinbase/taxes/tools/statements),
+[Coinbase Pro — cost basis](https://help.coinbase.com/en/coinbase/managing-my-account/tax-locate-cost-basis-document).
 
 ### 5.5.2 Export z Anycoinu
 

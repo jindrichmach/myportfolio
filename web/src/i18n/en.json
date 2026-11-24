@@ -999,7 +999,7 @@
     "supported": "How to export",
     "guide_link": "Detailed guide",
     "guides": {
-      "coinbase": "Profile → Reports → Transaction history → Generate report, CSV format.",
+      "coinbase": "Avatar → Settings → Accounts → Statements (coinbase.com/statements) → monthly or custom statement (All assets, All transactions), CSV format. Coinbase Pro: Other tab, account statement as CSV.",
       "anycoin": "Můj účet → Transakce → Všechny měny → Export (CSV), or Objednávky (Orders) → Export.",
       "coinmate": "Menu → History → CSV All (whole history).",
       "binance": "Assets → Asset History → Export Transaction Records; at most a year per export.",

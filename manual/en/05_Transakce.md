@@ -87,7 +87,7 @@ the import.
 
 | Source | Which file to download |
 |---|---|
-| Coinbase | Transaction history (CSV) — [guide](#551-export-from-coinbase) |
+| Coinbase | Statements → statement (CSV), also a Coinbase Pro account statement — [guide](#551-export-from-coinbase) |
 | Anycoin | Transactions → All currencies → Export (CSV), or Orders → Export (CSV) — [guide](#552-export-from-anycoin) |
 | Coinmate | History → CSV All (Czech or English) — [guide](#553-export-from-coinmate) |
 | Binance | Export Transaction Records (CSV or XLSX) — [guide](#554-export-from-binance) |
@@ -112,13 +112,30 @@ are skipped ([5.5.12](#5512-repeated-import)).
 
 ### 5.5.1 Export from Coinbase
 
-1. On the web, click your profile in the top right → **Reports**.
-2. Next to **Transaction history**, click **Generate report** and choose **CSV**.
-3. When the report is ready, download it (**Download**).
+Download the transactions CSV from the **Statements** page:
 
-The file contains the whole history of all assets. Crypto-to-crypto swaps (Convert, Advanced Trade) are recorded
-as a sell + buy. Official help:
-[Coinbase — statements](https://help.coinbase.com/en/coinbase/taxes/tools/statements).
+1. Sign in at coinbase.com.
+2. Click your profile avatar in the top right → **Settings** → **Accounts** and choose **Statements** in the menu.
+   You can also open the page directly: `coinbase.com/statements`.
+3. Choose one of the options:
+   - **Monthly statement** — pick the month, choose the **CSV** format and download it.
+   - **Custom statement** — select the asset (e.g. **All assets**), transaction type (**All transactions**)
+     and period, choose **CSV** and click **Generate**. Useful for the whole history at once.
+
+Crypto-to-crypto swaps (Convert, Advanced Trade) are recorded as a sell + buy.
+
+A statement from the former **Coinbase Pro** is on the same page under the **Other** tab. Download the account
+statement as CSV (columns `portfolio, type, time, amount, balance, …`) and import it as Coinbase — the format is
+detected automatically:
+
+- a trade (`match` and `fee` rows with the same order and trade id) = a buy or sell with a fee,
+- a trade for USDT or USDC = a buy + a sell of the stablecoin valued in USD,
+- a crypto-to-crypto trade with no fiat or stablecoin side (e.g. DOGE → BTC) is skipped — enter it manually,
+- a crypto deposit and withdrawal = an incoming and outgoing transfer; fiat (EUR, USD) deposits and withdrawals are not imported.
+
+Official help:
+[Coinbase — statements](https://help.coinbase.com/en/coinbase/taxes/tools/statements),
+[Coinbase Pro — cost basis](https://help.coinbase.com/en/coinbase/managing-my-account/tax-locate-cost-basis-document).
 
 ### 5.5.2 Export from Anycoin
 
