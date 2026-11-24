@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, markRaw, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PasswordInput from '@/components/ui/PasswordInput.vue'
 
@@ -19,6 +19,7 @@ import {
 import { useFieldId } from '@/composables/useFieldId'
 
 const router = useRouter()
+const restored = useRoute().query.restored === '1'
 const auth = useAuthStore()
 
 // Štítek pro „zapamatovat zařízení". Odpovídá cfg.auth.email_otp.trusted_device_days
@@ -303,6 +304,9 @@ async function resendCode() {
       <div class="bg-surface border border-neutral-200 rounded-lg shadow-sm p-6">
         <h1 class="text-xl font-semibold mb-1">{{ t('auth.login_title') }}</h1>
         <p class="text-sm text-neutral-500 mb-6">{{ t('auth.login_subtitle') }}</p>
+        <div v-if="restored" role="status" class="mb-4 rounded-md bg-warning-50 border border-warning-500/40 px-3 py-2 text-sm text-warning-600">
+          {{ t('backups.login_notice') }}
+        </div>
 
         <form ref="loginForm" @submit.prevent="submit" class="space-y-4">
           <div v-if="auth.setupStatus?.passwordless_login_enabled" class="space-y-3">

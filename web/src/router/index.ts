@@ -30,6 +30,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'admin/activity-log',     name: 'activity-log',   component: () => import('@/pages/admin/ActivityLog.vue'), meta: { title: 'nav.log', adminOnly: true } },
       { path: 'admin/market',           name: 'admin-market',   component: () => import('@/pages/admin/Market.vue'),      meta: { title: 'nav.market', adminOnly: true } },
       { path: 'admin/cron-jobs',        name: 'cron-jobs',      component: () => import('@/pages/admin/CronJobs.vue'),    meta: { title: 'nav.cron_jobs', adminOnly: true } },
+      { path: 'admin/backups',          name: 'admin-backups',  component: () => import('@/pages/admin/Backups.vue'),     meta: { title: 'nav.backups', adminOnly: true } },
       { path: 'admin/update',           name: 'admin-update',   component: () => import('@/pages/admin/Update.vue'),      meta: { title: 'nav.update', adminOnly: true } },
       { path: 'admin/users',            name: 'admin-users',    component: () => import('@/pages/admin/Users.vue'),       meta: { title: 'nav.users', adminOnly: true } },
       // Nastavení instance po záložkách (?tab=smtp)

@@ -44,6 +44,15 @@ export function formatDate(date: string | null | undefined): string {
   return new Intl.DateTimeFormat(activeLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d)
 }
 
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  const units = ['KB', 'MB', 'GB', 'TB']
+  let v = bytes / 1024
+  let i = 0
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
+  return `${new Intl.NumberFormat(activeLocale(), { maximumFractionDigits: v < 10 ? 1 : 0 }).format(v)} ${units[i]}`
+}
+
 export function formatMonth(yyyymm: string): string {
   const [y, m] = yyyymm.split('-').map(Number)
   if (!y || !m) return yyyymm
