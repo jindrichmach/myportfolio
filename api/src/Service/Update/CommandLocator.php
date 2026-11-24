@@ -7,6 +7,8 @@ namespace MyPortfolio\Service\Update;
 /**
  * Najde externí binárku (např. klient mariadb) — cesta z cfg má přednost, pak PATH a nakonec běžné systémové
  * adresáře: PHP-FPM mívá minimální (i prázdnou) PATH, i když je binárka nainstalovaná.
+ * Pod `open_basedir` (ISPConfig apod.) `is_file` mimo povolené cesty selže — pak se zeptá shellu
+ * (`command -v`), spouštění procesů `open_basedir` neomezuje.
  */
 final class CommandLocator
 {
@@ -34,6 +36,19 @@ final class CommandLocator
                 return $candidate;
             }
         }
-        return null;
+        return ini_get('open_basedir') ? self::shellLookup($name) : null;
+    }
+
+    private static function shellLookup(string $name): ?string
+    {
+        if (!function_exists('exec')) {
+            return null;
+        }
+        $out = [];
+        $code = 1;
+        @exec('command -v ' . escapeshellarg($name) . ' 2>/dev/null', $out, $code);
+        $found = trim($out[0] ?? '');
+
+        return $code === 0 && str_starts_with($found, '/') ? $found : null;
     }
 }

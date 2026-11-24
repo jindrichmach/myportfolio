@@ -64,4 +64,16 @@ final class CommandLocatorTest extends TestCase
         self::assertSame($configured, $locator->resolve('tool', $configured));
         self::assertNull($locator->resolve('tool', $this->dir . '/path/missing'));
     }
+
+    public function testUnderOpenBasedirAsksShell(): void
+    {
+        $api = dirname(__DIR__, 4);
+        $code = 'require ' . var_export($api . '/vendor/autoload.php', true) . ';'
+            . 'echo (new MyPortfolio\\Service\\Update\\CommandLocator("", []))->resolve("sh") ?? "null";';
+        $out = shell_exec(escapeshellarg(PHP_BINARY) . ' -d open_basedir=' . escapeshellarg($api)
+            . ' -r ' . escapeshellarg($code));
+
+        self::assertIsString($out);
+        self::assertStringEndsWith('/sh', trim($out));
+    }
 }
