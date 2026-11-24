@@ -72,6 +72,7 @@ final class BundleUpdater
      *        jeden HTTP GET bez následování redirectů: [status, Location, tělo]; s `$destFile` se tělo zapíše do něj
      *        a vrací se ''
      * @param Closure(string $command, string $cwd, string $logFile):int|null $runner spuštění podprocesu, vrací exit kód
+     * @param Closure(string $dir):(float|int|false)|null $diskFree volné místo v bajtech (výchozí `disk_free_space`)
      */
     public function __construct(
         private readonly string $rootDir,
@@ -82,6 +83,7 @@ final class BundleUpdater
         private readonly ?Closure $transport = null,
         private readonly ?Closure $runner = null,
         private readonly ?string $php = null,
+        private readonly ?Closure $diskFree = null,
     ) {}
 
     /**
@@ -196,38 +198,94 @@ final class BundleUpdater
 
     // ---------- pipeline ---------------------------------------------------
 
+    /** Texty důvodů z {@see preflightReasons()} pro log a CLI. */
+    private const REASON_MESSAGES = [
+        'no_zlib' => 'Chybí rozšíření zlib — nelze rozbalit tar.gz balíček.',
+        'no_http' => 'Není dostupné ani cURL, ani allow_url_fopen — balíček nelze stáhnout.',
+        'no_php_cli' => 'Nenalezena PHP CLI binárka — nelze spustit zálohu a migrace.',
+        'not_writable' => 'Některý z adresářů instalace (kořen, api, web, db, manual, storage/update) není zapisovatelný.',
+        'disk_space' => 'Na disku je málo volného místa.',
+    ];
+
     /**
-     * Problémy, které brání aktualizaci (prázdný seznam = lze).
+     * Kódy důvodů, které brání aktualizaci (prázdný seznam = lze); používá je i WebUpdatePreflight.
+     *
+     * @param int|null $bundleSize velikost balíčku, je-li známa (volné místo = max(512 MB, 3× velikost))
+     * @return list<string> `no_zlib`, `no_http`, `no_php_cli`, `not_writable`, `disk_space`
+     */
+    public function preflightReasons(?int $bundleSize = null): array
+    {
+        $reasons = [];
+        if (!function_exists('gzopen')) {
+            $reasons[] = 'no_zlib';
+        }
+        if (!function_exists('curl_init') && !filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)) {
+            $reasons[] = 'no_http';
+        }
+        if ($this->phpBinary() === null) {
+            $reasons[] = 'no_php_cli';
+        }
+        $dirs = [$this->rootDir];
+        foreach (['api', 'web', 'db', 'manual'] as $sub) {
+            $dirs[] = $this->rootDir . '/' . $sub;
+        }
+        $dirs[] = $this->workDir();
+        foreach ($dirs as $dir) {
+            if (!self::writable($dir)) {
+                $reasons[] = 'not_writable';
+                break;
+            }
+        }
+        if (!$this->hasFreeSpace($bundleSize)) {
+            $reasons[] = 'disk_space';
+        }
+
+        return $reasons;
+    }
+
+    /**
+     * Problémy, které brání aktualizaci, jako čitelné texty (prázdný seznam = lze).
      *
      * @return list<string>
      */
     public function preflight(): array
     {
         $problems = [];
-        if (!function_exists('gzopen')) {
-            $problems[] = 'Chybí rozšíření zlib — nelze rozbalit tar.gz balíček.';
-        }
-        if (!function_exists('curl_init') && !filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)) {
-            $problems[] = 'Není dostupné ani cURL, ani allow_url_fopen — balíček nelze stáhnout.';
-        }
-        if ($this->phpBinary() === null) {
-            $problems[] = 'Nenalezena PHP CLI binárka — nelze spustit zálohu a migrace.';
+        foreach ($this->preflightReasons() as $code) {
+            $problems[] = self::REASON_MESSAGES[$code];
         }
         if (preg_match('#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#D', $this->repo) !== 1) {
             $problems[] = 'Neplatné nastavení update.github_repo („' . $this->repo . '").';
         }
-        foreach (['', 'api', 'web', 'db', 'manual'] as $sub) {
-            $dir = $sub === '' ? $this->rootDir : $this->rootDir . '/' . $sub;
-            if (is_dir($dir) && !is_writable($dir)) {
-                $problems[] = 'Adresář ' . ($sub === '' ? '(kořen instalace)' : $sub) . ' není zapisovatelný.';
-            }
-        }
-        $free = @disk_free_space(is_dir($this->storageDir()) ? $this->storageDir() : $this->rootDir);
-        if (is_float($free) && $free < self::MIN_FREE_BYTES) {
-            $problems[] = 'Na disku je málo volného místa (potřeba aspoň ' . intdiv(self::MIN_FREE_BYTES, 1048576) . ' MB).';
-        }
 
         return $problems;
+    }
+
+    private static function requiredFreeBytes(?int $bundleSize): int
+    {
+        return max(self::MIN_FREE_BYTES, 3 * ($bundleSize ?? 0));
+    }
+
+    private function hasFreeSpace(?int $bundleSize): bool
+    {
+        $dir = is_dir($this->storageDir()) ? $this->storageDir() : $this->rootDir;
+        $free = $this->diskFree !== null ? ($this->diskFree)($dir) : @disk_free_space($dir);
+
+        return !(is_int($free) || is_float($free)) || $free >= self::requiredFreeBytes($bundleSize);
+    }
+
+    /** Existující cesta musí být zapisovatelná, neexistující se posuzuje podle nejbližšího existujícího rodiče. */
+    private static function writable(string $path): bool
+    {
+        while (!file_exists($path)) {
+            $parent = dirname($path);
+            if ($parent === $path) {
+                return false;
+            }
+            $path = $parent;
+        }
+
+        return is_writable($path);
     }
 
     /**
@@ -405,6 +463,10 @@ final class BundleUpdater
         if ($size !== null && $size > self::MAX_BUNDLE_BYTES) {
             throw new RuntimeException('Balíček je větší než povolený limit.');
         }
+        if (!$this->hasFreeSpace($size)) {
+            throw new RuntimeException('Na disku je málo volného místa (potřeba aspoň '
+                . intdiv(self::requiredFreeBytes($size), 1048576) . ' MB).');
+        }
 
         $this->log('Stahuji ' . $bundleUrl);
         $this->fetch($bundleUrl, $dest, self::MAX_BUNDLE_BYTES);
@@ -521,6 +583,14 @@ final class BundleUpdater
         }
     }
 
+    /** JSON jen pro API; balíček a `.sha256` jsou binární assety. */
+    private static function acceptFor(string $url): string
+    {
+        return strtolower((string) parse_url($url, PHP_URL_HOST)) === 'api.github.com'
+            ? 'application/vnd.github+json'
+            : 'application/octet-stream';
+    }
+
     /**
      * @param resource|null $fh
      * @return array{0:int,1:?string,2:string}
@@ -540,7 +610,7 @@ final class BundleUpdater
             CURLOPT_USERAGENT => 'MyPortfolio/bundle-update',
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_HTTPHEADER => ['Accept: application/vnd.github+json'],
+            CURLOPT_HTTPHEADER => ['Accept: ' . self::acceptFor($url)],
             CURLOPT_NOPROGRESS => false,
             CURLOPT_HEADERFUNCTION => static function ($_c, string $line) use (&$location): int {
                 if (stripos($line, 'location:') === 0) {
@@ -585,7 +655,7 @@ final class BundleUpdater
     {
         $ctx = stream_context_create(['http' => [
             'method' => 'GET',
-            'header' => "User-Agent: MyPortfolio/bundle-update\r\nAccept: application/vnd.github+json\r\n",
+            'header' => "User-Agent: MyPortfolio/bundle-update\r\nAccept: " . self::acceptFor($url) . "\r\n",
             'timeout' => $fh !== null ? self::HTTP_TIMEOUT : self::API_TIMEOUT,
             'follow_location' => 0,
             'ignore_errors' => true,
@@ -597,7 +667,8 @@ final class BundleUpdater
         $status = 0;
         $location = null;
         $meta = stream_get_meta_data($in);
-        foreach ((array) ($meta['wrapper_data'] ?? []) as $line) {
+        $wrapper = $meta['wrapper_data'] ?? [];
+        foreach (is_array($wrapper) ? $wrapper : [] as $line) {
             if (preg_match('#^HTTP/\S+ (\d{3})#', (string) $line, $m) === 1) {
                 $status = (int) $m[1];
                 $location = null;
@@ -606,10 +677,27 @@ final class BundleUpdater
             }
         }
         $body = '';
-        if ($fh !== null) {
-            stream_copy_to_stream($in, $fh, $maxBytes + 1);
-        } else {
-            $body = (string) stream_get_contents($in, $maxBytes + 1);
+        $total = 0;
+        $lastBeat = time();
+        while (!feof($in)) {
+            $chunk = fread($in, 1048576);
+            if ($chunk === false || $chunk === '') {
+                break;
+            }
+            $total += strlen($chunk);
+            if ($total > $maxBytes) {
+                fclose($in);
+                throw new RuntimeException('Stahovaný soubor překračuje limit velikosti.');
+            }
+            if ($fh !== null) {
+                fwrite($fh, $chunk);
+            } else {
+                $body .= $chunk;
+            }
+            if (time() - $lastBeat >= 5) {
+                $lastBeat = time();
+                $this->heartbeat();
+            }
         }
         fclose($in);
 

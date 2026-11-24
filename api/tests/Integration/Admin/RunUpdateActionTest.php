@@ -67,7 +67,7 @@ final class RunUpdateActionTest extends TestCase
         $newer = $this->newer;
         file_put_contents($this->dir . '/check.json', json_encode([
             'repo' => 'example/repo', 'checked_at' => date(\DateTimeInterface::ATOM),
-            'releases' => [['version' => $newer, 'name' => $newer, 'published_at' => null, 'url' => '', 'notes' => '', 'prerelease' => false]],
+            'releases' => [['version' => $newer, 'name' => $newer, 'published_at' => null, 'url' => '', 'notes' => '', 'prerelease' => false, 'bundle' => true]],
         ]));
         $config = new Config(['update' => ['github_repo' => 'example/repo']]);
         $checker = new UpdateChecker(new FakeHttpFetcher([]), new VersionService(), $config, $this->dir . '/check.json');
@@ -94,7 +94,7 @@ final class RunUpdateActionTest extends TestCase
         self::assertNotSame($current, $newer);
 
         return new RunUpdateAction(
-            $checker, $preflight, new UpdateState($this->dir . '/update-state.json'), $config,
+            $checker, $preflight, new UpdateState($this->dir . '/update-state.json'),
             $this->activity, $ip,
             new StepUpGate($db, $totp, $crypto, $this->createMock(BruteForceGuard::class), $policy, $creds, $this->protectedOps),
             spawner: function (string $script, array $args): bool {
@@ -170,10 +170,10 @@ final class RunUpdateActionTest extends TestCase
 
     public function testPreflightReasonsGive409(): void
     {
-        $this->preflightReasons = ['dirty_tree'];
+        $this->preflightReasons = ['no_bundle'];
         [$status, $body] = $this->call('admin', ['version' => '99.0.0']);
         self::assertSame(409, $status);
-        self::assertSame(['dirty_tree'], $body['error']['reasons']);
+        self::assertSame(['no_bundle'], $body['error']['reasons']);
         self::assertSame([], $this->spawned);
     }
 
@@ -194,12 +194,8 @@ final class RunUpdateActionTest extends TestCase
         self::assertSame(202, $status);
         self::assertCount(1, $this->spawned);
         [$script, $args] = $this->spawned[0];
-        self::assertSame($this->dir . '/update/self-update.php', $script);
-        self::assertFileExists($script);
-        self::assertContains('--target=99.0.0', $args);
-        self::assertContains('--state=' . $this->dir . '/update-state.json', $args);
-        self::assertContains('--maintenance=' . $this->dir . '/maintenance.json', $args);
-        self::assertContains('--lock=' . $this->dir . '/update.lock', $args);
+        self::assertStringEndsWith('/api/bin/native-update.php', $script);
+        self::assertSame(['--target=99.0.0'], $args);
         self::assertSame('running', (new UpdateState($this->dir . '/update-state.json'))->read()['status']);
     }
 

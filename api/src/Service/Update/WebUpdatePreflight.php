@@ -10,24 +10,32 @@ use MyPortfolio\Infrastructure\Config\RuntimePaths;
 
 /**
  * Předběžná kontrola, zda lze nativní instalaci aktualizovat z webu. Vrací kódy důvodů,
- * proč ne (prázdný seznam = lze). Příkazy spouští přes injektovatelný runner.
+ * proč ne (prázdný seznam = lze); kontroly prostředí dělá {@see BundleUpdater::preflightReasons()}.
+ * Neblokující upozornění vrací `warnings()`.
  */
 final class WebUpdatePreflight
 {
-    /** @var Closure(string, string): array{0:int,1:string} */
-    private readonly Closure $runner;
+    private readonly BundleUpdater $updater;
 
     /**
-     * @param (callable(string $command, string $cwd): array{0:int,1:string})|null $runner vrací [exit kód, výstup]
+     * @param (Closure(string $key):(string|false))|null $ini čtečka php.ini (výchozí `ini_get`)
      */
     public function __construct(
         private readonly Config $config,
         private readonly string $rootDir,
-        private readonly CommandLocator $locator = new CommandLocator(),
-        ?callable $runner = null,
+        private readonly UpdateChecker $checker,
         private readonly ?string $lockFile = null,
+        ?string $stateDir = null,
+        ?string $php = null,
+        private readonly ?Closure $ini = null,
+        ?Closure $diskFree = null,
     ) {
-        $this->runner = Closure::fromCallable($runner ?? self::exec(...));
+        $this->updater = new BundleUpdater(
+            $rootDir,
+            stateDir: $stateDir ?? RuntimePaths::base(),
+            php: $php,
+            diskFree: $diskFree,
+        );
     }
 
     public function lockFile(): string
@@ -36,7 +44,8 @@ final class WebUpdatePreflight
     }
 
     /**
-     * @return list<string>
+     * @return list<string> `docker`, `disabled`, `no_zlib`, `no_http`, `no_php_cli`, `not_writable`,
+     *                      `disk_space`, `no_bundle`, `running`
      */
     public function check(): array
     {
@@ -47,41 +56,36 @@ final class WebUpdatePreflight
             return ['disabled'];
         }
 
-        $reasons = [];
-        $root = rtrim($this->rootDir, '/\\');
-        $isGit = file_exists($root . '/.git');
-        if (!$isGit) {
-            $reasons[] = 'not_git';
-        }
-
-        $git = $this->locator->resolve('git', (string) $this->config->get('update.git_bin', ''));
-        if ($git === null) {
-            $reasons[] = 'no_git';
-        } elseif ($isGit) {
-            [$code, $out] = ($this->runner)(escapeshellarg($git) . ' status --porcelain', $root);
-            if ($code !== 0 || trim($out) !== '') {
-                $reasons[] = 'dirty_tree';
-            }
-        }
-
-        foreach (['', '/.git', '/api/vendor', '/web/node_modules', '/web/dist'] as $sub) {
-            if (!self::writable($root . $sub)) {
-                $reasons[] = 'not_writable';
-                break;
-            }
-        }
-
-        if ($this->locator->resolve('composer', (string) $this->config->get('update.composer_bin', '')) === null) {
-            $reasons[] = 'no_composer';
-        }
-        if ($this->locator->resolve('pnpm', (string) $this->config->get('update.pnpm_bin', '')) === null) {
-            $reasons[] = 'no_pnpm';
+        $reasons = $this->updater->preflightReasons();
+        $check = $this->checker->check();
+        if ($check['update_available'] && ($check['latest']['bundle'] ?? false) !== true) {
+            $reasons[] = 'no_bundle';
         }
         if ($this->isRunning()) {
             $reasons[] = 'running';
         }
 
         return $reasons;
+    }
+
+    /**
+     * Upozornění, která aktualizaci neblokují.
+     *
+     * @return list<string> `git_checkout`, `opcache_no_validate`
+     */
+    public function warnings(): array
+    {
+        $warnings = [];
+        if (file_exists(rtrim($this->rootDir, '/\\') . '/.git')) {
+            $warnings[] = 'git_checkout';
+        }
+        $ini = $this->ini ?? static fn (string $key): string|false => ini_get($key);
+        $on = static fn (string|false $v): bool => $v !== false && filter_var($v, FILTER_VALIDATE_BOOLEAN);
+        if ($on($ini('opcache.enable')) && !$on($ini('opcache.validate_timestamps'))) {
+            $warnings[] = 'opcache_no_validate';
+        }
+
+        return $warnings;
     }
 
     private function isRunning(): bool
@@ -99,34 +103,7 @@ final class WebUpdatePreflight
             flock($h, LOCK_UN);
         }
         fclose($h);
+
         return $locked;
-    }
-
-    /** Existující cesta musí být zapisovatelná, neexistující se posuzuje podle nejbližšího existujícího rodiče. */
-    private static function writable(string $path): bool
-    {
-        while (!file_exists($path)) {
-            $parent = dirname($path);
-            if ($parent === $path) {
-                return false;
-            }
-            $path = $parent;
-        }
-        return is_writable($path);
-    }
-
-    /** @return array{0:int,1:string} */
-    private static function exec(string $command, string $cwd): array
-    {
-        $out = [];
-        $code = 1;
-        $prev = getcwd();
-        if (@chdir($cwd)) {
-            exec($command . ' 2>&1', $out, $code);
-            if ($prev !== false) {
-                chdir($prev);
-            }
-        }
-        return [$code, implode("\n", $out)];
     }
 }

@@ -4,44 +4,57 @@ declare(strict_types=1);
 
 namespace MyPortfolio\Tests\Unit\Service\Update;
 
+use Closure;
 use MyPortfolio\Infrastructure\Config\Config;
-use MyPortfolio\Service\Update\CommandLocator;
+use MyPortfolio\Service\Update\UpdateChecker;
+use MyPortfolio\Service\Update\VersionService;
 use MyPortfolio\Service\Update\WebUpdatePreflight;
+use MyPortfolio\Tests\Support\FakeHttpFetcher;
 use PHPUnit\Framework\TestCase;
 
 final class WebUpdatePreflightTest extends TestCase
 {
+    private string $base;
     private string $root;
-    private string $bin;
+    private bool $bundle = true;
 
     protected function setUp(): void
     {
-        $base = sys_get_temp_dir() . '/mp-preflight-' . bin2hex(random_bytes(4));
-        $this->root = $base . '/app';
-        $this->bin = $base . '/bin';
-        foreach (['/app/.git', '/app/api/vendor', '/app/web/node_modules', '/app/web/dist', '/bin'] as $d) {
-            mkdir($base . $d, 0777, true);
+        $this->base = sys_get_temp_dir() . '/mp-preflight-' . bin2hex(random_bytes(4));
+        $this->root = $this->base . '/app';
+        foreach (['api', 'web', 'db', 'manual', 'storage/update'] as $d) {
+            mkdir($this->root . '/' . $d, 0777, true);
         }
-        foreach (['git', 'composer', 'pnpm'] as $b) {
-            file_put_contents($this->bin . '/' . $b, "#!/bin/sh\n");
-            chmod($this->bin . '/' . $b, 0755);
-        }
+        $this->bundle = true;
     }
 
     protected function tearDown(): void
     {
-        exec('chmod -R u+rwx ' . escapeshellarg(dirname($this->root)) . ' 2>/dev/null; rm -rf ' . escapeshellarg(dirname($this->root)));
+        exec('chmod -R u+rwx ' . escapeshellarg($this->base) . ' 2>/dev/null; rm -rf ' . escapeshellarg($this->base));
     }
 
     /** @param array<string,mixed> $update */
-    private function preflight(array $update = ['web_update' => true], ?string $dataDir = null, string $gitOut = '', ?string $path = null, ?string $lock = null): WebUpdatePreflight
-    {
+    private function preflight(
+        array $update = ['web_update' => true],
+        ?string $dataDir = null,
+        ?string $lock = null,
+        ?string $php = '/usr/bin/php',
+        ?Closure $ini = null,
+        ?Closure $diskFree = null,
+    ): WebUpdatePreflight {
+        $current = (new VersionService())->getCurrentVersion();
+        $newer = $current === '99.0.0' ? '99.0.1' : '99.0.0';
+        file_put_contents($this->base . '/check.json', json_encode([
+            'repo' => 'example/repo', 'checked_at' => date(\DateTimeInterface::ATOM),
+            'releases' => [['version' => $newer, 'name' => $newer, 'published_at' => null, 'url' => '', 'notes' => '',
+                'prerelease' => false, 'bundle' => $this->bundle]],
+        ]));
+        $config = new Config(['update' => $update + ['github_repo' => 'example/repo']], $dataDir);
+        $checker = new UpdateChecker(new FakeHttpFetcher([]), new VersionService(), $config, $this->base . '/check.json');
+
         return new WebUpdatePreflight(
-            new Config(['update' => $update], $dataDir),
-            $this->root,
-            new CommandLocator($path ?? $this->bin),
-            fn(string $cmd, string $cwd): array => [0, $gitOut],
-            $lock ?? dirname($this->root) . '/update.lock',
+            $config, $this->root, $checker, $lock ?? $this->base . '/update.lock', $this->root, $php, $ini,
+            $diskFree ?? static fn (string $dir): int => PHP_INT_MAX,
         );
     }
 
@@ -61,54 +74,46 @@ final class WebUpdatePreflightTest extends TestCase
         self::assertSame(['disabled'], $this->preflight([])->check());
     }
 
-    public function testNotGit(): void
-    {
-        rmdir($this->root . '/.git');
-        self::assertSame(['not_git'], $this->preflight()->check());
-    }
-
-    public function testDirtyTree(): void
-    {
-        self::assertSame(['dirty_tree'], $this->preflight(gitOut: " M foo.php\n")->check());
-    }
-
     public function testNotWritable(): void
     {
         if (function_exists('posix_geteuid') && posix_geteuid() === 0) {
             self::markTestSkipped('root obchází oprávnění');
         }
-        chmod($this->root . '/web/dist', 0555);
+        chmod($this->root . '/manual', 0555);
         self::assertSame(['not_writable'], $this->preflight()->check());
     }
 
-    public function testMissingBinaries(): void
+    public function testDiskSpace(): void
     {
-        unlink($this->bin . '/git');
-        self::assertSame(['no_git'], $this->preflight()->check());
-        unlink($this->bin . '/composer');
-        self::assertSame(['no_git', 'no_composer'], $this->preflight()->check());
-        unlink($this->bin . '/pnpm');
-        self::assertSame(['no_git', 'no_composer', 'no_pnpm'], $this->preflight()->check());
+        $low = static fn (string $dir): int => 100 * 1024 * 1024;
+        self::assertSame(['disk_space'], $this->preflight(diskFree: $low)->check());
     }
 
-    public function testConfiguredBinaryOverridesPath(): void
+    public function testNoBundle(): void
     {
-        $custom = dirname($this->root) . '/custom-pnpm';
-        file_put_contents($custom, "#!/bin/sh\n");
-        chmod($custom, 0755);
-        unlink($this->bin . '/pnpm');
-        self::assertSame([], $this->preflight(['web_update' => true, 'pnpm_bin' => $custom])->check());
-        self::assertSame(['no_pnpm'], $this->preflight(['web_update' => true, 'pnpm_bin' => '/nonexistent/pnpm'])->check());
+        $this->bundle = false;
+        self::assertSame(['no_bundle'], $this->preflight()->check());
     }
 
     public function testRunningWhenLockHeld(): void
     {
-        $lock = dirname($this->root) . '/update.lock';
+        $lock = $this->base . '/update.lock';
         $h = fopen($lock, 'c');
         self::assertTrue(flock($h, LOCK_EX));
         self::assertSame(['running'], $this->preflight(lock: $lock)->check());
         flock($h, LOCK_UN);
         fclose($h);
         self::assertSame([], $this->preflight(lock: $lock)->check());
+    }
+
+    public function testWarnings(): void
+    {
+        self::assertSame([], $this->preflight(ini: static fn (string $k) => '1')->warnings());
+
+        mkdir($this->root . '/.git');
+        $noValidate = static fn (string $k): string => $k === 'opcache.enable' ? '1' : '0';
+        self::assertSame(['git_checkout', 'opcache_no_validate'], $this->preflight(ini: $noValidate)->warnings());
+        $off = static fn (string $k): string => '0';
+        self::assertSame(['git_checkout'], $this->preflight(ini: $off)->warnings());
     }
 }

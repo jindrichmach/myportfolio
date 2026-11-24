@@ -9,7 +9,7 @@ use MyPortfolio\Infrastructure\Config\RuntimePaths;
 /**
  * Stav běhu aktualizace z webu v `storage/update-state.json`
  * (`status` idle|running|succeeded|failed, `from`, `target`, `step`, `started_at`, `finished_at`, `error_step`, `pid`).
- * Zapisuje ho runner `api/bin/self-update.php` (formát je tam duplikovaný — runner nesmí používat autoloader).
+ * Zapisuje ho `BundleUpdater` (spouští ho `api/bin/native-update.php`), čte ho stránka Systém → Aktualizace.
  */
 final class UpdateState
 {

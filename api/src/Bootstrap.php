@@ -111,6 +111,7 @@ final class Bootstrap
             \MyPortfolio\Service\Update\WebUpdatePreflight::class => fn (ContainerInterface $c) => new \MyPortfolio\Service\Update\WebUpdatePreflight(
                 $c->get(Config::class),
                 $rootDir,
+                $c->get(\MyPortfolio\Service\Update\UpdateChecker::class),
             ),
 
             // Kurzy a ceny — externí zdroje za rozhraním (v testech fake s fixtures).

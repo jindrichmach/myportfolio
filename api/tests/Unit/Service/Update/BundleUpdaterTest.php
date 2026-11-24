@@ -161,6 +161,52 @@ final class BundleUpdaterTest extends TestCase
         self::assertSame("1.0.0\n", file_get_contents($this->root . '/VERSION'));
     }
 
+    public function testDiskSpaceMustCoverThreeTimesBundleSize(): void
+    {
+        $size = 400 * 1024 * 1024;
+        $free = static fn (string $dir): int => 1000 * 1024 * 1024;
+        $result = $this->updater(size: $size, diskFree: $free)->run('1.1.0');
+
+        self::assertSame('failed', $result);
+        self::assertSame('download', $this->state->read()['error_step']);
+        self::assertNotContains(self::BLOB, $this->requested, 'balíček se nezačal stahovat');
+    }
+
+    public function testPreflightReasonsUseMaxOfMinimumAndTripleSize(): void
+    {
+        $free = static fn (string $dir): int => 600 * 1024 * 1024;
+        $u = $this->updater(diskFree: $free);
+
+        self::assertNotContains('disk_space', $u->preflightReasons());
+        self::assertContains('disk_space', $u->preflightReasons(250 * 1024 * 1024));
+    }
+
+    public function testAcceptHeaderIsJsonOnlyForApi(): void
+    {
+        $accept = new \ReflectionMethod(BundleUpdater::class, 'acceptFor');
+
+        self::assertSame('application/vnd.github+json', $accept->invoke(null, 'https://api.github.com/repos/o/r'));
+        self::assertSame('application/octet-stream', $accept->invoke(null, self::ASSET));
+        self::assertSame('application/octet-stream', $accept->invoke(null, self::BLOB));
+    }
+
+    public function testStreamGetCopiesInBlocksAndEnforcesLimit(): void
+    {
+        $src = $this->tmp . '/src.bin';
+        file_put_contents($src, str_repeat('a', 2500000));
+        $get = new \ReflectionMethod(BundleUpdater::class, 'streamGet');
+        $u = $this->updater();
+
+        $out = fopen($this->tmp . '/out.bin', 'wb');
+        $get->invoke($u, $src, $out, 3000000);
+        fclose($out);
+        self::assertSame(2500000, filesize($this->tmp . '/out.bin'));
+
+        $this->expectException(RuntimeException::class);
+        $out = fopen($this->tmp . '/out2.bin', 'wb');
+        $get->invoke($u, $src, $out, 2000000);
+    }
+
     public function testUnknownReleaseFailsAtDownload(): void
     {
         $result = $this->updater()->run('1.2.0');
@@ -251,6 +297,7 @@ final class BundleUpdaterTest extends TestCase
         ?int $size = null,
         ?Closure $runner = null,
         ?Closure $beforeMove = null,
+        ?Closure $diskFree = null,
     ): BundleUpdater {
         $sha ??= hash_file('sha256', $this->bundle);
         $assetUrl ??= self::ASSET;
@@ -295,6 +342,7 @@ final class BundleUpdaterTest extends TestCase
             $transport,
             $run,
             'php',
+            $diskFree,
         );
     }
 

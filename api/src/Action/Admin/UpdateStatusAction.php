@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * GET /api/admin/update[?refresh=1] — aktuální a nejnovější vydaná verze + údaje pro instrukce
- * k aktualizaci (typ instalace, CLI php). Cestu k aplikaci neposílá — neprozrazuje se layout serveru. Dále `web_update.reasons` (důvody, proč nejde aktualizovat z webu) a `last_run` (stav posledního běhu + konec logu).
+ * k aktualizaci (typ instalace, CLI php). Cestu k aplikaci neposílá — neprozrazuje se layout serveru. Dále `web_update.reasons` (důvody, proč nejde aktualizovat z webu), `web_update.warnings` (neblokující upozornění) a `last_run` (stav posledního běhu + konec logu).
  */
 final class UpdateStatusAction
 {
@@ -39,7 +39,7 @@ final class UpdateStatusAction
             // Docker image nastavuje MYPORTFOLIO_DATA_DIR (data mimo kód); nativní instalace ho nemá
             'install'  => $this->config->dataDir() !== null ? 'docker' : 'native',
             'php'      => PhpCliLocator::resolve() ?? 'php',
-            'web_update' => ['reasons' => $this->preflight->check()],
+            'web_update' => ['reasons' => $this->preflight->check(), 'warnings' => $this->preflight->warnings()],
             'last_run' => $this->lastRun(),
         ]);
     }
