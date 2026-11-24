@@ -5,6 +5,15 @@ verzování podle [SemVer](https://semver.org/lang/cs/).
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-11-24
+
+Oprava importu do portfolia, ve kterém instrument na účtu ještě nemá pozici.
+
+### Opraveno
+- Import: má-li instrument na účtu už pozici v jiném portfoliu, nové řádky (např. převody) se zapíšou do ní.
+  Dřív se spárované řádky zapsaly do existující pozice, ale nové do nové prázdné pozice ve zvoleném portfoliu —
+  a odchozí převod pak skončil chybou „V pozici by … nebylo dost kusů".
+
 ## [1.3.0] — 2026-11-24
 
 Import výpisu účtu ze starého Coinbase Pro a aktualizovaný návod k exportu z Coinbase.

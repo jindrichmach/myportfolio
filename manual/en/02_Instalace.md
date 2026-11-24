@@ -115,7 +115,7 @@ docker compose -f docker-compose.production.yml pull
 docker compose -f docker-compose.production.yml up -d   # migrations run when the container starts
 ```
 
-Stable versions (e.g. `1.3.0`) also get the `latest` tag. Versions with a suffix (e.g. `1.4.0-dev`) are development versions and
+Stable versions (e.g. `1.3.1`) also get the `latest` tag. Versions with a suffix (e.g. `1.4.0-dev`) are development versions and
 do not get it — for them, specify the exact image version in compose.
 
 **Local Docker build:** `git pull`, then `cmd/docker-build.sh` and `docker compose up -d`.
