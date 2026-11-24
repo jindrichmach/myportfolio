@@ -172,6 +172,8 @@ final class PortfolioApiTest extends ApiTestCase
         $delete = $this->call($this->userId, 'DELETE', '/api/transactions/' . $transfer['body']['transactions'][1]['id']);
         self::assertSame(204, $delete['status']);
         self::assertSame(0, $this->call($this->userId, 'GET', '/api/transactions?type=transfer_out')['body']['meta']['total']);
+        self::assertSame(1, $this->call($this->userId, 'GET', '/api/transactions?instrument_id=' . $ids['instrument'])['body']['meta']['total']);
+        self::assertSame(0, $this->call($this->userId, 'GET', '/api/transactions?instrument_id=' . ($ids['instrument'] + 1000000))['body']['meta']['total']);
         self::assertSame('2', $this->call($this->userId, 'GET', '/api/positions/' . $ids['position'])['body']['holding']);
     }
 

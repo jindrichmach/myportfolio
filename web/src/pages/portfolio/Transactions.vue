@@ -25,12 +25,24 @@ const portfolios = ref<Portfolio[]>([])
 const accounts = ref<Account[]>([])
 let lastQuery: GridQuery | null = null
 
-/** Filtry jdou na server: portfolio, účet, typ a období. */
+/** Instrumenty z pozic uživatele (bez duplicit, podle symbolu). */
+const instruments = computed(() => {
+  const byId = new Map<number, string>()
+  for (const p of positions.value) {
+    if (p.instrument_id === null || byId.has(p.instrument_id)) continue
+    byId.set(p.instrument_id, p.instrument_name ? `${p.instrument_symbol} — ${p.instrument_name}` : (p.instrument_symbol ?? ''))
+  }
+  return [...byId].map(([id, label]) => ({ value: String(id), label })).sort((a, b) => a.label.localeCompare(b.label))
+})
+
+/** Filtry jdou na server: portfolio, účet, instrument, typ a období. */
 const filters = computed<GridFilter[]>(() => [
   { key: 'portfolio_id', type: 'select', label: t('positions.portfolio'), allLabel: t('positions.all_portfolios'),
     options: portfolios.value.map(p => ({ value: String(p.id), label: p.name })) },
   { key: 'account_id', type: 'select', label: t('positions.account'), allLabel: t('tx.all_accounts'),
     options: accounts.value.map(a => ({ value: String(a.id), label: `${a.institution_name} / ${a.name}` })) },
+  { key: 'instrument_id', type: 'select', label: t('positions.instrument'), allLabel: t('tx.all_instruments'),
+    options: instruments.value },
   { key: 'type', type: 'select', label: t('common.type'), allLabel: t('tx.all_types'),
     options: ALL_TYPES.map(tp => ({ value: tp, label: t(`tx.types.${tp}`) })) },
   { key: 'period', type: 'daterange', label: t('grid.period') },
@@ -46,6 +58,7 @@ async function load(query: GridQuery | null = lastQuery) {
     const result = await portfolioApi.transactions({
       portfolio_id: f.portfolio_id ? Number(f.portfolio_id) : undefined,
       account_id: f.account_id ? Number(f.account_id) : undefined,
+      instrument_id: f.instrument_id ? Number(f.instrument_id) : undefined,
       type: (f.type || undefined) as TransactionType | undefined,
       from: range.from || undefined,
       to: range.to || undefined,

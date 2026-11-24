@@ -148,14 +148,14 @@ final class TransactionRepository
     }
 
     /**
-     * @param array{position_id?:?int,portfolio_id?:?int,account_id?:?int,type?:?string,from?:?string,to?:?string} $filter
+     * @param array{position_id?:?int,portfolio_id?:?int,account_id?:?int,instrument_id?:?int,type?:?string,from?:?string,to?:?string} $filter
      * @return array{data:list<array<string,mixed>>,meta:array{total:int,page:int,per_page:int,pages:int}}
      */
     public function list(int $userId, array $filter, int $page, int $perPage, string $sort): array
     {
         $where = ['t.user_id = ?'];
         $params = [$userId];
-        foreach (['position_id' => 't.position_id', 'portfolio_id' => 'pos.portfolio_id', 'account_id' => 'pos.account_id'] as $key => $col) {
+        foreach (['position_id' => 't.position_id', 'portfolio_id' => 'pos.portfolio_id', 'account_id' => 'pos.account_id', 'instrument_id' => 'pos.instrument_id'] as $key => $col) {
             if (!empty($filter[$key])) {
                 $where[] = "$col = ?";
                 $params[] = (int) $filter[$key];

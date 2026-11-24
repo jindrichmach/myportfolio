@@ -792,6 +792,7 @@
     "split_ratio": "Poměr splitu",
     "split_hint": "Např. 10 = z 1 kusu je 10, 0.5 = reverse split 2:1.",
     "all_accounts": "Všechny účty",
+    "all_instruments": "Všechny instrumenty",
     "all_types": "Všechny typy",
     "delete_confirm": "Opravdu smazat transakci?",
     "delete_transfer_confirm": "Transakce je součástí převodu — smažou se obě jeho části. Pokračovat?",

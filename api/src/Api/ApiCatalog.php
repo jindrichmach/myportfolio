@@ -249,6 +249,7 @@ final class ApiCatalog
                 self::p('position_id', 'query', 'integer', false, 'Jen pozice', 'Only position'),
                 self::p('portfolio_id', 'query', 'integer', false, 'Jen portfolio', 'Only portfolio'),
                 self::p('account_id', 'query', 'integer', false, 'Jen účet', 'Only account'),
+                self::p('instrument_id', 'query', 'integer', false, 'Jen instrument', 'Only instrument'),
                 self::p('type', 'query', 'string', false, 'Typ', 'Type', ['enum' => ['buy', 'sell', 'deposit', 'withdrawal', 'transfer_in', 'transfer_out', 'reward', 'dividend', 'interest', 'fee', 'split']]),
                 $date('from', false, 'Od (včetně)', 'From (inclusive)'),
                 $date('to', false, 'Do (včetně)', 'To (inclusive)'),

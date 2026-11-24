@@ -69,7 +69,7 @@ Převod nejde upravit; smazáním jedné části se smaže celý převod.
 
 ## 5.4 Přehled transakcí
 
-**Portfolio → Transakce** — všechny transakce s filtry **Portfolio**, **Účet**,
+**Portfolio → Transakce** — všechny transakce s filtry **Portfolio**, **Účet**, **Instrument**,
 **Typ** a **Období** (viz [1.4 Seznamy s filtry](01_Uvod.md#seznamy-s-filtry)). U každého řádku je odkaz na pozici,
 Upravit a Smazat. Transakce jedné pozice jsou i na jejím detailu, se stejným stránkováním.
 

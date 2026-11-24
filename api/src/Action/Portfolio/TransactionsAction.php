@@ -15,7 +15,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * Transakce uživatele:
- *   GET  /api/transactions   (?position_id=&portfolio_id=&account_id=&type=&from=&to=&page=&per_page=&sort=)
+ *   GET  /api/transactions   (?position_id=&portfolio_id=&account_id=&instrument_id=&type=&from=&to=&page=&per_page=&sort=)
  *   POST /api/transactions   { position_id, type, executed_at, quantity?, unit_price?, amount?, … }
  *   GET|PUT|DELETE /api/transactions/{id}   (DELETE nohy převodu smaže celý převod)
  *   POST /api/transfers      { from_position_id, to_position_id, quantity, executed_at, fee?, note? }
@@ -42,6 +42,7 @@ final class TransactionsAction
                 'position_id'  => (int) ($q['position_id'] ?? 0),
                 'portfolio_id' => (int) ($q['portfolio_id'] ?? 0),
                 'account_id'   => (int) ($q['account_id'] ?? 0),
+                'instrument_id' => (int) ($q['instrument_id'] ?? 0),
                 'type'         => in_array($type, self::TYPES, true) ? $type : null,
                 'from'         => $date($q['from'] ?? null),
                 'to'           => $date($q['to'] ?? null),

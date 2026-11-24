@@ -70,7 +70,7 @@ A transfer cannot be edited; deleting one part deletes the whole transfer.
 
 ## 5.4 Transaction overview
 
-**Portfolio → Transactions** — all transactions with the **Portfolio**, **Account**,
+**Portfolio → Transactions** — all transactions with the **Portfolio**, **Account**, **Instrument**,
 **Type** and **Period** filters (see [1.4 Lists with filters](01_Uvod.md#lists-with-filters)). Each row has a link to the position,
 Edit and Delete. The transactions of a single position are also in its detail, with the same pagination.
 

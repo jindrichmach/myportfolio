@@ -792,6 +792,7 @@
     "split_ratio": "Split ratio",
     "split_hint": "E.g. 10 = 1 unit becomes 10, 0.5 = 2:1 reverse split.",
     "all_accounts": "All accounts",
+    "all_instruments": "All instruments",
     "all_types": "All types",
     "delete_confirm": "Really delete this transaction?",
     "delete_transfer_confirm": "This transaction is part of a transfer — both legs will be deleted. Continue?",

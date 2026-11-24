@@ -132,6 +132,7 @@ export interface TransactionFilter {
   position_id?: number
   portfolio_id?: number
   account_id?: number
+  instrument_id?: number
   type?: TransactionType
   from?: string
   to?: string
